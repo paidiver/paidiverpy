@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "paidiverpy"
+version = "0.1.0"
+description = ""
+authors = ["Tobias Ferreira"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pillow = "^10.3.0"
+scikit-image = "^0.23.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
