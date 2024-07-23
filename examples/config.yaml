@@ -1,0 +1,14 @@
+general:
+  input_path: '/mnt/code/code/noc/paidiver/paidiverpy/data/jen/'
+  output_path: '/mnt/code/code/noc/paidiver/paidiverpy/data/'
+  catalog_path: '/mnt/code/code/noc/paidiver/paidiverpy/data/catalog_csv2.csv'
+  catalog_type: 'CSV' # choose between IFDO, CSV, SQL, etc
+  # file_name_pattern: '*0000*'
+  image_type: 'JPG' # choose between BMP, RAW, PNG, JPEG, TIFF, etc
+  channels: 3  # Use 1 for grayscale images, 3 for RGB images
+  autoscale: True
+  bayer_pattern: 'RG'
+position:
+  waypoint_format: 'YAML'
+  waypoint_folder_path: '/mnt/code/code/noc/paidiver/paidiverpy/data/waypoints/'
+  waypoint_data_pattern: '*.yml'

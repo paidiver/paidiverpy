@@ -1,16 +1,54 @@
-[tool.poetry]
-name = "paidiverpy"
-version = "0.1.0"
-description = ""
-authors = ["Tobias Ferreira"]
-readme = "README.md"
-
-[tool.poetry.dependencies]
-python = "^3.10"
-pillow = "^10.3.0"
-scikit-image = "^0.23.2"
-
-
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "paidiverpy"
+description = "A library to preprocess image data."
+requires-python = ">=3.10"
+keywords = ["data", "paidiver", "noc"]
+authors = [{email = "tobias.ferreira@noc.ac.uk"},{name = "Tobias Ferreira"}]
+maintainers = [{name = "Tobias Ferreira", email = "tobias.ferreira@noc.ac.uk"}]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Intended Audience :: Science/Research"
+]
+dependencies = [
+  "numpy>=2.0.0",
+  "opencv-python>=4.10.0.84",
+  "pandas>=2.2.2",
+  "pathlib>=1.0.1",
+  "pillow>=10.3.0",
+  "scikit-image>=0.24.0",
+  "scipy>=1.13.1",
+  "tqdm>=4.66.4",
+  "PyYAML>=6.0.1",
+  "mariqt>=0.1.0",
+  "openpyxl>=3.0.9",
+  "shapely>=2.0.5",
+  "geopy>=2.4.1",
+  ]
+
+dynamic = ["version"]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[tool.setuptools.dynamic]
+version = {attr = "paidiverpy.__init__.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["*"]
+exclude = ["*__pycache__*"]
+namespaces = true
+
+[project.optional-dependencies]
+test = ["pytest >= 7.2.0"]
+
+[project.urls]
+repository = "https://github.com/paidiver/paidiverpy"
+
+[project.scripts]
+paidiverpy = "cli.main:main"
