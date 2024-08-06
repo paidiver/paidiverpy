@@ -1,0 +1,33 @@
+general:
+  input_path: '/mnt/code/code/noc/paidiver/paidiverpy/examples/data/jen/'
+  output_path: '/mnt/code/code/noc/paidiver/paidiverpy/examples/data/'
+  catalog_path: '/mnt/code/code/noc/paidiver/paidiverpy/examples/catalog/catalog_jen.csv'
+  catalog_type: 'CSV'
+  append_data_to_catalog: '/mnt/code/code/noc/paidiver/paidiverpy/examples/catalog/scidata_20180610.csv'
+  image_type: 'JPG'
+  sampling_mode: 'fixed'
+  sampling_limits: 30
+  convert_autoscale: True
+  convert_bits: 8
+  convert_to: 'RGB'
+  convert_channel_selector: -1
+
+# steps:
+#   - convert:
+#       name: 'convert'
+#       autoscale: True
+#       # resize: [227, 227]
+#       crop: [[100, 2000], [100,2000]]
+#       # bayer_pattern: 'RGGB'  # Use 'RGGB' for most cameras, 'BGGR' for some cameras
+#       bits: 8  # Use 8 for 8-bit images, 16 for 16-bit images
+#       to: 'RGB'
+#       # channel_selector: -1
+
+#   - color:
+#       name: 'color_correction'
+#       mode: 'grayscale'
+  
+#   - sampling:
+#       name: 'datetime'
+#       mode: 'datetime'
+#       limits: ['2018-06-11 04:14:00', '2018-06-11 04:20:00']

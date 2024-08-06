@@ -1,6 +1,6 @@
 # Data
 data/
-
+notebooks/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -43,7 +43,6 @@ cover/
 
 # Jupyter Notebook
 .ipynb_checkpoints
-*.ipynb
 
 # IPython
 profile_default/
