@@ -3,7 +3,7 @@ general:
   output_path: '/mnt/code/code/noc/paidiver/paidiverpy/examples/data/'
   catalog_path: '/mnt/code/code/noc/paidiver/paidiverpy/examples/catalog/catalog_jen.csv'
   catalog_type: 'CSV'
-  append_data_to_catalog: '/mnt/code/code/noc/paidiver/paidiverpy/examples/catalog/scidata_20180610.csv'
+  append_data_to_catalog: '/mnt/code/code/noc/paidiver/paidiverpy/examples/data/jen/waypoints/scidata_20180610.csv'
   image_type: 'JPG'
   sampling_mode: 'fixed'
   sampling_limits: 30

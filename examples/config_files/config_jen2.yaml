@@ -3,7 +3,7 @@ general:
   output_path: '/mnt/code/code/noc/paidiver/paidiverpy/examples/data/'
   catalog_path: '/mnt/code/code/noc/paidiver/paidiverpy/examples/catalog/catalog_jen.csv'
   catalog_type: 'CSV'
-  append_data_to_catalog: '/mnt/code/code/noc/paidiver/paidiverpy/examples/catalog/scidata_20180610.csv'
+  append_data_to_catalog: '/mnt/code/code/noc/paidiver/paidiverpy/examples/data/jen/waypoints/scidata_20180610.csv'
   # file_name_pattern: '*0000*'
   image_type: 'JPG' # choose between BMP, RAW, PNG, JPEG, TIFF, etc
   sampling_mode: 'percent'  # choose 'fixed' or 'percent'

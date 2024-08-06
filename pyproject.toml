@@ -28,6 +28,7 @@ dependencies = [
   "shapely>=2.0.5",
   "geopy>=2.4.1",
   "graphviz>=0.20.3",
+  "geopandas>=1.0.1",
   ]
 
 dynamic = ["version"]
