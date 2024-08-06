@@ -289,7 +289,7 @@ class ResampleLayer(Paidiverpy):
     @staticmethod
     def plot_polygons(catalog):
         gdf = gpd.GeoDataFrame(catalog, geometry='polygon_m')
-        _, ax = plt.subplots(figsize=(30, 30))
+        _, ax = plt.subplots(figsize=(15, 15))
 
         gdf[gdf.overlap == 0].plot(ax=ax,facecolor='none', edgecolor='black', label='No Overlap')
         gdf[gdf.overlap == 1].plot(ax=ax,facecolor='none', edgecolor='red', label='Overlap')
