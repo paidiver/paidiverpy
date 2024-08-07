@@ -13,11 +13,12 @@ To install paidiverpy, follow these steps:
     cd paidiverpy
     ```
 
-2. (Optional) Create a Python virtual environment to manage dependencies separately from your other projects. Here’s an example using `pyenv`:
+2. (Optional) Create a Python virtual environment to manage dependencies separately from your other projects. Here's an example using `conda`:
 
     ```bash
-    pyenv virtualenv paidiverpy
-    pyenv local paidiverpy
+    conda init
+    conda env create -f environment.yml 
+    conda activate Paidiverpy
     ```
 
 3. Install the package:
