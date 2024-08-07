@@ -13,6 +13,7 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "Intended Audience :: Science/Research"
 ]
+
 dependencies = [
   "numpy>=2.0.0",
   "opencv-python>=4.10.0.84",
@@ -23,7 +24,7 @@ dependencies = [
   "scipy>=1.13.1",
   "tqdm>=4.66.4",
   "PyYAML>=6.0.1",
-  "mariqt>=0.1.0",
+  "mariqt>=0.6.12",
   "openpyxl>=3.0.9",
   "shapely>=2.0.5",
   "geopy>=2.4.1",
