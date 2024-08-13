@@ -105,3 +105,14 @@ Comprehensive documentation is forthcoming. Meanwhile, sample notebooks demonstr
 
 - [Create your own pipeline from a Python script](examples/example_notebooks/pipeline_generation.ipynb)
 - [Rerun pipeline steps, modify configurations, and plot test data before applying changes](examples/example_notebooks/pipeline_interaction.ipynb)
+
+
+### Command-Line Arguments
+
+You can execute the pipelines using command-line arguments. Here’s an example:
+
+```
+paidiverpy -c examples/config_files/config_1.yaml
+```
+
+This command will run the pipeline as specified in the configuration file and save the output images to the directory defined in the configuration file’s `output_path` setting.
