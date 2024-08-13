@@ -135,7 +135,14 @@ class CatalogParser:
             raise IfdoException({"Validation error": f"Duplicate filenames found: {unique_names}"})
 
     def __repr__(self) -> str:
-        return self.catalog.__repr__()
+        # Return the string representation of the catalog DataFrame
+        return repr(self.catalog)
+
+    def _repr_html_(self) -> str:
+        message = "This is a instance of 'CatalogParser'<br><br>"
+
+        # Return the HTML representation of the catalog DataFrame for Jupyter
+        return message + self.catalog._repr_html_()
 
     # def load_waypoints(self):
     #     waypoint_folder_path = Path(self.config.position.waypoint_folder_path)

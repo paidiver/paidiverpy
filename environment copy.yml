@@ -1,0 +1,34 @@
+name: Paidiverpy
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python>=3.10
+  - numpy
+  - pandas
+  - pathlib
+  - pillow
+  - scikit-image
+  - scipy
+  - tqdm
+  - pyyaml
+  - openpyxl
+  - shapely
+  - geopy
+  - graphviz
+  - geopandas
+  - exempi
+  - unzip
+  - libgl
+  - libegl
+  - libopengl
+  - ipython
+  - ipykernel
+  - pip
+  - setuptools>=42
+  - wheel
+  - pytest>=7.2.0
+
+  - pip:
+    - opencv-python>=4.10.0.84
+    - mariqt>=0.6.12
