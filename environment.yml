@@ -3,23 +3,22 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python>=3.12
-  - numpy>=2.0.0
-  - pandas>=2.2.2
-  - pathlib>=1.0.1
-  - pillow>=10.3.0
-  - scikit-image>=0.24.0
-  - scipy>=1.13.1
-  - tqdm>=4.66.4
-  - pyyaml>=6.0.1
-  - openpyxl>=3.0.9
-  - shapely>=2.0.5
-  - geopy>=2.4.1
-  - graphviz>=0.20.3
-  - geopandas>=1.0.1
-  - exempi>=2.5.0
-  - unzip>=0.1.0
-  - libglu1-mesa-glx
+  - python>=3.10
+  - numpy=2.0.1
+  - pandas=2.2.2
+  - pathlib=1.0.1
+  - pillow=10.4.0
+  - scikit-image=0.24.0
+  - scipy=1.14.0
+  - tqdm=4.66.5
+  - pyyaml=6.0.2
+  - openpyxl=3.1.5
+  - shapely=2.0.5
+  - geopy=2.2.0
+  - graphviz=12.0.0
+  - geopandas=1.0.1
+  - exempi=2.4.3
+  - unzip=6.0
   - libgl
   - libegl
   - libopengl
