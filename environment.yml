@@ -32,3 +32,5 @@ dependencies:
   - pip:
     - opencv-python>=4.10.0.84
     - mariqt>=0.6.12
+    - ipython
+
