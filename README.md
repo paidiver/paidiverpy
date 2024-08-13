@@ -4,7 +4,7 @@ Paidiverpy is a Python package designed to create pipelines for preprocessing im
 
 ## Installation
 
-To install paidiverpy, follow these steps:
+You can install pydiver locally or on a notebook server (like JASMIN or NOC Data Science Platform). The steps can be used in any of the systems. However, the second step is mandatory if you would like to run it on a notebook server.
 
 1. Clone the repository:
 
@@ -13,12 +13,19 @@ To install paidiverpy, follow these steps:
     cd paidiverpy
     ```
 
-2. (Optional) Create a Python virtual environment to manage dependencies separately from your other projects. Here's an example using `conda`:
+2. (Optional) Create a Python virtual environment to manage dependencies separately from your other projects. Here's an example using `mamba`:
 
     ```bash
-    conda init
-    conda env create -f environment.yml 
-    conda activate Paidiverpy
+    mamba init
+    mamba env create -f environment.yml
+    mamba activate Paidiverpy
+    ```
+
+If you have any problem during the activation process, pĺease try to run the following commands as well:
+
+    ```bash
+    exec bash
+    mamba activate Paidiverpy
     ```
 
 3. Install the package:

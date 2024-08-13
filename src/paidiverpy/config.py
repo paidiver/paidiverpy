@@ -117,8 +117,6 @@ class Configuration:
                         raise ValueError(f"Invalid step name: {step_name}")
 
     def add_config(self, config_name, config):
-
-
         if config_name not in config_class_mapping:
             raise ValueError(f"Invalid configuration name: {config_name}")
 
@@ -141,7 +139,11 @@ class Configuration:
         else:
             raise ValueError(f"Invalid step index: {config_index}")
 
-    def to_dict(self):
+    def export(self, output_path):
+        with open(output_path, "w", encoding='utf-8') as config_file:
+            yaml.dump(self.to_dict(yaml_convert=True), config_file, default_flow_style=False, allow_unicode=True)
+
+    def to_dict(self, yaml_convert=False):
         result = {}
         if self.general:
             result['general'] = self.general.to_dict()
@@ -155,7 +157,14 @@ class Configuration:
             result['preprocessing'] = self.preprocessing.to_dict()
         if self.convert:
             result['convert'] = self.convert.to_dict()
-        result['steps'] = [step.to_dict() for step in self.steps]
+        if yaml_convert:
+            result['steps'] = [
+                {step_info.pop('step_name'): step_info}
+                for step in self.steps
+                for step_info in [step.to_dict()]
+            ]
+        else:
+            result['steps'] = [step.to_dict() for step in self.steps]
         return result
 
     def __repr__(self):

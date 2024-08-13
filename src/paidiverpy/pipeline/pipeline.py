@@ -102,10 +102,8 @@ class Pipeline(Paidiverpy):
                 del step_instance
                 gc.collect()
 
-    def _get_step_name(self, step_class):
-        key_list = list(steps_class_types.keys())
-        val_list = list(steps_class_types.values())
-        return key_list[val_list.index(step_class)]
+    def export_config(self, output_path: str):
+        self.config.export(output_path)
 
     def add_step(self, step_name, step_class, parameters, index=None, substitute=False):
         parameters['name'] = step_name if not parameters.get('name') else parameters['name']
@@ -122,6 +120,11 @@ class Pipeline(Paidiverpy):
             self.steps.append((step_name, step_class, parameters))
             self.config.add_step(None, parameters)
 
+    def _get_step_name(self, step_class):
+        key_list = list(steps_class_types.keys())
+        val_list = list(steps_class_types.values())
+        return key_list[val_list.index(step_class)]
+
     def _convert_config_to_steps(self):
         steps = []
         raw_step = ('raw', OpenLayer, self.config.general.to_dict(convert_path=False))
@@ -130,10 +133,6 @@ class Pipeline(Paidiverpy):
             new_step = (step.name,  steps_class_types[step.step_name], step.to_dict())
             steps.append(new_step)
         return steps
-            
-    def edge_detection(self, step_order=0):
-        edge_images = ColorLayer(config=self.config).edge_detection(self.images.get_step(step_order, by_order=True))
-        self.images.add_step('edge_detection', images=edge_images)
 
     def to_html(self):
         steps_html = ""

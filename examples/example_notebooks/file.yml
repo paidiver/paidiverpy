@@ -1,0 +1,21 @@
+general:
+  append_data_to_catalog: /mnt/code/code/noc/paidiver/paidiverpy/examples/data/jen/waypoints/scidata_20180610.csv
+  catalog_path: /mnt/code/code/noc/paidiver/paidiverpy/examples/catalog/catalog_jen.csv
+  catalog_type: CSV
+  convert_autoscale: true
+  convert_bits: 8
+  convert_channel_selector: -1
+  convert_to: RGB
+  image_type: JPG
+  input_path: /mnt/code/code/noc/paidiver/paidiverpy/examples/data/jen
+  limits: 0.1
+  mode: percent
+  name: raw
+  output_path: /mnt/code/code/noc/paidiver/paidiverpy/examples/data
+  sampling_limits: 0.1
+  sampling_mode: percent
+  step_name: raw
+steps:
+- color:
+    mode: grayscale
+    name: gray
