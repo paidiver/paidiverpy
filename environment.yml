@@ -3,7 +3,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python>=3.10
+  - python>=3.12
   - numpy>=2.0.0
   - pandas>=2.2.2
   - pathlib>=1.0.1
@@ -17,11 +17,19 @@ dependencies:
   - geopy>=2.4.1
   - graphviz>=0.20.3
   - geopandas>=1.0.1
+  - exempi>=2.5.0
+  - unzip>=0.1.0
+  - libglu1-mesa-glx
+  - libgl
+  - libegl
+  - libopengl
+  - ipython
+  - ipykernel
   - pip
   - setuptools>=42
   - wheel
   - pytest>=7.2.0
 
   - pip:
-    - opencv-python-headless>=4.10.0.84
+    - opencv-python>=4.10.0.84
     - mariqt>=0.6.12
