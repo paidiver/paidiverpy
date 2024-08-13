@@ -99,10 +99,15 @@ class Paidiverpy:
         for image in self.images[step_name]:
             image.show_image()
 
-    def save_images(self, step_name, image_format='png'):
+    def save_images(self, step=None, by_order=False, image_format='png'):
+        last = False
+        if step is None:
+            last = True
+        images = self.images.get_step(step, by_order=by_order, last=last)
+        self.logger.info("Saving images from step: %s", step if not last else 'last')
         output_path = self.config.general.output_path
-        for index, image in enumerate(self.images[step_name]):
-            image.save_image(output_path, f"{index}_{step_name}", image_format=image_format)
+        for image in images:
+            image.save(output_path, image_format=image_format)
 
     def plot_trimmed_photos(self, new_catalog):
         catalog = self.get_catalog()
@@ -130,3 +135,4 @@ class Paidiverpy:
         for key, value in config_part.__dict__.items():
             steps_metadata[key] = value
         return steps_metadata
+    
