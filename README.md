@@ -4,7 +4,7 @@ Paidiverpy is a Python package designed to create pipelines for preprocessing im
 
 ## Installation
 
-You can install pydiver locally or on a notebook server (like JASMIN or NOC Data Science Platform). The steps can be used in any of the systems. However, the second step is mandatory if you would like to run it on a notebook server.
+You can install `pydiver` either locally or on a notebook server such as JASMIN or the NOC Data Science Platform (DSP). The following steps are applicable to both environments, but the second and third steps are required if you are using a notebook server.
 
 1. Clone the repository:
 
@@ -13,22 +13,27 @@ You can install pydiver locally or on a notebook server (like JASMIN or NOC Data
     cd paidiverpy
     ```
 
-2. (Optional) Create a Python virtual environment to manage dependencies separately from your other projects. Here's an example using `mamba`:
+2. (Optional) Create a Python virtual environment to manage dependencies separately from other projects. For example, using `mamba`:
 
     ```bash
     mamba init
+
+    # Command to restart the terminal. This command may not be necessary if mamba init has already been successfully run before
+    exec bash
+
     mamba env create -f environment.yml
     mamba activate Paidiverpy
     ```
 
-If you have any problem during the activation process, pĺease try to run the following commands as well:
+3. (Optional) For JASMIN or DSP users, you also need to install the environment in the Jupyter IPython kernel. Execute the following command:
 
     ```bash
-    exec bash
-    mamba activate Paidiverpy
+    python -m ipykernel install --user --name Paidiverpy
     ```
 
-3. Install the package:
+4. Install the paidiverpy package:
+
+    Finally, you can install the paidiverpy package:
 
     ```bash
     pip install -e .
@@ -60,7 +65,7 @@ These commands will download and extract the sample data into the `examples/data
 
 ### Configuration File
 
-First, create a configuration file. Three example configuration files for processing the example datasets are provided in the `example/config` directory.
+First, create a configuration file. Some example configuration files for processing the example datasets are provided in the `example/config` directory. You can use these configuration files to test the example notebooks described in the [Usage section](#usage). However, remember to change the path of `input_path`, `output_path`, and `catalog_path`.
 
 ### Catalog
 
