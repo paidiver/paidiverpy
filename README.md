@@ -47,15 +47,15 @@ To access example data, run the following commands:
 mkdir -p examples/data && cd examples/data
 
 # jen images
-wget https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/jen_images.zip
+wget https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/jen_images.zip?domain=paidiver-o.s3-ext.jc.rl.ac.uk
 unzip jen_images.zip && rm -f jen_images.zip
 
 # mojtaba images
-wget https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/mojtaba_images.zip
+wget https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/mojtaba_images.zip?domain=paidiver-o.s3-ext.jc.rl.ac.uk
 unzip mojtaba_images.zip && rm -f mojtaba_images.zip
 
 # loic images
-wget https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/loic_images.zip
+wget https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/loic_images.zip?domain=paidiver-o.s3-ext.jc.rl.ac.uk
 unzip loic_images.zip && rm -f loic_images.zip
 ```
 
