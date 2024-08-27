@@ -13,7 +13,7 @@ You can install `pydiver` either locally or on a notebook server such as JASMIN 
     git clone git@github.com:paidiver/paidiverpy.git
 
     # https
-    git clone https://github.com/paidiver/paidiverpy.git
+    # git clone https://github.com/paidiver/paidiverpy.git
 
     cd paidiverpy
     ```
