@@ -9,7 +9,12 @@ You can install `pydiver` either locally or on a notebook server such as JASMIN 
 1. Clone the repository:
 
     ```bash
+    # ssh
     git clone git@github.com:paidiver/paidiverpy.git
+
+    # https
+    git clone https://github.com/paidiver/paidiverpy.git
+
     cd paidiverpy
     ```
 
@@ -47,15 +52,15 @@ To access example data, run the following commands:
 mkdir -p examples/data && cd examples/data
 
 # jen images
-wget https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/jen_images.zip?domain=paidiver-o.s3-ext.jc.rl.ac.uk
+wget https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/jen_images.zip
 unzip jen_images.zip && rm -f jen_images.zip
 
 # mojtaba images
-wget https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/mojtaba_images.zip?domain=paidiver-o.s3-ext.jc.rl.ac.uk
+wget https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/mojtaba_images.zip
 unzip mojtaba_images.zip && rm -f mojtaba_images.zip
 
 # loic images
-wget https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/loic_images.zip?domain=paidiver-o.s3-ext.jc.rl.ac.uk
+wget https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/loic_images.zip
 unzip loic_images.zip && rm -f loic_images.zip
 ```
 
