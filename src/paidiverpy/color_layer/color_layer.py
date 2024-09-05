@@ -9,7 +9,7 @@ from skimage.filters import scharr, gaussian
 from skimage.segmentation import morphological_chan_vese, checkerboard_level_set
 from scipy import ndimage
 from skimage.filters import gaussian, unsharp_mask
-from skimage.exposure import rescale_intensity, equalize_adapthist
+from skimage.exposure import equalize_adapthist, adjust_gamma
 import pandas as pd
 from tqdm import tqdm
 from paidiverpy import Paidiverpy
@@ -108,9 +108,12 @@ class ColorLayer(Paidiverpy):
         kernel_size = tuple(kwargs.get('kernel_size')) if kwargs.get('kernel_size') and \
                                                           kwargs.get('kernel_size') != 'None' else None
         clip_limit = kwargs.get('clip_limit') or 0.01
+        gamma_value = kwargs.get('gamma_value') or 0.5
 
         if method == 'ahe':
             img_adj = equalize_adapthist(img, clip_limit=clip_limit, kernel_size=kernel_size)
+        elif method == 'gamma':
+            img_adj = adjust_gamma(img, gamma=gamma_value)
 
         # normalize into original format
         if img.dtype == 'uint8':
