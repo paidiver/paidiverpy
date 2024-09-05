@@ -12,20 +12,27 @@ general:
   sampling_limits: 0.9
 
 steps:
+#  - color:
+#      name: 'edge_detection'
+#      mode: 'edge_detection'
+#      method: 'scharr'
+#      object_type: "isolated"
+#      object_selection: 'Largest Area'
+#      blur_radius: 3
+#      threeshold: [2.5 3.0]
+#      deconv: True
+#      deconv_method: 'LR'
+#      deconv_iter: 7
+#      deconv_mask_weight: 0.5
+#      estimate_sharpness: True
+#      small_float_val: 0.0001
+
   - color:
-      name: 'edge_detection'
-      mode: 'edge_detection'
-      method: 'scharr'
-      object_type: "isolated"
-      object_selection: 'Largest Area'
-      blur_radius: 3
-      threeshold: [2.5 3.0]
-      deconv: True
-      deconv_method: 'LR'
-      deconv_iter: 7
-      deconv_mask_weight: 0.5
-      estimate_sharpness: True
-      small_float_val: 0.0001
+      name: 'contrast_adjustment'
+      mode: 'contrast_adjustment'
+      method: 'ahe' # choose between ahe (Adaptive Histogram Equalization)
+      kernel_size: None # [x, y] or None By default, ``kernel_size`` is 1/8 of ``image`` height by 1/8 of its width.
+      clip_limit: 0.01 # Clipping limit, normalized between 0 and 1 (higher values give more contrast).
 
   # - color:
   #     name: 'sharpen'
