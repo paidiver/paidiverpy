@@ -30,9 +30,10 @@ steps:
   - color:
       name: 'contrast_adjustment'
       mode: 'contrast_adjustment'
-      method: 'ahe' # choose between ahe (Adaptive Histogram Equalization)
+      method: 'gamma' # choose between ahe (Adaptive Histogram Equalization) or gamma
       kernel_size: None # [x, y] or None By default, ``kernel_size`` is 1/8 of ``image`` height by 1/8 of its width.
       clip_limit: 0.01 # Clipping limit, normalized between 0 and 1 (higher values give more contrast).
+      gamma_value: 0.8 # For greater than 1, image will be darker, For less than 1, image will be brighter.
 
   # - color:
   #     name: 'sharpen'
