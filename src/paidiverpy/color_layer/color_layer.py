@@ -9,7 +9,7 @@ from skimage.filters import scharr, gaussian
 from skimage.segmentation import morphological_chan_vese, checkerboard_level_set
 from scipy import ndimage
 from skimage.filters import gaussian, unsharp_mask
-from skimage.exposure import rescale_intensity 
+from skimage.exposure import rescale_intensity, equalize_adapthist
 import pandas as pd
 from tqdm import tqdm
 from paidiverpy import Paidiverpy
@@ -75,7 +75,7 @@ class ColorLayer(Paidiverpy):
             if mode == 'sharpen':
                 img_data = ColorLayer.sharpen(img_data, limits[0], limits[1])
             if mode == 'contrast_adjustment':
-                img_data = ColorLayer.contrast_adjustment(img_data)
+                img_data = ColorLayer.contrast_adjustment(img_data, logger=self.logger, **self.step_metadata)
             catalog = self.get_catalog(flag='all').iloc[index].to_dict()
             if features:
                 catalog.update(features)
@@ -103,8 +103,24 @@ class ColorLayer(Paidiverpy):
         return unsharp_mask(img, radius=radius, amount=amount)
     
     @staticmethod
-    def contrast_adjustment(img):
-        return rescale_intensity(img)
+    def contrast_adjustment(img, logger=None, **kwargs):
+        method = kwargs.get('method') or 'ahe'
+        kernel_size = tuple(kwargs.get('kernel_size')) if kwargs.get('kernel_size') and \
+                                                          kwargs.get('kernel_size') != 'None' else None
+        clip_limit = kwargs.get('clip_limit') or 0.01
+
+        if method == 'ahe':
+            img_adj = equalize_adapthist(img, clip_limit=clip_limit, kernel_size=kernel_size)
+
+        # normalize into original format
+        if img.dtype == 'uint8':
+            output_bits = 8
+        elif img.dtype == 'uint16':
+            output_bits = 16
+        else:
+            output_bits = 8  # default
+        img_norm = ConvertLayer.convert_bits(img_adj, output_bits, logger=logger, autoscale=True)
+        return img_norm
 
 
     @staticmethod
