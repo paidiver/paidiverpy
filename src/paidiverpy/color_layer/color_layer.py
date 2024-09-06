@@ -11,6 +11,7 @@ from scipy import ndimage
 from skimage.filters import gaussian, unsharp_mask
 from skimage.exposure import equalize_adapthist, adjust_gamma
 from skimage.restoration import rolling_ball, wiener
+from skimage.util import img_as_float
 import pandas as pd
 from tqdm import tqdm
 from paidiverpy import Paidiverpy
@@ -153,10 +154,29 @@ class ColorLayer(Paidiverpy):
                 psf = ColorLayer.gaussian_psf(size=size, sigma=sigma)
             elif psf_type == 'motion':
                 psf = ColorLayer.motion_psf(length=sigma)
+            else:
+                print("Unknown PSF type. Please use 'gaussian' or 'motion'.")
+                exit()
 
-            de_blurred = wiener(img, psf, balance=0.1)
+            img_float = img_as_float(img)
+            de_blurred_float = wiener(img_float, psf, balance=0.1)
 
-        return de_blurred
+            # shift negative values [0, 1]
+            de_blurred_float = ColorLayer.normalize_img(de_blurred_float)
+        else:
+            print("Unknown method type. Please use 'wiener'.")
+            exit()
+
+        # normalize into original format
+        if img.dtype == 'uint8':
+            output_bits = 8
+        elif img.dtype == 'uint16':
+            output_bits = 16
+        else:
+            output_bits = 8  # default
+        img_norm = ConvertLayer.convert_bits(de_blurred_float, output_bits, logger=logger, autoscale=True)
+
+        return img_norm
 
     @staticmethod
     def gaussian_psf(size, sigma):
@@ -171,6 +191,16 @@ class ColorLayer(Paidiverpy):
         psf[length // 2, :] = np.ones(length)
         psf = psf / psf.sum()
         return psf
+
+    @staticmethod
+    def normalize_img(img):
+        min_val = np.min(img)
+        max_val = np.max(img)
+
+        # Shift and scale the image to [0, 1]
+        norm_img = (img - min_val) / (max_val - min_val)
+
+        return norm_img
 
     @staticmethod
     def edge_detection(img,
