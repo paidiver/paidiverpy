@@ -10,7 +10,7 @@ from skimage.segmentation import morphological_chan_vese, checkerboard_level_set
 from scipy import ndimage
 from skimage.filters import gaussian, unsharp_mask
 from skimage.exposure import equalize_adapthist, adjust_gamma
-from skimage.restoration import rolling_ball
+from skimage.restoration import rolling_ball, wiener
 import pandas as pd
 from tqdm import tqdm
 from paidiverpy import Paidiverpy
@@ -79,6 +79,8 @@ class ColorLayer(Paidiverpy):
                 img_data = ColorLayer.contrast_adjustment(img_data, logger=self.logger, **self.step_metadata)
             if mode == 'illumination_correction':
                 img_data = ColorLayer.illumination_correction(img_data, logger=self.logger, **self.step_metadata)
+            if mode == 'deblur':
+                img_data = ColorLayer.deblur(img_data, logger=self.logger, **self.step_metadata)
             catalog = self.get_catalog(flag='all').iloc[index].to_dict()
             if features:
                 catalog.update(features)
@@ -138,6 +140,37 @@ class ColorLayer(Paidiverpy):
             img_adj = img - background
 
         return img_adj
+
+    @staticmethod
+    def deblur(img, logger=None, **kwargs):
+        method = kwargs.get('method') or 'wiener'
+        psf_type = kwargs.get('psf_type') or 'gaussian'
+        sigma = kwargs.get('sigma') or 1
+        size = kwargs.get('size') or 25
+
+        if method == 'wiener':
+            if psf_type == 'gaussian':
+                psf = ColorLayer.gaussian_psf(size=size, sigma=sigma)
+            elif psf_type == 'motion':
+                psf = ColorLayer.motion_psf(length=sigma)
+
+            de_blurred = wiener(img, psf, balance=0.1)
+
+        return de_blurred
+
+    @staticmethod
+    def gaussian_psf(size, sigma):
+        psf = np.zeros((size, size))
+        psf[size // 2, size // 2] = 1
+        psf = gaussian(psf, sigma=sigma)
+        return psf / psf.sum()
+
+    @staticmethod
+    def motion_psf(length, angle=0):
+        psf = np.zeros((length, length))
+        psf[length // 2, :] = np.ones(length)
+        psf = psf / psf.sum()
+        return psf
 
     @staticmethod
     def edge_detection(img,
