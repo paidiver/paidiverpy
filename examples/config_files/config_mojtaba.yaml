@@ -45,9 +45,10 @@ steps:
       name: 'deblur'
       mode: 'deblur'
       method: 'wiener' # choose between wiener or
-      psf_type : 'gaussian' # choose between gaussian (used to model out-of-focus blur) or motion (linear motion blur)
+      psf_type: 'gaussian' # choose between gaussian (used to model out-of-focus blur) or motion (linear motion blur)
       sigma: 1 # estimated sigma for the Gaussian (1 to 3 — for slight blur, 3 to 5 — for moderate blurring, and  5 to 10+ — for strong blur)
                # or estimated length of motion blur (5 to 10 pixels — where slight movement, 10 to 20 pixels — Moderate camera shake, and 20 to 50+ pixels — Significant motion blur)
+      size: 25 #the dimensions of the PSF
 
   # - color:
   #     name: 'sharpen'
