@@ -10,6 +10,7 @@ from skimage.segmentation import morphological_chan_vese, checkerboard_level_set
 from scipy import ndimage
 from skimage.filters import gaussian, unsharp_mask
 from skimage.exposure import equalize_adapthist, adjust_gamma
+from skimage.restoration import rolling_ball
 import pandas as pd
 from tqdm import tqdm
 from paidiverpy import Paidiverpy
@@ -76,6 +77,8 @@ class ColorLayer(Paidiverpy):
                 img_data = ColorLayer.sharpen(img_data, limits[0], limits[1])
             if mode == 'contrast_adjustment':
                 img_data = ColorLayer.contrast_adjustment(img_data, logger=self.logger, **self.step_metadata)
+            if mode == 'illumination_correction':
+                img_data = ColorLayer.illumination_correction(img_data, logger=self.logger, **self.step_metadata)
             catalog = self.get_catalog(flag='all').iloc[index].to_dict()
             if features:
                 catalog.update(features)
@@ -125,6 +128,16 @@ class ColorLayer(Paidiverpy):
         img_norm = ConvertLayer.convert_bits(img_adj, output_bits, logger=logger, autoscale=True)
         return img_norm
 
+    @staticmethod
+    def illumination_correction(img, logger=None, **kwargs):
+        method = kwargs.get('method') or 'rolling'
+        radius = kwargs.get('radius') or 100
+
+        if method == 'rolling':
+            background = rolling_ball(img, radius=radius)
+            img_adj = img - background
+
+        return img_adj
 
     @staticmethod
     def edge_detection(img,
