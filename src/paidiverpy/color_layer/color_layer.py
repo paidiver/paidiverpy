@@ -104,13 +104,13 @@ class ColorLayer(Paidiverpy):
     
     @staticmethod
     def contrast_adjustment(img, logger=None, **kwargs):
-        method = kwargs.get('method') or 'ahe'
+        method = kwargs.get('method') or 'clahe'
         kernel_size = tuple(kwargs.get('kernel_size')) if kwargs.get('kernel_size') and \
                                                           kwargs.get('kernel_size') != 'None' else None
         clip_limit = kwargs.get('clip_limit') or 0.01
         gamma_value = kwargs.get('gamma_value') or 0.5
 
-        if method == 'ahe':
+        if method == 'clahe':
             img_adj = equalize_adapthist(img, clip_limit=clip_limit, kernel_size=kernel_size)
         elif method == 'gamma':
             img_adj = adjust_gamma(img, gamma=gamma_value)
