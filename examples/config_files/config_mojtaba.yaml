@@ -27,13 +27,19 @@ steps:
 #      estimate_sharpness: True
 #      small_float_val: 0.0001
 
+#  - color:
+#      name: 'contrast_adjustment'
+#      mode: 'contrast_adjustment'
+#      method: 'gamma' # choose between clahe (Contrast Limited Adaptive Histogram Equalization (CLAHE)) or gamma
+#      kernel_size: None # [x, y] or None By default, ``kernel_size`` is 1/8 of ``image`` height by 1/8 of its width.
+#      clip_limit: 0.01 # Clipping limit, normalized between 0 and 1 (higher values give more contrast).
+#      gamma_value: 0.8 # For greater than 1, image will be darker, For less than 1, image will be brighter.
+
   - color:
-      name: 'contrast_adjustment'
-      mode: 'contrast_adjustment'
-      method: 'gamma' # choose between clahe (Contrast Limited Adaptive Histogram Equalization (CLAHE)) or gamma
-      kernel_size: None # [x, y] or None By default, ``kernel_size`` is 1/8 of ``image`` height by 1/8 of its width.
-      clip_limit: 0.01 # Clipping limit, normalized between 0 and 1 (higher values give more contrast).
-      gamma_value: 0.8 # For greater than 1, image will be darker, For less than 1, image will be brighter.
+      name: 'illumination_correction'
+      mode: 'illumination_correction'
+      method: 'rolling' # choose between rolling (rolling bar algorithm)
+      radius: 100 # default=100, Radius of a ball-shaped kernel to be rolled/translated in the image.
 
   # - color:
   #     name: 'sharpen'
