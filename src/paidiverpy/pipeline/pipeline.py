@@ -1,44 +1,38 @@
 import gc
 import json
-from paidiverpy.color_layer import ColorLayer
 from paidiverpy.open_layer import OpenLayer
-from paidiverpy.position_layer import PositionLayer
-from paidiverpy.resample_layer import ResampleLayer
-from paidiverpy.convert_layer import ConvertLayer
 from paidiverpy import Paidiverpy
+from paidiverpy.pipeline.params import STEPS_CLASS_TYPES
 
-steps_class_types = {
-    'position': PositionLayer,
-    'sampling': ResampleLayer,
-    'convert': ConvertLayer,
-    'color': ColorLayer,
-    'raw': OpenLayer
-}
 
 class Pipeline(Paidiverpy):
-    def __init__(self,
-                 config_file_path=None,
-                 steps=None,
-                 input_path=None,
-                 output_path=None,
-                 catalog_path=None,
-                 catalog_type=None,
-                 catalog=None,
-                 config=None,
-                 logger=None,
-                 raise_error=False,
-                 verbose=True):
+    def __init__(
+        self,
+        config_file_path=None,
+        steps=None,
+        input_path=None,
+        output_path=None,
+        catalog_path=None,
+        catalog_type=None,
+        catalog=None,
+        config=None,
+        logger=None,
+        raise_error=False,
+        verbose=True,
+    ):
 
-        super().__init__(config_file_path=config_file_path,
-                         input_path=input_path,
-                         output_path=output_path,
-                         catalog_path=catalog_path,
-                         catalog_type=catalog_type,
-                         catalog=catalog,
-                         config=config,
-                         logger=logger,
-                         raise_error=raise_error,
-                         verbose=verbose)
+        super().__init__(
+            config_file_path=config_file_path,
+            input_path=input_path,
+            output_path=output_path,
+            catalog_path=catalog_path,
+            catalog_type=catalog_type,
+            catalog=catalog,
+            config=config,
+            logger=logger,
+            raise_error=raise_error,
+            verbose=verbose,
+        )
 
         if steps is None:
             steps = self._convert_config_to_steps()
@@ -46,10 +40,10 @@ class Pipeline(Paidiverpy):
             for step in steps:
                 step_name = self._get_step_name(step[1])
                 name = step[0]
-                step[2]['name'] = name
-                step[2]['step_name'] = step_name
-                if name == 'raw':
-                    self.config.add_config('general', step[2])
+                step[2]["name"] = name
+                step[2]["step_name"] = step_name
+                if name == "raw":
+                    self.config.add_config("general", step[2])
                 else:
                     self.config.add_step(None, step[2])
         self.steps = steps
@@ -65,8 +59,12 @@ class Pipeline(Paidiverpy):
                 self.runned_steps = from_step
                 self.clear_steps(from_step + 1)
             else:
-                self.logger.error(f"Step {from_step} does not exist. Run the pipeline from the beginning")
-                raise ValueError(f"Step {from_step} does not exist. Run the pipeline from the beginning")
+                self.logger.error(
+                    f"Step {from_step} does not exist. Run the pipeline from the beginning"
+                )
+                raise ValueError(
+                    f"Step {from_step} does not exist. Run the pipeline from the beginning"
+                )
         for index, step in enumerate(self.steps):
             if index > self.runned_steps:
                 if len(step) == 2:
@@ -82,20 +80,33 @@ class Pipeline(Paidiverpy):
                 if isinstance(step_class, str):
                     # If step_class is a string, import the class
                     step_class = globals()[step_class]
-                self.logger.info(f"Running step {index}: {step_name} - {step_class.__name__}")
+                self.logger.info(
+                    f"Running step {index}: {step_name} - {step_class.__name__}"
+                )
                 # Instantiate the class
-                step_params['step_name'] = self._get_step_name(step_class)
-                step_params['name'] = step_name
-                if step_name == 'raw':
-                    step_instance = step_class(step_name=step_name, config=self.config, catalog=self.catalog, parameters=step_params)
+                step_params["step_name"] = self._get_step_name(step_class)
+                step_params["name"] = step_name
+                if step_name == "raw":
+                    step_instance = step_class(
+                        step_name=step_name,
+                        config=self.config,
+                        catalog=self.catalog,
+                        parameters=step_params,
+                    )
                 else:
-                    step_instance = step_class(config=self.config, catalog=self.catalog, images=self.images, step_name=step_name, parameters=step_params, config_index=index-1)
-
+                    step_instance = step_class(
+                        config=self.config,
+                        catalog=self.catalog,
+                        images=self.images,
+                        step_name=step_name,
+                        parameters=step_params,
+                        config_index=index - 1,
+                    )
                 step_instance.run()
                 self.logger.info(f"Step {index} completed")
-                if not step_params.get('test', False):
+                if not step_params.get("test", False):
                     self.images = step_instance.images
-                    self.set_catalog(step_instance.get_catalog(flag='all'))
+                    self.set_catalog(step_instance.get_catalog(flag="all"))
                     self.runned_steps = index
                     self.logger.info(f"Step {index} saved")
 
@@ -106,31 +117,33 @@ class Pipeline(Paidiverpy):
         self.config.export(output_path)
 
     def add_step(self, step_name, step_class, parameters, index=None, substitute=False):
-        parameters['name'] = step_name if not parameters.get('name') else parameters['name']
-        parameters['step_name'] = self._get_step_name(step_class)
+        parameters["name"] = (
+            step_name if not parameters.get("name") else parameters["name"]
+        )
+        parameters["step_name"] = self._get_step_name(step_class)
 
         if index:
             if substitute:
                 self.steps[index] = (step_name, step_class, parameters)
-                self.config.add_step(index-1, parameters)
+                self.config.add_step(index - 1, parameters)
             else:
                 self.steps.insert(index, (step_name, step_class, parameters))
-                self.config.add_step(index-1, parameters)
+                self.config.add_step(index - 1, parameters)
         else:
             self.steps.append((step_name, step_class, parameters))
             self.config.add_step(None, parameters)
 
     def _get_step_name(self, step_class):
-        key_list = list(steps_class_types.keys())
-        val_list = list(steps_class_types.values())
+        key_list = list(STEPS_CLASS_TYPES.keys())
+        val_list = list(STEPS_CLASS_TYPES.values())
         return key_list[val_list.index(step_class)]
 
     def _convert_config_to_steps(self):
         steps = []
-        raw_step = ('raw', OpenLayer, self.config.general.to_dict(convert_path=False))
+        raw_step = ("raw", OpenLayer, self.config.general.to_dict(convert_path=False))
         steps.append(raw_step)
         for _, step in enumerate(self.config.steps):
-            new_step = (step.name,  steps_class_types[step.step_name], step.to_dict())
+            new_step = (step.name, STEPS_CLASS_TYPES[step.step_name], step.to_dict())
             steps.append(new_step)
         return steps
 
@@ -160,7 +173,7 @@ class Pipeline(Paidiverpy):
                     <pre>{json.dumps(step.to_dict(), indent=4)}</pre>
                 </div>
             """
-        
+
         # General step HTML
         general_html = f"""
         <div id="general" title="Click to see more information" class="square" style="float:left; cursor: pointer; padding: 10px; width: max-content; height: 80px; margin: 10px; border: 1px solid #000; text-align: center; line-height: 80px;" onclick="showParameters('general')">
@@ -217,4 +230,3 @@ class Pipeline(Paidiverpy):
 
     def _repr_html_(self):
         return self.to_html()
-
