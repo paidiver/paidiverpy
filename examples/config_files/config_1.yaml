@@ -5,12 +5,18 @@ general:
   catalog_type: 'CSV'
   append_data_to_catalog: '/mnt/code/code/noc/paidiver/paidiverpy/examples/data/jen/waypoints/scidata_20180610.csv'
   image_type: 'JPG'
-  sampling_mode: 'fixed'
-  sampling_limits: 30
-  convert_autoscale: True
-  convert_bits: 8
-  convert_to: 'RGB'
-  convert_channel_selector: -1
+  sampling:
+    - mode: 'percent'
+      params:
+        value: 0.1
+  convert:
+    - mode: 'bits'
+      params:
+        autoscale: True
+    - mode: 'to'
+      params:
+        to: 'RGB'
+        channel_selector: -1
 
 # steps:
 #   - convert:
