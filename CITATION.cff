@@ -1,0 +1,15 @@
+# YAML 1.2
+---
+cff-version: "1.2.0"
+title: "paidiverpy"
+authors:
+  - family-names: Ferreira
+    given-names: Tobias
+    orcid: "https://orcid.org/0000-0000-0000-0000"
+date-released: 2024-09-03
+version: "0.1.0"
+repository-code: "https://github.com/paidiver/paidiverpy"
+keywords:
+  - "dessert"
+  - "sweet"
+message: "If you use this software, please cite it using these metadata."
