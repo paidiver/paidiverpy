@@ -60,7 +60,8 @@ class Pipeline(Paidiverpy):
                 self.clear_steps(from_step + 1)
             else:
                 self.logger.warning(
-                    f"Step {from_step} does not exist. Run the pipeline from the beginning"
+                    "Step %s does not exist. Run the pipeline from the beginning",
+                    from_step,
                 )
         for index, step in enumerate(self.steps):
             if index > self.runned_steps:
