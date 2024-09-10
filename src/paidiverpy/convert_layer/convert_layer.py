@@ -81,6 +81,7 @@ class ConvertLayer(Paidiverpy):
         for index, img in tqdm(
             enumerate(images), total=len(images), desc="Processing Images"
         ):
+<<<<<<< HEAD
             method = getattr(self, method_name)
             img_data = method(img, params=params)
             image_metadata = self.get_catalog(flag="all").iloc[index].to_dict()
@@ -91,6 +92,14 @@ class ConvertLayer(Paidiverpy):
             img = ImageLayer(
                 image=img_data,
                 image_metadata=image_metadata,
+=======
+            img_data = img.image
+            method = getattr(self, method_name)
+            img_data = method(img_data, params=params)
+            img = ImageLayer(
+                image=img_data,
+                image_metadata=self.get_catalog(flag="all").iloc[index].to_dict(),
+>>>>>>> 0b6637d5876468601d52a016d92742984755764b
                 step_order=self.images.get_last_step_order(),
                 step_name=self.step_name,
             )
@@ -110,13 +119,21 @@ class ConvertLayer(Paidiverpy):
                 return self.images
 
     def convert_bits(self, img, params: BitParams = BitParams()):
+<<<<<<< HEAD
         image_data = img.image
+=======
+>>>>>>> 0b6637d5876468601d52a016d92742984755764b
         if params.autoscale:
             try:
                 result = np.float32(image_data) - np.min(image_data)
                 result[result < 0.0] = 0.0
+<<<<<<< HEAD
                 if np.max(image_data) != 0:
                     result = result / np.max(image_data)
+=======
+                if np.max(img) != 0:
+                    result = result / np.max(img)
+>>>>>>> 0b6637d5876468601d52a016d92742984755764b
                 if params.output_bits == 8:
                     img_bit = np.uint8(255 * result)
                 elif params.output_bits == 16:
@@ -138,6 +155,7 @@ class ConvertLayer(Paidiverpy):
         return img_bit
 
     def channel_convert(self, img, params: ToParams = ToParams()):
+<<<<<<< HEAD
         image_data = img.image
         try:
             if params.to == "RGB":
@@ -146,6 +164,15 @@ class ConvertLayer(Paidiverpy):
             elif params.to == "gray":
                 if params.channel_selector in [0, 1, 2]:
                     image_data = image_data[:, :, params.channel_selector]
+=======
+        try:
+            if params.to == "RGB":
+                if len(img.shape) != 3 and img.shape[2] != 3:
+                    img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
+            elif params.to == "gray":
+                if params.channel_selector in [0, 1, 2]:
+                    img = img[:, :, params.channel_selector]
+>>>>>>> 0b6637d5876468601d52a016d92742984755764b
                 else:
                     image_data = cv2.cvtColor(image_data, cv2.COLOR_BGR2GRAY)
         except Exception as e:
@@ -154,7 +181,11 @@ class ConvertLayer(Paidiverpy):
                 raise ValueError(
                     f"Failed to convert the image to {params.to}: {str(e)}"
                 ) from e
+<<<<<<< HEAD
         return image_data
+=======
+        return img
+>>>>>>> 0b6637d5876468601d52a016d92742984755764b
 
     def get_bayer_pattern(self, img, params: BayerPatternParams = BayerPatternParams()):
         # Determine the number of channels in the input image
@@ -181,7 +212,11 @@ class ConvertLayer(Paidiverpy):
                     raise ValueError(
                         "Invalid Bayer pattern for a single-channel image. Expected 'RG', 'BG', 'GR', or 'GB'."
                     )
+<<<<<<< HEAD
                 return image_data
+=======
+                return img
+>>>>>>> 0b6637d5876468601d52a016d92742984755764b
         elif img_channels in [3, 4]:
             self.logger.warning(
                 "Unsupported number of channels in the image: %s", img_channels
@@ -190,13 +225,18 @@ class ConvertLayer(Paidiverpy):
                 raise ValueError(
                     "Invalid Bayer pattern for a single-channel image. Expected 'RG', 'BG', 'GR', or 'GB'."
                 )
+<<<<<<< HEAD
             return image_data
+=======
+            return img
+>>>>>>> 0b6637d5876468601d52a016d92742984755764b
         else:
             self.logger.warning(
                 "Unsupported number of channels in the image: %s", img_channels
             )
             if self.raise_error:
                 raise ValueError("Unsupported number of channels in the image.")
+<<<<<<< HEAD
             return image_data
         return cv2.cvtColor(image_data, bayer_pattern)
 
@@ -205,6 +245,15 @@ class ConvertLayer(Paidiverpy):
         try:
             return cv2.normalize(
                 image_data, image_data, params.min, params.max, cv2.NORM_MINMAX, dtype=cv2.CV_32F
+=======
+            return img
+        return cv2.cvtColor(img, bayer_pattern)
+
+    def normalize_image(self, img, params: NormalizeParams = NormalizeParams()):
+        try:
+            return cv2.normalize(
+                img, img, params.min, params.max, cv2.NORM_MINMAX, dtype=cv2.CV_32F
+>>>>>>> 0b6637d5876468601d52a016d92742984755764b
             )
         except Exception as e:
             self.logger.error(f"Failed to normalize the image: {str(e)}")
@@ -213,10 +262,16 @@ class ConvertLayer(Paidiverpy):
         return image_data
 
     def resize(self, img, params: ResizeParams = ResizeParams()):
+<<<<<<< HEAD
         image_data = img.image
         try:
             return cv2.resize(
                 image_data, (params.min, params.max), interpolation=cv2.INTER_LANCZOS4
+=======
+        try:
+            return cv2.resize(
+                img, (params.min, params.max), interpolation=cv2.INTER_LANCZOS4
+>>>>>>> 0b6637d5876468601d52a016d92742984755764b
             )
         except Exception as e:
             self.logger.error(f"Failed to resize the image: {str(e)}")
@@ -225,15 +280,24 @@ class ConvertLayer(Paidiverpy):
         return image_data
 
     def crop_images(self, img, params: CropParams = CropParams()):
+<<<<<<< HEAD
         image_data = img.image
+=======
+>>>>>>> 0b6637d5876468601d52a016d92742984755764b
         try:
             start_x, end_x = params.x[0]
             start_y, end_y = params.y[1]
             if (
                 start_x < 0
+<<<<<<< HEAD
                 or end_x > image_data.shape[0]
                 or start_y < 0
                 or end_y > image_data.shape[1]
+=======
+                or end_x > img.shape[0]
+                or start_y < 0
+                or end_y > img.shape[1]
+>>>>>>> 0b6637d5876468601d52a016d92742984755764b
             ):
                 raise ValueError("Crop range is out of bounds.")
             return image_data[start_x:end_x, start_y:end_y, :]
