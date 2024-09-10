@@ -1,9 +1,14 @@
+""" Configuration module.
+"""
+
 import yaml
 from pathlib import Path
 import json
 
 
 class DynamicConfig:
+    """Dynamic configuration class."""
+
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             if key.endswith("_path"):
@@ -11,10 +16,19 @@ class DynamicConfig:
             setattr(self, key, value)
 
     def update(self, **kwargs):
+        """Update the configuration."""
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def to_dict(self, convert_path=True):
+    def to_dict(self, convert_path: bool = True) -> dict:
+        """Convert the configuration to a dictionary.
+
+        Args:
+            convert_path (bool, optional): Whether to convert the path to a string. Defaults to True.
+
+        Returns:
+            dict: The configuration as a dictionary.
+        """
         result = {}
         for key, value in self.__dict__.items():
             if isinstance(value, Path):
@@ -30,26 +44,38 @@ class DynamicConfig:
 
 
 class GeneralConfig(DynamicConfig):
+    """General configuration class."""
+
     pass
 
 
 class PositionConfig(DynamicConfig):
+    """Position configuration class."""
+
     pass
 
 
 class ConvertConfig(DynamicConfig):
+    """Convert configuration class."""
+
     pass
 
 
 class ColorConfig(DynamicConfig):
+    """Color configuration class."""
+
     pass
 
 
 class SamplingConfig(DynamicConfig):
+    """Sampling configuration class."""
+
     pass
 
 
 class EdgeConfig(DynamicConfig):
+    """Edge configuration class."""
+
     pass
 
 
@@ -64,7 +90,20 @@ config_class_mapping = {
 
 
 class Configuration:
-    def __init__(self, config_file_path=None, input_path=None, output_path=None):
+    """Configuration class.
+
+    Args:
+        config_file_path (str, optional): The configuration file path. Defaults to None.
+        input_path (str, optional): The input path. Defaults to None.
+        output_path (str, optional): The output path. Defaults to None.
+    """
+
+    def __init__(
+        self,
+        config_file_path: str = None,
+        input_path: str = None,
+        output_path: str = None,
+    ):
         self.general = None
         self.position = None
         self.sampling = None
@@ -79,7 +118,16 @@ class Configuration:
             self._validate_paths(input_path, output_path)
             self.general = GeneralConfig(input_path=input_path, output_path=output_path)
 
-    def _load_config_from_file(self, config_file_path):
+    def _load_config_from_file(self, config_file_path: str):
+        """Load the configuration from a file.
+
+        Args:
+            config_file_path (str): The configuration file path.
+
+        Raises:
+            FileNotFoundError: file not found.
+            yaml.YAMLError: yaml error.
+        """
         try:
             with open(config_file_path, "r", encoding="utf-8") as config_file:
                 config_data = yaml.safe_load(config_file)
@@ -165,7 +213,15 @@ class Configuration:
                 allow_unicode=True,
             )
 
-    def to_dict(self, yaml_convert=False):
+    def to_dict(self, yaml_convert: bool = False):
+        """Convert the configuration to a dictionary.
+
+        Args:
+            yaml_convert (bool, optional): Whether to convert the configuration to a yaml format. Defaults to False.
+
+        Returns:
+            dict: The configuration as a dictionary.
+        """
         result = {}
         if self.general:
             result["general"] = self.general.to_dict()
@@ -189,7 +245,12 @@ class Configuration:
             result["steps"] = [step.to_dict() for step in self.steps]
         return result
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        """Return the string representation of the configuration.
+
+        Returns:
+            str: The string representation of the configuration.
+        """
         return json.dumps(self.to_dict(), indent=4)
 
     # def to_html(self):
