@@ -2,8 +2,15 @@ import logging
 import sys
 
 
-def initialise_logging(verbose=False):
-    """Initialise logging configuration."""
+def initialise_logging(verbose=False) -> logging.Logger:
+    """Initialise logging configuration.
+
+    Args:
+        verbose (bool): Whether to print verbose messages.
+
+    Returns:
+        logging.Logger: The logger object
+    """
     logging_level = logging.INFO if verbose else logging.ERROR
     logging.basicConfig(
         stream=sys.stdout,
