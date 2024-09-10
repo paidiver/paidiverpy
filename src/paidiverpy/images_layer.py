@@ -1,5 +1,6 @@
 """ Module to handle images and metadata for each step in the pipeline
 """
+
 from typing import List
 from io import BytesIO
 
@@ -12,11 +13,12 @@ import numpy as np
 
 from paidiverpy.image_layer import ImageLayer
 
+
 class ImagesLayer:
-    """ Class to handle images and metadata for each step in the pipeline
-    
+    """Class to handle images and metadata for each step in the pipeline
+
     Args:
-        output_path (str): Path to save the images. Default is None.   
+        output_path (str): Path to save the images. Default is None.
     """
 
     def __init__(self, output_path=None):
@@ -28,20 +30,26 @@ class ImagesLayer:
 
     def get_all_filenames(self, step_order: str = None):
         """Get all filenames for a given step order
-        
+
         Args:
             step_order (int): The step order to get the filenames from. Default is None.
-        
+
         Returns:
             list: A list of filenames
         """
-        
+
         return [
             image.get_filename()
             for image in self.images[step_order if step_order else -1]
         ]
 
-    def add_step(self, step: tuple, images: List[ImageLayer]=None, catalog: pd.DataFrame = None, step_metadata: List[dict]=None):
+    def add_step(
+        self,
+        step: tuple,
+        images: List[ImageLayer] = None,
+        catalog: pd.DataFrame = None,
+        step_metadata: List[dict] = None,
+    ):
         """Add a step to the pipeline
 
         Args:
@@ -65,7 +73,7 @@ class ImagesLayer:
         self.steps.append(step)
 
     def remove_steps_by_name(self, step: tuple):
-        """ Remove steps by name
+        """Remove steps by name
 
         Args:
             step (tuple): The step to remove
@@ -79,7 +87,7 @@ class ImagesLayer:
         return index
 
     def remove_steps_by_order(self, step_order: int):
-        """ Remove steps by order
+        """Remove steps by order
 
         Args:
             step_order (int): The step order to remove
@@ -88,15 +96,15 @@ class ImagesLayer:
         self.images = self.images[:step_order]
 
     def get_last_step_order(self):
-        """ Get the last step order
+        """Get the last step order
 
         Returns:
             int: The last step order
         """
         return len(self.steps) - 1
 
-    def get_step(self, step: tuple=None, by_order: bool=False, last: bool=False):
-        """ Get a step by name or order
+    def get_step(self, step: tuple = None, by_order: bool = False, last: bool = False):
+        """Get a step by name or order
 
         Args:
             step (tuple, optional): The step to get. Defaults to None.
@@ -114,8 +122,8 @@ class ImagesLayer:
             index = self.steps.index(step)
         return self.images[index]
 
-    def show(self, index: int=10):
-        """ Show the images in the pipeline
+    def show(self, index: int = 10):
+        """Show the images in the pipeline
 
         Args:
             index (int, optional): The index of the image to show. Defaults to 10.
@@ -127,8 +135,10 @@ class ImagesLayer:
                 int(f"{len(self.images)}1{idx+1}"), title=self.steps[idx]
             )
 
-    def save(self, output_path: str=None, filename: str=None, image_format: str="png"):
-        """ Save the images in the pipeline
+    def save(
+        self, output_path: str = None, filename: str = None, image_format: str = "png"
+    ):
+        """Save the images in the pipeline
 
         Args:
             output_path (str, optional): The path to save the images. Defaults to None.
@@ -145,7 +155,7 @@ class ImagesLayer:
         # self.logger.info("Image saved to %s", img_path)
 
     def __repr__(self) -> str:
-        """ Return the string representation of the object
+        """Return the string representation of the object
 
         Returns:
             str: The string representation of the object
@@ -158,15 +168,15 @@ class ImagesLayer:
         return repr_str
 
     def _repr_html_(self) -> str:
-        """ Return the HTML representation of the object
+        """Return the HTML representation of the object
 
         Returns:
             str: The HTML representation of the object
         """
         return self._generate_html(self.max_images)
 
-    def __call__(self, max_images: int=None) -> HTML:
-        """ Call the object
+    def __call__(self, max_images: int = None) -> HTML:
+        """Call the object
 
         Args:
             max_images (int, optional): The maximum number of images to show. Defaults to None.
@@ -179,11 +189,11 @@ class ImagesLayer:
         return HTML(self._generate_html(max_images))
 
     def _generate_html(self, max_images: int) -> str:
-        """ Generate the HTML representation of the object
-        
+        """Generate the HTML representation of the object
+
         Args:
             max_images (int): The maximum number of images to show
-        
+
         Returns:
             str: The HTML representation of the object
         """
@@ -294,9 +304,8 @@ class ImagesLayer:
         return html
 
     @staticmethod
-    def numpy_array_to_base64(image_array: np.ndarray,
-                              size: tuple=(150, 150)) -> str:
-        """ Convert a numpy array to a base64 image
+    def numpy_array_to_base64(image_array: np.ndarray, size: tuple = (150, 150)) -> str:
+        """Convert a numpy array to a base64 image
 
         Args:
             image_array (np.ndarray): The image array
