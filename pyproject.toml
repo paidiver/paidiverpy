@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=42", "wheel"]
+requires = ["setuptools>=64.0.0", "setuptools-scm", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -30,13 +30,47 @@ dependencies = [
   "geopy>=2.4.1",
   "graphviz>=0.20.3",
   "geopandas>=1.0.1",
+  "panel>=0.12.1",
   ]
+license = {file = "LICENSE"}
+version = "0.1.0"
+readme = {file = "README.md", content-type = "text/markdown"}
 
-dynamic = ["version"]
+[project.optional-dependencies]
+dev = [
+    "build",  # build is not only used in publishing (below), but also in the template's test suite
+    "bump-my-version",
+    "coverage [toml]",
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "sphinx",
+    "sphinx_rtd_theme",
+    "sphinx-autoapi",
+    "tox",
+    "myst_parser",
+]
+docs = [
+    "sphinx",
+    "sphinx_rtd_theme",
+    "sphinx-autoapi",
+    "myst_parser",
+]
+publishing = [
+    "build",
+    "twine",
+    "wheel",
+]
+test = ["pytest >= 7.2.0"]
 
-[project.readme]
-file = "README.md"
-content-type = "text/markdown"
+[project.urls]
+Repository = "https://github.com/paidiver/paidiverpy"
+Issues = "https://github.com/paidiver/paidiverpy/issues"
+Changelog = "https://github.com/paidiver/paidiverpy/CHANGELOG.md"
+ReadTheDocs = "https://paidiverpy.readthedocs.io"
+
+[project.scripts]
+paidiverpy = "cli.main:main"
 
 [tool.setuptools.dynamic]
 version = {attr = "paidiverpy.__init__.__version__"}
@@ -47,11 +81,76 @@ include = ["*"]
 exclude = ["*__pycache__*"]
 namespaces = true
 
-[project.optional-dependencies]
-test = ["pytest >= 7.2.0"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
-[project.urls]
-repository = "https://github.com/paidiver/paidiverpy"
+[tool.coverage.run]
+branch = true
+source = ["src/paidiverpy"]
+command_line = "-m pytest"
 
-[project.scripts]
-paidiverpy = "cli.main:main"
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+envlist = py38,py39,py310,py311,py312
+skip_missing_interpreters = true
+[testenv]
+commands = pytest
+extras = dev
+"""
+
+[tool.ruff]
+line-length = 120
+output-format = "concise"
+extend-exclude = ["docs"]
+
+[tool.ruff.lint]
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+# Enable Pyflakes `E` and `F` codes by default.
+select = ["ALL"]
+ignore = [
+    "ANN101", # Missing type annotation for `self` in method
+    "ANN102", # Missing type annotation for `cls` in classmethod
+    "ANN204", # Missing return type annotation for special (dunder) method
+    "FBT",    # Using boolean function arguments
+    "TD",     # TODOs
+    "FIX001", # Resolve FIXMEs
+    "FIX002", # Resolve TODOs
+    "B028",   # No explicit `stacklevel` keyword argument found in warning
+    # No docstrings required in the following cases
+    "D100", # Missing module docstring
+    "D104", # Missing public package docstring
+    "D105", # Missing docstring in magic method
+    "D107", # Missing docstring in `__init__`
+]
+pydocstyle.convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+# Tests can ignore a few extra rules
+"tests/**.py" = [
+    "ANN201", # Missing return type annotation for public function
+    "PT011",  # Missing `match` parameter in `pytest.raises()`
+    "S101",   # Use of assert is detected
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["paidiverpy"]
+force-single-line = true
+no-lines-before = ["future","standard-library","third-party","first-party","local-folder"]
+
+[tool.bumpversion]
+current_version = "0.1.0"
+
+[[tool.bumpversion.files]]
+filename = "src/paidiverpy/__init__.py"
+
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
+
+[[tool.bumpversion.files]]
+filename = "CITATION.cff"
+
+[[tool.bumpversion.files]]
+filename = "docs/conf.py"

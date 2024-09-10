@@ -6,7 +6,7 @@ import json
 class DynamicConfig:
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
-            if key.endswith('_path'):
+            if key.endswith("_path"):
                 value = Path(value)
             setattr(self, key, value)
 
@@ -28,31 +28,38 @@ class DynamicConfig:
                 result[key] = value
         return result
 
+
 class GeneralConfig(DynamicConfig):
     pass
+
 
 class PositionConfig(DynamicConfig):
     pass
 
+
 class ConvertConfig(DynamicConfig):
     pass
+
 
 class ColorConfig(DynamicConfig):
     pass
 
+
 class SamplingConfig(DynamicConfig):
     pass
+
 
 class EdgeConfig(DynamicConfig):
     pass
 
+
 config_class_mapping = {
-    'general': GeneralConfig,
-    'position': PositionConfig,
-    'sampling': SamplingConfig,
-    'edge': EdgeConfig,
-    'color': ColorConfig,
-    'convert': ConvertConfig
+    "general": GeneralConfig,
+    "position": PositionConfig,
+    "sampling": SamplingConfig,
+    "edge": EdgeConfig,
+    "color": ColorConfig,
+    "convert": ConvertConfig,
 }
 
 
@@ -74,42 +81,48 @@ class Configuration:
 
     def _load_config_from_file(self, config_file_path):
         try:
-            with open(config_file_path, "r", encoding='utf-8') as config_file:
+            with open(config_file_path, "r", encoding="utf-8") as config_file:
                 config_data = yaml.safe_load(config_file)
         except FileNotFoundError as e:
-            raise FileNotFoundError(f"Failed to load the configuration file: {str(e)}") from e
+            raise FileNotFoundError(
+                f"Failed to load the configuration file: {str(e)}"
+            ) from e
         except yaml.YAMLError as e:
-            raise yaml.YAMLError(f"Failed to load the configuration file: {str(e)}") from e
+            raise yaml.YAMLError(
+                f"Failed to load the configuration file: {str(e)}"
+            ) from e
 
         self.general = self._validate_general_config(config_data)
         self._load_steps(config_data)
 
     def _validate_general_config(self, config_data):
-        if 'general' not in config_data:
+        if "general" not in config_data:
             raise ValueError("General configuration is not specified.")
-        if not config_data['general']:
+        if not config_data["general"]:
             raise ValueError("General configuration is empty.")
-        if not config_data['general'].get('input_path') or not config_data['general'].get('output_path'):
+        if not config_data["general"].get("input_path") or not config_data[
+            "general"
+        ].get("output_path"):
             raise ValueError("Input and output paths are not specified.")
-        name = config_data['general'].get('name')
+        name = config_data["general"].get("name")
         if not name:
-            config_data['general']['name'] = "raw"
-        config_data['general']['step_name'] = "Open"
-        return GeneralConfig(**config_data['general'])
+            config_data["general"]["name"] = "raw"
+        config_data["general"]["step_name"] = "Open"
+        return GeneralConfig(**config_data["general"])
 
     def _validate_paths(self, input_path, output_path):
         if not input_path or not output_path:
             raise ValueError("Input and output paths are not specified.")
 
     def _load_steps(self, config_data):
-        if 'steps' in config_data and config_data['steps']:
-            for step_order, step in enumerate(config_data['steps']):
+        if "steps" in config_data and config_data["steps"]:
+            for step_order, step in enumerate(config_data["steps"]):
                 for step_name, step_config in step.items():
                     if step_name in config_class_mapping:
-                        name = step_config.get('name')
+                        name = step_config.get("name")
                         if not name:
-                            step_config['name'] = f"{step_name}_{step_order + 1}"
-                        step_config['step_name'] = step_name
+                            step_config["name"] = f"{step_name}_{step_order + 1}"
+                        step_config["step_name"] = step_name
                         step_class = config_class_mapping[step_name]
                         step_instance = step_class(**step_config)
                         self.steps.append(step_instance)
@@ -128,10 +141,14 @@ class Configuration:
 
     def add_step(self, config_index, parameters):
         if len(self.steps) == 0:
-            self.steps.append(config_class_mapping[parameters['step_name']](**parameters))
+            self.steps.append(
+                config_class_mapping[parameters["step_name"]](**parameters)
+            )
             return len(self.steps) - 1
         if config_index is None:
-            self.steps.append(config_class_mapping[parameters['step_name']](**parameters))
+            self.steps.append(
+                config_class_mapping[parameters["step_name"]](**parameters)
+            )
             return len(self.steps) - 1
         elif config_index < len(self.steps):
             self.steps[config_index].update(**parameters)
@@ -140,37 +157,40 @@ class Configuration:
             raise ValueError(f"Invalid step index: {config_index}")
 
     def export(self, output_path):
-        with open(output_path, "w", encoding='utf-8') as config_file:
-            yaml.dump(self.to_dict(yaml_convert=True), config_file, default_flow_style=False, allow_unicode=True)
+        with open(output_path, "w", encoding="utf-8") as config_file:
+            yaml.dump(
+                self.to_dict(yaml_convert=True),
+                config_file,
+                default_flow_style=False,
+                allow_unicode=True,
+            )
 
     def to_dict(self, yaml_convert=False):
         result = {}
         if self.general:
-            result['general'] = self.general.to_dict()
+            result["general"] = self.general.to_dict()
         if self.position:
-            result['position'] = self.position.to_dict()
+            result["position"] = self.position.to_dict()
         if self.sampling:
-            result['sampling'] = self.sampling.to_dict()
+            result["sampling"] = self.sampling.to_dict()
         if self.edge:
-            result['edge'] = self.edge.to_dict()
+            result["edge"] = self.edge.to_dict()
         if self.preprocessing:
-            result['preprocessing'] = self.preprocessing.to_dict()
+            result["preprocessing"] = self.preprocessing.to_dict()
         if self.convert:
-            result['convert'] = self.convert.to_dict()
+            result["convert"] = self.convert.to_dict()
         if yaml_convert:
-            result['steps'] = [
-                {step_info.pop('step_name'): step_info}
+            result["steps"] = [
+                {step_info.pop("step_name"): step_info}
                 for step in self.steps
                 for step_info in [step.to_dict()]
             ]
         else:
-            result['steps'] = [step.to_dict() for step in self.steps]
+            result["steps"] = [step.to_dict() for step in self.steps]
         return result
 
     def __repr__(self):
         return json.dumps(self.to_dict(), indent=4)
-
-
 
     # def to_html(self):
     #     dot = graphviz.Digraph(comment='Configuration')
@@ -185,8 +205,6 @@ class Configuration:
     #     dot.attr(rankdir='LR')  # Left to right layout
 
     #     return HTML(dot.pipe('svg'))
-
-
 
     # def to_html(self):
     #     steps_html = ""
@@ -205,7 +223,7 @@ class Configuration:
     #                     &#10132;
     #                 </div>
     #             """
-        
+
     #     html = f"""
     #     <div style="display: flex; flex-wrap: wrap; align-items: center;">
     #         <div style="float:left; width: 100px; height: 80px; margin: 10px; border: 1px solid #000; text-align: center; line-height: 80px;">
