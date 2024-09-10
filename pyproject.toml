@@ -30,7 +30,8 @@ dependencies = [
   "geopy>=2.4.1",
   "graphviz>=0.20.3",
   "geopandas>=1.0.1",
-  "panel>=0.12.1",
+  "panel>=1.4.5",
+  "dask-image==2024.5.3",
   ]
 license = {file = "LICENSE"}
 version = "0.1.0"
