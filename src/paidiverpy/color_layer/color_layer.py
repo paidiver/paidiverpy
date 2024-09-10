@@ -212,7 +212,11 @@ class ColorLayer(Paidiverpy):
         """
         image_data = img.image
         try:
-            image_data = unsharp_mask(image_data.image, radius=params.alpha, amount=params.beta)
+            image_data = unsharp_mask(image_data, radius=params.alpha, amount=params.beta)
+            bits = img.image_metadata.get("bit_depth") or 8
+            multipĺy_factor = 255 if bits == 8 else 65535
+            image_data = np.clip(image_data * multipĺy_factor, 0, multipĺy_factor).astype(
+                np.uint8 if bits == 8 else np.uint16)
         except Exception as e:
             self.logger.error(f"Error applying sharpening: {e}")
             if self.raise_error:
