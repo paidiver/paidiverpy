@@ -7,6 +7,7 @@ from utils import initialise_logging
 
 logger = initialise_logging()
 
+
 def process_action(parser):
     args = parser.parse_args()
 
@@ -19,6 +20,7 @@ def process_action(parser):
     pipeline.run()
     pipeline.save_images()
 
+
 def add_arguments(parser):
     parser.add_argument(
         "-c",
@@ -29,6 +31,7 @@ def add_arguments(parser):
     )
 
     return parser
+
 
 def main():
 
