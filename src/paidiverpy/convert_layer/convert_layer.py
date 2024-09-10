@@ -81,12 +81,16 @@ class ConvertLayer(Paidiverpy):
         for index, img in tqdm(
             enumerate(images), total=len(images), desc="Processing Images"
         ):
-            img_data = img.image
             method = getattr(self, method_name)
-            img_data = method(img_data, params=params)
+            img_data = method(img, params=params)
+            image_metadata = self.get_catalog(flag="all").iloc[index].to_dict()
+            if mode == "convert_bits":
+                image_metadata["bit_depth"] = params.output_bits
+            if mode == "normalize":
+                image_metadata["normalize"] = (params.min, params.max)
             img = ImageLayer(
                 image=img_data,
-                image_metadata=self.get_catalog(flag="all").iloc[index].to_dict(),
+                image_metadata=image_metadata,
                 step_order=self.images.get_last_step_order(),
                 step_name=self.step_name,
             )
@@ -106,12 +110,13 @@ class ConvertLayer(Paidiverpy):
                 return self.images
 
     def convert_bits(self, img, params: BitParams = BitParams()):
+        image_data = img.image
         if params.autoscale:
             try:
-                result = np.float32(img) - np.min(img)
+                result = np.float32(image_data) - np.min(image_data)
                 result[result < 0.0] = 0.0
-                if np.max(img) != 0:
-                    result = result / np.max(img)
+                if np.max(image_data) != 0:
+                    result = result / np.max(image_data)
                 if params.output_bits == 8:
                     img_bit = np.uint8(255 * result)
                 elif params.output_bits == 16:
@@ -122,7 +127,7 @@ class ConvertLayer(Paidiverpy):
                 self.logger.error("Failed to autoscale the image: %s", e)
                 if self.raise_error:
                     raise ValueError(f"Failed to autoscale the image: {str(e)}") from e
-                img_bit = img
+                img_bit = image_data
         else:
             if params.output_bits == 8:
                 img_bit = np.uint8(255)
@@ -133,27 +138,29 @@ class ConvertLayer(Paidiverpy):
         return img_bit
 
     def channel_convert(self, img, params: ToParams = ToParams()):
+        image_data = img.image
         try:
             if params.to == "RGB":
-                if len(img.shape) != 3 and img.shape[2] != 3:
-                    img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
+                if len(image_data.shape) != 3 and image_data.shape[2] != 3:
+                    image_data = cv2.cvtColor(image_data, cv2.COLOR_GRAY2RGB)
             elif params.to == "gray":
                 if params.channel_selector in [0, 1, 2]:
-                    img = img[:, :, params.channel_selector]
+                    image_data = image_data[:, :, params.channel_selector]
                 else:
-                    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                    image_data = cv2.cvtColor(image_data, cv2.COLOR_BGR2GRAY)
         except Exception as e:
             self.logger.error(f"Failed to convert the image to {params.to}: {str(e)}")
             if self.raise_error:
                 raise ValueError(
                     f"Failed to convert the image to {params.to}: {str(e)}"
                 ) from e
-        return img
+        return image_data
 
     def get_bayer_pattern(self, img, params: BayerPatternParams = BayerPatternParams()):
         # Determine the number of channels in the input image
-        if len(img.shape) == 3:
-            img_channels = img.shape[2]
+        image_data = img.image
+        if len(image_data.shape) == 3:
+            img_channels = image_data.shape[2]
         else:
             img_channels = 1
         if img_channels == 1:
@@ -174,7 +181,7 @@ class ConvertLayer(Paidiverpy):
                     raise ValueError(
                         "Invalid Bayer pattern for a single-channel image. Expected 'RG', 'BG', 'GR', or 'GB'."
                     )
-                return img
+                return image_data
         elif img_channels in [3, 4]:
             self.logger.warning(
                 "Unsupported number of channels in the image: %s", img_channels
@@ -183,52 +190,55 @@ class ConvertLayer(Paidiverpy):
                 raise ValueError(
                     "Invalid Bayer pattern for a single-channel image. Expected 'RG', 'BG', 'GR', or 'GB'."
                 )
-            return img
+            return image_data
         else:
             self.logger.warning(
                 "Unsupported number of channels in the image: %s", img_channels
             )
             if self.raise_error:
                 raise ValueError("Unsupported number of channels in the image.")
-            return img
-        return cv2.cvtColor(img, bayer_pattern)
+            return image_data
+        return cv2.cvtColor(image_data, bayer_pattern)
 
     def normalize_image(self, img, params: NormalizeParams = NormalizeParams()):
+        image_data = img.image
         try:
             return cv2.normalize(
-                img, img, params.min, params.max, cv2.NORM_MINMAX, dtype=cv2.CV_32F
+                image_data, image_data, params.min, params.max, cv2.NORM_MINMAX, dtype=cv2.CV_32F
             )
         except Exception as e:
             self.logger.error(f"Failed to normalize the image: {str(e)}")
             if self.raise_error:
                 raise ValueError(f"Failed to normalize the image: {str(e)}") from e
-        return img
+        return image_data
 
     def resize(self, img, params: ResizeParams = ResizeParams()):
+        image_data = img.image
         try:
             return cv2.resize(
-                img, (params.min, params.max), interpolation=cv2.INTER_LANCZOS4
+                image_data, (params.min, params.max), interpolation=cv2.INTER_LANCZOS4
             )
         except Exception as e:
             self.logger.error(f"Failed to resize the image: {str(e)}")
             if self.raise_error:
                 raise ValueError(f"Failed to resize the image: {str(e)}") from e
-        return img
+        return image_data
 
     def crop_images(self, img, params: CropParams = CropParams()):
+        image_data = img.image
         try:
             start_x, end_x = params.x[0]
             start_y, end_y = params.y[1]
             if (
                 start_x < 0
-                or end_x > img.shape[0]
+                or end_x > image_data.shape[0]
                 or start_y < 0
-                or end_y > img.shape[1]
+                or end_y > image_data.shape[1]
             ):
                 raise ValueError("Crop range is out of bounds.")
-            return img[start_x:end_x, start_y:end_y, :]
+            return image_data[start_x:end_x, start_y:end_y, :]
         except Exception as e:
             self.logger.error("Failed to crop the image: %s", str(e))
             if self.raise_error:
                 raise ValueError(f"Failed to crop the image: {str(e)}") from e
-        return img
+        return image_data

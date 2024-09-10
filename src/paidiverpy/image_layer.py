@@ -1,5 +1,6 @@
 """ ImageLayer class to represent an image layer.
 """
+
 from pathlib import Path
 import logging
 import matplotlib.pyplot as plt
@@ -10,22 +11,24 @@ from utils import initialise_logging
 
 
 class ImageLayer:
-    """ ImageLayer class to represent an image layer.
-    
+    """ImageLayer class to represent an image layer.
+
     Args:
         image (np.ndarray): The image data.
         image_metadata (dict): The image metadata.
         step_order (int): The order of the step in the pipeline.
         step_name (str): The name of the step in the pipeline.
-        logger (logging.Logger): The logger object.   
+        logger (logging.Logger): The logger object.
     """
 
-    def __init__(self,
-                 image: np.ndarray,
-                 image_metadata: dict,
-                 step_order: int,
-                 step_name: str,
-                 logger: logging.Logger = None):
+    def __init__(
+        self,
+        image: np.ndarray,
+        image_metadata: dict,
+        step_order: int,
+        step_name: str,
+        logger: logging.Logger = None,
+    ):
         self.image = image
         self.image_metadata = image_metadata
         self.step_order = step_order
@@ -33,17 +36,15 @@ class ImageLayer:
         self.logger = logger or initialise_logging()
 
     def get_filename(self) -> str:
-        """ Get the filename of the image.
+        """Get the filename of the image.
 
         Returns:
             str: The filename of the image.
         """
         return self.image_metadata["filename"]
 
-    def show(self,
-             subplot: int = None,
-             title: str = None):
-        """ Show the image.
+    def show(self, subplot: int = None, title: str = None):
+        """Show the image.
 
         Args:
             subplot (int): The subplot number.
@@ -62,8 +63,8 @@ class ImageLayer:
         # cv2.waitKey(0)
         # cv2.destroyAllWindows()
 
-    def save(self, output_path: str, filename: str=None, image_format: str="png"):
-        """ Save the image.
+    def save(self, output_path: str, filename: str = None, image_format: str = "png"):
+        """Save the image.
 
         Args:
             output_path (str): The output path.

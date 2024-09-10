@@ -1,9 +1,11 @@
 """ Main class for the paidiverpy package.
 """
+
 import glob
 import os
 from pathlib import Path
 import logging
+from typing import Union
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -12,8 +14,9 @@ from paidiverpy.config import Configuration
 from paidiverpy.images_layer import ImagesLayer
 from utils import initialise_logging
 
+
 class Paidiverpy:
-    """ Main class for the paidiverpy package.
+    """Main class for the paidiverpy package.
 
     Args:
         config_file_path (str): The path to the configuration file.
@@ -29,20 +32,21 @@ class Paidiverpy:
         raise_error (bool): Whether to raise an error.
         verbose (bool): Whether to print verbose messages.
     """
+
     def __init__(
         self,
-        config_file_path: str=None,
-        input_path: str=None,
-        output_path: str=None,
-        catalog_path: str=None,
-        catalog_type: str=None,
-        catalog: CatalogParser=None,
-        config: Configuration=None,
-        logger: logging.Logger=None,
-        images: ImagesLayer=None,
-        paidiverpy: "Paidiverpy"=None,
-        raise_error: bool=False,
-        verbose: bool=False,
+        config_file_path: str = None,
+        input_path: str = None,
+        output_path: str = None,
+        catalog_path: str = None,
+        catalog_type: str = None,
+        catalog: CatalogParser = None,
+        config: Configuration = None,
+        logger: logging.Logger = None,
+        images: ImagesLayer = None,
+        paidiverpy: "Paidiverpy" = None,
+        raise_error: bool = False,
+        verbose: bool = False,
     ):
         if paidiverpy:
             self.logger = paidiverpy.logger
@@ -64,9 +68,26 @@ class Paidiverpy:
             self.raise_error = raise_error
 
     def _initialize_config(
-        self, config_file_path, input_path, output_path, catalog_path, catalog_type
-    ):
-        
+        self,
+        config_file_path: str,
+        input_path: str,
+        output_path: str,
+        catalog_path: str,
+        catalog_type: str,
+    ) -> Configuration:
+        """Initialize the configuration object.
+
+        Args:
+            config_file_path (str): Configuration file path.
+            input_path (str): input path.
+            output_path (str): output path.
+            catalog_path (str): catalog path.
+            catalog_type (str): catalog type.
+
+        Returns:
+            Configuration: The configuration object.
+        """
+
         general_config = {}
         if input_path:
             general_config["input_path"] = input_path
@@ -84,7 +105,12 @@ class Paidiverpy:
             config.add_config("general", general_config)
             return config
 
-    def _initialize_catalog(self):
+    def _initialize_catalog(self) -> CatalogParser:
+        """Initialize the catalog object.
+
+        Returns:
+            CatalogParser: The catalog object.
+        """
         general = self.config.general
         if getattr(general, "catalog_path", None) and getattr(
             general, "catalog_type", None
@@ -106,7 +132,15 @@ class Paidiverpy:
             catalog = catalog.reset_index().rename(columns={"index": "ID"})
             return catalog
 
-    def get_catalog(self, flag=None):
+    def get_catalog(self, flag: int = None) -> pd.DataFrame:
+        """Get the catalog object.
+
+        Args:
+            flag (int, optional): The flag value. Defaults to None.
+
+        Returns:
+            pd.DataFrame: The catalog object.
+        """
         if isinstance(self.catalog, CatalogParser):
             flag = 0 if flag is None else flag
             if flag == "all":
@@ -120,22 +154,52 @@ class Paidiverpy:
             ].sort_values("datetime")
         return self.catalog
 
-    def set_catalog(self, catalog):
+    def set_catalog(self, catalog: pd.DataFrame) -> None:
+        """Set the catalog
+
+        Args:
+            catalog (pd.DataFrame): The catalog object.
+        """
         if isinstance(self.catalog, CatalogParser):
             self.catalog.catalog = catalog
         else:
             self.catalog = catalog
 
-    def get_waypoints(self):
+    def get_waypoints(self) -> pd.DataFrame:
+        """Get the waypoints.
+
+        Raises:
+            ValueError: Waypoints are not loaded in the catalog.
+
+        Returns:
+            pd.DataFrame: The waypoints
+        """
         if isinstance(self.catalog, CatalogParser):
             return self.catalog.waypoints
         raise ValueError("Waypoints are not loaded in the catalog.")
 
-    def show_images(self, step_name):
+    def show_images(self, step_name: str):
+        """Show the images.
+
+        Args:
+            step_name (str): The step name.
+        """
         for image in self.images[step_name]:
             image.show_image()
 
-    def save_images(self, step=None, by_order=False, image_format="png"):
+    def save_images(
+        self,
+        step: Union[str, int] = None,
+        by_order: bool = False,
+        image_format: str = "png",
+    ):
+        """Save the images.
+
+        Args:
+            step (Union[str, int], optional): The step name or order. Defaults to None.
+            by_order (bool, optional): Whether to save by order. Defaults to False.
+            image_format (str, optional): The image format. Defaults to "png".
+        """
         last = False
         if step is None:
             last = True
@@ -145,7 +209,12 @@ class Paidiverpy:
         for image in images:
             image.save(output_path, image_format=image_format)
 
-    def plot_trimmed_photos(self, new_catalog):
+    def plot_trimmed_photos(self, new_catalog: pd.DataFrame):
+        """Plot the trimmed photos.
+
+        Args:
+            new_catalog (pd.DataFrame): The new catalog.
+        """
         catalog = self.get_catalog()
         if not "lon" in catalog.columns or not "lon" in new_catalog.columns:
             self.logger.warning(
@@ -159,7 +228,13 @@ class Paidiverpy:
         plt.legend(["Original", "After Trim"])
         plt.show()
 
-    def clear_steps(self, value, by_order=True):
+    def clear_steps(self, value: Union[int, str], by_order: bool = True):
+        """_summary_
+
+        Args:
+            value (Union[int, str]): Step name or order.
+            by_order (bool, optional): Whether to remove by order. Defaults to True.
+        """
         if by_order:
             self.images.remove_steps_by_order(value)
         else:
@@ -168,7 +243,15 @@ class Paidiverpy:
         catalog.loc[catalog["flag"] >= value, "flag"] = 0
         self.set_catalog(catalog)
 
-    def _calculate_steps_metadata(self, config_part):
+    def _calculate_steps_metadata(self, config_part: Configuration) -> dict:
+        """Calculate the steps metadata.
+
+        Args:
+            config_part (Configuration): The configuration part.
+
+        Returns:
+            dict: The steps metadata.
+        """
         steps_metadata = {}
         for key, value in config_part.__dict__.items():
             steps_metadata[key] = value

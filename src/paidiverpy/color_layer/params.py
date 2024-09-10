@@ -45,24 +45,30 @@ class SharpenParams:
 @dataclass
 class ContrastAdjustmentParams:
     """This class contains the parameters for the contrast adjustment"""
+
     method: str = "clahe"
     kernel_size: int = None
     clip_limit: float = 0.01
     gamma_value: float = 0.5
 
+
 @dataclass
 class IlluminationCorrectionParams:
     """This class contains the parameters for the illumination correction"""
+
     method: str = "rolling"
     radius: int = 100
+
 
 @dataclass
 class DeblurParams:
     """This class contains the parameters for the deblurring"""
+
     method: str = "wiener"
     psf_type: str = "gaussian"
-    sigma: float = 1.0
-    size: int = 25
+    sigma: float = 20
+    angle: int = 45
+
 
 COLOR_LAYER_METHODS = {
     "grayscale": {"params": GrayScaleParams, "method": "grayscale"},
@@ -70,4 +76,9 @@ COLOR_LAYER_METHODS = {
     "edge_detection": {"params": EdgeDetectionParams, "method": "edge_detection"},
     "sharpen": {"params": SharpenParams, "method": "sharpen"},
     "contrast": {"params": ContrastAdjustmentParams, "method": "contrast_adjustment"},
+    "deblur": {"params": DeblurParams, "method": "deblur"},
+    "illumination_correction": {
+        "params": IlluminationCorrectionParams,
+        "method": "illumination_correction",
+    },
 }
