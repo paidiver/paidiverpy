@@ -1,5 +1,7 @@
 """Exception classes."""
+
 import logging
+
 
 class VariableNotFound(Exception):
 
@@ -9,6 +11,7 @@ class VariableNotFound(Exception):
         logging.warning(message)
         super().__init__(message)
 
+
 class DimensionMismatch(Exception):
 
     def __init__(self, dim, size, expected_size):
@@ -16,6 +19,7 @@ class DimensionMismatch(Exception):
         message = f"Dimension {dim} has size {size}, expected {expected_size}."
         logging.warning(message)
         super().__init__(message)
+
 
 class ExpectedAttrsNotFound(Exception):
     """Exception raised for when expected attributes are not found in the metadata."""
