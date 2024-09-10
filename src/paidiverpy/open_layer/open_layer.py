@@ -111,17 +111,11 @@ class OpenLayer(Paidiverpy):
             img = self.open_image(
                 img_path=img_path,
             )
-<<<<<<< HEAD
             image_metadata = self.get_catalog(flag="all").iloc[index].to_dict()
             image_metadata['bit_depth'] = img.dtype.itemsize * 8
             img = ImageLayer(
                 image=img,
                 image_metadata=image_metadata,
-=======
-            img = ImageLayer(
-                image=img,
-                image_metadata=self.get_catalog(flag="all").iloc[index].to_dict(),
->>>>>>> 0b6637d5876468601d52a016d92742984755764b
                 step_order=self.images.get_last_step_order(),
                 step_name=self.step_name,
             )
