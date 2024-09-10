@@ -5,27 +5,32 @@ general:
   catalog_type: 'CSV' # choose between IFDO, CSV, SQL, etc
   # file_name_pattern: '*0000*'
   image_type: 'BMP' # choose between BMP, RAW, PNG, JPEG, TIFF, etc
-  convert_bits: 8  # Use 8 for 8-bit images, 16 for 16-bit images
-  convert_autoscale: True
-  convert_channel_selector: -1
-  sampling_mode: 'percent'  # choose 'fixed' or 'percent'
-  sampling_limits: 0.9
+  sampling:
+    - mode: 'percent'
+      params:
+        value: 0.9
+  convert:
+    - mode: 'bits'
+      params:
+        output_bits: 8
+        autoscale: True
 
 steps:
   - color:
       name: 'edge_detection'
       mode: 'edge_detection'
-      method: 'scharr'
-      object_type: "isolated"
-      object_selection: 'Largest Area'
-      blur_radius: 3
-      threeshold: [2.5 3.0]
-      deconv: True
-      deconv_method: 'LR'
-      deconv_iter: 7
-      deconv_mask_weight: 0.5
-      estimate_sharpness: True
-      small_float_val: 0.0001
+      params:
+        method: 'scharr'
+        object_type: "isolated"
+        object_selection: 'Largest Area'
+        blur_radius: 3
+        threshold: [2.5 3.0]
+        deconv: True
+        deconv_method: 'LR'
+        deconv_iter: 7
+        deconv_mask_weight: 0.5
+        estimate_sharpness: True
+        small_float_val: 0.0001
 
   # - color:
   #     name: 'sharpen'
