@@ -28,6 +28,7 @@ from paidiverpy.color_layer.params import (
     IlluminationCorrectionParams,
     SharpenParams,
     ContrastAdjustmentParams,
+    ColourAlterationParams,
 )
 
 
@@ -254,7 +255,7 @@ class ColorLayer(Paidiverpy):
                 )
             elif method == "gamma":
                 image_data = adjust_gamma(image_data, gamma=gamma_value)
-            
+
             bits = img.image_metadata.get("bit_depth") or 8
             multipĺy_factor = 255 if bits == 8 else 65535
             image_data = np.clip(image_data * multipĺy_factor, 0, multipĺy_factor).astype(
@@ -526,6 +527,36 @@ class ColorLayer(Paidiverpy):
                 raise e
         return image_data, features
 
+    def colour_alteration(
+        self, img: ImageLayer, params: ColourAlterationParams = ColourAlterationParams()
+    ) -> np.ndarray:
+        """Apply colour alteration to the image.
+
+        Args:
+            img (ImageLayer): The image to alter colour channel.
+            params (DeblurParams, optional): Params for method. Defaults to ColourAlterationParams().
+
+        Raises:
+            ValueError: Unknown method type. Please use 'white-balance'.
+            ValueError: Image is gray-scale'.
+            e: Error applying colour alteration.
+
+        Returns:
+            np.ndarray: The image with colour alteration applied.
+        """
+        image_data = img.image
+        try:
+            method = params.method
+
+            if method == "white-balance":
+                image_data = ColorLayer.white_balance(image_data)
+
+        except Exception as e:
+            self.logger.error(f"Error applying colour alteration: {e}")
+            if self.raise_error:
+                raise e
+        return image_data
+
     @staticmethod
     def gaussian_psf(size, sigma):
         psf = np.zeros((size, size))
@@ -546,6 +577,27 @@ class ColorLayer(Paidiverpy):
                 psf[y, x] = 1
         psf /= psf.sum()  # Normalize PSF
         return psf
+
+    @staticmethod
+    def white_balance(img):
+        r, g, b = cv2.split(img)
+        avg_r = np.mean(r)
+        avg_g = np.mean(g)
+        avg_b = np.mean(b)
+        avg_gray = (avg_r + avg_g + avg_b) / 3
+
+        # Scale each channel based on the average values
+        r_scale = avg_gray / avg_r
+        g_scale = avg_gray / avg_g
+        b_scale = avg_gray / avg_b
+
+        r = cv2.convertScaleAbs(r * r_scale)
+        g = cv2.convertScaleAbs(g * g_scale)
+        b = cv2.convertScaleAbs(b * b_scale)
+
+        balanced_img = cv2.merge([r, g, b])
+
+        return balanced_img
 
     @staticmethod
     def normalize_img(img):
