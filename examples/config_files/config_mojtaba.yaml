@@ -62,7 +62,7 @@ steps:
       name: 'colour_alteration'
       mode: 'colour_alteration'
       params:
-        method: ''
+        method: 'white-balance'
 
   # - color:
   #     name: 'sharpen'
