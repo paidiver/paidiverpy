@@ -70,6 +70,13 @@ class DeblurParams:
     angle: int = 45
 
 
+@dataclass
+class ColourAlterationParams:
+    """This class contains the parameters for the colour alteration"""
+
+    method: str = "white-balance"
+
+
 COLOR_LAYER_METHODS = {
     "grayscale": {"params": GrayScaleParams, "method": "grayscale"},
     "gaussian_blur": {"params": GaussianBlurParams, "method": "gaussian_blur"},
@@ -81,4 +88,5 @@ COLOR_LAYER_METHODS = {
         "params": IlluminationCorrectionParams,
         "method": "illumination_correction",
     },
+    "colour_alteration": {"params": ColourAlterationParams, "method": "colour_alteration"},
 }
