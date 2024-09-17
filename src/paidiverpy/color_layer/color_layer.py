@@ -19,6 +19,7 @@ from paidiverpy.config import Configuration
 from paidiverpy.image_layer import ImageLayer
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.convert_layer import ConvertLayer
+from skimage.util import img_as_float
 from paidiverpy.color_layer.params import (
     COLOR_LAYER_METHODS,
     DeblurParams,
@@ -340,15 +341,13 @@ class ColorLayer(Paidiverpy):
                         "Unknown PSF type. Please use 'gaussian' or 'motion'."
                     )
 
-                # img_float = img_as_float(img)
+                image_data = img_as_float(image_data)
                 image_data = wiener(image_data, psf, balance=0.1)
+                image_data = ColorLayer.normalize_img(image_data)
                 bits = img.image_metadata.get("bit_depth") or 8
                 multipĺy_factor = 255 if bits == 8 else 65535
                 image_data = np.clip(image_data * multipĺy_factor, 0, multipĺy_factor).astype(
                     np.uint8 if bits == 8 else np.uint16)
-
-                # shift negative values [0, 1]
-                # img = ColorLayer.normalize_img(img)
             else:
                 raise ValueError("Unknown method type. Please use 'wiener'.")
 
