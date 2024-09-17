@@ -333,9 +333,9 @@ class ColorLayer(Paidiverpy):
             angle = params.angle
             if method == "wiener":
                 if psf_type == "gaussian":
-                    psf = ColorLayer.gaussian_psf(size=image_data.shape[0], sigma=sigma)
+                    psf = ColorLayer.gaussian_psf(size=image_data.shape, sigma=sigma)
                 elif psf_type == "motion":
-                    psf = ColorLayer.motion_psf(size=image_data.shape[0], length=sigma, angle=angle)
+                    psf = ColorLayer.motion_psf(size=image_data.shape, length=sigma, angle=angle)
                 else:
                     raise ValueError(
                         "Unknown PSF type. Please use 'gaussian' or 'motion'."
@@ -361,7 +361,7 @@ class ColorLayer(Paidiverpy):
             # img_norm = ConvertLayer.convert_bits(de_blurred_float, output_bits, logger=logger, autoscale=True)
 
         except Exception as e:
-            self.logger.error(f"Error applying contrast adjustment: {e}")
+            self.logger.error(f"Error applying de-blurring: {e}")
             if self.raise_error:
                 raise e
         return image_data
@@ -558,22 +558,49 @@ class ColorLayer(Paidiverpy):
 
     @staticmethod
     def gaussian_psf(size, sigma):
-        psf = np.zeros((size, size))
-        psf[size // 2, size // 2] = 1
+        if len(size) == 2:
+            psf = np.zeros((size[0], size[1]))
+            psf[size[0] // 2, size[1] // 2] = 1
+        elif len(size) == 3:
+            psf = np.zeros((size[0], size[1], size[2]))
+            psf[size[0] // 2, size[1] // 2, size[2] // 2] = 1
+        else:
+            raise ValueError("Size must be either an int or a tuple of length 2 or 3")
         psf = gaussian(psf, sigma=sigma)
         psf /= psf.sum()
         return psf
 
     @staticmethod
-    def motion_psf(size, length, angle):
-        psf = np.zeros((size, size))
-        center = size // 2
-        angle_rad = np.deg2rad(angle)
-        for i in range(length):
-            x = int(center + i * np.cos(angle_rad))
-            y = int(center + i * np.sin(angle_rad))
-            if 0 <= x < size and 0 <= y < size:
-                psf[y, x] = 1
+    def motion_psf(size, length, angle_xy, angle_z=0):
+        if len(size) == 2:
+            psf = np.zeros((size[0], size[1]))
+            center_x = size[0] // 2
+            center_y = size[1] // 2
+            angle_rad = np.deg2rad(angle_xy)
+            for i in range(length):
+                x = int(center_x + i * np.cos(angle_rad))
+                y = int(center_y + i * np.sin(angle_rad))
+                if 0 <= x < size[0] and 0 <= y < size[1]:
+                    psf[y, x] = 1
+        elif len(size) == 3:
+            # Handle 3D case
+            psf = np.zeros((size[0], size[1], size[2]))
+            center_x = size[0] // 2
+            center_y = size[1] // 2
+            center_z = size[2] // 2
+            angle_xy_rad = np.deg2rad(angle_xy)  # Rotation in the xy-plane
+            angle_z_rad = np.deg2rad(angle_z)    # Tilt in the z-axis
+
+            for i in range(length):
+                x = int(center_x + i * np.cos(angle_xy_rad) * np.cos(angle_z_rad))
+                y = int(center_y + i * np.sin(angle_xy_rad) * np.cos(angle_z_rad))
+                z = int(center_z + i * np.sin(angle_z_rad))  # Motion along z-axis
+                if 0 <= x < size[0] and 0 <= y < size[1] and 0 <= z < size[2]:
+                    psf[z, y, x] = 1
+
+        else:
+            raise ValueError("Size must be either an int or a tuple of length 2 or 3")
+
         psf /= psf.sum()  # Normalize PSF
         return psf
 
