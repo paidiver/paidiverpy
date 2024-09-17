@@ -335,7 +335,7 @@ class ColorLayer(Paidiverpy):
                 if psf_type == "gaussian":
                     psf = ColorLayer.gaussian_psf(size=image_data.shape, sigma=sigma)
                 elif psf_type == "motion":
-                    psf = ColorLayer.motion_psf(size=image_data.shape, length=sigma, angle=angle)
+                    psf = ColorLayer.motion_psf(size=image_data.shape, length=sigma, angle_xy=angle)
                 else:
                     raise ValueError(
                         "Unknown PSF type. Please use 'gaussian' or 'motion'."
