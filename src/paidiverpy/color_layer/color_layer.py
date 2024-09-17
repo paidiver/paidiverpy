@@ -581,7 +581,7 @@ class ColorLayer(Paidiverpy):
                 x = int(center_x + i * np.cos(angle_rad))
                 y = int(center_y + i * np.sin(angle_rad))
                 if 0 <= x < size[0] and 0 <= y < size[1]:
-                    psf[y, x] = 1
+                    psf[x, y] = 1
         elif len(size) == 3:
             # Handle 3D case
             psf = np.zeros((size[0], size[1], size[2]))
@@ -596,7 +596,7 @@ class ColorLayer(Paidiverpy):
                 y = int(center_y + i * np.sin(angle_xy_rad) * np.cos(angle_z_rad))
                 z = int(center_z + i * np.sin(angle_z_rad))  # Motion along z-axis
                 if 0 <= x < size[0] and 0 <= y < size[1] and 0 <= z < size[2]:
-                    psf[z, y, x] = 1
+                    psf[x, y, z] = 1
 
         else:
             raise ValueError("Size must be either an int or a tuple of length 2 or 3")
