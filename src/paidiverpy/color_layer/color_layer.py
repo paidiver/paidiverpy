@@ -246,7 +246,8 @@ class ColorLayer(Paidiverpy):
         image_data = img.image
         try:
             method = params.method
-            kernel_size = tuple(params.kernel_size) if params.kernel_size else None
+            kernel_size = tuple(params.kernel_size) if params.kernel_size and \
+                                                       params.kernel_size != 'None' else None
             clip_limit = params.clip_limit
             gamma_value = params.gamma_value
 
