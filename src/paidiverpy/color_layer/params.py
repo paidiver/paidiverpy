@@ -82,7 +82,7 @@ COLOR_LAYER_METHODS = {
     "gaussian_blur": {"params": GaussianBlurParams, "method": "gaussian_blur"},
     "edge_detection": {"params": EdgeDetectionParams, "method": "edge_detection"},
     "sharpen": {"params": SharpenParams, "method": "sharpen"},
-    "contrast": {"params": ContrastAdjustmentParams, "method": "contrast_adjustment"},
+    "contrast_adjustment": {"params": ContrastAdjustmentParams, "method": "contrast_adjustment"},
     "deblur": {"params": DeblurParams, "method": "deblur"},
     "illumination_correction": {
         "params": IlluminationCorrectionParams,
