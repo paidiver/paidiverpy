@@ -2,23 +2,24 @@
 
 from dataclasses import dataclass
 
+from utils import DynamicConfig
 
 @dataclass
-class GrayScaleParams:
+class GrayScaleParams(DynamicConfig):
     """This class contains the parameters for the grayscale conversion."""
 
     pass
 
 
 @dataclass
-class GaussianBlurParams:
+class GaussianBlurParams(DynamicConfig):
     """This class contains the parameters for the Gaussian blur."""
 
     sigma: float = 1.0
 
 
 @dataclass
-class EdgeDetectionParams:
+class EdgeDetectionParams(DynamicConfig):
     """This class contains the parameters for the edge detection."""
 
     method: str = "sobel"
@@ -35,7 +36,7 @@ class EdgeDetectionParams:
 
 
 @dataclass
-class SharpenParams:
+class SharpenParams(DynamicConfig):
     """This class contains the parameters for the sharpening."""
 
     alpha: float = 1.5
@@ -43,7 +44,7 @@ class SharpenParams:
 
 
 @dataclass
-class ContrastAdjustmentParams:
+class ContrastAdjustmentParams(DynamicConfig):
     """This class contains the parameters for the contrast adjustment"""
 
     method: str = "clahe"
@@ -53,7 +54,7 @@ class ContrastAdjustmentParams:
 
 
 @dataclass
-class IlluminationCorrectionParams:
+class IlluminationCorrectionParams(DynamicConfig):
     """This class contains the parameters for the illumination correction"""
 
     method: str = "rolling"
@@ -61,7 +62,7 @@ class IlluminationCorrectionParams:
 
 
 @dataclass
-class DeblurParams:
+class DeblurParams(DynamicConfig):
     """This class contains the parameters for the deblurring"""
 
     method: str = "wiener"
