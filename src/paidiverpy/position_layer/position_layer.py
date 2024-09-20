@@ -1,20 +1,6 @@
 """ Open raw image file
 """
 
-import os
-import shutil
-from datetime import datetime
-import glob
-from pathlib import Path
-import yaml
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-
-from geopy.distance import geodesic
-from shapely.geometry import Polygon, Point
-from shapely.geometry.polygon import orient
-import geopandas as gpd
 from paidiverpy import Paidiverpy
 
 
