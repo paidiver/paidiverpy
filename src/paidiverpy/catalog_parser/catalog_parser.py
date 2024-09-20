@@ -8,7 +8,7 @@ import mariqt.tests as miqtt
 from mariqt.core import IfdoException
 from shapely.geometry import Point
 
-from paidiverpy.config import Configuration
+from paidiverpy.config.config import Configuration
 from utils import initialise_logging
 
 filename_columns = ["filename", "file_name", "FileName", "File Name"]

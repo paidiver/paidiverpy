@@ -1,0 +1,53 @@
+general:
+  input_path: '/mnt/code/code/noc/paidiver/paidiverpy/examples/data/jen/'
+  output_path: '/mnt/code/code/noc/paidiver/paidiverpy/examples/data/'
+  catalog_path: '/mnt/code/code/noc/paidiver/paidiverpy/examples/catalog/catalog_jen.csv'
+  catalog_type: 'CSV'
+  append_data_to_catalog: '/mnt/code/code/noc/paidiver/paidiverpy/examples/data/jen/waypoints/scidata_20180610.csv'
+  n_jobs: -1
+  image_type: 'JPG'
+  sampling:
+    - mode: 'fixed'
+      params:
+        value: 20
+  convert:
+    - mode: 'bits'
+      params:
+        output_bits: 8
+
+steps:
+  - color:
+      name: 'grayscale'
+      mode: 'grayscale'
+  
+  - sampling:
+      name: 'datetime'
+      mode: 'datetime'
+      params:
+        min: '2018-06-11 04:14:00'
+        max: '2018-06-11 04:20:00'
+
+  - sampling:
+      name: 'overlapping'
+      mode: 'overlapping'
+      params:
+        theta: 40
+        omega: 57
+        threshold: 0.5
+
+  - color:
+      name: 'gaussian_blur'
+      mode: 'gaussian_blur'
+      params:
+        sigma: 1.0
+
+  - color:
+      name: 'sharpen'
+      mode: 'sharpen'
+      params:
+        alpha: 1.5
+        beta: -0.5
+
+  - color:
+      name: 'contrast'
+      mode: 'contrast'

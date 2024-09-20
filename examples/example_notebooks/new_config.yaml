@@ -5,10 +5,10 @@ general:
   convert:
   - mode: bits
     params:
-      autoscale: true
       output_bits: 8
   image_type: JPG
   input_path: /mnt/code/code/noc/paidiver/paidiverpy/examples/data/jen
+  n_jobs: 1
   name: raw
   output_path: /mnt/code/code/noc/paidiver/paidiverpy/examples/data
   sampling:
@@ -20,3 +20,4 @@ steps:
 - color:
     mode: grayscale
     name: gray
+    test: false
