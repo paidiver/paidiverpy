@@ -19,6 +19,7 @@ class Pipeline(Paidiverpy):
         logger=None,
         raise_error=False,
         verbose=True,
+        n_jobs=1,
     ):
 
         super().__init__(
@@ -32,6 +33,7 @@ class Pipeline(Paidiverpy):
             logger=logger,
             raise_error=raise_error,
             verbose=verbose,
+            n_jobs=n_jobs,
         )
 
         if steps is None:
@@ -90,6 +92,7 @@ class Pipeline(Paidiverpy):
                         config=self.config,
                         catalog=self.catalog,
                         parameters=step_params,
+                        n_jobs=self.n_jobs,
                     )
                 else:
                     step_instance = step_class(
@@ -99,6 +102,7 @@ class Pipeline(Paidiverpy):
                         step_name=step_name,
                         parameters=step_params,
                         config_index=index - 1,
+                        n_jobs=self.n_jobs,
                     )
                 step_instance.run()
                 self.logger.info(f"Step {index} completed")

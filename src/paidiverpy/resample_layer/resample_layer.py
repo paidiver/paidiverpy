@@ -8,7 +8,7 @@ from shapely.geometry import Polygon
 import geopandas as gpd
 import matplotlib.pyplot as plt
 from paidiverpy import Paidiverpy
-from paidiverpy.resample_layer.params import (
+from paidiverpy.config.resample_params import (
     RESAMPLE_LAYER_METHODS,
     ResampleDatetimeParams,
     ResampleDepthParams,
@@ -40,6 +40,7 @@ class ResampleLayer(Paidiverpy):
         config_index=None,
         raise_error=False,
         verbose=True,
+        n_jobs: int =1,
     ):
 
         super().__init__(
@@ -55,6 +56,7 @@ class ResampleLayer(Paidiverpy):
             paidiverpy=paidiverpy,
             raise_error=raise_error,
             verbose=verbose,
+            n_jobs=n_jobs,
         )
         self.config_index = config_index
         self.step_name = step_name or "sampling"
@@ -73,14 +75,7 @@ class ResampleLayer(Paidiverpy):
             raise ValueError("The mode is not defined in the configuration file.")
         test = self.step_metadata.get("test")
         params = self.step_metadata.get("params") or {}
-
-        if mode not in RESAMPLE_LAYER_METHODS:
-            raise ValueError(f"Unsupported mode: {mode}")
-
-        method_info = RESAMPLE_LAYER_METHODS[mode]
-        params = method_info["params"](**params)
-        method_name = method_info["method"]
-        method = getattr(self, method_name)
+        method, params = self._get_method_by_mode(params, RESAMPLE_LAYER_METHODS, mode)
         catalog = method(self.step_order, test=test, params=params)
         if self.step_order == 0:
             return catalog
@@ -91,7 +86,12 @@ class ResampleLayer(Paidiverpy):
             )
             self.set_catalog(new_catalog)
             self.step_name = f"trim_{mode}" if not self.step_name else self.step_name
-            self.images.add_step(f"trim_{mode}", catalog=self.get_catalog())
+            self.images.add_step(
+                step=self.step_name,
+                step_metadata=self.step_metadata,
+                catalog=self.get_catalog(),
+                update_catalog=True,
+            )
 
     def _by_percent(
         self,
@@ -278,20 +278,23 @@ class ResampleLayer(Paidiverpy):
     ):
         catalog = self.get_catalog()
         images = self.images.get_step(step=self.config_index, by_order=True)
-        brightnesss = []
-        for index, img in enumerate(images):
-            img_data = img.image
-            brightness = np.mean(img_data) / 255
-            if brightness < params.min or brightness > params.max:
-                catalog.loc[index, "flag"] = step_order
-            brightnesss.append(brightness)
+
+        def compute_mean(image_chunk):
+            return np.mean(image_chunk, axis=(1, 2)) / 255
+        if self.n_jobs == 1:
+            brightness = compute_mean(images)
+        else:
+            brightness = images.map_blocks(compute_mean, dtype=float)
+        
+        catalog.loc[brightness < params.min, "flag"] = step_order
+        catalog.loc[brightness > params.max, "flag"] = step_order
         self.logger.info(
             "Number of photos to be removed: %s",
             catalog.flag[catalog.flag == step_order].count(),
         )
         if test:
             self.plot_trimmed_photos(catalog[catalog.flag == 0])
-            plt.hist(brightnesss, bins=30, edgecolor="black")
+            plt.hist(brightness, bins=30, edgecolor="black")
             plt.xlabel("Mean RGB Brightness")
             plt.ylabel("Frequency")
             plt.title("Distribution of Image Brightness")

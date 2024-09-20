@@ -2,10 +2,13 @@
 """
 
 from pathlib import Path
+from typing import Union
 import logging
-import matplotlib.pyplot as plt
+import matplotlib.pyplot  as plt
 import cv2
 import numpy as np
+import dask
+import dask.array
 
 from utils import initialise_logging
 
@@ -15,6 +18,7 @@ class ImageLayer:
 
     Args:
         image (np.ndarray): The image data.
+        name (str): The name of the image.
         image_metadata (dict): The image metadata.
         step_order (int): The order of the step in the pipeline.
         step_name (str): The name of the step in the pipeline.
@@ -23,13 +27,15 @@ class ImageLayer:
 
     def __init__(
         self,
-        image: np.ndarray,
+        image: Union[np.ndarray, dask.array.core.Array],
         image_metadata: dict,
         step_order: int,
         step_name: str,
+        name: str = None,
         logger: logging.Logger = None,
     ):
         self.image = image
+        self.name = name or image_metadata.get("filename")
         self.image_metadata = image_metadata
         self.step_order = step_order
         self.step_name = step_name

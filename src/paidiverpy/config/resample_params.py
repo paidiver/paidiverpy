@@ -2,10 +2,11 @@
 
 from dataclasses import dataclass
 from typing import List
+from utils import DynamicConfig
 
 
 @dataclass
-class ResampleDatetimeParams:
+class ResampleDatetimeParams(DynamicConfig):
     """This class contains the parameters for the datetime resampling."""
 
     min: str = None
@@ -13,7 +14,7 @@ class ResampleDatetimeParams:
 
 
 @dataclass
-class ResampleDepthParams:
+class ResampleDepthParams(DynamicConfig):
     """This class contains the parameters for the depth resampling."""
 
     by: str = "lower"
@@ -21,14 +22,14 @@ class ResampleDepthParams:
 
 
 @dataclass
-class ResampleAltitudeParams:
+class ResampleAltitudeParams(DynamicConfig):
     """This class contains the parameters for the altitude resampling."""
 
     value: float = None
 
 
 @dataclass
-class ResamplePitchRollParams:
+class ResamplePitchRollParams(DynamicConfig):
     """This class contains the parameters for the pitch and roll res"""
 
     pitch: float = None
@@ -36,7 +37,7 @@ class ResamplePitchRollParams:
 
 
 @dataclass
-class ResampleOverlappingParams:
+class ResampleOverlappingParams(DynamicConfig):
     """This class contains the parameters for the overlapping resampling."""
 
     omega: float = 0.5
@@ -45,19 +46,21 @@ class ResampleOverlappingParams:
 
 
 @dataclass
-class ResampleFixedParams:
+class ResampleFixedParams(DynamicConfig):
     """This class contains the parameters for the fixed resampling"""
 
     value: int = 10
 
 
 @dataclass
-class ResamplePercentParams:
+class ResamplePercentParams(DynamicConfig):
+    """ This class contains the parameters for the percent resampling.
+    """
     value: float = 0.1
 
 
 @dataclass
-class ResampleRegionParams:
+class ResampleRegionParams(DynamicConfig):
     """This class contains the parameters for the region resampling"""
 
     file: str = None
@@ -65,7 +68,7 @@ class ResampleRegionParams:
 
 
 @dataclass
-class ResampleObscureParams:
+class ResampleObscureParams(DynamicConfig):
     """This class contains the parameters for the obscure resampling"""
 
     min: int = 0
