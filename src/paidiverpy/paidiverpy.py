@@ -6,13 +6,14 @@ import os
 from pathlib import Path
 import logging
 from typing import Union
+from dask.distributed import Client
 
 import pandas as pd
 import matplotlib.pyplot as plt
 from paidiverpy.catalog_parser import CatalogParser
-from paidiverpy.config import Configuration
+from paidiverpy.config.config import Configuration
 from paidiverpy.images_layer import ImagesLayer
-from utils import initialise_logging
+from utils import initialise_logging, get_n_jobs
 
 
 class Paidiverpy:
@@ -31,6 +32,7 @@ class Paidiverpy:
         paidiverpy (Paidiverpy): The paidiverpy object.
         raise_error (bool): Whether to raise an error.
         verbose (bool): Whether to print verbose messages.
+        n_jobs (int): The number of n_jobs.
     """
 
     def __init__(
@@ -47,6 +49,7 @@ class Paidiverpy:
         paidiverpy: "Paidiverpy" = None,
         raise_error: bool = False,
         verbose: bool = False,
+        n_jobs: int = 1,
     ):
         if paidiverpy:
             self.logger = paidiverpy.logger
@@ -55,17 +58,30 @@ class Paidiverpy:
             self.catalog = paidiverpy.catalog
             self.verbose = paidiverpy.verbose
             self.raise_error = paidiverpy.raise_error
+            self.n_jobs = paidiverpy.n_jobs
+            # if self.n_jobs > 1:
+            #     self.client = paidiverpy.client
+            # else:
+            #     self.client = None
         else:
             self.logger = logger or initialise_logging(verbose=verbose)
             self.config = config or self._initialize_config(
                 config_file_path, input_path, output_path, catalog_path, catalog_type
             )
-            self.images = images or ImagesLayer(
-                output_path=self.config.general.output_path
-            )
             self.catalog = catalog or self._initialize_catalog()
+            self.images = images or ImagesLayer(
+                output_path=self.config.general.output_path,
+            )
+
             self.verbose = verbose
             self.raise_error = raise_error
+            if not self.config.general.n_jobs:
+                self.config.general.n_jobs = n_jobs
+            self.n_jobs = get_n_jobs(self.config.general.n_jobs)
+            # if self.n_jobs > 1:
+            #     self.client = Client(n_workers=self.n_jobs, threads_per_worker=1)
+            # else:
+            #     self.client = None
 
     def _initialize_config(
         self,
@@ -203,11 +219,14 @@ class Paidiverpy:
         last = False
         if step is None:
             last = True
-        images = self.images.get_step(step, by_order=by_order, last=last)
-        self.logger.info("Saving images from step: %s", step if not last else "last")
         output_path = self.config.general.output_path
-        for image in images:
-            image.save(output_path, image_format=image_format)
+        self.logger.info("Saving images from step: %s", step if not last else "last")
+        self.images.save(step,
+                         by_order=by_order,
+                         last=last,
+                         output_path=output_path,
+                         image_format=image_format)
+        self.logger.info("Images are saved.")
 
     def plot_trimmed_photos(self, new_catalog: pd.DataFrame):
         """Plot the trimmed photos.
@@ -256,3 +275,14 @@ class Paidiverpy:
         for key, value in config_part.__dict__.items():
             steps_metadata[key] = value
         return steps_metadata
+
+    def _get_method_by_mode(self, params, method_dict: dict, mode: str):
+        if mode not in method_dict:
+            raise ValueError(f"Unsupported mode: {mode}")
+        method_info = method_dict[mode]
+        if not isinstance(params, method_info["params"]):
+            params = method_info["params"](**params)
+        method_name = method_info["method"]
+        method = getattr(self, method_name)
+
+        return method, params

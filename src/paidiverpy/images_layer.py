@@ -10,9 +10,7 @@ from PIL import Image
 from IPython.display import HTML
 import pandas as pd
 import numpy as np
-
-from paidiverpy.image_layer import ImageLayer
-
+import dask.array as da
 
 class ImagesLayer:
     """Class to handle images and metadata for each step in the pipeline
@@ -27,50 +25,30 @@ class ImagesLayer:
         self.images = []
         self.max_images = 12
         self.output_path = output_path
-
-    def get_all_filenames(self, step_order: str = None):
-        """Get all filenames for a given step order
-
-        Args:
-            step_order (int): The step order to get the filenames from. Default is None.
-
-        Returns:
-            list: A list of filenames
-        """
-
-        return [
-            image.get_filename()
-            for image in self.images[step_order if step_order else -1]
-        ]
+        self.filenames = []
 
     def add_step(
         self,
         step: tuple,
-        images: List[ImageLayer] = None,
+        images: np.ndarray = None,
         catalog: pd.DataFrame = None,
         step_metadata: List[dict] = None,
+        update_catalog: bool = False,
     ):
-        """Add a step to the pipeline
+        if update_catalog:
+            last_images = self.images[-1]
+            print(len(last_images), last_images[0].shape, type(last_images[0]))
 
-        Args:
-            step (tuple): A tuple with the step name and the step order.
-            images (List[ImageLayer], optional): A list of ImageLayer objects. Defaults to None.
-            catalog (pd.DataFrame, optional): A catalog with the filenames. Defaults to None.
-            step_metadata (List[dict], optional): A list of dictionaries with the metadata for each image. Defaults to None.
-        """
-        if "trim" in step:
-            images = self.images[-1]
-            images_names = self.get_all_filenames()
-            new_images = []
-            for image in catalog["filename"]:
-                if image in images_names:
-                    index = images_names.index(image)
-                    new_images.append(images[index])
+            last_filenames = np.array(self.filenames[-1])
+            new_filenames = np.isin(last_filenames, catalog["filename"])
+            new_images = [image for image, filename in zip(last_images, new_filenames) if filename]
+            print(len(new_images), new_images[0].shape, type(new_images[0]))
             self.images.append(new_images)
         else:
             self.images.append(images)
         self.step_metadata.append(step_metadata)
         self.steps.append(step)
+        self.filenames.append(catalog["filename"].tolist())
 
     def remove_steps_by_name(self, step: tuple):
         """Remove steps by name
@@ -84,6 +62,7 @@ class ImagesLayer:
         index = self.steps.index(step)
         self.steps = self.steps[:index]
         self.images = self.images[:index]
+        self.filenames = self.filenames[:index]
         return index
 
     def remove_steps_by_order(self, step_order: int):
@@ -94,6 +73,7 @@ class ImagesLayer:
         """
         self.steps = self.steps[:step_order]
         self.images = self.images[:step_order]
+        self.filenames = self.filenames[:step_order]
 
     def get_last_step_order(self):
         """Get the last step order
@@ -129,23 +109,36 @@ class ImagesLayer:
             index (int, optional): The index of the image to show. Defaults to 10.
         """
         plt.figure(figsize=(20, 20))
-
         for idx, images in enumerate(self.images):
-            images[index].show(
-                int(f"{len(self.images)}1{idx+1}"), title=self.steps[idx]
-            )
+            plt.subplot(int(f"{len(self.images)}1{idx+1}"))
+            plt.title(self.steps[idx])
+            if images[index].shape[-1] == 1:
+                plt.imshow(np.squeeze(images[index], axis=-1), cmap="gray")
+            else:
+                plt.imshow(images[index])
+            # images[index].show(
+            #     int(f"{len(self.images)}1{idx+1}"), title=self.steps[idx]
+            # )
 
-    def save(
-        self, output_path: str = None, filename: str = None, image_format: str = "png"
-    ):
-        """Save the images in the pipeline
+    def save(self, step: tuple = None, by_order: bool = False, last: bool = False, output_path: str = None, image_format: str = "png"):
+        images = self.get_step(step, by_order, last)
+        if last:
+            step_order = len(self.steps) - 1
+        elif by_order:
+            step_order = step
+        else:
+            step_order = self.steps.index(step)
+        if not output_path:
+            output_path = self.output_path
+        for idx, image in enumerate(images):
+            img_path = output_path / f"{self.filenames[step_order][idx]}.{image_format}"
+            if image.shape[-1] == 1:
+                image = np.squeeze(image, axis=-1)
+                cmap = "gray"
+            else:
+                cmap = None
+            plt.imsave(str(img_path), image, cmap=cmap)
 
-        Args:
-            output_path (str, optional): The path to save the images. Defaults to None.
-            filename (str, optional): The filename to save the images. Defaults to None.
-            image_format (str, optional): The image format to save the images. Defaults to "png".
-        """
-        pass
         # if isinstance(output_path, str):
         #     output_path = Path(output_path)
         # if not filename:
@@ -284,8 +277,8 @@ class ImagesLayer:
             html += "<div class='image-container'>"
             for image_index, image_array in enumerate(images_to_show):
                 image_id = f"image-{step_index}-{image_index}"
-                html += f"<div><p onclick='toggleImage(\"{image_id}\")' style='cursor:pointer;'>Image: {image_array.image_metadata['filename']} <span id='arrow-{image_id}' class='toggle-arrow'>►</span></p>"
-                html += f"<img id='{image_id}' src='{ImagesLayer.numpy_array_to_base64(image_array.image)}' style='display:block;' /></div>"
+                html += f"<div><p onclick='toggleImage(\"{image_id}\")' style='cursor:pointer;'>Image: {self.filenames[step_index][image_index]} <span id='arrow-{image_id}' class='toggle-arrow'>►</span></p>"
+                html += f"<img id='{image_id}' src='{ImagesLayer.numpy_array_to_base64(image_array)}' style='display:block;' /></div>"
             html += "</div>"
             if second_set_images > 0:
                 html += f"<button id='hide-button-{step_index}' class='hide-button' style='display:block;' onclick='hide({step_index})'>HIDE</button>"
@@ -294,11 +287,10 @@ class ImagesLayer:
                     image_arrays[12:max_images], start=max_images
                 ):
                     image_id = f"image-{step_index}-{image_index}"
-                    html += f"<div><p onclick='toggleImage(\"{image_id}\")' style='cursor:pointer;'>Image: {image_array.image_metadata['filename']} <span id='arrow-{image_id}' class='toggle-arrow'>►</span></p>"
-                    html += f"<img id='{image_id}' src='{ImagesLayer.numpy_array_to_base64(image_array.image)}' style='display:block;' /></div>"
+                    html += f"<div><p onclick='toggleImage(\"{image_id}\")' style='cursor:pointer;'>Image: {self.filenames[step_index][image_index]} <span id='arrow-{image_id}' class='toggle-arrow'>►</span></p>"
+                    html += f"<img id='{image_id}' src='{ImagesLayer.numpy_array_to_base64(image_array)}' style='display:block;' /></div>"
                 html += "</div>"
                 html += f"<button id='show-more-button-{step_index}' class='show-more-button' onclick='showMore({step_index})'>SHOW MORE</button>"
-
             html += "</div>"
 
         return html
@@ -314,9 +306,17 @@ class ImagesLayer:
         Returns:
             str: The base64 image
         """
-        pil_img = Image.fromarray(image_array)
-        if pil_img.mode == "F":
-            pil_img = pil_img.convert("L")
+        # print(image_array.shape)
+        # print(image_array.dtype)
+        # print(image_array)
+        if image_array.shape[-1] == 1:
+            image_array = np.squeeze(image_array, axis=-1)
+        if image_array.dtype != np.uint8:
+            image_array = image_array.astype(np.uint8)
+        if image_array.ndim == 2:  # Grayscale image
+            pil_img = Image.fromarray(image_array, mode='L')
+        else:  # Color image (assume RGB)
+            pil_img = Image.fromarray(image_array, mode='RGB')
         pil_img.thumbnail(size)
         buffer = BytesIO()
         pil_img.save(buffer, format="JPEG")
