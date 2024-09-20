@@ -5,89 +5,104 @@ import yaml
 from pathlib import Path
 import json
 
-
-class DynamicConfig:
-    """Dynamic configuration class."""
-
-    def __init__(self, **kwargs):
-        for key, value in kwargs.items():
-            if key.endswith("_path"):
-                value = Path(value)
-            setattr(self, key, value)
-
-    def update(self, **kwargs):
-        """Update the configuration."""
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-
-    def to_dict(self, convert_path: bool = True) -> dict:
-        """Convert the configuration to a dictionary.
-
-        Args:
-            convert_path (bool, optional): Whether to convert the path to a string. Defaults to True.
-
-        Returns:
-            dict: The configuration as a dictionary.
-        """
-        result = {}
-        for key, value in self.__dict__.items():
-            if isinstance(value, Path):
-                if convert_path:
-                    result[key] = str(value)
-                else:
-                    result[key] = value
-            elif isinstance(value, DynamicConfig):
-                result[key] = value.to_dict()
-            else:
-                result[key] = value
-        return result
-
+from paidiverpy.config.color_params import COLOR_LAYER_METHODS
+from paidiverpy.config.convert_params import CONVERT_LAYER_METHODS
+from paidiverpy.config.position_params import POSITION_LAYER_METHODS
+from paidiverpy.config.resample_params import RESAMPLE_LAYER_METHODS
+from utils import DynamicConfig
 
 class GeneralConfig(DynamicConfig):
     """General configuration class."""
 
-    pass
+    def __init__(self, **kwargs):
+        self.name = kwargs.get("name", "raw")
+        self.step_name = kwargs.get("step_name", "open")
+        input_path = kwargs.get("input_path", None)
+        if input_path:
+            self.input_path = Path(input_path)
+        output_path = kwargs.get("output_path", None)
+        if output_path:
+            self.output_path = Path(output_path)
+        self.n_jobs = kwargs.get("n_jobs", None)
+        self.catalog_path = kwargs.get("catalog_path", None)
+        self.catalog_type = kwargs.get("catalog_type", None)
+        self.append_data_to_catalog = kwargs.get("append_data_to_catalog", False)
+        self.image_type = kwargs.get("image_type", None)
+        samplings = kwargs.get("sampling", None)
+        if samplings:
+            self.sampling = [SamplingConfig(**sampling) for sampling in samplings]
+        else:
+            self.sampling = None
+        converts = kwargs.get("convert", None)
+        if converts:
+            self.convert = [ConvertConfig(**convert) for convert in converts]
+        else:
+            self.convert = None
 
 
 class PositionConfig(DynamicConfig):
     """Position configuration class."""
-
-    pass
+    def __init__(self, **kwargs):
+        self.name = kwargs.get("name", "position")
+        self.step_name = kwargs.get("step_name", "position")
+        self.mode = kwargs.get("mode", None)
+        if not self.mode:
+            raise ValueError("The mode is not defined in the configuration file.")
+        self.test = kwargs.get("test", False)
+        params = kwargs.get("params", None)
+        if params:
+            self.params = POSITION_LAYER_METHODS[self.mode]["params"](**params)
 
 
 class ConvertConfig(DynamicConfig):
     """Convert configuration class."""
-
-    pass
-
+    def __init__(self, **kwargs):
+        self.name = kwargs.get("name", "convert")
+        self.step_name = kwargs.get("step_name", "convert")
+        self.mode = kwargs.get("mode", None)
+        if not self.mode:
+            raise ValueError("The mode is not defined in the configuration file.")
+        self.test = kwargs.get("test", False)
+        params = kwargs.get("params", None)
+        if params:
+            self.params = CONVERT_LAYER_METHODS[self.mode]["params"](**params)
 
 class ColorConfig(DynamicConfig):
     """Color configuration class."""
+    def __init__(self, **kwargs):
+        self.name = kwargs.get("name", "color")
+        self.step_name = kwargs.get("step_name", "color")
+        self.mode = kwargs.get("mode", None)
+        if not self.mode:
+            raise ValueError("The mode is not defined in the configuration file.")
+        self.test = kwargs.get("test", False)
+        params = kwargs.get("params", None)
 
-    pass
+        if params:
+            self.params = COLOR_LAYER_METHODS[self.mode]["params"](**params)
 
 
 class SamplingConfig(DynamicConfig):
     """Sampling configuration class."""
-
-    pass
-
-
-class EdgeConfig(DynamicConfig):
-    """Edge configuration class."""
-
-    pass
+    def __init__(self, **kwargs):
+        self.name = kwargs.get("name", "sampling")
+        self.step_name = kwargs.get("step_name", "sampling")
+        self.mode = kwargs.get("mode", None)
+        if not self.mode:
+            raise ValueError("The mode is not defined in the configuration file.")
+        self.test = kwargs.get("test", False)
+        params = kwargs.get("params", None)
+        if params:
+            self.params = RESAMPLE_LAYER_METHODS[self.mode]["params"](**params)
 
 
 config_class_mapping = {
     "general": GeneralConfig,
     "position": PositionConfig,
     "sampling": SamplingConfig,
-    "edge": EdgeConfig,
     "color": ColorConfig,
     "convert": ConvertConfig,
 }
-
 
 class Configuration:
     """Configuration class.
@@ -105,11 +120,6 @@ class Configuration:
         output_path: str = None,
     ):
         self.general = None
-        self.position = None
-        self.sampling = None
-        self.edge = None
-        self.preprocessing = None
-        self.convert = None
         self.steps = []
 
         if config_file_path:
@@ -155,7 +165,6 @@ class Configuration:
         name = config_data["general"].get("name")
         if not name:
             config_data["general"]["name"] = "raw"
-        config_data["general"]["step_name"] = "Open"
         return GeneralConfig(**config_data["general"])
 
     def _validate_paths(self, input_path, output_path):
@@ -225,16 +234,15 @@ class Configuration:
         result = {}
         if self.general:
             result["general"] = self.general.to_dict()
-        if self.position:
-            result["position"] = self.position.to_dict()
-        if self.sampling:
-            result["sampling"] = self.sampling.to_dict()
-        if self.edge:
-            result["edge"] = self.edge.to_dict()
-        if self.preprocessing:
-            result["preprocessing"] = self.preprocessing.to_dict()
-        if self.convert:
-            result["convert"] = self.convert.to_dict()
+            # print(result["general"])
+            # sampling = result["general"].get("sampling")
+            # convert = result["general"].get("convert")
+            # if sampling:
+            #     print(sampling)
+                
+            #     result["general"]["sampling"] = [step.to_dict() for step in sampling]
+            # if convert:
+            #     result["general"]["convert"] = [step.to_dict() for step in convert]
         if yaml_convert:
             result["steps"] = [
                 {step_info.pop("step_name"): step_info}
