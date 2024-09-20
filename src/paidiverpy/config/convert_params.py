@@ -1,18 +1,18 @@
 """ This module contains the dataclasses for the parameters of the convert layer functions. """
 
 from dataclasses import dataclass
+from utils import DynamicConfig
 
 
 @dataclass
-class BitParams:
+class BitParams(DynamicConfig):
     """This class contains the parameters for the bit conversion."""
 
     output_bits: int = 8
-    autoscale: bool = False
 
 
 @dataclass
-class ToParams:
+class ToParams(DynamicConfig):
     """This class contains the parameters for the channel conversion."""
 
     to: str = "uint8"
@@ -20,14 +20,13 @@ class ToParams:
 
 
 @dataclass
-class BayerPatternParams:
+class BayerPatternParams(DynamicConfig):
     """This class contains the parameters for the Bayer pattern conversion"""
-
-    bayer_pattern: str = "BGGR"
-
+    def __init__(self) -> None:
+        self.bayer_pattern: str = "BGGR"
 
 @dataclass
-class NormalizeParams:
+class NormalizeParams(DynamicConfig):
     """This class contains the parameters for the image normalization."""
 
     min: float = 0
@@ -35,7 +34,7 @@ class NormalizeParams:
 
 
 @dataclass
-class ResizeParams:
+class ResizeParams(DynamicConfig):
     """This class contains the parameters for the image resizing."""
 
     min: int = 256
@@ -43,7 +42,7 @@ class ResizeParams:
 
 
 @dataclass
-class CropParams:
+class CropParams(DynamicConfig):
     """This class contains the parameters for the image cropping."""
 
     x: tuple = (0, -1)
