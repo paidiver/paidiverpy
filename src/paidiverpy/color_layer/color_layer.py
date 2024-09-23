@@ -18,7 +18,7 @@ from scipy import ndimage
 from skimage.restoration import rolling_ball, wiener
 from tqdm import tqdm
 from paidiverpy import Paidiverpy
-from paidiverpy.catalog_parser.catalog_parser import CatalogParser
+from paidiverpy.metadata_parser.metadata_parser import MetadataParser
 from paidiverpy.config.config import Configuration
 from paidiverpy.image_layer import ImageLayer
 from paidiverpy.images_layer import ImagesLayer
@@ -41,9 +41,9 @@ class ColorLayer(Paidiverpy):
         config_file_path (str): The path to the configuration file.
         input_path (str): The path to the input files.
         output_path (str): The path to the output files.
-        catalog_path (str): The path to the catalog file.
-        catalog_type (str): The type of the catalog file.
-        catalog (CatalogParser): The catalog object.
+        metadata_path (str): The path to the metadata file.
+        metadata_type (str): The type of the metadata file.
+        metadata (MetadataParser): The metadata object.
         config (Configuration): The configuration object.
         logger (logging.Logger): The logger object.
         images (ImagesLayer): The images object.
@@ -60,9 +60,9 @@ class ColorLayer(Paidiverpy):
         config_file_path: str = None,
         input_path: str = None,
         output_path: str = None,
-        catalog_path: str = None,
-        catalog_type: str = None,
-        catalog: CatalogParser = None,
+        metadata_path: str = None,
+        metadata_type: str = None,
+        metadata: MetadataParser = None,
         config: Configuration = None,
         logger: logging.Logger = None,
         images: ImagesLayer = None,
@@ -79,9 +79,9 @@ class ColorLayer(Paidiverpy):
             config_file_path=config_file_path,
             input_path=input_path,
             output_path=output_path,
-            catalog_path=catalog_path,
-            catalog_type=catalog_type,
-            catalog=catalog,
+            metadata_path=metadata_path,
+            metadata_type=metadata_type,
+            metadata=metadata,
             config=config,
             logger=logger,
             images=images,
@@ -119,7 +119,7 @@ class ColorLayer(Paidiverpy):
                     step=self.step_name,
                     images=image_list,
                     step_metadata=self.step_metadata,
-                    catalog=self.get_catalog(),
+                    metadata=self.get_metadata(),
                 )
             else:
                 self.images.images[-1] = image_list

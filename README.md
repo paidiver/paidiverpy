@@ -89,18 +89,18 @@ These commands will download and extract the sample data into the `examples/data
 
 ### Configuration File
 
-First, create a configuration file. Some example configuration files for processing the example datasets are provided in the `example/config` directory. You can use these configuration files to test the example notebooks described in the [Usage section](#usage). However, remember to change the path of `input_path`, `output_path`, and `catalog_path`.
+First, create a configuration file. Some example configuration files for processing the example datasets are provided in the `example/config` directory. You can use these configuration files to test the example notebooks described in the [Usage section](#usage). However, remember to change the path of `input_path`, `output_path`, and `metadata_path`.
 
-### Catalog
+### Metadata
 
-To use this package, you may need a catalog file. The catalog file can be an IFDO.json file or a CSV file. If it is a CSV, it should contain a list of filenames of the files to be processed. The filename column should be named one of the following: `['filename', 'file_name', 'FileName', 'File Name']`.
+To use this package, you may need a metadata file. The metadata file can be an IFDO.json file or a CSV file. If it is a CSV, it should contain a list of filenames of the files to be processed. The filename column should be named one of the following: `['filename', 'file_name', 'FileName', 'File Name']`.
 
 Some functions may also require datetime, latitude, and longitude data. These columns should have the following names:
 - Datetime columns: `['datetime', 'date_time', 'DateTime', 'Datetime']`
 - Latitude columns: `['lat', 'latitude_deg', 'latitude', 'Latitude', 'Latitude_deg', 'Lat']`
 - Longitude columns: `['lon', 'longitude_deg', 'longitude', 'Longitude', 'Longitude_deg', 'Lon']`
 
-Two examples of CSV catalogs are available in the `example/catalog` directory. The IFDO catalog feature has not been tested yet due to the lack of a dataset with an IFDO catalog for testing.
+Two examples of CSV metadatas are available in the `example/metadata` directory. The IFDO metadata feature has not been tested yet due to the lack of a dataset with an IFDO metadata for testing.
 
 ### Layers
 
@@ -113,7 +113,7 @@ The parent class, `Paidiverpy`, contains the main functions and information nece
 To transfer information between layers, the following classes are used:
 
 - `Configuration`: Parses the configuration file and adds new configurations during processing.
-- `Catalog`: Parses the catalog and stores image metadata.
+- `Metadata`: Parses the metadata and stores image metadata.
 - `ImagesLayer`: Stores the outputs of each image processing step. Each individual image inside the `ImagesLayer` is represented by an `ImageLayer` class, containing individual information about each image.
 
 The `Pipeline` class is crucial for integrating the entire processing pipeline into one simple class and performing all the steps described in the configuration file.
@@ -122,7 +122,7 @@ The `Pipeline` class is crucial for integrating the entire processing pipeline i
 
 Comprehensive documentation is forthcoming. Meanwhile, sample notebooks demonstrating various use cases are available in the `examples/example_notebooks` directory:
 
-- [Open and display a configuration file and a catalog file](examples/example_notebooks/config_catalog_example.ipynb)
+- [Open and display a configuration file and a metadata file](examples/example_notebooks/config_metadata_example.ipynb)
 - [Run processing steps without creating a pipeline](examples/example_notebooks/simple_processing.ipynb)
 - [Run a pipeline described in a configuration file and interact with the outputs](examples/example_notebooks/pipeline.ipynb)
 - [Run pipeline steps in test mode](examples/example_notebooks/pipeline_testing_steps.ipynb)
