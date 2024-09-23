@@ -1,9 +1,9 @@
 general:
   input_path: '/mnt/code/code/noc/paidiver/paidiverpy/examples/data/jen/'
   output_path: '/mnt/code/code/noc/paidiver/paidiverpy/examples/data/output/'
-  catalog_path: '/mnt/code/code/noc/paidiver/paidiverpy/data/catalog_jen.csv'
-  catalog_type: 'CSV' # choose between IFDO, CSV, SQL, etc
-  append_data_to_catalog: '/mnt/code/code/noc/paidiver/paidiverpy/data/jen/waypoints/scidata_20180610.csv'
+  metadata_path: '/mnt/code/code/noc/paidiver/paidiverpy/data/metadata_benthic.csv'
+  metadata_type: 'CSV_FILE' # choose between IFDO, CSV, SQL, etc
+  append_data_to_metadata: '/mnt/code/code/noc/paidiver/paidiverpy/data/jen/waypoints/scidata_20180610.csv'
   # file_name_pattern: '*0000*'
   image_type: 'JPG' # choose between BMP, RAW, PNG, JPEG, TIFF, etc
   sampling_mode: 'fixed'  # choose 'fixed' or 'percent'
