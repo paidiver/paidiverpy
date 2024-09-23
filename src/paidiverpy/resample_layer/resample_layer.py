@@ -28,9 +28,9 @@ class ResampleLayer(Paidiverpy):
         config_file_path=None,
         input_path=None,
         output_path=None,
-        catalog_path=None,
-        catalog_type=None,
-        catalog=None,
+        metadata_path=None,
+        metadata_type=None,
+        metadata=None,
         config=None,
         logger=None,
         images=None,
@@ -47,9 +47,9 @@ class ResampleLayer(Paidiverpy):
             config_file_path=config_file_path,
             input_path=input_path,
             output_path=output_path,
-            catalog_path=catalog_path,
-            catalog_type=catalog_type,
-            catalog=catalog,
+            metadata_path=metadata_path,
+            metadata_type=metadata_type,
+            metadata=metadata,
             config=config,
             logger=logger,
             images=images,
@@ -76,21 +76,21 @@ class ResampleLayer(Paidiverpy):
         test = self.step_metadata.get("test")
         params = self.step_metadata.get("params") or {}
         method, params = self._get_method_by_mode(params, RESAMPLE_LAYER_METHODS, mode)
-        catalog = method(self.step_order, test=test, params=params)
+        metadata = method(self.step_order, test=test, params=params)
         if self.step_order == 0:
-            return catalog
+            return metadata
         if not test:
-            new_catalog = self.get_catalog(flag="all")
-            new_catalog.loc[new_catalog.index.isin(catalog.index), "flag"] = (
-                catalog.flag
+            new_metadata = self.get_metadata(flag="all")
+            new_metadata.loc[new_metadata.index.isin(metadata.index), "flag"] = (
+                metadata.flag
             )
-            self.set_catalog(new_catalog)
+            self.set_metadata(new_metadata)
             self.step_name = f"trim_{mode}" if not self.step_name else self.step_name
             self.images.add_step(
                 step=self.step_name,
                 step_metadata=self.step_metadata,
-                catalog=self.get_catalog(),
-                update_catalog=True,
+                metadata=self.get_metadata(),
+                update_metadata=True,
             )
 
     def _by_percent(
@@ -99,15 +99,15 @@ class ResampleLayer(Paidiverpy):
         test=False,
         params: ResamplePercentParams = ResamplePercentParams(),
     ):
-        catalog = self.get_catalog().sample(frac=1, random_state=np.random.seed())
-        new_catalog = catalog.sample(frac=params.value)
+        metadata = self.get_metadata().sample(frac=1, random_state=np.random.seed())
+        new_metadata = metadata.sample(frac=params.value)
         if step_order == 0:
-            return new_catalog
+            return new_metadata
         if test:
-            self.plot_trimmed_photos(new_catalog)
+            self.plot_trimmed_photos(new_metadata)
             return None
-        catalog.loc[~catalog.index.isin(new_catalog.index), "flag"] = step_order
-        return catalog
+        metadata.loc[~metadata.index.isin(new_metadata.index), "flag"] = step_order
+        return metadata
 
     def _by_fixed_number(
         self,
@@ -115,21 +115,21 @@ class ResampleLayer(Paidiverpy):
         test=False,
         params: ResampleFixedParams = ResampleFixedParams(),
     ):
-        catalog = self.get_catalog().sample(frac=1, random_state=np.random.seed())
-        if params.value > len(self.get_catalog()):
+        metadata = self.get_metadata().sample(frac=1, random_state=np.random.seed())
+        if params.value > len(self.get_metadata()):
             self.logger.info(
-                "Number of photos to be removed is greater than the number of photos in the catalog."
+                "Number of photos to be removed is greater than the number of photos in the metadata."
             )
             self.logger.info("No photos will be removed.")
-            return self.get_catalog()
-        new_catalog = catalog.sample(n=params.value)
+            return self.get_metadata()
+        new_metadata = metadata.sample(n=params.value)
         if step_order == 0:
-            return new_catalog
+            return new_metadata
         if test:
-            self.plot_trimmed_photos(new_catalog)
+            self.plot_trimmed_photos(new_metadata)
             return None
-        catalog.loc[~catalog.index.isin(new_catalog.index), "flag"] = step_order
-        return catalog
+        metadata.loc[~metadata.index.isin(new_metadata.index), "flag"] = step_order
+        return metadata
 
     def _by_datetime(
         self,
@@ -137,37 +137,37 @@ class ResampleLayer(Paidiverpy):
         test=False,
         params: ResampleDatetimeParams = ResampleDatetimeParams(),
     ):
-        catalog = self.get_catalog()
+        metadata = self.get_metadata()
         start_date = params.min
         end_date = params.max
         if not start_date and not end_date:
-            return catalog
+            return metadata
         if start_date is None:
-            start_date = catalog["datetime"].min()
+            start_date = metadata["datetime"].min()
         else:
             start_date = pd.to_datetime(start_date)
         if end_date is None:
-            end_date = catalog["datetime"].max()
+            end_date = metadata["datetime"].max()
         else:
             end_date = pd.to_datetime(end_date)
         if start_date > end_date:
             raise ValueError("Start date cannot be greater than end date")
         if step_order == 0:
-            return catalog.loc[
-                (catalog["datetime"] >= start_date) & (catalog["datetime"] <= end_date)
+            return metadata.loc[
+                (metadata["datetime"] >= start_date) & (metadata["datetime"] <= end_date)
             ]
-        catalog.loc[
-            (catalog["datetime"] < start_date) | (catalog["datetime"] > end_date),
+        metadata.loc[
+            (metadata["datetime"] < start_date) | (metadata["datetime"] > end_date),
             "flag",
         ] = step_order
         self.logger.info(
             "Number of photos to be removed: %s",
-            catalog.flag[catalog.flag == step_order].count(),
+            metadata.flag[metadata.flag == step_order].count(),
         )
         if test:
-            self.plot_trimmed_photos(catalog[catalog.flag == 0])
+            self.plot_trimmed_photos(metadata[metadata.flag == 0])
             return None
-        return catalog
+        return metadata
 
     def _by_depth(
         self,
@@ -175,20 +175,20 @@ class ResampleLayer(Paidiverpy):
         test=False,
         params: ResampleDepthParams = ResampleDepthParams(),
     ):
-        catalog = self.get_catalog()
-        catalog.loc[:, "depth_m"] = catalog["depth_m"].abs()
+        metadata = self.get_metadata()
+        metadata.loc[:, "depth_m"] = metadata["depth_m"].abs()
         if params.by == "lower":
-            catalog.loc[catalog["depth_m"] < params.value, "flag"] = step_order
+            metadata.loc[metadata["depth_m"] < params.value, "flag"] = step_order
         else:
-            catalog.loc[catalog["depth_m"] > params.value, "flag"] = step_order
+            metadata.loc[metadata["depth_m"] > params.value, "flag"] = step_order
         self.logger.info(
             "Number of photos to be removed: %s",
-            catalog.flag[catalog.flag == step_order].count(),
+            metadata.flag[metadata.flag == step_order].count(),
         )
         if test:
-            self.plot_trimmed_photos(catalog[catalog.flag == 0])
+            self.plot_trimmed_photos(metadata[metadata.flag == 0])
             return None
-        return catalog
+        return metadata
 
     def _by_altitude(
         self,
@@ -196,17 +196,17 @@ class ResampleLayer(Paidiverpy):
         test=False,
         params: ResampleAltitudeParams = ResampleAltitudeParams(),
     ):
-        catalog = self.get_catalog()
-        catalog.loc[:, "altitude_m"] = catalog["altitude_m"].abs()
-        catalog.loc[catalog["altitude_m"] > params.value, "flag"] = step_order
+        metadata = self.get_metadata()
+        metadata.loc[:, "altitude_m"] = metadata["altitude_m"].abs()
+        metadata.loc[metadata["altitude_m"] > params.value, "flag"] = step_order
         self.logger.info(
             "Number of photos to be removed: %s",
-            catalog.flag[catalog.flag == step_order].count(),
+            metadata.flag[metadata.flag == step_order].count(),
         )
         if test:
-            self.plot_trimmed_photos(catalog[catalog.flag == 0])
+            self.plot_trimmed_photos(metadata[metadata.flag == 0])
             return None
-        return catalog
+        return metadata
 
     def _by_pitch_roll(
         self,
@@ -214,21 +214,21 @@ class ResampleLayer(Paidiverpy):
         test=False,
         params: ResamplePitchRollParams = ResamplePitchRollParams(),
     ):
-        catalog = self.get_catalog()
-        catalog.loc[:, "pitch_deg"] = catalog["pitch_deg"].abs()
-        catalog.loc[:, "roll_deg"] = catalog["roll_deg"].abs()
-        catalog.loc[
-            (catalog["pitch_deg"] > params.pitch) & (catalog["roll_deg"] > params.roll),
+        metadata = self.get_metadata()
+        metadata.loc[:, "pitch_deg"] = metadata["pitch_deg"].abs()
+        metadata.loc[:, "roll_deg"] = metadata["roll_deg"].abs()
+        metadata.loc[
+            (metadata["pitch_deg"] > params.pitch) & (metadata["roll_deg"] > params.roll),
             "flag",
         ] = step_order
         self.logger.info(
             "Number of photos to be removed: %s",
-            catalog.flag[catalog.flag == step_order].count(),
+            metadata.flag[metadata.flag == step_order].count(),
         )
         if test:
-            self.plot_trimmed_photos(catalog[catalog.flag == 0])
+            self.plot_trimmed_photos(metadata[metadata.flag == 0])
             return None
-        return catalog
+        return metadata
 
     def _by_region(
         self,
@@ -236,7 +236,7 @@ class ResampleLayer(Paidiverpy):
         test=False,
         params: ResampleRegionParams = ResampleRegionParams(),
     ):
-        catalog = self.get_catalog()
+        metadata = self.get_metadata()
         if params.file:
             polygons = gpd.read_file(params.file)
         else:
@@ -257,18 +257,18 @@ class ResampleLayer(Paidiverpy):
         def point_in_any_polygon(point):
             return any(polygon.contains(point) for polygon in polygons.geometry)
 
-        catalog["flag"] = catalog.apply(
+        metadata["flag"] = metadata.apply(
             lambda x: x["flag"] if point_in_any_polygon(x["point"]) else step_order,
             axis=1,
         )
         self.logger.info(
             "Number of photos to be removed: %s",
-            catalog.flag[catalog.flag == step_order].count(),
+            metadata.flag[metadata.flag == step_order].count(),
         )
         if test:
-            self.plot_trimmed_photos(catalog[catalog.flag == 0])
+            self.plot_trimmed_photos(metadata[metadata.flag == 0])
             return None
-        return catalog
+        return metadata
 
     def _by_obscure_photos(
         self,
@@ -276,7 +276,7 @@ class ResampleLayer(Paidiverpy):
         test=False,
         params: ResampleObscureParams = ResampleObscureParams(),
     ):
-        catalog = self.get_catalog()
+        metadata = self.get_metadata()
         images = self.images.get_step(step=self.config_index, by_order=True)
 
         def compute_mean(image_chunk):
@@ -286,21 +286,21 @@ class ResampleLayer(Paidiverpy):
         else:
             brightness = images.map_blocks(compute_mean, dtype=float)
         
-        catalog.loc[brightness < params.min, "flag"] = step_order
-        catalog.loc[brightness > params.max, "flag"] = step_order
+        metadata.loc[brightness < params.min, "flag"] = step_order
+        metadata.loc[brightness > params.max, "flag"] = step_order
         self.logger.info(
             "Number of photos to be removed: %s",
-            catalog.flag[catalog.flag == step_order].count(),
+            metadata.flag[metadata.flag == step_order].count(),
         )
         if test:
-            self.plot_trimmed_photos(catalog[catalog.flag == 0])
+            self.plot_trimmed_photos(metadata[metadata.flag == 0])
             plt.hist(brightness, bins=30, edgecolor="black")
             plt.xlabel("Mean RGB Brightness")
             plt.ylabel("Frequency")
             plt.title("Distribution of Image Brightness")
             plt.show()
             return None
-        return catalog
+        return metadata
 
     def _by_overlapping(
         self,
@@ -308,34 +308,34 @@ class ResampleLayer(Paidiverpy):
         test=False,
         params: ResampleOverlappingParams = ResampleOverlappingParams(),
     ):
-        catalog = self.get_catalog()
-        catalog.loc[:, "pitch_deg"] = catalog["pitch_deg"].abs()
-        catalog.loc[:, "roll_deg"] = catalog["roll_deg"].abs()
+        metadata = self.get_metadata()
+        metadata.loc[:, "pitch_deg"] = metadata["pitch_deg"].abs()
+        metadata.loc[:, "roll_deg"] = metadata["roll_deg"].abs()
 
         theta = params.theta
         omega = params.omega
         overlap_threshold = params.threshold
 
         # TODO change de 1.12 to a parameter (distance between camera and the altimeter)
-        catalog["approx_vertdim_m"] = (
-            2 * (catalog["altitude_m"] + 1.12) * np.tan(np.radians(theta / 2))
+        metadata["approx_vertdim_m"] = (
+            2 * (metadata["altitude_m"] + 1.12) * np.tan(np.radians(theta / 2))
         )
-        catalog["approx_horizdim_m"] = (
-            2 * (catalog["altitude_m"] + 1.12) * np.tan(np.radians(omega / 2))
+        metadata["approx_horizdim_m"] = (
+            2 * (metadata["altitude_m"] + 1.12) * np.tan(np.radians(omega / 2))
         )
-        catalog["approx_area_m2"] = (
+        metadata["approx_area_m2"] = (
             4
-            * ((catalog["altitude_m"] + 1.12) ** 2)
+            * ((metadata["altitude_m"] + 1.12) ** 2)
             * np.tan(np.radians(theta / 2))
             * np.tan(np.radians(omega / 2))
         )
-        catalog["headingoffset_rad"] = np.arctan(
-            catalog["approx_horizdim_m"] / catalog["approx_vertdim_m"]
+        metadata["headingoffset_rad"] = np.arctan(
+            metadata["approx_horizdim_m"] / metadata["approx_vertdim_m"]
         )
-        catalog["cornerdist_m"] = (
-            0.5 * catalog["approx_horizdim_m"] / np.sin(catalog["headingoffset_rad"])
+        metadata["cornerdist_m"] = (
+            0.5 * metadata["approx_horizdim_m"] / np.sin(metadata["headingoffset_rad"])
         )
-        catalog["longpos_deg"] = catalog["lon"] + 360
+        metadata["longpos_deg"] = metadata["lon"] + 360
 
         corner_columns = [
             "TRcornerlong",
@@ -347,9 +347,9 @@ class ResampleLayer(Paidiverpy):
             "BRcornerlong",
             "BRcornerlat",
         ]
-        catalog[corner_columns] = 0.0
+        metadata[corner_columns] = 0.0
         # Iterate over each photo to calculate corner coordinates
-        for i, row in catalog.iterrows():
+        for i, row in metadata.iterrows():
             lat, lon, heading_deg, headingoffset_rad, cornerdist_m = row[
                 [
                     "lat",
@@ -360,12 +360,12 @@ class ResampleLayer(Paidiverpy):
                 ]
             ]
 
-            catalog.loc[i, "TRcornerlong"], catalog.loc[i, "TRcornerlat"] = (
+            metadata.loc[i, "TRcornerlong"], metadata.loc[i, "TRcornerlat"] = (
                 ResampleLayer.calculate_corner(
                     lat, lon, heading_deg, headingoffset_rad, cornerdist_m, 0
                 )
             )
-            catalog.loc[i, "TLcornerlong"], catalog.loc[i, "TLcornerlat"] = (
+            metadata.loc[i, "TLcornerlong"], metadata.loc[i, "TLcornerlat"] = (
                 ResampleLayer.calculate_corner(
                     lat,
                     lon,
@@ -375,12 +375,12 @@ class ResampleLayer(Paidiverpy):
                     -2 * headingoffset_rad * 180 / np.pi,
                 )
             )
-            catalog.loc[i, "BLcornerlong"], catalog.loc[i, "BLcornerlat"] = (
+            metadata.loc[i, "BLcornerlong"], metadata.loc[i, "BLcornerlat"] = (
                 ResampleLayer.calculate_corner(
                     lat, lon, heading_deg, headingoffset_rad, cornerdist_m, 180
                 )
             )
-            catalog.loc[i, "BRcornerlong"], catalog.loc[i, "BRcornerlat"] = (
+            metadata.loc[i, "BRcornerlong"], metadata.loc[i, "BRcornerlat"] = (
                 ResampleLayer.calculate_corner(
                     lat,
                     lon,
@@ -395,16 +395,16 @@ class ResampleLayer(Paidiverpy):
         n = pd.DataFrame(
             {
                 "long_deg": [
-                    catalog["TLcornerlong"].iloc[0],
-                    catalog["TRcornerlong"].iloc[0],
-                    catalog["BRcornerlong"].iloc[0],
-                    catalog["BLcornerlong"].iloc[0],
+                    metadata["TLcornerlong"].iloc[0],
+                    metadata["TRcornerlong"].iloc[0],
+                    metadata["BRcornerlong"].iloc[0],
+                    metadata["BLcornerlong"].iloc[0],
                 ],
                 "lat_deg": [
-                    catalog["TLcornerlat"].iloc[0],
-                    catalog["TRcornerlat"].iloc[0],
-                    catalog["BRcornerlat"].iloc[0],
-                    catalog["BLcornerlat"].iloc[0],
+                    metadata["TLcornerlat"].iloc[0],
+                    metadata["TRcornerlat"].iloc[0],
+                    metadata["BRcornerlat"].iloc[0],
+                    metadata["BLcornerlat"].iloc[0],
                 ],
             }
         )
@@ -417,23 +417,23 @@ class ResampleLayer(Paidiverpy):
         coordsn = pd.DataFrame(chn, columns=["long_deg", "lat_deg"])
 
         # Find overlaps
-        catalog["overlap"] = 0
-        catalog["polygon_m"] = Polygon(coordsn.values)
+        metadata["overlap"] = 0
+        metadata["polygon_m"] = Polygon(coordsn.values)
 
-        for i in range(1, len(catalog)):
+        for i in range(1, len(metadata)):
             m = pd.DataFrame(
                 {
                     "long_deg": [
-                        catalog["TLcornerlong"].iloc[i],
-                        catalog["TRcornerlong"].iloc[i],
-                        catalog["BRcornerlong"].iloc[i],
-                        catalog["BLcornerlong"].iloc[i],
+                        metadata["TLcornerlong"].iloc[i],
+                        metadata["TRcornerlong"].iloc[i],
+                        metadata["BRcornerlong"].iloc[i],
+                        metadata["BLcornerlong"].iloc[i],
                     ],
                     "lat_deg": [
-                        catalog["TLcornerlat"].iloc[i],
-                        catalog["TRcornerlat"].iloc[i],
-                        catalog["BRcornerlat"].iloc[i],
-                        catalog["BLcornerlat"].iloc[i],
+                        metadata["TLcornerlat"].iloc[i],
+                        metadata["TRcornerlat"].iloc[i],
+                        metadata["BRcornerlat"].iloc[i],
+                        metadata["BLcornerlat"].iloc[i],
                     ],
                 }
             )
@@ -447,10 +447,10 @@ class ResampleLayer(Paidiverpy):
 
             polygon_n = Polygon(coordsn.values)
             polygon_m = Polygon(coordsm.values)
-            catalog.loc[i, "polygon_m"] = polygon_m
+            metadata.loc[i, "polygon_m"] = polygon_m
             if polygon_n.intersects(polygon_m):
                 if overlap_threshold is None:
-                    catalog.loc[i, "overlap"] = 1
+                    metadata.loc[i, "overlap"] = 1
                 else:
                     overlap_area = polygon_n.intersection(polygon_m).area
                     overlap_percentage_n = overlap_area / polygon_n.area
@@ -459,26 +459,26 @@ class ResampleLayer(Paidiverpy):
                         overlap_percentage_n > overlap_threshold
                         or overlap_percentage_m > overlap_threshold
                     ):
-                        catalog.loc[i, "overlap"] = 1
+                        metadata.loc[i, "overlap"] = 1
                     else:
                         coordsn = coordsm
             else:
                 coordsn = coordsm
         self.logger.info(
-            "Number of photos to be removed: %s", int(catalog["overlap"].sum())
+            "Number of photos to be removed: %s", int(metadata["overlap"].sum())
         )
-        new_catalog = self.get_catalog()
+        new_metadata = self.get_metadata()
 
-        new_catalog.loc[catalog["overlap"] == 1, "flag"] = step_order
+        new_metadata.loc[metadata["overlap"] == 1, "flag"] = step_order
         if test:
-            ResampleLayer.plot_polygons(catalog)
-            self.plot_trimmed_photos(new_catalog[new_catalog.flag == 0])
+            ResampleLayer.plot_polygons(metadata)
+            self.plot_trimmed_photos(new_metadata[new_metadata.flag == 0])
             return None
-        return new_catalog
+        return new_metadata
 
     @staticmethod
-    def plot_polygons(catalog):
-        gdf = gpd.GeoDataFrame(catalog, geometry="polygon_m")
+    def plot_polygons(metadata):
+        gdf = gpd.GeoDataFrame(metadata, geometry="polygon_m")
         _, ax = plt.subplots(figsize=(15, 15))
 
         gdf[gdf.overlap == 0].plot(
