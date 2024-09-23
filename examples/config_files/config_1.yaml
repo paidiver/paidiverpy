@@ -5,6 +5,7 @@ general:
   metadata_type: 'CSV_FILE'
   append_data_to_metadata: '/mnt/code/code/noc/paidiver/paidiverpy/examples/data/jen/waypoints/scidata_20180610.csv'
   image_type: 'JPG'
+  rename: 'datetime'
   sampling:
     - mode: 'percent'
       params:

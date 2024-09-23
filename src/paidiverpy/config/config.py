@@ -28,6 +28,7 @@ class GeneralConfig(DynamicConfig):
         self.metadata_type = kwargs.get("metadata_type", None)
         self.append_data_to_metadata = kwargs.get("append_data_to_metadata", False)
         self.image_type = kwargs.get("image_type", None)
+        self.rename = kwargs.get("rename", None)
         samplings = kwargs.get("sampling", None)
         if samplings:
             self.sampling = [SamplingConfig(**sampling) for sampling in samplings]
