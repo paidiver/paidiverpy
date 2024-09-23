@@ -31,24 +31,22 @@ class ImagesLayer:
         self,
         step: tuple,
         images: np.ndarray = None,
-        catalog: pd.DataFrame = None,
+        metadata: pd.DataFrame = None,
         step_metadata: List[dict] = None,
-        update_catalog: bool = False,
+        update_metadata: bool = False,
     ):
-        if update_catalog:
+        if update_metadata:
             last_images = self.images[-1]
-            print(len(last_images), last_images[0].shape, type(last_images[0]))
 
             last_filenames = np.array(self.filenames[-1])
-            new_filenames = np.isin(last_filenames, catalog["filename"])
+            new_filenames = np.isin(last_filenames, metadata["filename"])
             new_images = [image for image, filename in zip(last_images, new_filenames) if filename]
-            print(len(new_images), new_images[0].shape, type(new_images[0]))
             self.images.append(new_images)
         else:
             self.images.append(images)
         self.step_metadata.append(step_metadata)
         self.steps.append(step)
-        self.filenames.append(catalog["filename"].tolist())
+        self.filenames.append(metadata["filename"].tolist())
 
     def remove_steps_by_name(self, step: tuple):
         """Remove steps by name

@@ -1,7 +1,7 @@
 general:
-  append_data_to_catalog: /mnt/code/code/noc/paidiver/paidiverpy/examples/data/jen/waypoints/scidata_20180610.csv
-  catalog_path: /mnt/code/code/noc/paidiver/paidiverpy/examples/catalog/catalog_jen.csv
-  catalog_type: CSV
+  append_data_to_metadata: /mnt/code/code/noc/paidiver/paidiverpy/examples/data/jen/waypoints/scidata_20180610.csv
+  metadata_path: /mnt/code/code/noc/paidiver/paidiverpy/examples/metadata/metadata_benthic.csv
+  metadata_type: CSV
   convert:
   - mode: bits
     params:
