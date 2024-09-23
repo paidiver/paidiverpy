@@ -24,9 +24,9 @@ class GeneralConfig(DynamicConfig):
         if output_path:
             self.output_path = Path(output_path)
         self.n_jobs = kwargs.get("n_jobs", None)
-        self.catalog_path = kwargs.get("catalog_path", None)
-        self.catalog_type = kwargs.get("catalog_type", None)
-        self.append_data_to_catalog = kwargs.get("append_data_to_catalog", False)
+        self.metadata_path = kwargs.get("metadata_path", None)
+        self.metadata_type = kwargs.get("metadata_type", None)
+        self.append_data_to_metadata = kwargs.get("append_data_to_metadata", False)
         self.image_type = kwargs.get("image_type", None)
         samplings = kwargs.get("sampling", None)
         if samplings:

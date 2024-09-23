@@ -10,17 +10,17 @@ class PositionLayer(Paidiverpy):
         config_file_path=None,
         input_path=None,
         output_path=None,
-        catalog_path=None,
-        catalog_type=None,
-        catalog=None,
+        metadata_path=None,
+        metadata_type=None,
+        metadata=None,
         config=None,
     ):
         super().__init__(
             config_file_path,
             input_path,
             output_path,
-            catalog_path,
-            catalog_type,
-            catalog,
+            metadata_path,
+            metadata_type,
+            metadata,
             config,
         )
