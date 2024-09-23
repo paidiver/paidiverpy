@@ -1,8 +1,8 @@
 general:
   input_path: '/mnt/code/code/noc/paidiver/paidiverpy/examples/data/mojtaba/'
   output_path: '/mnt/code/code/noc/paidiver/paidiverpy/examles/data/'
-  catalog_path: '/mnt/code/code/noc/paidiver/paidiverpy/examples/catalog/catalog_mojtaba.csv'
-  catalog_type: 'CSV' # choose between IFDO, CSV, SQL, etc
+  metadata_path: '/mnt/code/code/noc/paidiver/paidiverpy/examples/metadata/metadata_pelagic.csv'
+  metadata_type: 'CSV_FILE' # choose between IFDO, CSV, SQL, etc
   # file_name_pattern: '*0000*'
   image_type: 'BMP' # choose between BMP, RAW, PNG, JPEG, TIFF, etc
   sampling:

@@ -1,0 +1,24 @@
+general:
+  input_path: '/mnt/code/code/noc/paidiver/paidiverpy/examples/data/mojtaba/'
+  output_path: '/mnt/code/code/noc/paidiver/paidiverpy/examles/data/'
+  metadata_path: '/mnt/code/code/noc/paidiver/paidiverpy/examples/metadata/metadata_pelagic.csv'
+  metadata_type: 'CSV_FILE'
+  image_type: 'BMP'
+  sampling:
+    - mode: 'percent'
+      params:
+        value: 0.9
+  convert:
+    - mode: 'bits'
+      params:
+        output_bits: 8
+
+steps:
+  - color:
+      name: 'deblur'
+      mode: 'deblur'
+      params:
+        method: 'wiener'
+        psf_type: 'gaussian'
+        sigma: 1
+        angle: 45
