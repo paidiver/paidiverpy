@@ -10,7 +10,7 @@ from dask.distributed import Client
 
 import pandas as pd
 import matplotlib.pyplot as plt
-from paidiverpy.catalog_parser import CatalogParser
+from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.config.config import Configuration
 from paidiverpy.images_layer import ImagesLayer
 from utils import initialise_logging, get_n_jobs
@@ -23,9 +23,9 @@ class Paidiverpy:
         config_file_path (str): The path to the configuration file.
         input_path (str): The path to the input files.
         output_path (str): The path to the output files.
-        catalog_path (str): The path to the catalog file.
-        catalog_type (str): The type of the catalog file.
-        catalog (CatalogParser): The catalog object.
+        metadata_path (str): The path to the metadata file.
+        metadata_type (str): The type of the metadata file.
+        metadata (MetadataParser): The metadata object.
         config (Configuration): The configuration object.
         logger (logging.Logger): The logger object.
         images (ImagesLayer): The images object.
@@ -40,9 +40,9 @@ class Paidiverpy:
         config_file_path: str = None,
         input_path: str = None,
         output_path: str = None,
-        catalog_path: str = None,
-        catalog_type: str = None,
-        catalog: CatalogParser = None,
+        metadata_path: str = None,
+        metadata_type: str = None,
+        metadata: MetadataParser = None,
         config: Configuration = None,
         logger: logging.Logger = None,
         images: ImagesLayer = None,
@@ -55,7 +55,7 @@ class Paidiverpy:
             self.logger = paidiverpy.logger
             self.images = paidiverpy.images
             self.config = paidiverpy.config
-            self.catalog = paidiverpy.catalog
+            self.metadata = paidiverpy.metadata
             self.verbose = paidiverpy.verbose
             self.raise_error = paidiverpy.raise_error
             self.n_jobs = paidiverpy.n_jobs
@@ -66,9 +66,9 @@ class Paidiverpy:
         else:
             self.logger = logger or initialise_logging(verbose=verbose)
             self.config = config or self._initialize_config(
-                config_file_path, input_path, output_path, catalog_path, catalog_type
+                config_file_path, input_path, output_path, metadata_path, metadata_type
             )
-            self.catalog = catalog or self._initialize_catalog()
+            self.metadata = metadata or self._initialize_metadata()
             self.images = images or ImagesLayer(
                 output_path=self.config.general.output_path,
             )
@@ -88,8 +88,8 @@ class Paidiverpy:
         config_file_path: str,
         input_path: str,
         output_path: str,
-        catalog_path: str,
-        catalog_type: str,
+        metadata_path: str,
+        metadata_type: str,
     ) -> Configuration:
         """Initialize the configuration object.
 
@@ -97,8 +97,8 @@ class Paidiverpy:
             config_file_path (str): Configuration file path.
             input_path (str): input path.
             output_path (str): output path.
-            catalog_path (str): catalog path.
-            catalog_type (str): catalog type.
+            metadata_path (str): metadata path.
+            metadata_type (str): metadata type.
 
         Returns:
             Configuration: The configuration object.
@@ -109,10 +109,10 @@ class Paidiverpy:
             general_config["input_path"] = input_path
         if output_path:
             general_config["output_path"] = output_path
-        if catalog_path:
-            general_config["catalog_path"] = catalog_path
-        if catalog_type:
-            general_config["catalog_type"] = catalog_type
+        if metadata_path:
+            general_config["metadata_path"] = metadata_path
+        if metadata_type:
+            general_config["metadata_type"] = metadata_type
 
         if config_file_path:
             return Configuration(config_file_path)
@@ -121,78 +121,78 @@ class Paidiverpy:
             config.add_config("general", general_config)
             return config
 
-    def _initialize_catalog(self) -> CatalogParser:
-        """Initialize the catalog object.
+    def _initialize_metadata(self) -> MetadataParser:
+        """Initialize the metadata object.
 
         Returns:
-            CatalogParser: The catalog object.
+            MetadataParser: The metadata object.
         """
         general = self.config.general
-        if getattr(general, "catalog_path", None) and getattr(
-            general, "catalog_type", None
+        if getattr(general, "metadata_path", None) and getattr(
+            general, "metadata_type", None
         ):
-            return CatalogParser(config=self.config, logger=self.logger)
+            return MetadataParser(config=self.config, logger=self.logger)
         else:
             self.logger.info(
-                "Catalog type is not specified. Loading files from the input path."
+                "Metadata type is not specified. Loading files from the input path."
             )
             self.logger.info(
-                "Catalog will be created from the files in the input path."
+                "Metadata will be created from the files in the input path."
             )
             file_pattern = str(
                 Path(general.input_path).joinpath(general.file_name_pattern)
             )
             list_of_files = glob.glob(file_pattern)
             list_of_files = [os.path.basename(file) for file in list_of_files]
-            catalog = pd.DataFrame(list_of_files, columns=["filename"])
-            catalog = catalog.reset_index().rename(columns={"index": "ID"})
-            return catalog
+            metadata = pd.DataFrame(list_of_files, columns=["filename"])
+            metadata = metadata.reset_index().rename(columns={"index": "ID"})
+            return metadata
 
-    def get_catalog(self, flag: int = None) -> pd.DataFrame:
-        """Get the catalog object.
+    def get_metadata(self, flag: int = None) -> pd.DataFrame:
+        """Get the metadata object.
 
         Args:
             flag (int, optional): The flag value. Defaults to None.
 
         Returns:
-            pd.DataFrame: The catalog object.
+            pd.DataFrame: The metadata object.
         """
-        if isinstance(self.catalog, CatalogParser):
+        if isinstance(self.metadata, MetadataParser):
             flag = 0 if flag is None else flag
             if flag == "all":
-                if "datetime" not in self.catalog.catalog.columns:
-                    return self.catalog.catalog
-                return self.catalog.catalog.sort_values("datetime")
-            if "datetime" not in self.catalog.catalog.columns:
-                return self.catalog.catalog[self.catalog.catalog["flag"] <= flag]
-            return self.catalog.catalog[
-                self.catalog.catalog["flag"] <= flag
+                if "datetime" not in self.metadata.metadata.columns:
+                    return self.metadata.metadata
+                return self.metadata.metadata.sort_values("datetime")
+            if "datetime" not in self.metadata.metadata.columns:
+                return self.metadata.metadata[self.metadata.metadata["flag"] <= flag]
+            return self.metadata.metadata[
+                self.metadata.metadata["flag"] <= flag
             ].sort_values("datetime")
-        return self.catalog
+        return self.metadata
 
-    def set_catalog(self, catalog: pd.DataFrame) -> None:
-        """Set the catalog
+    def set_metadata(self, metadata: pd.DataFrame) -> None:
+        """Set the metadata
 
         Args:
-            catalog (pd.DataFrame): The catalog object.
+            metadata (pd.DataFrame): The metadata object.
         """
-        if isinstance(self.catalog, CatalogParser):
-            self.catalog.catalog = catalog
+        if isinstance(self.metadata, MetadataParser):
+            self.metadata.metadata = metadata
         else:
-            self.catalog = catalog
+            self.metadata = metadata
 
     def get_waypoints(self) -> pd.DataFrame:
         """Get the waypoints.
 
         Raises:
-            ValueError: Waypoints are not loaded in the catalog.
+            ValueError: Waypoints are not loaded in the metadata.
 
         Returns:
             pd.DataFrame: The waypoints
         """
-        if isinstance(self.catalog, CatalogParser):
-            return self.catalog.waypoints
-        raise ValueError("Waypoints are not loaded in the catalog.")
+        if isinstance(self.metadata, MetadataParser):
+            return self.metadata.waypoints
+        raise ValueError("Waypoints are not loaded in the metadata.")
 
     def show_images(self, step_name: str):
         """Show the images.
@@ -228,22 +228,22 @@ class Paidiverpy:
                          image_format=image_format)
         self.logger.info("Images are saved.")
 
-    def plot_trimmed_photos(self, new_catalog: pd.DataFrame):
+    def plot_trimmed_photos(self, new_metadata: pd.DataFrame):
         """Plot the trimmed photos.
 
         Args:
-            new_catalog (pd.DataFrame): The new catalog.
+            new_metadata (pd.DataFrame): The new metadata.
         """
-        catalog = self.get_catalog()
-        if not "lon" in catalog.columns or not "lon" in new_catalog.columns:
+        metadata = self.get_metadata()
+        if not "lon" in metadata.columns or not "lon" in new_metadata.columns:
             self.logger.warning(
-                "Longitude and Latitude columns are not found in the catalog."
+                "Longitude and Latitude columns are not found in the metadata."
             )
             self.logger.warning("Plotting will not be performed.")
             return
         plt.figure(figsize=(20, 10))
-        plt.plot(catalog["lon"], catalog["lat"], ".k")
-        plt.plot(new_catalog["lon"], new_catalog["lat"], "or")
+        plt.plot(metadata["lon"], metadata["lat"], ".k")
+        plt.plot(new_metadata["lon"], new_metadata["lat"], "or")
         plt.legend(["Original", "After Trim"])
         plt.show()
 
@@ -258,9 +258,9 @@ class Paidiverpy:
             self.images.remove_steps_by_order(value)
         else:
             self.images.remove_steps_by_name(value)
-        catalog = self.get_catalog(flag="all")
-        catalog.loc[catalog["flag"] >= value, "flag"] = 0
-        self.set_catalog(catalog)
+        metadata = self.get_metadata(flag="all")
+        metadata.loc[metadata["flag"] >= value, "flag"] = 0
+        self.set_metadata(metadata)
 
     def _calculate_steps_metadata(self, config_part: Configuration) -> dict:
         """Calculate the steps metadata.
