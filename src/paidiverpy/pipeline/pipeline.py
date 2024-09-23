@@ -12,9 +12,9 @@ class Pipeline(Paidiverpy):
         steps=None,
         input_path=None,
         output_path=None,
-        catalog_path=None,
-        catalog_type=None,
-        catalog=None,
+        metadata_path=None,
+        metadata_type=None,
+        metadata=None,
         config=None,
         logger=None,
         raise_error=False,
@@ -26,9 +26,9 @@ class Pipeline(Paidiverpy):
             config_file_path=config_file_path,
             input_path=input_path,
             output_path=output_path,
-            catalog_path=catalog_path,
-            catalog_type=catalog_type,
-            catalog=catalog,
+            metadata_path=metadata_path,
+            metadata_type=metadata_type,
+            metadata=metadata,
             config=config,
             logger=logger,
             raise_error=raise_error,
@@ -90,14 +90,14 @@ class Pipeline(Paidiverpy):
                     step_instance = step_class(
                         step_name=step_name,
                         config=self.config,
-                        catalog=self.catalog,
+                        metadata=self.metadata,
                         parameters=step_params,
                         n_jobs=self.n_jobs,
                     )
                 else:
                     step_instance = step_class(
                         config=self.config,
-                        catalog=self.catalog,
+                        metadata=self.metadata,
                         images=self.images,
                         step_name=step_name,
                         parameters=step_params,
@@ -108,7 +108,7 @@ class Pipeline(Paidiverpy):
                 self.logger.info(f"Step {index} completed")
                 if not step_params.get("test", False):
                     self.images = step_instance.images
-                    self.set_catalog(step_instance.get_catalog(flag="all"))
+                    self.set_metadata(step_instance.get_metadata(flag="all"))
                     self.runned_steps = index
                     self.logger.info(f"Step {index} saved")
 

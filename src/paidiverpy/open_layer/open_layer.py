@@ -29,9 +29,9 @@ class OpenLayer(Paidiverpy):
         config_file_path=None,
         input_path=None,
         output_path=None,
-        catalog_path=None,
-        catalog_type=None,
-        catalog=None,
+        metadata_path=None,
+        metadata_type=None,
+        metadata=None,
         config=None,
         logger=None,
         images=None,
@@ -46,9 +46,9 @@ class OpenLayer(Paidiverpy):
             config_file_path=config_file_path,
             input_path=input_path,
             output_path=output_path,
-            catalog_path=catalog_path,
-            catalog_type=catalog_type,
-            catalog=catalog,
+            metadata_path=metadata_path,
+            metadata_type=metadata_type,
+            metadata=metadata,
             config=config,
             logger=logger,
             images=images,
@@ -81,7 +81,7 @@ class OpenLayer(Paidiverpy):
                     new_config = copy.copy(self.config)
                     convert_layer = ConvertLayer(
                         config=new_config,
-                        catalog=self.catalog,
+                        metadata=self.metadata,
                         images=self.images,
                         step_name=step_params["name"],
                         parameters=step_params,
@@ -107,16 +107,16 @@ class OpenLayer(Paidiverpy):
                     "params": step.get("params"),
                 }
                 new_config = copy.copy(self.config)
-                self.set_catalog(
+                self.set_metadata(
                     ResampleLayer(
-                        config=new_config, catalog=self.catalog, parameters=step_params
+                        config=new_config, metadata=self.metadata, parameters=step_params
                     ).run()
                 )
                 self.config.steps.pop()
 
         img_path_list = [
             self.config.general.input_path / filename
-            for filename in self.get_catalog()["filename"]
+            for filename in self.get_metadata()["filename"]
         ]
         if self.n_jobs == 1:
             image_list = [
@@ -127,7 +127,7 @@ class OpenLayer(Paidiverpy):
             # for _, img_path in tqdm(
             #     enumerate(img_path_list), total=len(img_path_list), desc="Open Images"
             # ):
-            #     # image_metadata = self.get_catalog(flag="all").iloc[index].to_dict()
+            #     # image_metadata = self.get_metadata(flag="all").iloc[index].to_dict()
             #     # image_metadata['bit_depth'] = img.dtype.itemsize * 8
             #     img_layer = self.process_image(img_path)
             #     image_list.append(img_layer)
@@ -140,7 +140,7 @@ class OpenLayer(Paidiverpy):
             ]
             # delayed_image_list = []
             # for _, img_path in enumerate(img_path_list):
-            #     # image_metadata = self.get_catalog(flag="all").iloc[index].to_dict()
+            #     # image_metadata = self.get_metadata(flag="all").iloc[index].to_dict()
             #     # image_metadata['bit_depth'] = img.dtype.itemsize * 8
             #     delayed_image = delayed(self.process_image)(img_path)
             #     delayed_image_list.append(delayed_image)
@@ -157,7 +157,7 @@ class OpenLayer(Paidiverpy):
             step=self.step_name,
             images=image_list,
             step_metadata=self.step_metadata,
-            catalog=self.get_catalog(),
+            metadata=self.get_metadata(),
         )
         del image_list
         gc.collect()
@@ -240,13 +240,13 @@ class OpenLayer(Paidiverpy):
     def extract_exif(self):
         img_path_list = [
             self.config.general.input_path / filename
-            for filename in self.get_catalog()["filename"]
+            for filename in self.get_metadata()["filename"]
         ]
         exif_list = []
         for img_path in img_path_list:
             exif_list.append(OpenLayer.extract_exif_single(img_path))
-        self.set_catalog(
-            self.get_catalog(flag="all").merge(
+        self.set_metadata(
+            self.get_metadata(flag="all").merge(
                 pd.DataFrame(exif_list), on="filename", how="left"
             )
         )
