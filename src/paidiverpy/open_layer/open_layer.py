@@ -4,6 +4,7 @@
 import gc
 import copy
 from typing import Union
+import uuid
 
 from PIL import Image
 from PIL.ExifTags import TAGS
@@ -123,41 +124,47 @@ class OpenLayer(Paidiverpy):
                 self.process_image(img_path)
                 for img_path in tqdm(img_path_list, total=len(img_path_list), desc="Open Images")
             ]
-            # image_list = []
-            # for _, img_path in tqdm(
-            #     enumerate(img_path_list), total=len(img_path_list), desc="Open Images"
-            # ):
-            #     # image_metadata = self.get_metadata(flag="all").iloc[index].to_dict()
-            #     # image_metadata['bit_depth'] = img.dtype.itemsize * 8
-            #     img_layer = self.process_image(img_path)
-            #     image_list.append(img_layer)
-
-            # image_list = self._stack_images_with_padding(image_list)
         else:
             delayed_image_list = [
                 delayed(self.process_image)(img_path)
                 for _, img_path in enumerate(img_path_list)
             ]
-            # delayed_image_list = []
-            # for _, img_path in enumerate(img_path_list):
-            #     # image_metadata = self.get_metadata(flag="all").iloc[index].to_dict()
-            #     # image_metadata['bit_depth'] = img.dtype.itemsize * 8
-            #     delayed_image = delayed(self.process_image)(img_path)
-            #     delayed_image_list.append(delayed_image)
-            # # Distribute the computation across available cores
             with dask.config.set(scheduler='threads', num_workers=self.n_jobs):
                 self.logger.info("Processing images using %s cores", self.n_jobs)
                 with ProgressBar():
                     computed_images = compute(*delayed_image_list)
                 image_list = list(computed_images)
-                # image_list = self._stack_images_with_padding(computed_images)
 
-        # Add the processed images to the step
+        metadata = self.get_metadata()
+        rename = self.step_metadata.get("rename")
+        if rename:
+            if self.step_metadata.get("image_type"):
+                image_type = f".{self.step_metadata.get('image_type')}"
+            else:
+                image_type = ""
+            if rename == 'datetime':
+                metadata['filename'] = pd.to_datetime(metadata['datetime']).dt.strftime('%Y%m%dT%H%M%S.%f').str[:-3] + 'Z' + image_type
+
+                duplicate_mask = metadata.duplicated(subset='filename', keep=False)
+                if duplicate_mask.any():
+                    duplicates = metadata[duplicate_mask]
+                    duplicates['duplicate_number'] = duplicates.groupby('filename').cumcount() + 1
+                    metadata.loc[duplicate_mask, 'filename'] = duplicates.apply(
+                        lambda row: f"{row['filename'][:-1]}_{row['duplicate_number']}", axis=1
+                    )
+            elif rename == 'UUID':
+                metadata['filename'] = metadata['filename'].apply(lambda x: str(uuid.uuid4()) + image_type)
+            else:
+                self.logger.error(f"Unknown rename mode: {rename}")
+                if self.raise_error:
+                    raise ValueError(f"Unknown rename mode: {rename}")
+            self.set_metadata(metadata)
+
         self.images.add_step(
             step=self.step_name,
             images=image_list,
             step_metadata=self.step_metadata,
-            metadata=self.get_metadata(),
+            metadata=metadata,
         )
         del image_list
         gc.collect()
@@ -197,14 +204,6 @@ class OpenLayer(Paidiverpy):
     def process_image(self, img_path):
         """Process a single image"""
         img = self.open_image(img_path=img_path)
-        # img_layer = ImageLayer(
-        #     image=img,
-        #     name=image_metadata.get("filename"),
-        #     image_metadata=image_metadata,
-        #     step_order=self.images.get_last_step_order(),
-        #     step_name=self.step_name,
-        # )
-        # del img
         gc.collect()
         return img
 
@@ -222,13 +221,9 @@ class OpenLayer(Paidiverpy):
         """
         if self.n_jobs == 1:
             img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
-            # if len(img.shape) == 2:
-            #     img = np.expand_dims(img, axis=-1)
         else:
             img = dask_image.imread.imread(img_path)
             img = np.squeeze(img)
-            # if len(img.shape) == 2:
-            #     img = da.expand_dims(img, axis=-1)
         if img is None:
             if self.raise_error:
                 self.logger.error("Failed to open the image: %s", img_path)
