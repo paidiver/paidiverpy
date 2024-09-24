@@ -48,6 +48,7 @@ class ConvertLayer(Paidiverpy):
         verbose (int): verbose level (0 = none, 1 = errors/warnings, 2 = info).
         n_jobs (int): The number of jobs to run in parallel.
     """
+
     def __init__(
         self,
         config_file_path: str = None,
@@ -91,7 +92,7 @@ class ConvertLayer(Paidiverpy):
             self.config.steps[self.config_index]
         )
 
-    def run(self, add_new_step: bool=True) -> Union[ImagesLayer, None]:
+    def run(self, add_new_step: bool = True) -> Union[ImagesLayer, None]:
         """Run the convert layer steps on the images based on the configuration
         file or parameters.
 
@@ -147,7 +148,6 @@ class ConvertLayer(Paidiverpy):
         image_list = [method(img, params=params) for img in images]
         return image_list
 
-
     def process_parallel(
         self, images: List[da.core.Array], method: callable, params: DynamicConfig
     ) -> List[np.ndarray]:
@@ -169,18 +169,18 @@ class ConvertLayer(Paidiverpy):
         image_list = [da.from_array(img) for img in delayed_images]
         return image_list
 
-    def convert_bits(self,
-                     image_data: np.ndarray,
-                     params: BitParams = BitParams()) -> np.ndarray:
+    def convert_bits(
+        self, image_data: np.ndarray, params: BitParams = BitParams()
+    ) -> np.ndarray:
         """Convert the image to the specified number of bits.
-        
+
         Args:
             image_data (np.ndarray): The image data.
             params (BitParams, optional): The parameters for the bit conversion.
         Defaults to BitParams().
-        
+
         Returns:
-            np.ndarray: The image data with the specified number of bits.            
+            np.ndarray: The image data with the specified number of bits.
         """
         if params.output_bits == 8:
             image_data = np.uint8(image_data * 255)
@@ -195,10 +195,10 @@ class ConvertLayer(Paidiverpy):
 
         return image_data
 
-    def channel_convert(self,
-                        image_data: np.ndarray,
-                        params: ToParams = ToParams()) -> np.ndarray:
-        """ Convert the image to the specified channel.
+    def channel_convert(
+        self, image_data: np.ndarray, params: ToParams = ToParams()
+    ) -> np.ndarray:
+        """Convert the image to the specified channel.
 
         Args:
             image_data (np.ndarray): The image data.
@@ -235,11 +235,9 @@ class ConvertLayer(Paidiverpy):
         return image_data
 
     def get_bayer_pattern(
-        self,
-        image_data: np.ndarray,
-        params: BayerPatternParams = BayerPatternParams()
+        self, image_data: np.ndarray, params: BayerPatternParams = BayerPatternParams()
     ) -> np.ndarray:
-        """ Convert the image to the specified Bayer pattern.
+        """Convert the image to the specified Bayer pattern.
 
         Args:
             image_data (np.ndarray): The image data.
@@ -287,10 +285,10 @@ class ConvertLayer(Paidiverpy):
 
         return image_data
 
-    def normalize_image(self,
-                        image_data: np.ndarray,
-                        params: NormalizeParams = NormalizeParams()) -> np.ndarray:
-        """ Normalize the image data.
+    def normalize_image(
+        self, image_data: np.ndarray, params: NormalizeParams = NormalizeParams()
+    ) -> np.ndarray:
+        """Normalize the image data.
 
         Args:
             image_data (np.ndarray): The image data.
@@ -318,10 +316,10 @@ class ConvertLayer(Paidiverpy):
                 raise ValueError(f"Failed to normalize the image: {str(e)}") from e
         return image_data
 
-    def resize(self,
-               image_data: np.ndarray,
-               params: ResizeParams = ResizeParams()) -> np.ndarray:
-        """ Resize the image data.
+    def resize(
+        self, image_data: np.ndarray, params: ResizeParams = ResizeParams()
+    ) -> np.ndarray:
+        """Resize the image data.
 
         Args:
             image_data (np.ndarray): The image data.
@@ -334,7 +332,7 @@ class ConvertLayer(Paidiverpy):
         Returns:
             np.ndarray: The resized image data.
         """
-        
+
         try:
             return cv2.resize(
                 image_data, (params.min, params.max), interpolation=cv2.INTER_LANCZOS4
@@ -345,10 +343,10 @@ class ConvertLayer(Paidiverpy):
                 raise ValueError(f"Failed to resize the image: {str(e)}") from e
         return image_data
 
-    def crop_images(self,
-                    image_data: np.ndarray,
-                    params: CropParams = CropParams()) -> np.ndarray:
-        """ Crop the image data.
+    def crop_images(
+        self, image_data: np.ndarray, params: CropParams = CropParams()
+    ) -> np.ndarray:
+        """Crop the image data.
 
         Args:
             image_data (np.ndarray): The image data.
