@@ -1,5 +1,6 @@
 """ ResampleLayer class.
 """
+
 import logging
 from typing import List, Union
 import numpy as np
@@ -129,7 +130,7 @@ class ResampleLayer(Paidiverpy):
         test: bool = False,
         params: ResamplePercentParams = ResamplePercentParams(),
     ) -> pd.DataFrame:
-        """ Resample the metadata by a percentage.
+        """Resample the metadata by a percentage.
 
         Args:
             step_order (int, optional): The order of the step. Defaults to None.
@@ -153,18 +154,18 @@ class ResampleLayer(Paidiverpy):
 
     def _by_fixed_number(
         self,
-        step_order: int=None,
-        test: bool=False,
+        step_order: int = None,
+        test: bool = False,
         params: ResampleFixedParams = ResampleFixedParams(),
     ) -> pd.DataFrame:
-        """ Resample the metadata by a fixed number of photos.
-        
+        """Resample the metadata by a fixed number of photos.
+
         Args:
             step_order (int, optional): The order of the step. Defaults to None.
             test (bool, optional): Whether to test the step. Defaults to False.
             params (ResampleFixedParams, optional): The parameters for the resample.
         Defaults to ResampleFixedParams().
-        
+
         Returns:
             pd.DataFrame: Metadata with the photos to be removed flagged.
         """
@@ -186,18 +187,18 @@ class ResampleLayer(Paidiverpy):
 
     def _by_datetime(
         self,
-        step_order: int=None,
-        test: bool=False,
+        step_order: int = None,
+        test: bool = False,
         params: ResampleDatetimeParams = ResampleDatetimeParams(),
     ) -> pd.DataFrame:
-        """ Resample the metadata by datetime.
-        
+        """Resample the metadata by datetime.
+
         Args:
             step_order (int, optional): The order of the step. Defaults to None.
             test (bool, optional): Whether to test the step. Defaults to False.
             params (ResampleDatetimeParams, optional): The parameters for the resample.
         Defaults to ResampleDatetimeParams().
-        
+
         Raises:
             ValueError: Start date cannot be greater than end date.
 
@@ -239,11 +240,11 @@ class ResampleLayer(Paidiverpy):
 
     def _by_depth(
         self,
-        step_order: int=None,
-        test: bool=False,
+        step_order: int = None,
+        test: bool = False,
         params: ResampleDepthParams = ResampleDepthParams(),
     ) -> pd.DataFrame:
-        """ Resample the metadata by depth.
+        """Resample the metadata by depth.
 
         Args:
             step_order (int, optional): The order of the step. Defaults to None.
@@ -271,11 +272,11 @@ class ResampleLayer(Paidiverpy):
 
     def _by_altitude(
         self,
-        step_order: int=None,
-        test: bool=False,
+        step_order: int = None,
+        test: bool = False,
         params: ResampleAltitudeParams = ResampleAltitudeParams(),
     ) -> pd.DataFrame:
-        """ Resample the metadata by altitude.
+        """Resample the metadata by altitude.
 
         Args:
             step_order (int, optional): The order of the step. Defaults to None.
@@ -300,11 +301,11 @@ class ResampleLayer(Paidiverpy):
 
     def _by_pitch_roll(
         self,
-        step_order: int=None,
-        test: bool=False,
+        step_order: int = None,
+        test: bool = False,
         params: ResamplePitchRollParams = ResamplePitchRollParams(),
     ) -> pd.DataFrame:
-        """ Resample the metadata by pitch and roll.
+        """Resample the metadata by pitch and roll.
 
         Args:
             step_order (int, optional): The order of the step. Defaults to None.
@@ -334,11 +335,11 @@ class ResampleLayer(Paidiverpy):
 
     def _by_region(
         self,
-        step_order: int=None,
-        test: bool=False,
+        step_order: int = None,
+        test: bool = False,
         params: ResampleRegionParams = ResampleRegionParams(),
     ) -> pd.DataFrame:
-        """ Resample the metadata by region.
+        """Resample the metadata by region.
 
         Args:
             step_order (int, optional): The order of the step. Defaults to None.
@@ -385,18 +386,18 @@ class ResampleLayer(Paidiverpy):
 
     def _by_obscure_photos(
         self,
-        step_order: int=None,
-        test: bool=False,
+        step_order: int = None,
+        test: bool = False,
         params: ResampleObscureParams = ResampleObscureParams(),
     ) -> pd.DataFrame:
-        """ Resample the metadata by obscure photos.
-        
+        """Resample the metadata by obscure photos.
+
         Args:
             step_order (int, optional): The order of the step. Defaults to None.
             test (bool, optional): Whether to test the step. Defaults to False.
             params (ResampleObscureParams, optional): The parameters for the resample.
         Defaults to ResampleObscureParams().
-        
+
         Returns:
             pd.DataFrame: Metadata with the photos to be removed flagged.
         """
@@ -429,11 +430,11 @@ class ResampleLayer(Paidiverpy):
 
     def _by_overlapping(
         self,
-        step_order: int=None,
-        test: bool=False,
+        step_order: int = None,
+        test: bool = False,
         params: ResampleOverlappingParams = ResampleOverlappingParams(),
     ) -> pd.DataFrame:
-        """ Resample the metadata by overlapping photos.
+        """Resample the metadata by overlapping photos.
 
         Args:
             step_order (int, optional): The order of the step. Defaults to None.
@@ -614,7 +615,7 @@ class ResampleLayer(Paidiverpy):
 
     @staticmethod
     def plot_polygons(metadata: pd.DataFrame) -> None:
-        """ Plot the polygons.
+        """Plot the polygons.
 
         Args:
             metadata (pd.DataFrame): The metadata with the polygons.
@@ -632,15 +633,16 @@ class ResampleLayer(Paidiverpy):
         plt.show()
 
     @staticmethod
-    def calculate_corner(lat: float,
-                         lon: float,
-                         heading_deg: float,
-                         headingoffset_rad: float,
-                         cornerdist_m: float,
-                         angle_offset: float
-                         ) -> tuple:
-        """ Calculate the corner coordinates.
-        
+    def calculate_corner(
+        lat: float,
+        lon: float,
+        heading_deg: float,
+        headingoffset_rad: float,
+        cornerdist_m: float,
+        angle_offset: float,
+    ) -> tuple:
+        """Calculate the corner coordinates.
+
         Args:
             lat (float): The latitude.
             lon (float): The longitude.
@@ -648,7 +650,7 @@ class ResampleLayer(Paidiverpy):
             headingoffset_rad (float): The heading offset in radians.
             cornerdist_m (float): The corner distance in meters.
             angle_offset (float): The angle offset.
-        
+
         Returns:
             tuple: The corner coordinates.
         """
