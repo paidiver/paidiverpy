@@ -1,4 +1,5 @@
-""" This module contains the dataclasses for the parameters of the convert layer functions. """
+""" This module contains the dataclasses for the parameters of the convert layer
+functions. """
 
 from dataclasses import dataclass
 from utils import DynamicConfig
@@ -22,8 +23,10 @@ class ToParams(DynamicConfig):
 @dataclass
 class BayerPatternParams(DynamicConfig):
     """This class contains the parameters for the Bayer pattern conversion"""
+
     def __init__(self) -> None:
         self.bayer_pattern: str = "BGGR"
+
 
 @dataclass
 class NormalizeParams(DynamicConfig):
