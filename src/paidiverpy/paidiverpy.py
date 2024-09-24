@@ -14,6 +14,7 @@ from paidiverpy.config.config import Configuration
 from paidiverpy.images_layer import ImagesLayer
 from utils import initialise_logging, get_n_jobs, DynamicConfig
 
+
 class Paidiverpy:
     """Main class for the paidiverpy package.
 
@@ -248,7 +249,7 @@ class Paidiverpy:
         plt.show()
 
     def clear_steps(self, value: Union[int, str], by_order: bool = True) -> None:
-        """ Clear steps from the images and metadata.
+        """Clear steps from the images and metadata.
 
         Args:
             value (Union[int, str]): Step name or order.
@@ -276,11 +277,10 @@ class Paidiverpy:
             steps_metadata[key] = value
         return steps_metadata
 
-    def _get_method_by_mode(self,
-                            params: DynamicConfig,
-                            method_dict: dict,
-                            mode: str) -> tuple:
-        """ Get the method by mode.
+    def _get_method_by_mode(
+        self, params: DynamicConfig, method_dict: dict, mode: str
+    ) -> tuple:
+        """Get the method by mode.
 
         Args:
             params (DynamicConfig): The parameters.

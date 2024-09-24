@@ -1,6 +1,6 @@
 general:
-  input_path: '/mnt/code/code/noc/paidiver/paidiverpy/examples/data/mojtaba/'
-  output_path: '/mnt/code/code/noc/paidiver/paidiverpy/examles/data/'
+  input_path: 'SAMPLE_DATA_PELAGIC'
+  output_path: './output'
   metadata_path: '/mnt/code/code/noc/paidiver/paidiverpy/examples/metadata/metadata_pelagic.csv'
   metadata_type: 'CSV_FILE'
   image_type: 'BMP'

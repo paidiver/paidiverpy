@@ -1,4 +1,5 @@
 """ Module for parsing metadata files. """
+
 import logging
 from typing import Dict
 import pandas as pd
@@ -18,26 +19,27 @@ lon_columns = ["lon", "longitude_deg", "longitude", "Longitude", "Longitude_deg"
 
 
 class MetadataParser:
-    """ Class for parsing metadata files.
-    
+    """Class for parsing metadata files.
+
     Args:
         config (Configuration): Configuration object.
         metadata_path (str): Path to the metadata file.
         metadata_type (str): Type of the metadata file.
         append_data_to_metadata (str): Path to the file with additional data.
         logger (logging.Logger): Logger object.
-    
+
     Raises:
         ValueError: Metadata path is not specified.
         ValueError: Metadata type is not specified.
     """
+
     def __init__(
         self,
-        config: Configuration=None,
-        metadata_path: str=None,
-        metadata_type: str=None,
-        append_data_to_metadata: str=None,
-        logger: logging.Logger=None,
+        config: Configuration = None,
+        metadata_path: str = None,
+        metadata_type: str = None,
+        append_data_to_metadata: str = None,
+        logger: logging.Logger = None,
     ):
 
         self.logger = logger or initialise_logging()
@@ -56,11 +58,10 @@ class MetadataParser:
 
         self.metadata = self.open_metadata()
 
-    def _build_config(self,
-                      metadata_path: str,
-                      metadata_type: str,
-                      append_data_to_metadata: str) -> Configuration:
-        """ Build a configuration object.
+    def _build_config(
+        self, metadata_path: str, metadata_type: str, append_data_to_metadata: str
+    ) -> Configuration:
+        """Build a configuration object.
 
         Args:
             metadata_path (str): Metadata file path.
@@ -80,7 +81,7 @@ class MetadataParser:
         return config
 
     def open_metadata(self) -> pd.DataFrame:
-        """ Open metadata file.
+        """Open metadata file.
 
         Raises:
             ValueError: Metadata type is not supported.
@@ -102,9 +103,8 @@ class MetadataParser:
         metadata = self._process_coordinates(metadata)
         return metadata
 
-    def _process_coordinates(self,
-                             metadata: pd.DataFrame) -> pd.DataFrame:
-        """ Process coordinates in the metadata.
+    def _process_coordinates(self, metadata: pd.DataFrame) -> pd.DataFrame:
+        """Process coordinates in the metadata.
 
         Args:
             metadata (pd.DataFrame): Metadata DataFrame.
@@ -122,11 +122,10 @@ class MetadataParser:
 
         return metadata
 
-    def _rename_columns(self,
-                        metadata: pd.DataFrame,
-                        columns: list,
-                        raise_error: bool=False) -> pd.DataFrame:
-        """ Rename columns in the metadata.
+    def _rename_columns(
+        self, metadata: pd.DataFrame, columns: list, raise_error: bool = False
+    ) -> pd.DataFrame:
+        """Rename columns in the metadata.
 
         Args:
             metadata (pd.DataFrame): Metadata DataFrame.
@@ -168,7 +167,7 @@ class MetadataParser:
                 return metadata
 
     def _add_data_to_metadata(self, metadata: pd.DataFrame) -> pd.DataFrame:
-        """ Add additional data to the metadata.
+        """Add additional data to the metadata.
 
         Args:
             metadata (pd.DataFrame): Metadata DataFrame.
@@ -194,7 +193,7 @@ class MetadataParser:
         return metadata
 
     def _open_ifdo_metadata(self) -> pd.DataFrame:
-        """ Open iFDO metadata file.
+        """Open iFDO metadata file.
 
         Returns:
             pd.DataFrame: Metadata DataFrame.
@@ -205,8 +204,8 @@ class MetadataParser:
         return metadata
 
     def _open_csv_metadata(self) -> pd.DataFrame:
-        """ Open CSV metadata file.
-        
+        """Open CSV metadata file.
+
         Returns:
             pd.DataFrame: Metadata DataFrame
         """
@@ -239,7 +238,7 @@ class MetadataParser:
             )
 
     def __repr__(self) -> str:
-        """ Return the string representation of the metadata.
+        """Return the string representation of the metadata.
 
         Returns:
             str: String representation of the metadata.
@@ -247,7 +246,7 @@ class MetadataParser:
         return repr(self.metadata)
 
     def _repr_html_(self) -> str:
-        """ Return the HTML representation of the metadata.
+        """Return the HTML representation of the metadata.
 
         Returns:
             str: HTML representation of the metadata.
