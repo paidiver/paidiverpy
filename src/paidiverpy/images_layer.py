@@ -20,7 +20,7 @@ class ImagesLayer:
         output_path (str): Path to save the images. Default is None.
     """
 
-    def __init__(self, output_path: str=None):
+    def __init__(self, output_path: str = None):
         self.steps = []
         self.step_metadata = []
         self.images = []
@@ -36,7 +36,7 @@ class ImagesLayer:
         step_metadata: dict = None,
         update_metadata: bool = False,
     ) -> None:
-        """ Add a step to the pipeline
+        """Add a step to the pipeline
 
         Args:
             step (str): The step to add
@@ -95,10 +95,9 @@ class ImagesLayer:
         """
         return len(self.steps) - 1
 
-    def get_step(self,
-                 step: Union[str, int] = None,
-                 by_order: bool = False,
-                 last: bool = False) -> List[Union[np.ndarray, da.core.Array]]:
+    def get_step(
+        self, step: Union[str, int] = None, by_order: bool = False, last: bool = False
+    ) -> List[Union[np.ndarray, da.core.Array]]:
         """Get a step by name or order
 
         Args:
@@ -143,7 +142,7 @@ class ImagesLayer:
         output_path: str = None,
         image_format: str = "png",
     ) -> None:
-        """ Save the images in the pipeline
+        """Save the images in the pipeline
 
         Args:
             step (Union[str, int], optional): The step to save. Defaults to None.
@@ -161,6 +160,8 @@ class ImagesLayer:
             step_order = self.steps.index(step)
         if not output_path:
             output_path = self.output_path
+        if not output_path.exists():
+            output_path.mkdir(parents=True, exist_ok=True)
         for idx, image in enumerate(images):
             img_path = output_path / f"{self.filenames[step_order][idx]}.{image_format}"
             if image.shape[-1] == 1:

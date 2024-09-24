@@ -572,11 +572,11 @@ class ColorLayer(Paidiverpy):
     @staticmethod
     def gaussian_psf(size: int, sigma: float) -> np.ndarray:
         """Create a Gaussian point spread function (PSF).
-        
+
         Args:
             size (int): The size of the PSF.
             sigma (float): The standard deviation of the PSF.
-        
+
         Returns:
             np.ndarray: The Gaussian PSF.
         """
@@ -611,7 +611,7 @@ class ColorLayer(Paidiverpy):
 
     @staticmethod
     def normalize_img(img: np.ndarray) -> np.ndarray:
-        """ Normalize the image to [0, 1]
+        """Normalize the image to [0, 1]
 
         Args:
             img (np.ndarray): The image to normalize
@@ -636,9 +636,9 @@ class ColorLayer(Paidiverpy):
         deconv_method: str,
         deconv_iter: int,
         deconv_mask_weight: float,
-        small_float_val: float=1e-6,
+        small_float_val: float = 1e-6,
     ) -> np.ndarray:
-        """ Perform deconvolution on the image
+        """Perform deconvolution on the image
 
         Args:
             img (np.ndarray): The image to deconvolve
@@ -707,11 +707,13 @@ class ColorLayer(Paidiverpy):
         return img
 
     @staticmethod
-    def sharpness_analysis(gray_img: np.ndarray,
-                           img: np.ndarray,
-                           features: dict,
-                           estimate_sharpness: bool=True) -> dict:
-        """ Estimate the sharpness of the image using FFTs
+    def sharpness_analysis(
+        gray_img: np.ndarray,
+        img: np.ndarray,
+        features: dict,
+        estimate_sharpness: bool = True,
+    ) -> dict:
+        """Estimate the sharpness of the image using FFTs
 
         Args:
             gray_img (np.ndarray): The grayscale image
@@ -763,18 +765,17 @@ class ColorLayer(Paidiverpy):
         return features
 
     @staticmethod
-    def detect_edges(img,
-                     method: str,
-                     blur_radius: float,
-                     threshold: tuple) -> np.ndarray:
-        """ Detect edges in the image
-        
+    def detect_edges(
+        img, method: str, blur_radius: float, threshold: tuple
+    ) -> np.ndarray:
+        """Detect edges in the image
+
         Args:
             img: The image to detect edges
             method (str): The method to use for edge detection
             blur_radius (float): The radius for the blur
             threshold (tuple): The threshold for edge detection
-        
+
         Returns:
             np.ndarray: The filled edges
         """
@@ -834,10 +835,10 @@ class ColorLayer(Paidiverpy):
         return filled_edges
 
     @staticmethod
-    def process_edges(edges_mag: np.ndarray,
-                      low_threshold: float,
-                      blur_radius: float) -> np.ndarray:
-        """ Process the edges
+    def process_edges(
+        edges_mag: np.ndarray, low_threshold: float, blur_radius: float
+    ) -> np.ndarray:
+        """Process the edges
 
         Args:
             edges_mag (np.ndarray): The edges magnitude
@@ -856,9 +857,8 @@ class ColorLayer(Paidiverpy):
         return filled_edges
 
     @staticmethod
-    def process_edges_mean(edges_mag: np.ndarray,
-                           blur_radius: float) -> np.ndarray:
-        """ Process the edges using the mean
+    def process_edges_mean(edges_mag: np.ndarray, blur_radius: float) -> np.ndarray:
+        """Process the edges using the mean
 
         Args:
             edges_mag (np.ndarray): The edges magnitude
@@ -878,9 +878,7 @@ class ColorLayer(Paidiverpy):
         return filled_edges
 
     @staticmethod
-    def make_gaussian(size: int,
-                      fwhm: int = 3,
-                      center: tuple=None) -> np.ndarray:
+    def make_gaussian(size: int, fwhm: int = 3, center: tuple = None) -> np.ndarray:
         """Make a square gaussian kernel.
         size is the length of a side of the square
         fwhm is full-width-half-maximum, which

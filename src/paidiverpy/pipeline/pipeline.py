@@ -1,6 +1,7 @@
 """ 
 Pipeline builder class for image preprocessing.
 """
+
 import logging
 from typing import List, Union
 import gc
@@ -11,8 +12,9 @@ from paidiverpy.config.pipeline_params import STEPS_CLASS_TYPES
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.config.config import Configuration
 
+
 class Pipeline(Paidiverpy):
-    """ Pipeline builder class for image preprocessing.
+    """Pipeline builder class for image preprocessing.
 
     Args:
         config_file_path (str): The path to the configuration file.
@@ -32,10 +34,11 @@ class Pipeline(Paidiverpy):
         verbose (int): verbose level (0 = none, 1 = errors/warnings, 2 = info).
         n_jobs (int): The number of jobs to run in parallel.
     """
+
     def __init__(
         self,
-        config_file_path: str=None,
-        steps: List[tuple]=None,
+        config_file_path: str = None,
+        steps: List[tuple] = None,
         input_path: str = None,
         output_path: str = None,
         metadata_path: str = None,
@@ -43,9 +46,9 @@ class Pipeline(Paidiverpy):
         metadata: MetadataParser = None,
         config: Configuration = None,
         logger: logging.Logger = None,
-        raise_error: bool =False,
-        verbose: int =2,
-        n_jobs: int=1,
+        raise_error: bool = False,
+        verbose: int = 2,
+        n_jobs: int = 1,
     ):
 
         super().__init__(
@@ -77,8 +80,8 @@ class Pipeline(Paidiverpy):
         self.steps = steps
         self.runned_steps = -1
 
-    def run(self, from_step: int=None) -> None:
-        """ Run the pipeline.
+    def run(self, from_step: int = None) -> None:
+        """Run the pipeline.
 
         Args:
             from_step (int, optional): The step to start from. Defaults to None,
@@ -148,20 +151,22 @@ class Pipeline(Paidiverpy):
                 gc.collect()
 
     def export_config(self, output_path: str):
-        """ Export the configuration to a yaml file.
+        """Export the configuration to a yaml file.
 
         Args:
             output_path (str): The path to the output file.
         """
         self.config.export(output_path)
 
-    def add_step(self,
-                 step_name: str,
-                 step_class: Union[str, type],
-                 parameters: dict,
-                 index: int = None,
-                 substitute: bool =False):
-        """ Add a step to the pipeline.
+    def add_step(
+        self,
+        step_name: str,
+        step_class: Union[str, type],
+        parameters: dict,
+        index: int = None,
+        substitute: bool = False,
+    ):
+        """Add a step to the pipeline.
 
         Args:
             step_name (str): Name of the step.
@@ -190,7 +195,7 @@ class Pipeline(Paidiverpy):
             self.config.add_step(None, parameters)
 
     def _get_step_name(self, step_class: type) -> str:
-        """ Get the name of the step class.
+        """Get the name of the step class.
 
         Args:
             step_class (type): The class of the step.
@@ -203,8 +208,8 @@ class Pipeline(Paidiverpy):
         return key_list[val_list.index(step_class)]
 
     def _convert_config_to_steps(self) -> List[tuple]:
-        """ Convert the configuration to steps.
-        
+        """Convert the configuration to steps.
+
         Returns:
             List[tuple]: The steps of the pipeline.
         """
@@ -217,12 +222,12 @@ class Pipeline(Paidiverpy):
         return steps
 
     def to_html(self) -> str:
-        """ Generate HTML representation of the pipeline.
-        
+        """Generate HTML representation of the pipeline.
+
         Returns:
             str: The HTML representation of the pipeline.
         """
-        
+
         steps_html = ""
         parameters_html = ""
 
@@ -299,7 +304,7 @@ class Pipeline(Paidiverpy):
         return html
 
     def _repr_html_(self) -> str:
-        """ Generate HTML representation of the pipeline.
+        """Generate HTML representation of the pipeline.
 
         Returns:
             str: The HTML representation of the pipeline.
