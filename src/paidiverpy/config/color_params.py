@@ -1,20 +1,21 @@
-""" This module contains the dataclasses for the parameters of the color layer functions. """
+""" This module contains the dataclasses for the parameters of the color layer
+functions.
+"""
 
 from dataclasses import dataclass
 
 from utils import DynamicConfig
 
+
 @dataclass
 class GrayScaleParams(DynamicConfig):
     """This class contains the parameters for the grayscale conversion."""
-
     pass
 
 
 @dataclass
 class GaussianBlurParams(DynamicConfig):
     """This class contains the parameters for the Gaussian blur."""
-
     sigma: float = 1.0
 
 
