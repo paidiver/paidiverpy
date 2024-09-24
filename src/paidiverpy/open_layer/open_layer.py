@@ -27,8 +27,9 @@ from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.resample_layer import ResampleLayer
 from utils import DynamicConfig
 
+
 class OpenLayer(Paidiverpy):
-    """ Open raw image file
+    """Open raw image file
 
     Args:
         config_file_path (str): The path to the configuration file.
@@ -47,6 +48,7 @@ class OpenLayer(Paidiverpy):
         verbose (int): verbose level (0 = none, 1 = errors/warnings, 2 = info).
         n_jobs (int): The number of jobs to run in parallel.
     """
+
     def __init__(
         self,
         config_file_path=None,
@@ -59,7 +61,7 @@ class OpenLayer(Paidiverpy):
         logger: logging.Logger = None,
         images: ImagesLayer = None,
         paidiverpy: "Paidiverpy" = None,
-        step_name: str="raw",
+        step_name: str = "raw",
         parameters: dict = None,
         raise_error: bool = False,
         verbose: int = 2,
@@ -89,8 +91,7 @@ class OpenLayer(Paidiverpy):
         self.step_metadata = self._calculate_steps_metadata(self.config.general)
 
     def run(self) -> None:
-        """ Run the open layer steps based on the configuration file or parameters.
-        """
+        """Run the open layer steps based on the configuration file or parameters."""
         if self.step_name == "raw":
             self.import_image()
             if self.step_metadata.get("convert"):
@@ -250,12 +251,12 @@ class OpenLayer(Paidiverpy):
     #         masked_images = da.ma.masked_array(stacked_images, mask=mask)
     #     return masked_images
 
-    def process_image(self, img_path: str) -> Union[np.ndarray, dask.array.core.Array]:      
+    def process_image(self, img_path: str) -> Union[np.ndarray, dask.array.core.Array]:
         """Process a single image file
-        
+
         Args:
             img_path (str): The path to the image file
-        
+
         Returns:
             Union[np.ndarray, dask.array.core.Array]: The processed image data
         """
@@ -289,8 +290,7 @@ class OpenLayer(Paidiverpy):
         return img
 
     def extract_exif(self) -> None:
-        """ Extract EXIF data from the images and add it to the metadata DataFrame.
-        """
+        """Extract EXIF data from the images and add it to the metadata DataFrame."""
         img_path_list = [
             self.config.general.input_path / filename
             for filename in self.get_metadata()["filename"]
@@ -306,15 +306,15 @@ class OpenLayer(Paidiverpy):
 
     @staticmethod
     def extract_exif_single(img_path: str) -> dict:
-        """ Extract EXIF data from a single image file.
-        
+        """Extract EXIF data from a single image file.
+
         Args:
             img_path (str): The path to the image file.
-        
+
         Returns:
             dict: The EXIF data.
         """
-        
+
         img_pil = Image.open(img_path)
         exif_data = img_pil.getexif()
         exif = {}

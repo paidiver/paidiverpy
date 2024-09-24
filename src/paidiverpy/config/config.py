@@ -1,14 +1,15 @@
 """ Configuration module.
 """
 
-import yaml
 from pathlib import Path
 import json
 
+import yaml
 from paidiverpy.config.color_params import COLOR_LAYER_METHODS
 from paidiverpy.config.convert_params import CONVERT_LAYER_METHODS
 from paidiverpy.config.position_params import POSITION_LAYER_METHODS
 from paidiverpy.config.resample_params import RESAMPLE_LAYER_METHODS
+from paidiverpy import data
 from utils import DynamicConfig
 
 
@@ -18,17 +19,24 @@ class GeneralConfig(DynamicConfig):
     def __init__(self, **kwargs):
         self.name = kwargs.get("name", "raw")
         self.step_name = kwargs.get("step_name", "open")
-        input_path = kwargs.get("input_path", None)
-        if input_path:
-            self.input_path = Path(input_path)
+        sample_data = kwargs.get("sample_data", None)
+        if sample_data:
+            self._define_sample_data(sample_data)
+        else:
+            input_path = kwargs.get("input_path", None)
+            if input_path:
+                self.input_path = Path(input_path)
+            self.metadata_path = kwargs.get("metadata_path", None)
+            if self.metadata_path == "SAMPLE_DATA_BENTHIC":
+                self.metadata_path = Path(data.load("benthic_metadata"))
+            self.metadata_type = kwargs.get("metadata_type", None)
+            self.image_type = kwargs.get("image_type", None)
+            self.append_data_to_metadata = kwargs.get("append_data_to_metadata", False)
         output_path = kwargs.get("output_path", None)
         if output_path:
-            self.output_path = Path(output_path)
+            output_path = Path(output_path)
+            self.output_path = output_path
         self.n_jobs = kwargs.get("n_jobs", None)
-        self.metadata_path = kwargs.get("metadata_path", None)
-        self.metadata_type = kwargs.get("metadata_type", None)
-        self.append_data_to_metadata = kwargs.get("append_data_to_metadata", False)
-        self.image_type = kwargs.get("image_type", None)
         self.rename = kwargs.get("rename", None)
         samplings = kwargs.get("sampling", None)
         if samplings:
@@ -40,7 +48,20 @@ class GeneralConfig(DynamicConfig):
             self.convert = [ConvertConfig(**convert) for convert in converts]
         else:
             self.convert = None
+    
+    def _define_sample_data(self, sample_data: str) -> None:
+        """ Define the sample data.
 
+        Args:
+            sample_data (str): The sample data type
+        """
+        information = data.load(sample_data)
+        self.input_path = Path(information["input_path"])
+        self.metadata_path = Path(information["metadata_path"])
+        self.metadata_type = information["metadata_type"]
+        self.image_type = information["image_type"]
+        if information.get("append_data_to_metadata"):
+            self.append_data_to_metadata = information["append_data_to_metadata"]
 
 class PositionConfig(DynamicConfig):
     """Position configuration class."""
@@ -161,7 +182,20 @@ class Configuration:
         self.general = self._validate_general_config(config_data)
         self._load_steps(config_data)
 
-    def _validate_general_config(self, config_data):
+    def _validate_general_config(self, config_data: dict) -> GeneralConfig:
+        """Validate the general configuration.
+
+        Args:
+            config_data (dict): The configuration data.
+
+        Raises:
+            ValueError: General configuration is not specified.
+            ValueError: General configuration is empty.
+            ValueError: Input and output paths are not specified.
+
+        Returns:
+            GeneralConfig: The general configuration.
+        """
         if "general" not in config_data:
             raise ValueError("General configuration is not specified.")
         if not config_data["general"]:
@@ -175,11 +209,29 @@ class Configuration:
             config_data["general"]["name"] = "raw"
         return GeneralConfig(**config_data["general"])
 
-    def _validate_paths(self, input_path, output_path):
+    def _validate_paths(self, input_path: str, output_path: str) -> None:
+        """Validate the input and output paths.
+
+        Args:
+            input_path (str): Input path.
+            output_path (str): Output path.
+
+        Raises:
+            ValueError: Input and output paths are not specified.
+        """
+
         if not input_path or not output_path:
             raise ValueError("Input and output paths are not specified.")
 
-    def _load_steps(self, config_data):
+    def _load_steps(self, config_data: dict) -> None:
+        """Load the steps from the configuration data.
+
+        Args:
+            config_data (dict): The configuration data.
+
+        Raises:
+            ValueError: Invalid step name.
+        """
         if "steps" in config_data and config_data["steps"]:
             for step_order, step in enumerate(config_data["steps"]):
                 for step_name, step_config in step.items():
@@ -194,7 +246,16 @@ class Configuration:
                     else:
                         raise ValueError(f"Invalid step name: {step_name}")
 
-    def add_config(self, config_name, config):
+    def add_config(self, config_name: str, config: dict) -> None:
+        """Add a configuration.
+
+        Args:
+            config_name (str): The configuration name.
+            config (dict): The configuration.
+
+        Raises:
+            ValueError: Invalid configuration name.
+        """
         if config_name not in config_class_mapping:
             raise ValueError(f"Invalid configuration name: {config_name}")
 
@@ -204,7 +265,19 @@ class Configuration:
         else:
             current_config.update(**config)
 
-    def add_step(self, config_index, parameters):
+    def add_step(self, config_index: int = None, parameters: dict = None) -> int:
+        """Add a step to the configuration.
+
+        Args:
+            config_index (int, optional): The configuration index. Defaults to None.
+            parameters (dict, optional): The parameters for the step. Defaults to None.
+
+        Raises:
+            ValueError: Invalid step index.
+
+        Returns:
+            int: The step index.
+        """
         if len(self.steps) == 0:
             self.steps.append(
                 config_class_mapping[parameters["step_name"]](**parameters)
@@ -221,7 +294,12 @@ class Configuration:
         else:
             raise ValueError(f"Invalid step index: {config_index}")
 
-    def export(self, output_path):
+    def export(self, output_path: str) -> None:
+        """Export the configuration to a file.
+
+        Args:
+            output_path (str): The output path.
+        """
         with open(output_path, "w", encoding="utf-8") as config_file:
             yaml.dump(
                 self.to_dict(yaml_convert=True),
