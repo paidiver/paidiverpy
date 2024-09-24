@@ -3,6 +3,7 @@
 
 import gc
 import copy
+import logging
 from typing import Union
 import uuid
 
@@ -20,11 +21,32 @@ import dask_image.imread
 
 from paidiverpy import Paidiverpy
 from paidiverpy.convert_layer import ConvertLayer
-from paidiverpy.image_layer import ImageLayer
+from paidiverpy.metadata_parser import MetadataParser
+from paidiverpy.config.config import Configuration
+from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.resample_layer import ResampleLayer
 from utils import DynamicConfig
 
 class OpenLayer(Paidiverpy):
+    """ Open raw image file
+
+    Args:
+        config_file_path (str): The path to the configuration file.
+        input_path (str): The path to the input files.
+        output_path (str): The path to the output files.
+        metadata_path (str): The path to the metadata file.
+        metadata_type (str): The type of the metadata file.
+        metadata (MetadataParser): The metadata object.
+        config (Configuration): The configuration object.
+        logger (logging.Logger): The logger object.
+        images (ImagesLayer): The images object.
+        paidiverpy (Paidiverpy): The paidiverpy object.
+        step_name (str): The name of the step.
+        parameters (dict): The parameters for the step.
+        raise_error (bool): Whether to raise an error.
+        verbose (int): verbose level (0 = none, 1 = errors/warnings, 2 = info).
+        n_jobs (int): The number of jobs to run in parallel.
+    """
     def __init__(
         self,
         config_file_path=None,
@@ -32,16 +54,16 @@ class OpenLayer(Paidiverpy):
         output_path=None,
         metadata_path=None,
         metadata_type=None,
-        metadata=None,
-        config=None,
-        logger=None,
-        images=None,
-        paidiverpy=None,
-        step_name="raw",
-        parameters=None,
-        raise_error=False,
-        verbose=True,
-        n_jobs: int =1,
+        metadata: MetadataParser = None,
+        config: Configuration = None,
+        logger: logging.Logger = None,
+        images: ImagesLayer = None,
+        paidiverpy: "Paidiverpy" = None,
+        step_name: str="raw",
+        parameters: dict = None,
+        raise_error: bool = False,
+        verbose: int = 2,
+        n_jobs: int = 1,
     ):
         super().__init__(
             config_file_path=config_file_path,
@@ -66,7 +88,9 @@ class OpenLayer(Paidiverpy):
         self.extract_exif()
         self.step_metadata = self._calculate_steps_metadata(self.config.general)
 
-    def run(self):
+    def run(self) -> None:
+        """ Run the open layer steps based on the configuration file or parameters.
+        """
         if self.step_name == "raw":
             self.import_image()
             if self.step_metadata.get("convert"):
@@ -110,7 +134,9 @@ class OpenLayer(Paidiverpy):
                 new_config = copy.copy(self.config)
                 self.set_metadata(
                     ResampleLayer(
-                        config=new_config, metadata=self.metadata, parameters=step_params
+                        config=new_config,
+                        metadata=self.metadata,
+                        parameters=step_params,
                     ).run()
                 )
                 self.config.steps.pop()
@@ -122,14 +148,16 @@ class OpenLayer(Paidiverpy):
         if self.n_jobs == 1:
             image_list = [
                 self.process_image(img_path)
-                for img_path in tqdm(img_path_list, total=len(img_path_list), desc="Open Images")
+                for img_path in tqdm(
+                    img_path_list, total=len(img_path_list), desc="Open Images"
+                )
             ]
         else:
             delayed_image_list = [
                 delayed(self.process_image)(img_path)
                 for _, img_path in enumerate(img_path_list)
             ]
-            with dask.config.set(scheduler='threads', num_workers=self.n_jobs):
+            with dask.config.set(scheduler="threads", num_workers=self.n_jobs):
                 self.logger.info("Processing images using %s cores", self.n_jobs)
                 with ProgressBar():
                     computed_images = compute(*delayed_image_list)
@@ -142,18 +170,29 @@ class OpenLayer(Paidiverpy):
                 image_type = f".{self.step_metadata.get('image_type')}"
             else:
                 image_type = ""
-            if rename == 'datetime':
-                metadata['filename'] = pd.to_datetime(metadata['datetime']).dt.strftime('%Y%m%dT%H%M%S.%f').str[:-3] + 'Z' + image_type
+            if rename == "datetime":
+                metadata["filename"] = (
+                    pd.to_datetime(metadata["datetime"])
+                    .dt.strftime("%Y%m%dT%H%M%S.%f")
+                    .str[:-3]
+                    + "Z"
+                    + image_type
+                )
 
-                duplicate_mask = metadata.duplicated(subset='filename', keep=False)
+                duplicate_mask = metadata.duplicated(subset="filename", keep=False)
                 if duplicate_mask.any():
                     duplicates = metadata[duplicate_mask]
-                    duplicates['duplicate_number'] = duplicates.groupby('filename').cumcount() + 1
-                    metadata.loc[duplicate_mask, 'filename'] = duplicates.apply(
-                        lambda row: f"{row['filename'][:-1]}_{row['duplicate_number']}", axis=1
+                    duplicates["duplicate_number"] = (
+                        duplicates.groupby("filename").cumcount() + 1
                     )
-            elif rename == 'UUID':
-                metadata['filename'] = metadata['filename'].apply(lambda x: str(uuid.uuid4()) + image_type)
+                    metadata.loc[duplicate_mask, "filename"] = duplicates.apply(
+                        lambda row: f"{row['filename'][:-1]}_{row['duplicate_number']}",
+                        axis=1,
+                    )
+            elif rename == "UUID":
+                metadata["filename"] = metadata["filename"].apply(
+                    lambda x: str(uuid.uuid4()) + image_type
+                )
             else:
                 self.logger.error(f"Unknown rename mode: {rename}")
                 if self.raise_error:
@@ -169,46 +208,63 @@ class OpenLayer(Paidiverpy):
         del image_list
         gc.collect()
 
+    # def _pad_to_target_shape(self, array, target_shape, constant_values=0):
+    #     pad_width = [
+    #         (0, t_dim - a_dim) for a_dim, t_dim in zip(array.shape, target_shape)
+    #     ]
+    #     if self.n_jobs == 1:
+    #         padded_array = np.pad(
+    #             array, pad_width, mode="constant", constant_values=constant_values
+    #         )
+    #     else:
+    #         padded_array = da.pad(
+    #             array, pad_width, mode="constant", constant_values=constant_values
+    #         )
+    #     return padded_array
 
-    def _pad_to_target_shape(self, array, target_shape, constant_values=0):
-        pad_width = [(0, t_dim - a_dim) for a_dim, t_dim in zip(array.shape, target_shape)]
-        if self.n_jobs == 1:
-            padded_array = np.pad(array, pad_width, mode='constant', constant_values=constant_values)
-        else:
-            padded_array = da.pad(array, pad_width, mode='constant', constant_values=constant_values)
-        return padded_array
+    # def _stack_images_with_padding(self, image_list):
+    #     constant_values = 0
+    #     target_shape = tuple(
+    #         max(img.shape[dim] for img in image_list)
+    #         for dim in range(len(image_list[0].shape))
+    #     )
 
-    def _stack_images_with_padding(self, image_list):
-        constant_values = 0
-        target_shape = tuple(max(img.shape[dim] for img in image_list) for dim in range(len(image_list[0].shape)))
+    #     padded_images = [
+    #         self._pad_to_target_shape(img, target_shape, constant_values)
+    #         for img in image_list
+    #     ]
+    #     if self.n_jobs == 1:
+    #         stacked_images = np.stack(padded_images, axis=0)
+    #         mask = np.zeros_like(stacked_images, dtype=bool)
+    #     else:
+    #         stacked_images = da.stack(padded_images, axis=0)
+    #         mask = da.zeros_like(stacked_images, dtype=bool)
 
-        padded_images = [self._pad_to_target_shape(img, target_shape, constant_values) for img in image_list]
-        if self.n_jobs == 1:
-            stacked_images = np.stack(padded_images, axis=0)
-            mask = np.zeros_like(stacked_images, dtype=bool)
-        else:
-            stacked_images = da.stack(padded_images, axis=0)
-            mask = da.zeros_like(stacked_images, dtype=bool)
+    #     for i, img in enumerate(image_list):
+    #         mask[i, : img.shape[0], : img.shape[1]] = False
+    #         mask[i, img.shape[0] :, img.shape[1] :] = True
 
+    #     if self.n_jobs == 1:
+    #         masked_images = np.ma.masked_array(stacked_images, mask=mask)
+    #     else:
+    #         masked_images = da.ma.masked_array(stacked_images, mask=mask)
+    #     return masked_images
 
-        for i, img in enumerate(image_list):
-            mask[i, :img.shape[0], :img.shape[1]] = False
-            mask[i, img.shape[0]:, img.shape[1]:] = True
-
-        if self.n_jobs == 1:
-            masked_images = np.ma.masked_array(stacked_images, mask=mask)
-        else:
-            masked_images = da.ma.masked_array(stacked_images, mask=mask)
-        return masked_images
-
-    def process_image(self, img_path):
-        """Process a single image"""
+    def process_image(self, img_path: str) -> Union[np.ndarray, dask.array.core.Array]:      
+        """Process a single image file
+        
+        Args:
+            img_path (str): The path to the image file
+        
+        Returns:
+            Union[np.ndarray, dask.array.core.Array]: The processed image data
+        """
         img = self.open_image(img_path=img_path)
         gc.collect()
         return img
 
     def open_image(self, img_path: str) -> Union[np.ndarray, dask.array.core.Array]:
-        """ Open an image file
+        """Open an image file
 
         Args:
             img_path (str): The path to the image file
@@ -217,7 +273,7 @@ class OpenLayer(Paidiverpy):
             ValueError: Failed to open the image
 
         Returns:
-            np.ndarray: The image data
+            Union[np.ndarray, dask.array.core.Array]: The image data
         """
         if self.n_jobs == 1:
             img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
@@ -232,7 +288,9 @@ class OpenLayer(Paidiverpy):
             return None
         return img
 
-    def extract_exif(self):
+    def extract_exif(self) -> None:
+        """ Extract EXIF data from the images and add it to the metadata DataFrame.
+        """
         img_path_list = [
             self.config.general.input_path / filename
             for filename in self.get_metadata()["filename"]
@@ -247,7 +305,16 @@ class OpenLayer(Paidiverpy):
         )
 
     @staticmethod
-    def extract_exif_single(img_path):
+    def extract_exif_single(img_path: str) -> dict:
+        """ Extract EXIF data from a single image file.
+        
+        Args:
+            img_path (str): The path to the image file.
+        
+        Returns:
+            dict: The EXIF data.
+        """
+        
         img_pil = Image.open(img_path)
         exif_data = img_pil.getexif()
         exif = {}

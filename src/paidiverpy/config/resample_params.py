@@ -1,4 +1,6 @@
-""" This module contains the dataclasses for the parameters of the convert layer functions. """
+""" This module contains the dataclasses for the parameters of the convert layer
+functions.
+"""
 
 from dataclasses import dataclass
 from typing import List
@@ -54,8 +56,8 @@ class ResampleFixedParams(DynamicConfig):
 
 @dataclass
 class ResamplePercentParams(DynamicConfig):
-    """ This class contains the parameters for the percent resampling.
-    """
+    """This class contains the parameters for the percent resampling."""
+
     value: float = 0.1
 
 

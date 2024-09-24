@@ -1,25 +1,51 @@
+""" 
+Pipeline builder class for image preprocessing.
+"""
+import logging
+from typing import List, Union
 import gc
 import json
 from paidiverpy.open_layer import OpenLayer
 from paidiverpy import Paidiverpy
-from paidiverpy.pipeline.params import STEPS_CLASS_TYPES
-
+from paidiverpy.config.pipeline_params import STEPS_CLASS_TYPES
+from paidiverpy.metadata_parser import MetadataParser
+from paidiverpy.config.config import Configuration
 
 class Pipeline(Paidiverpy):
+    """ Pipeline builder class for image preprocessing.
+
+    Args:
+        config_file_path (str): The path to the configuration file.
+        input_path (str): The path to the input files.
+        output_path (str): The path to the output files.
+        metadata_path (str): The path to the metadata file.
+        metadata_type (str): The type of the metadata file.
+        metadata (MetadataParser): The metadata object.
+        config (Configuration): The configuration object.
+        logger (logging.Logger): The logger object.
+        images (ImagesLayer): The images object.
+        paidiverpy (Paidiverpy): The paidiverpy object.
+        step_name (str): The name of the step.
+        parameters (dict): The parameters for the step.
+        config_index (int): The index of the configuration.
+        raise_error (bool): Whether to raise an error.
+        verbose (int): verbose level (0 = none, 1 = errors/warnings, 2 = info).
+        n_jobs (int): The number of jobs to run in parallel.
+    """
     def __init__(
         self,
-        config_file_path=None,
-        steps=None,
-        input_path=None,
-        output_path=None,
-        metadata_path=None,
-        metadata_type=None,
-        metadata=None,
-        config=None,
-        logger=None,
-        raise_error=False,
-        verbose=True,
-        n_jobs=1,
+        config_file_path: str=None,
+        steps: List[tuple]=None,
+        input_path: str = None,
+        output_path: str = None,
+        metadata_path: str = None,
+        metadata_type: str = None,
+        metadata: MetadataParser = None,
+        config: Configuration = None,
+        logger: logging.Logger = None,
+        raise_error: bool =False,
+        verbose: int =2,
+        n_jobs: int=1,
     ):
 
         super().__init__(
@@ -51,8 +77,18 @@ class Pipeline(Paidiverpy):
         self.steps = steps
         self.runned_steps = -1
 
-    def run(self, from_step=None):
-        # Ensure steps are provided
+    def run(self, from_step: int=None) -> None:
+        """ Run the pipeline.
+
+        Args:
+            from_step (int, optional): The step to start from. Defaults to None,
+        which means the pipeline will start from the last runned step.
+
+        Raises:
+            ValueError: No steps defined for the pipeline
+            ValueError: Invalid step format
+        """
+
         if not self.steps:
             self.logger.error("No steps defined for the pipeline")
             raise ValueError("No steps defined for the pipeline")
@@ -68,22 +104,18 @@ class Pipeline(Paidiverpy):
         for index, step in enumerate(self.steps):
             if index > self.runned_steps:
                 if len(step) == 2:
-                    # When no parameters are provided
                     step_name, step_class = step
                     step_params = {}
                 elif len(step) == 3:
-                    # When parameters are provided
                     step_name, step_class, step_params = step
                 else:
                     self.logger.error(f"Invalid step format: {step}")
                     raise ValueError(f"Invalid step format: {step}")
                 if isinstance(step_class, str):
-                    # If step_class is a string, import the class
                     step_class = globals()[step_class]
                 self.logger.info(
                     f"Running step {index}: {step_name} - {step_class.__name__}"
                 )
-                # Instantiate the class
                 step_params["step_name"] = self._get_step_name(step_class)
                 step_params["name"] = step_name
                 if step_name == "raw":
@@ -116,9 +148,31 @@ class Pipeline(Paidiverpy):
                 gc.collect()
 
     def export_config(self, output_path: str):
+        """ Export the configuration to a yaml file.
+
+        Args:
+            output_path (str): The path to the output file.
+        """
         self.config.export(output_path)
 
-    def add_step(self, step_name, step_class, parameters, index=None, substitute=False):
+    def add_step(self,
+                 step_name: str,
+                 step_class: Union[str, type],
+                 parameters: dict,
+                 index: int = None,
+                 substitute: bool =False):
+        """ Add a step to the pipeline.
+
+        Args:
+            step_name (str): Name of the step.
+            step_class (Union[str, type]): Class of the step.
+            parameters (dict): Parameters for the step.
+            index (int, optional): Index of the step. It is only used when you want
+        to add a step in a specific position. Defaults to None.
+            substitute (bool, optional): Whether to substitute the step in the
+        specified index. Defaults to False.
+        """
+
         parameters["name"] = (
             step_name if not parameters.get("name") else parameters["name"]
         )
@@ -135,12 +189,25 @@ class Pipeline(Paidiverpy):
             self.steps.append((step_name, step_class, parameters))
             self.config.add_step(None, parameters)
 
-    def _get_step_name(self, step_class):
+    def _get_step_name(self, step_class: type) -> str:
+        """ Get the name of the step class.
+
+        Args:
+            step_class (type): The class of the step.
+
+        Returns:
+            str: The name of the step class.
+        """
         key_list = list(STEPS_CLASS_TYPES.keys())
         val_list = list(STEPS_CLASS_TYPES.values())
         return key_list[val_list.index(step_class)]
 
-    def _convert_config_to_steps(self):
+    def _convert_config_to_steps(self) -> List[tuple]:
+        """ Convert the configuration to steps.
+        
+        Returns:
+            List[tuple]: The steps of the pipeline.
+        """
         steps = []
         raw_step = ("raw", OpenLayer, self.config.general.to_dict(convert_path=False))
         steps.append(raw_step)
@@ -149,11 +216,16 @@ class Pipeline(Paidiverpy):
             steps.append(new_step)
         return steps
 
-    def to_html(self):
+    def to_html(self) -> str:
+        """ Generate HTML representation of the pipeline.
+        
+        Returns:
+            str: The HTML representation of the pipeline.
+        """
+        
         steps_html = ""
         parameters_html = ""
 
-        # Generate HTML for steps
         for i, step in enumerate(self.config.steps):
             if i % 4 == 0 and i > 0:
                 steps_html += '<div style="clear:both;"></div>'
@@ -169,14 +241,12 @@ class Pipeline(Paidiverpy):
                         &#10132;
                     </div>
                 """
-            # Generate hidden parameter sections
             parameters_html += f"""
                 <div id="parameters_step_{i}" class="parameters" style="display: none;">
                     <pre>{json.dumps(step.to_dict(), indent=4)}</pre>
                 </div>
             """
 
-        # General step HTML
         general_html = f"""
         <div id="general" title="Click to see more information" class="square" style="float:left; cursor: pointer; padding: 10px; width: max-content; height: 80px; margin: 10px; border: 1px solid #000; text-align: center; line-height: 80px;" onclick="showParameters('general')">
             <h2 style="font-size:20px;">{getattr(self.config.general, 'name').capitalize()}</h2>
@@ -184,14 +254,12 @@ class Pipeline(Paidiverpy):
         </div>
         """
 
-        # General parameters HTML
         parameters_html += f"""
             <div id="parameters_general" class="parameters" style="display: none;">
                 <pre>{json.dumps(self.config.general.to_dict(), indent=4)}</pre>
             </div>
         """
 
-        # Complete HTML
         html = f"""
         <div style="display: flex; flex-wrap: wrap; align-items: center;">
             {general_html}
@@ -230,5 +298,10 @@ class Pipeline(Paidiverpy):
         """
         return html
 
-    def _repr_html_(self):
+    def _repr_html_(self) -> str:
+        """ Generate HTML representation of the pipeline.
+
+        Returns:
+            str: The HTML representation of the pipeline.
+        """
         return self.to_html()

@@ -6,15 +6,13 @@ import os
 from pathlib import Path
 import logging
 from typing import Union
-from dask.distributed import Client
 
 import pandas as pd
 import matplotlib.pyplot as plt
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.config.config import Configuration
 from paidiverpy.images_layer import ImagesLayer
-from utils import initialise_logging, get_n_jobs
-
+from utils import initialise_logging, get_n_jobs, DynamicConfig
 
 class Paidiverpy:
     """Main class for the paidiverpy package.
@@ -31,7 +29,7 @@ class Paidiverpy:
         images (ImagesLayer): The images object.
         paidiverpy (Paidiverpy): The paidiverpy object.
         raise_error (bool): Whether to raise an error.
-        verbose (bool): Whether to print verbose messages.
+        verbose (int): verbose level (0 = none, 1 = errors/warnings, 2 = info).
         n_jobs (int): The number of n_jobs.
     """
 
@@ -48,7 +46,7 @@ class Paidiverpy:
         images: ImagesLayer = None,
         paidiverpy: "Paidiverpy" = None,
         raise_error: bool = False,
-        verbose: bool = False,
+        verbose: int = 2,
         n_jobs: int = 1,
     ):
         if paidiverpy:
@@ -64,7 +62,8 @@ class Paidiverpy:
             # else:
             #     self.client = None
         else:
-            self.logger = logger or initialise_logging(verbose=verbose)
+            self.verbose = verbose
+            self.logger = logger or initialise_logging(verbose=self.verbose)
             self.config = config or self._initialize_config(
                 config_file_path, input_path, output_path, metadata_path, metadata_type
             )
@@ -73,7 +72,6 @@ class Paidiverpy:
                 output_path=self.config.general.output_path,
             )
 
-            self.verbose = verbose
             self.raise_error = raise_error
             if not self.config.general.n_jobs:
                 self.config.general.n_jobs = n_jobs
@@ -194,7 +192,7 @@ class Paidiverpy:
             return self.metadata.waypoints
         raise ValueError("Waypoints are not loaded in the metadata.")
 
-    def show_images(self, step_name: str):
+    def show_images(self, step_name: str) -> None:
         """Show the images.
 
         Args:
@@ -208,7 +206,7 @@ class Paidiverpy:
         step: Union[str, int] = None,
         by_order: bool = False,
         image_format: str = "png",
-    ):
+    ) -> None:
         """Save the images.
 
         Args:
@@ -221,14 +219,16 @@ class Paidiverpy:
             last = True
         output_path = self.config.general.output_path
         self.logger.info("Saving images from step: %s", step if not last else "last")
-        self.images.save(step,
-                         by_order=by_order,
-                         last=last,
-                         output_path=output_path,
-                         image_format=image_format)
+        self.images.save(
+            step,
+            by_order=by_order,
+            last=last,
+            output_path=output_path,
+            image_format=image_format,
+        )
         self.logger.info("Images are saved.")
 
-    def plot_trimmed_photos(self, new_metadata: pd.DataFrame):
+    def plot_trimmed_photos(self, new_metadata: pd.DataFrame) -> None:
         """Plot the trimmed photos.
 
         Args:
@@ -247,8 +247,8 @@ class Paidiverpy:
         plt.legend(["Original", "After Trim"])
         plt.show()
 
-    def clear_steps(self, value: Union[int, str], by_order: bool = True):
-        """_summary_
+    def clear_steps(self, value: Union[int, str], by_order: bool = True) -> None:
+        """ Clear steps from the images and metadata.
 
         Args:
             value (Union[int, str]): Step name or order.
@@ -276,7 +276,23 @@ class Paidiverpy:
             steps_metadata[key] = value
         return steps_metadata
 
-    def _get_method_by_mode(self, params, method_dict: dict, mode: str):
+    def _get_method_by_mode(self,
+                            params: DynamicConfig,
+                            method_dict: dict,
+                            mode: str) -> tuple:
+        """ Get the method by mode.
+
+        Args:
+            params (DynamicConfig): The parameters.
+            method_dict (dict): The method dictionary.
+            mode (str): The mode.
+
+        Raises:
+            ValueError: Unsupported mode.
+
+        Returns:
+            tuple: The method and parameters.
+        """
         if mode not in method_dict:
             raise ValueError(f"Unsupported mode: {mode}")
         method_info = method_dict[mode]
