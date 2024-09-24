@@ -1,15 +1,19 @@
-""" Open raw image file
+""" Convert the images in the convert layer based on the configuration file or
+parameters.
 """
 
-import dask.delayed
+import logging
+from typing import List, Union
 import numpy as np
 import cv2
-from tqdm import tqdm
-
 import dask
-from dask import delayed, compute
+import dask.delayed
+from dask import compute
 from dask.diagnostics import ProgressBar
 import dask.array as da
+from paidiverpy.metadata_parser import MetadataParser
+from paidiverpy.config.config import Configuration
+from paidiverpy.images_layer import ImagesLayer
 from paidiverpy import Paidiverpy
 from paidiverpy.config.convert_params import (
     CONVERT_LAYER_METHODS,
@@ -20,27 +24,48 @@ from paidiverpy.config.convert_params import (
     ResizeParams,
     CropParams,
 )
+from utils import DynamicConfig
 
 
 class ConvertLayer(Paidiverpy):
+    """Process the images in the convert layer.
+
+    Args:
+        config_file_path (str): The path to the configuration file.
+        input_path (str): The path to the input files.
+        output_path (str): The path to the output files.
+        metadata_path (str): The path to the metadata file.
+        metadata_type (str): The type of the metadata file.
+        metadata (MetadataParser): The metadata object.
+        config (Configuration): The configuration object.
+        logger (logging.Logger): The logger object.
+        images (ImagesLayer): The images object.
+        paidiverpy (Paidiverpy): The paidiverpy object.
+        step_name (str): The name of the step.
+        parameters (dict): The parameters for the step.
+        config_index (int): The index of the configuration.
+        raise_error (bool): Whether to raise an error.
+        verbose (int): verbose level (0 = none, 1 = errors/warnings, 2 = info).
+        n_jobs (int): The number of jobs to run in parallel.
+    """
     def __init__(
         self,
-        config_file_path=None,
-        input_path=None,
-        output_path=None,
-        metadata_path=None,
-        metadata_type=None,
-        metadata=None,
-        config=None,
-        logger=None,
-        images=None,
-        paidiverpy=None,
-        step_name=None,
-        parameters=None,
-        config_index=None,
-        raise_error=False,
-        verbose=True,
-        n_jobs=1,
+        config_file_path: str = None,
+        input_path: str = None,
+        output_path: str = None,
+        metadata_path: str = None,
+        metadata_type: str = None,
+        metadata: MetadataParser = None,
+        config: Configuration = None,
+        logger: logging.Logger = None,
+        images: ImagesLayer = None,
+        paidiverpy: "Paidiverpy" = None,
+        step_name: str = None,
+        parameters: dict = None,
+        config_index: int = None,
+        raise_error: bool = False,
+        verbose: int = 2,
+        n_jobs: int = 1,
     ):
 
         super().__init__(
@@ -66,7 +91,20 @@ class ConvertLayer(Paidiverpy):
             self.config.steps[self.config_index]
         )
 
-    def run(self, add_new_step=True):
+    def run(self, add_new_step: bool=True) -> Union[ImagesLayer, None]:
+        """Run the convert layer steps on the images based on the configuration
+        file or parameters.
+
+        Args:
+            add_new_step (bool, optional): Whether to add a new step to the images object.
+        Defaults to True.
+
+        Raises:
+            ValueError: The mode is not defined in the configuration file.
+
+        Returns:
+            Union[ImagesLayer, None]: The images object with the new step added.
+        """
         mode = self.step_metadata.get("mode")
         if not mode:
             raise ValueError("The mode is not defined in the configuration file.")
@@ -93,74 +131,57 @@ class ConvertLayer(Paidiverpy):
                 self.images.images[-1] = image_list
                 return self.images
 
-    def process_sequentially(self, images, method, params):
+    def process_sequentially(
+        self, images: List[np.ndarray], method: callable, params: dict
+    ) -> List[np.ndarray]:
+        """Process the images sequentially.
+
+        Args:
+            images (List[np.ndarray]): The list of images to process.
+            method (callable): The method to apply to the images.
+            params (dict): The parameters for the method.
+
+        Returns:
+            List[np.ndarray]: The list of processed images.
+        """
         image_list = [method(img, params=params) for img in images]
         return image_list
 
-        # image_list = []
-        # for img in tqdm(images, total=len(images), desc="Processing Images"):
-        #     img = method(img, params=params)
-        #     image_list.append(img)
-        # return image_list
 
-        # mask = images.mask
-        # data = images.data
-        # data = np.array([method(img, params=params) for img in data])
-        # if len(data.shape) == 3:
-        #     data = np.expand_dims(data, axis=-1)
-        # if data.shape[-1] == 1 and mask.shape[-1] == 3:
-        #     mask = np.expand_dims(mask[:, :,:, 0], axis=-1)
-        # image_list = np.ma.MaskedArray(data, mask=mask)
-        # return image_list
+    def process_parallel(
+        self, images: List[da.core.Array], method: callable, params: DynamicConfig
+    ) -> List[np.ndarray]:
+        """Process the images in parallel.
 
-    def process_parallel(self, images, method, params):
+        Args:
+            images (List[da.core.Array]): The list of images to process.
+            method (callable): The method to apply to the images.
+            params (DynamicConfig): The parameters for the method.
+
+        Returns:
+            List[da.core.Array]: The list of processed images.
+        """
         delayed_images = [dask.delayed(method)(img, params) for img in images]
-        with dask.config.set(scheduler='threads', num_workers=self.n_jobs):
+        with dask.config.set(scheduler="threads", num_workers=self.n_jobs):
             self.logger.info("Processing images using %s cores", self.n_jobs)
             with ProgressBar():
                 delayed_images = compute(*delayed_images)
         image_list = [da.from_array(img) for img in delayed_images]
         return image_list
 
-        # processed_chunks = processed_chunks[0]
-        # if len(processed_chunks.shape) == 3:
-        #     processed_chunks = np.expand_dims(processed_chunks, axis=-1)
-        # processed_data = da.from_array(processed_chunks, chunks=(1, processed_chunks.shape[1], processed_chunks.shape[2], processed_chunks.shape[3])).squeeze()
-
-        # if len(processed_data.shape) == 3:
-        #     processed_data = np.expand_dims(processed_data, axis=-1)
-        # if processed_data.shape[-1] == 1 and mask.shape[-1] == 3:
-        #     mask = np.expand_dims(mask[:, :, :, 0], axis=-1)
-
-        # image_list = da.ma.masked_array(processed_data, mask=mask)
-
-
-        # mask = da.ma.getmaskarray(images)
-        # data = dask.array.ma.getdata(images)
-
-        # @delayed
-        # def apply_function_wrapper(chunk: np.ndarray, params) -> np.ndarray:
-        #     return np.array([method(image, params) for image in chunk])
-        # delayed_image_chunks = apply_function_wrapper(data, params)
-        # with dask.config.set(scheduler='threads', num_workers=self.n_jobs):
-        #     self.logger.info("Processing images using %s cores", self.n_jobs)
-        #     with ProgressBar():
-        #         processed_chunks = compute(delayed_image_chunks)
-
-        # processed_chunks = processed_chunks[0]
-        # if len(processed_chunks.shape) == 3:
-        #     processed_chunks = np.expand_dims(processed_chunks, axis=-1)
-        # processed_data = da.from_array(processed_chunks, chunks=(1, processed_chunks.shape[1], processed_chunks.shape[2], processed_chunks.shape[3])).squeeze()
-
-        # if len(processed_data.shape) == 3:
-        #     processed_data = np.expand_dims(processed_data, axis=-1)
-        # if processed_data.shape[-1] == 1 and mask.shape[-1] == 3:
-        #     mask = np.expand_dims(mask[:, :, :, 0], axis=-1)
-
-        # image_list = da.ma.masked_array(processed_data, mask=mask)
-        # return image_list
-
-    def convert_bits(self, image_data, params: BitParams = BitParams()):
+    def convert_bits(self,
+                     image_data: np.ndarray,
+                     params: BitParams = BitParams()) -> np.ndarray:
+        """Convert the image to the specified number of bits.
+        
+        Args:
+            image_data (np.ndarray): The image data.
+            params (BitParams, optional): The parameters for the bit conversion.
+        Defaults to BitParams().
+        
+        Returns:
+            np.ndarray: The image data with the specified number of bits.            
+        """
         if params.output_bits == 8:
             image_data = np.uint8(image_data * 255)
         elif params.output_bits == 16:
@@ -174,7 +195,24 @@ class ConvertLayer(Paidiverpy):
 
         return image_data
 
-    def channel_convert(self, image_data, params: ToParams = ToParams()):
+    def channel_convert(self,
+                        image_data: np.ndarray,
+                        params: ToParams = ToParams()) -> np.ndarray:
+        """ Convert the image to the specified channel.
+
+        Args:
+            image_data (np.ndarray): The image data.
+            params (ToParams, optional): The parameters for the channel conversion.
+        Defaults to ToParams().
+
+        Raises:
+            ValueError: The image is already in RGB format.
+            ValueError: The image is already in grayscale.
+            ValueError: Failed to convert the image to {params.to}: {str(e)}
+
+        Returns:
+            np.ndarray: The image data with the specified channel.
+        """
         try:
             if params.to == "RGB":
                 if image_data.shape[-1] == 1:
@@ -196,7 +234,26 @@ class ConvertLayer(Paidiverpy):
                 ) from e
         return image_data
 
-    def get_bayer_pattern(self, image_data, params: BayerPatternParams = BayerPatternParams()):
+    def get_bayer_pattern(
+        self,
+        image_data: np.ndarray,
+        params: BayerPatternParams = BayerPatternParams()
+    ) -> np.ndarray:
+        """ Convert the image to the specified Bayer pattern.
+
+        Args:
+            image_data (np.ndarray): The image data.
+            params (BayerPatternParams, optional): The parameters for the Bayer pattern conversion.
+        Defaults to BayerPatternParams().
+
+        Raises:
+            ValueError: Invalid Bayer pattern for a single-channel image.
+            KeyError: Invalid Bayer pattern for a single-channel image.
+        Expected 'RG', 'BG', 'GR', or 'GB'.
+
+        Returns:
+            np.ndarray: The image data with the specified Bayer pattern.
+        """
         # Determine the number of channels in the input image
         if image_data.shape[-1] != 1:
             self.logger.warning(
@@ -213,7 +270,7 @@ class ConvertLayer(Paidiverpy):
                 "RG": cv2.COLOR_BAYER_RG2RGB,
                 "BG": cv2.COLOR_BAYER_BG2RGB,
                 "GR": cv2.COLOR_BAYER_GR2RGB,
-                "GB": cv2.COLOR_BAYER_GB2RGB
+                "GB": cv2.COLOR_BAYER_GB2RGB,
             }[params.bayer_pattern]
         except KeyError as exc:
             self.logger.warning(
@@ -221,17 +278,39 @@ class ConvertLayer(Paidiverpy):
                 params.bayer_pattern,
             )
             if self.raise_error:
-                raise exc
+                raise KeyError(
+                    "Invalid Bayer pattern for a single-channel image. Expected 'RG', 'BG', 'GR', or 'GB'."
+                ) from exc
 
             return image_data
         image_data = cv2.cvtColor(image_data, bayer_pattern)
-        
+
         return image_data
 
-    def normalize_image(self, image_data, params: NormalizeParams = NormalizeParams()):
+    def normalize_image(self,
+                        image_data: np.ndarray,
+                        params: NormalizeParams = NormalizeParams()) -> np.ndarray:
+        """ Normalize the image data.
+
+        Args:
+            image_data (np.ndarray): The image data.
+            params (NormalizeParams, optional): The parameters for the image normalization.
+        Defaults to NormalizeParams().
+
+        Raises:
+            ValueError: Failed to normalize the image: {str(e)}
+
+        Returns:
+            np.ndarray: The normalized image data.
+        """
         try:
             return cv2.normalize(
-                image_data, image_data, params.min, params.max, cv2.NORM_MINMAX, dtype=cv2.CV_32F
+                image_data,
+                image_data,
+                params.min,
+                params.max,
+                cv2.NORM_MINMAX,
+                dtype=cv2.CV_32F,
             )
         except Exception as e:
             self.logger.error(f"Failed to normalize the image: {str(e)}")
@@ -239,18 +318,23 @@ class ConvertLayer(Paidiverpy):
                 raise ValueError(f"Failed to normalize the image: {str(e)}") from e
         return image_data
 
-    # if params.autoscale:
-        #     try:
-        #         min_val = np.min(image_data, axis=(0, 1), keepdims=True)
-        #         max_val = np.max(image_data, axis=(0, 1), keepdims=True)
-        #         image_data = (image_data - min_val) / (max_val - min_val)
-        #     except Exception as e:
-        #         self.logger.error("Failed to autoscale the image: %s", e)
-        #         if self.raise_error:
-        #             raise ValueError(f"Failed to autoscale the image: {str(e)}") from e
-        #     return image_data
+    def resize(self,
+               image_data: np.ndarray,
+               params: ResizeParams = ResizeParams()) -> np.ndarray:
+        """ Resize the image data.
 
-    def resize(self, image_data, params: ResizeParams = ResizeParams()):
+        Args:
+            image_data (np.ndarray): The image data.
+            params (ResizeParams, optional): The parameters for the image resizing.
+        Defaults to ResizeParams().
+
+        Raises:
+            ValueError: Failed to resize the image: {str(e)}
+
+        Returns:
+            np.ndarray: The resized image data.
+        """
+        
         try:
             return cv2.resize(
                 image_data, (params.min, params.max), interpolation=cv2.INTER_LANCZOS4
@@ -261,7 +345,22 @@ class ConvertLayer(Paidiverpy):
                 raise ValueError(f"Failed to resize the image: {str(e)}") from e
         return image_data
 
-    def crop_images(self, image_data, params: CropParams = CropParams()):
+    def crop_images(self,
+                    image_data: np.ndarray,
+                    params: CropParams = CropParams()) -> np.ndarray:
+        """ Crop the image data.
+
+        Args:
+            image_data (np.ndarray): The image data.
+            params (CropParams, optional): The parameters for the image cropping.
+        Defaults to CropParams().
+        Raises:
+            ValueError: Crop range is out of bounds.
+            ValueError: Failed to crop the image: {str(e)}
+
+        Returns:
+            np.ndarray: The cropped image data.
+        """
         try:
             start_x, end_x = params.x[0]
             start_y, end_y = params.y[1]
