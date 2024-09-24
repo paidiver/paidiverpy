@@ -1,3 +1,5 @@
+""" Pipeline parameters for the paidiverpy package. """
+
 from paidiverpy.color_layer import ColorLayer
 from paidiverpy.open_layer import OpenLayer
 from paidiverpy.position_layer import PositionLayer

@@ -1,16 +1,17 @@
 """ Module to handle images and metadata for each step in the pipeline
 """
 
-from typing import List
+from typing import List, Union
 from io import BytesIO
+import base64
 
 import matplotlib.pyplot as plt
-import base64
 from PIL import Image
 from IPython.display import HTML
 import pandas as pd
 import numpy as np
 import dask.array as da
+
 
 class ImagesLayer:
     """Class to handle images and metadata for each step in the pipeline
@@ -19,7 +20,7 @@ class ImagesLayer:
         output_path (str): Path to save the images. Default is None.
     """
 
-    def __init__(self, output_path=None):
+    def __init__(self, output_path: str=None):
         self.steps = []
         self.step_metadata = []
         self.images = []
@@ -29,18 +30,31 @@ class ImagesLayer:
 
     def add_step(
         self,
-        step: tuple,
-        images: np.ndarray = None,
+        step: str,
+        images: Union[np.ndarray, da.core.Array] = None,
         metadata: pd.DataFrame = None,
-        step_metadata: List[dict] = None,
+        step_metadata: dict = None,
         update_metadata: bool = False,
-    ):
+    ) -> None:
+        """ Add a step to the pipeline
+
+        Args:
+            step (str): The step to add
+            images (Union[np.ndarray, da.core.Array], optional): The images to add.
+        Defaults to None.
+            metadata (pd.DataFrame, optional): The metadata to add. Defaults to None.
+            step_metadata (dict, optional): The metadata for the step.
+        Defaults to None.
+            update_metadata (bool, optional): Whether to update the metadata.
+        """
         if update_metadata:
             last_images = self.images[-1]
 
             last_filenames = np.array(self.filenames[-1])
             new_filenames = np.isin(last_filenames, metadata["filename"])
-            new_images = [image for image, filename in zip(last_images, new_filenames) if filename]
+            new_images = [
+                image for image, filename in zip(last_images, new_filenames) if filename
+            ]
             self.images.append(new_images)
         else:
             self.images.append(images)
@@ -48,11 +62,11 @@ class ImagesLayer:
         self.steps.append(step)
         self.filenames.append(metadata["filename"].tolist())
 
-    def remove_steps_by_name(self, step: tuple):
+    def remove_steps_by_name(self, step: tuple) -> int:
         """Remove steps by name
 
         Args:
-            step (tuple): The step to remove
+            step (str): The step to remove
 
         Returns:
             int: The index of the removed step
@@ -63,7 +77,7 @@ class ImagesLayer:
         self.filenames = self.filenames[:index]
         return index
 
-    def remove_steps_by_order(self, step_order: int):
+    def remove_steps_by_order(self, step_order: int) -> None:
         """Remove steps by order
 
         Args:
@@ -73,7 +87,7 @@ class ImagesLayer:
         self.images = self.images[:step_order]
         self.filenames = self.filenames[:step_order]
 
-    def get_last_step_order(self):
+    def get_last_step_order(self) -> int:
         """Get the last step order
 
         Returns:
@@ -81,16 +95,19 @@ class ImagesLayer:
         """
         return len(self.steps) - 1
 
-    def get_step(self, step: tuple = None, by_order: bool = False, last: bool = False):
+    def get_step(self,
+                 step: Union[str, int] = None,
+                 by_order: bool = False,
+                 last: bool = False) -> List[Union[np.ndarray, da.core.Array]]:
         """Get a step by name or order
 
         Args:
-            step (tuple, optional): The step to get. Defaults to None.
+            step (Union[str, int], optional): The step to get. Defaults to None.
             by_order (bool, optional): If True, get the step by order. Defaults to False.
             last (bool, optional): If True, get the last step. Defaults to False.
 
         Returns:
-            List[Image]: A list of Image objects
+            List[Union[np.ndarray, da.core.Array]]: The images for the step
         """
         if last:
             return self.images[-1]
@@ -100,7 +117,7 @@ class ImagesLayer:
             index = self.steps.index(step)
         return self.images[index]
 
-    def show(self, index: int = 10):
+    def show(self, index: int = 10) -> None:
         """Show the images in the pipeline
 
         Args:
@@ -118,7 +135,23 @@ class ImagesLayer:
             #     int(f"{len(self.images)}1{idx+1}"), title=self.steps[idx]
             # )
 
-    def save(self, step: tuple = None, by_order: bool = False, last: bool = False, output_path: str = None, image_format: str = "png"):
+    def save(
+        self,
+        step: Union[str, int] = None,
+        by_order: bool = False,
+        last: bool = False,
+        output_path: str = None,
+        image_format: str = "png",
+    ) -> None:
+        """ Save the images in the pipeline
+
+        Args:
+            step (Union[str, int], optional): The step to save. Defaults to None.
+            by_order (bool, optional): If True, save the step by order. Defaults to False.
+            last (bool, optional): If True, save the last step. Defaults to False.
+            output_path (str, optional): The output path to save the images. Defaults to None.
+            image_format (str, optional): The image format to save. Defaults to "png".
+        """
         images = self.get_step(step, by_order, last)
         if last:
             step_order = len(self.steps) - 1
@@ -136,14 +169,6 @@ class ImagesLayer:
             else:
                 cmap = None
             plt.imsave(str(img_path), image, cmap=cmap)
-
-        # if isinstance(output_path, str):
-        #     output_path = Path(output_path)
-        # if not filename:
-        #     filename = f"output_{self.get_filename().split('.')[0]}_{self.step_order}"
-        # img_path = output_path / f"{filename}.{image_format}"
-        # cv2.imwrite(str(img_path), self.image)
-        # self.logger.info("Image saved to %s", img_path)
 
     def __repr__(self) -> str:
         """Return the string representation of the object
@@ -170,7 +195,8 @@ class ImagesLayer:
         """Call the object
 
         Args:
-            max_images (int, optional): The maximum number of images to show. Defaults to None.
+            max_images (int, optional): The maximum number of images to show.
+        Defaults to None.
 
         Returns:
             HTML: The HTML representation of the object
@@ -312,9 +338,9 @@ class ImagesLayer:
         if image_array.dtype != np.uint8:
             image_array = image_array.astype(np.uint8)
         if image_array.ndim == 2:  # Grayscale image
-            pil_img = Image.fromarray(image_array, mode='L')
+            pil_img = Image.fromarray(image_array, mode="L")
         else:  # Color image (assume RGB)
-            pil_img = Image.fromarray(image_array, mode='RGB')
+            pil_img = Image.fromarray(image_array, mode="RGB")
         pil_img.thumbnail(size)
         buffer = BytesIO()
         pil_img.save(buffer, format="JPEG")
