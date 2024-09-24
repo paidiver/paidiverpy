@@ -11,6 +11,7 @@ from paidiverpy.config.position_params import POSITION_LAYER_METHODS
 from paidiverpy.config.resample_params import RESAMPLE_LAYER_METHODS
 from utils import DynamicConfig
 
+
 class GeneralConfig(DynamicConfig):
     """General configuration class."""
 
@@ -43,6 +44,7 @@ class GeneralConfig(DynamicConfig):
 
 class PositionConfig(DynamicConfig):
     """Position configuration class."""
+
     def __init__(self, **kwargs):
         self.name = kwargs.get("name", "position")
         self.step_name = kwargs.get("step_name", "position")
@@ -57,6 +59,7 @@ class PositionConfig(DynamicConfig):
 
 class ConvertConfig(DynamicConfig):
     """Convert configuration class."""
+
     def __init__(self, **kwargs):
         self.name = kwargs.get("name", "convert")
         self.step_name = kwargs.get("step_name", "convert")
@@ -68,8 +71,10 @@ class ConvertConfig(DynamicConfig):
         if params:
             self.params = CONVERT_LAYER_METHODS[self.mode]["params"](**params)
 
+
 class ColorConfig(DynamicConfig):
     """Color configuration class."""
+
     def __init__(self, **kwargs):
         self.name = kwargs.get("name", "color")
         self.step_name = kwargs.get("step_name", "color")
@@ -85,6 +90,7 @@ class ColorConfig(DynamicConfig):
 
 class SamplingConfig(DynamicConfig):
     """Sampling configuration class."""
+
     def __init__(self, **kwargs):
         self.name = kwargs.get("name", "sampling")
         self.step_name = kwargs.get("step_name", "sampling")
@@ -104,6 +110,7 @@ config_class_mapping = {
     "color": ColorConfig,
     "convert": ConvertConfig,
 }
+
 
 class Configuration:
     """Configuration class.
@@ -240,7 +247,7 @@ class Configuration:
             # convert = result["general"].get("convert")
             # if sampling:
             #     print(sampling)
-                
+
             #     result["general"]["sampling"] = [step.to_dict() for step in sampling]
             # if convert:
             #     result["general"]["convert"] = [step.to_dict() for step in convert]
