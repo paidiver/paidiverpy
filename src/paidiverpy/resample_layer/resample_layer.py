@@ -110,10 +110,10 @@ class ResampleLayer(Paidiverpy):
         try:
             metadata = method(self.step_order, test=test, params=params)
         except Exception as e:
-            self.logger.exception("Error in resample layer: %s", e)
+            self.logger.error("Error in resample layer: %s", e)
             if self.raise_error:
                 raise_value_error("Resample layer step failed.")
-            self.logger.exception("Resample layer step will be skipped.")
+            self.logger.error("Resample layer step will be skipped.")
             metadata = self.get_metadata(flag="all")
         if self.step_order == 0:
             return metadata
