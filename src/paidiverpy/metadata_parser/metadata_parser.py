@@ -11,11 +11,11 @@ from shapely.geometry import Point
 from paidiverpy.config.config import Configuration
 from utils import initialise_logging
 
-filename_columns = ["filename", "file_name", "FileName", "File Name"]
+filename_columns = ["image-filename", "filename", "file_name", "FileName", "File Name"]
 index_columns = ["id", "index", "ID", "Index", "Id"]
-datetime_columns = ["datetime", "date_time", "DateTime", "Datetime"]
-lat_columns = ["lat", "latitude_deg", "latitude", "Latitude", "Latitude_deg", "Lat"]
-lon_columns = ["lon", "longitude_deg", "longitude", "Longitude", "Longitude_deg", "Lon"]
+datetime_columns = ["image-datetime", "datetime", "date_time", "DateTime", "Datetime"]
+lat_columns = ["image-latitude", "lat", "latitude_deg", "latitude", "Latitude", "Latitude_deg", "Lat"]
+lon_columns = ["image-longitude", "lon", "longitude_deg", "longitude", "Longitude", "Longitude_deg", "Lon"]
 
 
 class MetadataParser:
@@ -57,6 +57,7 @@ class MetadataParser:
             raise ValueError("Metadata type is not specified.")
 
         self.metadata = self.open_metadata()
+        self.dataset_metadata = None
 
     def _build_config(
         self, metadata_path: str, metadata_type: str, append_data_to_metadata: str
@@ -72,11 +73,13 @@ class MetadataParser:
             Configuration: Configuration object.
         """
         general_params = {
+            "input_path": "placeholder",
+            "output_path": "placeholder",
             "metadata_path": metadata_path,
             "metadata_type": metadata_type,
             "append_data_to_metadata": append_data_to_metadata,
         }
-        config = Configuration()
+        config = Configuration(input_path="placeholder", output_path="placeholder")
         config.add_config("general", general_params)
         return config
 
@@ -115,9 +118,9 @@ class MetadataParser:
 
         metadata = self._rename_columns(metadata, lat_columns)
         metadata = self._rename_columns(metadata, lon_columns)
-        if "lon" in metadata.columns and "lat" in metadata.columns:
+        if "image-longitude" in metadata.columns and "image-latitude" in metadata.columns:
             metadata["point"] = metadata.apply(
-                lambda x: Point(x["lon"], x["lat"]), axis=1
+                lambda x: Point(x["image-longitude"], x["image-latitude"]), axis=1
             )
 
         return metadata
@@ -188,7 +191,7 @@ class MetadataParser:
             )
 
         new_metadata = self._rename_columns(new_metadata, filename_columns)
-        metadata = metadata.merge(new_metadata, how="left", on="filename")
+        metadata = metadata.merge(new_metadata, how="left", on="image-filename")
 
         return metadata
 
@@ -198,9 +201,17 @@ class MetadataParser:
         Returns:
             pd.DataFrame: Metadata DataFrame.
         """
-        metadata = miqtifdo.iFDO_Reader(self.metadata_path).ifdo
+        metadata_path = self.metadata_path if isinstance(self.metadata_path, str) else str(self.metadata_path)
+        metadata = miqtifdo.iFDO_Reader(metadata_path).ifdo
         self._validate_ifdo(metadata)
-        metadata = pd.DataFrame(metadata["image-set-items"]).T
+        self.dataset_metadata = metadata["image-set-header"]
+        metadata = pd.DataFrame(metadata["image-set-items"]).T.reset_index()
+        metadata.rename(columns={"index": "image-filename"}, inplace=True)
+        metadata.reset_index(inplace=True)
+        metadata.rename(columns={"index": "ID"}, inplace=True)
+        if "image-datetime" in metadata.columns:
+            metadata["image-datetime"] = pd.to_datetime(metadata["image-datetime"])
+            metadata.sort_values(by="image-datetime", inplace=True)
         return metadata
 
     def _open_csv_metadata(self) -> pd.DataFrame:
@@ -216,9 +227,9 @@ class MetadataParser:
 
         metadata = self._rename_columns(metadata, filename_columns, raise_error=True)
         metadata = self._rename_columns(metadata, datetime_columns)
-        if "datetime" in metadata.columns:
-            metadata["datetime"] = pd.to_datetime(metadata["datetime"])
-            metadata.sort_values(by="datetime", inplace=True)
+        if "image-datetime" in metadata.columns:
+            metadata["image-datetime"] = pd.to_datetime(metadata["image-datetime"])
+            metadata.sort_values(by="image-datetime", inplace=True)
 
         return metadata
 
@@ -232,7 +243,7 @@ class MetadataParser:
         """
         miqtt.are_valid_ifdo_fields(ifdo_data["image-set-header"])
         unique_names = miqtt.filesHaveUniqueName(ifdo_data["image-set-items"].keys())
-        if unique_names:
+        if not unique_names:
             raise IfdoException(
                 {"Validation error": f"Duplicate filenames found: {unique_names}"}
             )

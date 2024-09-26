@@ -14,7 +14,6 @@ import cv2
 from tqdm import tqdm
 import numpy as np
 import dask
-import dask.array as da
 from dask import delayed, compute
 from dask.diagnostics import ProgressBar
 import dask_image.imread
@@ -144,7 +143,7 @@ class OpenLayer(Paidiverpy):
 
         img_path_list = [
             self.config.general.input_path / filename
-            for filename in self.get_metadata()["filename"]
+            for filename in self.get_metadata()["image-filename"]
         ]
         if self.n_jobs == 1:
             image_list = [
@@ -172,26 +171,26 @@ class OpenLayer(Paidiverpy):
             else:
                 image_type = ""
             if rename == "datetime":
-                metadata["filename"] = (
-                    pd.to_datetime(metadata["datetime"])
+                metadata["image-filename"] = (
+                    pd.to_datetime(metadata["image-datetime"])
                     .dt.strftime("%Y%m%dT%H%M%S.%f")
                     .str[:-3]
                     + "Z"
                     + image_type
                 )
 
-                duplicate_mask = metadata.duplicated(subset="filename", keep=False)
+                duplicate_mask = metadata.duplicated(subset="image-filename", keep=False)
                 if duplicate_mask.any():
                     duplicates = metadata[duplicate_mask]
                     duplicates["duplicate_number"] = (
-                        duplicates.groupby("filename").cumcount() + 1
+                        duplicates.groupby("image-filename").cumcount() + 1
                     )
-                    metadata.loc[duplicate_mask, "filename"] = duplicates.apply(
-                        lambda row: f"{row['filename'][:-1]}_{row['duplicate_number']}",
+                    metadata.loc[duplicate_mask, "image-filename"] = duplicates.apply(
+                        lambda row: f"{row['image-filename'][:-1]}_{row['duplicate_number']}",
                         axis=1,
                     )
             elif rename == "UUID":
-                metadata["filename"] = metadata["filename"].apply(
+                metadata["image-filename"] = metadata["image-filename"].apply(
                     lambda x: str(uuid.uuid4()) + image_type
                 )
             else:
@@ -293,34 +292,44 @@ class OpenLayer(Paidiverpy):
         """Extract EXIF data from the images and add it to the metadata DataFrame."""
         img_path_list = [
             self.config.general.input_path / filename
-            for filename in self.get_metadata()["filename"]
+            for filename in self.get_metadata()["image-filename"]
         ]
         exif_list = []
         for img_path in img_path_list:
-            exif_list.append(OpenLayer.extract_exif_single(img_path))
+            exif_list.append(OpenLayer.extract_exif_single(img_path, self.logger))
         self.set_metadata(
             self.get_metadata(flag="all").merge(
-                pd.DataFrame(exif_list), on="filename", how="left"
+                pd.DataFrame(exif_list), on="image-filename", how="left"
             )
         )
 
     @staticmethod
-    def extract_exif_single(img_path: str) -> dict:
+    def extract_exif_single(img_path: str, logger: logging.Logger) -> dict:
         """Extract EXIF data from a single image file.
 
         Args:
             img_path (str): The path to the image file.
+            logger (logging.Logger): The logger object.
 
         Returns:
             dict: The EXIF data.
         """
-
-        img_pil = Image.open(img_path)
-        exif_data = img_pil.getexif()
-        exif = {}
-        if exif_data is not None:
-            exif["filename"] = img_path.name
-            for tag, value in exif_data.items():
-                tag_name = TAGS.get(tag, tag)
-                exif[tag_name] = value
-        return exif
+        try:
+            img_pil = Image.open(img_path)
+            exif_data = img_pil.getexif()
+            exif = {}
+            if exif_data is not None:
+                exif["image-filename"] = img_path.name
+                for tag, value in exif_data.items():
+                    tag_name = TAGS.get(tag, tag)
+                    exif[tag_name] = value
+            return exif
+        except FileNotFoundError as e:
+            logger.warning("Failed to open %s: %s", img_path, e)
+            return {"image-filename": img_path.name, "error": str(e)}
+        except OSError as e:
+            logger.warning("Failed to open %s: %s", img_path, e)
+            return {"image-filename": img_path.name, "error": str(e)}
+        except Exception as e:
+            logger.warning("Failed to extract EXIF data from %s: %s", img_path, e)
+            return {"image-filename": img_path.name, "error": str(e)}
