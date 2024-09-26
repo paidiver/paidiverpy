@@ -195,7 +195,7 @@ class ColorLayer(Paidiverpy):
         Returns:
             np.ndarray: The image in grayscale.
         """
-        if image_data.shape[-1] != 3:
+        if len(image_data.shape) == 2 or image_data.shape[-1] == 1:
             self.logger.error(
                 "Input image_data must have 3 channels in the last dimension."
             )

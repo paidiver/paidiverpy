@@ -1,16 +1,16 @@
 general:
-  append_data_to_metadata: /mnt/code/code/noc/paidiver/paidiverpy/examples/data/jen/waypoints/scidata_20180610.csv
+  append_data_to_metadata: /home/tobfer/.paidiverpy_cache/benthic_csv/metadata/appended_metadata_benthic_csv.csv
   convert:
   - mode: bits
     params:
       output_bits: 8
-  image_type: JPG
-  input_path: /mnt/code/code/noc/paidiver/paidiverpy/examples/data/jen
-  metadata_path: /mnt/code/code/noc/paidiver/paidiverpy/examples/metadata/metadata_benthic.csv
+  image_type: PNG
+  input_path: /home/tobfer/.paidiverpy_cache/benthic_csv/images
+  metadata_path: /home/tobfer/.paidiverpy_cache/benthic_csv/metadata/metadata_benthic_csv.csv
   metadata_type: CSV_FILE
   n_jobs: 1
   name: raw
-  output_path: /mnt/code/code/noc/paidiver/paidiverpy/examples/data
+  output_path: output
   rename: datetime
   sampling:
   - mode: percent
