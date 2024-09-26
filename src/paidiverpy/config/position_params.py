@@ -1,4 +1,6 @@
-""" This module contains the dataclasses for the parameters of the convert layer
+"""Position layer parameters.
+
+This module contains the dataclasses for the parameters of the convert layer
 functions.
 """
 

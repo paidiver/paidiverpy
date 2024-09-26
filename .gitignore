@@ -2,7 +2,8 @@
 data/
 notebooks/
 *.paidiverpy_cache/*
-
+*output/*
+examples/examples_notebooks/output/*
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

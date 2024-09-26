@@ -127,6 +127,9 @@ ignore = [
     "D104", # Missing public package docstring
     "D105", # Missing docstring in magic method
     "D107", # Missing docstring in `__init__`
+    "TRY401", # No exception type(s) specified in `except`
+    "S324", # Probable use of insecure hash functions in `hashlib`
+    "TRY400"
 ]
 pydocstyle.convention = "google"
 
