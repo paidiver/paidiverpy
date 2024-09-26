@@ -1,12 +1,11 @@
-""" Helper functions to download and load datasets. """
+"""Helper functions to download and load datasets."""
 
-import zipfile
 import hashlib
 import json
+import zipfile
 from pathlib import Path
 import requests
 from tqdm import tqdm
-
 from utils import initialise_logging
 
 logger = initialise_logging(verbose=2)
@@ -26,13 +25,13 @@ DATASET_URLS = {
         "url": "https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/benthic_csv.zip",
         "metadata_type": "CSV_FILE",
         "image_type": "PNG",
-        "append_data_to_metadata": True
+        "append_data_to_metadata": True,
     },
     "benthic_ifdo": {
         "url": "https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/benthic_ifdo.zip",
         "metadata_type": "IFDO",
         "image_type": "JPG",
-    }
+    },
 }
 
 
@@ -43,7 +42,7 @@ def load_persistent_paths() -> dict:
         dict: The persistent paths.
     """
     if PERSISTENCE_FILE.exists():
-        with open(PERSISTENCE_FILE, "r", encoding="UTF-8") as f:
+        with PERSISTENCE_FILE.open(encoding="UTF-8") as f:
             return json.load(f)
     return {}
 
@@ -54,13 +53,13 @@ def save_persistent_paths(paths: dict) -> None:
     Args:
         paths (dict): The paths to save.
     """
-
-    with open(PERSISTENCE_FILE, "w", encoding="UTF-8") as f:
+    with PERSISTENCE_FILE.open("w", encoding="UTF-8") as f:
         json.dump(paths, f)
 
 
 def download_file(url: str, dataset_name: str, cache_dir: Path = CACHE_DIR) -> Path:
-    """
+    """Download dataset file from the given URL.
+
     Download the file from the given URL and cache it locally to avoid redundant downloads.
     A progress bar is displayed for the download process.
 
@@ -81,11 +80,17 @@ def download_file(url: str, dataset_name: str, cache_dir: Path = CACHE_DIR) -> P
         response.raise_for_status()
 
         # Progress bar for downloading
-        total_size = int(response.headers.get('content-length', 0))
+        total_size = int(response.headers.get("content-length", 0))
         block_size = 1024  # 1 KB
-        with open(zip_path, "wb") as f, tqdm(
-            total=total_size, unit='B', unit_scale=True, desc=f"Downloading {dataset_name} files",
-        ) as bar:
+        with (
+            Path.open(zip_path, "wb") as f,
+            tqdm(
+                total=total_size,
+                unit="B",
+                unit_scale=True,
+                desc=f"Downloading {dataset_name} files",
+            ) as bar,
+        ):
             for data in response.iter_content(block_size):
                 f.write(data)
                 bar.update(len(data))
@@ -96,8 +101,7 @@ def download_file(url: str, dataset_name: str, cache_dir: Path = CACHE_DIR) -> P
 
 
 def unzip_file(zip_path: Path, dataset_name: str, extract_dir: Path = CACHE_DIR) -> None:
-    """
-    Unzip the file to the specified directory.
+    """Unzip the file to the specified directory.
 
     Args:
         zip_path (Path): The path to the zip file.
@@ -108,7 +112,7 @@ def unzip_file(zip_path: Path, dataset_name: str, extract_dir: Path = CACHE_DIR)
         with zipfile.ZipFile(zip_path, "r") as zip_ref:
             total_files = len(zip_ref.infolist())
             # Progress bar for extraction
-            with tqdm(total=total_files, unit='file', desc=f'Extracting {dataset_name} files') as bar:
+            with tqdm(total=total_files, unit="file", desc=f"Extracting {dataset_name} files") as bar:
                 for file_info in zip_ref.infolist():
                     zip_ref.extract(file_info, extract_dir)
                     bar.update(1)
@@ -116,10 +120,9 @@ def unzip_file(zip_path: Path, dataset_name: str, extract_dir: Path = CACHE_DIR)
     else:
         logger.info("Using cached extraction at %s", extract_dir)
 
-def calculate_information(dataset_name: str,
-                          extract_dir: Path,
-                          dataset_information: dict) -> dict:
-    """ Calculate the information for the dataset
+
+def calculate_information(dataset_name: str, extract_dir: Path, dataset_information: dict) -> dict:
+    """Calculate the information for the dataset.
 
     Args:
         dataset_name (str): Dataset name
@@ -129,7 +132,7 @@ def calculate_information(dataset_name: str,
     Returns:
         dict: Information about the dataset
     """
-    if dataset_name.split('_')[-1] == "csv":
+    if dataset_name.split("_")[-1] == "csv":
         metadata_path = f"metadata_{dataset_name}.csv"
     else:
         metadata_path = f"metadata_{dataset_name}.json"
@@ -140,15 +143,13 @@ def calculate_information(dataset_name: str,
         "image_type": dataset_information["image_type"],
     }
     if dataset_information.get("append_data_to_metadata"):
-        information["append_data_to_metadata"] = str(extract_dir / 
-                                                     "metadata" /  
-                                                     f"appended_metadata_{dataset_name}.csv")
-    
+        information["append_data_to_metadata"] = str(extract_dir / "metadata" / f"appended_metadata_{dataset_name}.csv")
+
     return information
 
+
 def load(dataset_name: str) -> dict:
-    """
-    Download, unzip, and load the specified dataset.
+    """Download, unzip, and load the specified dataset.
 
     Args:
         dataset_name (str): The name of the dataset (for example, 'sample_image').
@@ -161,13 +162,12 @@ def load(dataset_name: str) -> dict:
 
     if dataset_name in paths and Path(paths[dataset_name]).exists():
         return calculate_information(dataset_name, Path(paths[dataset_name]), dataset_information)
-    else:
-        logger.info("Downloading sample dataset: '%s'", dataset_name)
-
+    logger.info("Downloading sample dataset: '%s'", dataset_name)
 
     extract_dir = CACHE_DIR / dataset_name
     if dataset_information is None:
-        raise ValueError(f"Dataset '{dataset_name}' not found.")
+        msg = f"Dataset '{dataset_name}' not found."
+        raise ValueError(msg)
     url = dataset_information["url"]
     zip_path = download_file(url, dataset_name)
     unzip_file(zip_path, dataset_name, extract_dir)

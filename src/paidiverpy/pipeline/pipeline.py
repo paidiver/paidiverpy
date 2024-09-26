@@ -1,17 +1,16 @@
-""" 
-Pipeline builder class for image preprocessing.
-"""
+"""Pipeline builder class for image preprocessing."""
 
-import logging
-from typing import List, Union
 import gc
 import json
-from paidiverpy.open_layer import OpenLayer
+import logging
 from paidiverpy import Paidiverpy
+from paidiverpy.config.config import Configuration
 from paidiverpy.config.pipeline_params import STEPS_CLASS_TYPES
 from paidiverpy.metadata_parser import MetadataParser
-from paidiverpy.config.config import Configuration
+from paidiverpy.open_layer import OpenLayer
 
+STEP_WITHOUT_PARAMS = 2
+STEP_WITH_PARAMS = 3
 
 class Pipeline(Paidiverpy):
     """Pipeline builder class for image preprocessing.
@@ -37,20 +36,19 @@ class Pipeline(Paidiverpy):
 
     def __init__(
         self,
-        config_file_path: str = None,
-        steps: List[tuple] = None,
-        input_path: str = None,
-        output_path: str = None,
-        metadata_path: str = None,
-        metadata_type: str = None,
+        config_file_path: str | None = None,
+        steps: list[tuple] | None = None,
+        input_path: str | None = None,
+        output_path: str | None = None,
+        metadata_path: str | None = None,
+        metadata_type: str | None = None,
         metadata: MetadataParser = None,
         config: Configuration = None,
-        logger: logging.Logger = None,
+        logger: logging.Logger | None = None,
         raise_error: bool = False,
         verbose: int = 2,
         n_jobs: int = 1,
     ):
-
         super().__init__(
             config_file_path=config_file_path,
             input_path=input_path,
@@ -80,7 +78,7 @@ class Pipeline(Paidiverpy):
         self.steps = steps
         self.runned_steps = -1
 
-    def run(self, from_step: int = None) -> None:
+    def run(self, from_step: int | None = None) -> None:
         """Run the pipeline.
 
         Args:
@@ -91,10 +89,10 @@ class Pipeline(Paidiverpy):
             ValueError: No steps defined for the pipeline
             ValueError: Invalid step format
         """
-
         if not self.steps:
             self.logger.error("No steps defined for the pipeline")
-            raise ValueError("No steps defined for the pipeline")
+            msg = "No steps defined for the pipeline"
+            raise ValueError(msg)
         if from_step is not None:
             if len(self.images.images) > from_step:
                 self.runned_steps = from_step
@@ -106,19 +104,21 @@ class Pipeline(Paidiverpy):
                 )
         for index, step in enumerate(self.steps):
             if index > self.runned_steps:
-                if len(step) == 2:
+                if len(step) == STEP_WITHOUT_PARAMS:
                     step_name, step_class = step
                     step_params = {}
-                elif len(step) == 3:
+                elif len(step) == STEP_WITH_PARAMS:
                     step_name, step_class, step_params = step
                 else:
-                    self.logger.error(f"Invalid step format: {step}")
-                    raise ValueError(f"Invalid step format: {step}")
+                    self.logger.error("Invalid step format: %s", step)
+                    msg = f"Invalid step format: {step}"
+                    raise ValueError(msg)
                 if isinstance(step_class, str):
                     step_class = globals()[step_class]
-                self.logger.info(
-                    f"Running step {index}: {step_name} - {step_class.__name__}"
-                )
+                self.logger.info("Running step %s: %s - %s",
+                                 index,
+                                 step_name,
+                                 step_class.__name__)
                 step_params["step_name"] = self._get_step_name(step_class)
                 step_params["name"] = step_name
                 if step_name == "raw":
@@ -140,17 +140,16 @@ class Pipeline(Paidiverpy):
                         n_jobs=self.n_jobs,
                     )
                 step_instance.run()
-                self.logger.info(f"Step {index} completed")
                 if not step_params.get("test", False):
                     self.images = step_instance.images
                     self.set_metadata(step_instance.get_metadata(flag="all"))
                     self.runned_steps = index
-                    self.logger.info(f"Step {index} saved")
+                self.logger.info("Step %s completed", index)
 
                 del step_instance
                 gc.collect()
 
-    def export_config(self, output_path: str):
+    def export_config(self, output_path: str) -> None:
         """Export the configuration to a yaml file.
 
         Args:
@@ -161,11 +160,11 @@ class Pipeline(Paidiverpy):
     def add_step(
         self,
         step_name: str,
-        step_class: Union[str, type],
+        step_class: str | type,
         parameters: dict,
-        index: int = None,
+        index: int | None = None,
         substitute: bool = False,
-    ):
+    ) -> None:
         """Add a step to the pipeline.
 
         Args:
@@ -177,10 +176,8 @@ class Pipeline(Paidiverpy):
             substitute (bool, optional): Whether to substitute the step in the
         specified index. Defaults to False.
         """
-
-        parameters["name"] = (
-            step_name if not parameters.get("name") else parameters["name"]
-        )
+        if not parameters.get("name"):
+            parameters["name"] = step_name
         parameters["step_name"] = self._get_step_name(step_class)
 
         if index:
@@ -207,17 +204,21 @@ class Pipeline(Paidiverpy):
         val_list = list(STEPS_CLASS_TYPES.values())
         return key_list[val_list.index(step_class)]
 
-    def _convert_config_to_steps(self) -> List[tuple]:
+    def _convert_config_to_steps(self) -> list[tuple]:
         """Convert the configuration to steps.
 
         Returns:
             List[tuple]: The steps of the pipeline.
         """
         steps = []
-        raw_step = ("raw", OpenLayer, self.config.general.to_dict(convert_path=False))
+        raw_step = ("raw",
+                    OpenLayer,
+                    self.config.general.to_dict(convert_path=False))
         steps.append(raw_step)
         for _, step in enumerate(self.config.steps):
-            new_step = (step.name, STEPS_CLASS_TYPES[step.step_name], step.to_dict())
+            new_step = (step.name,
+                        STEPS_CLASS_TYPES[step.step_name],
+                        step.to_dict())
             steps.append(new_step)
         return steps
 
@@ -227,7 +228,6 @@ class Pipeline(Paidiverpy):
         Returns:
             str: The HTML representation of the pipeline.
         """
-
         steps_html = ""
         parameters_html = ""
 
@@ -254,8 +254,8 @@ class Pipeline(Paidiverpy):
 
         general_html = f"""
         <div id="general" title="Click to see more information" class="square" style="float:left; cursor: pointer; padding: 10px; width: max-content; height: 80px; margin: 10px; border: 1px solid #000; text-align: center; line-height: 80px;" onclick="showParameters('general')">
-            <h2 style="font-size:20px;">{getattr(self.config.general, 'name').capitalize()}</h2>
-            <h2 style="font-size:13px;">Type: {getattr(self.config.general, 'step_name').capitalize()}</h2>
+            <h2 style="font-size:20px;">{self.config.general.name.capitalize()}</h2>
+            <h2 style="font-size:13px;">Type: {self.config.general.step_name.capitalize()}</h2>
         </div>
         """
 
@@ -265,7 +265,7 @@ class Pipeline(Paidiverpy):
             </div>
         """
 
-        html = f"""
+        return f"""
         <div style="display: flex; flex-wrap: wrap; align-items: center;">
             {general_html}
             {f'<div style="float:left; width: 50px; height: 80px; margin: 10px; text-align: center; line-height: 80px;">&#10132;</div>{steps_html}' if len(self.steps) > 1 else ''}
@@ -280,7 +280,7 @@ class Pipeline(Paidiverpy):
                 var selectedParams = document.getElementById('parameters_' + id);
                 var idWasVisible = false;
                 if (selectedParams) {{
-                    var idWasVisible = selectedParams.style.display === 'block';                    
+                    var idWasVisible = selectedParams.style.display === 'block';
                 }}
                 for (var i = 0; i < square.length; i++) {{
                     square[i].style.color = 'black';
@@ -301,7 +301,6 @@ class Pipeline(Paidiverpy):
             }}
         </script>
         """
-        return html
 
     def _repr_html_(self) -> str:
         """Generate HTML representation of the pipeline.

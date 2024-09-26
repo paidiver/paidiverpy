@@ -1,18 +1,15 @@
-""" Main class for the paidiverpy package.
-"""
+"""Main class for the paidiverpy package."""
 
-import glob
-import os
-from pathlib import Path
 import logging
-from typing import Union
-
-import pandas as pd
+from pathlib import Path
 import matplotlib.pyplot as plt
-from paidiverpy.metadata_parser import MetadataParser
+import pandas as pd
 from paidiverpy.config.config import Configuration
 from paidiverpy.images_layer import ImagesLayer
-from utils import initialise_logging, get_n_jobs, DynamicConfig
+from paidiverpy.metadata_parser import MetadataParser
+from utils import DynamicConfig
+from utils import get_n_jobs
+from utils import initialise_logging
 
 
 class Paidiverpy:
@@ -36,14 +33,14 @@ class Paidiverpy:
 
     def __init__(
         self,
-        config_file_path: str = None,
-        input_path: str = None,
-        output_path: str = None,
-        metadata_path: str = None,
-        metadata_type: str = None,
+        config_file_path: str | None = None,
+        input_path: str | None = None,
+        output_path: str | None = None,
+        metadata_path: str | None = None,
+        metadata_type: str | None = None,
         metadata: MetadataParser = None,
         config: Configuration = None,
-        logger: logging.Logger = None,
+        logger: logging.Logger | None = None,
         images: ImagesLayer = None,
         paidiverpy: "Paidiverpy" = None,
         raise_error: bool = False,
@@ -58,15 +55,11 @@ class Paidiverpy:
             self.verbose = paidiverpy.verbose
             self.raise_error = paidiverpy.raise_error
             self.n_jobs = paidiverpy.n_jobs
-            # if self.n_jobs > 1:
-            #     self.client = paidiverpy.client
-            # else:
-            #     self.client = None
         else:
             self.verbose = verbose
             self.logger = logger or initialise_logging(verbose=self.verbose)
             self.config = config or self._initialize_config(
-                config_file_path, input_path, output_path, metadata_path, metadata_type
+                config_file_path, input_path, output_path, metadata_path, metadata_type,
             )
             self.metadata = metadata or self._initialize_metadata()
             self.images = images or ImagesLayer(
@@ -77,10 +70,6 @@ class Paidiverpy:
             if not self.config.general.n_jobs:
                 self.config.general.n_jobs = n_jobs
             self.n_jobs = get_n_jobs(self.config.general.n_jobs)
-            # if self.n_jobs > 1:
-            #     self.client = Client(n_workers=self.n_jobs, threads_per_worker=1)
-            # else:
-            #     self.client = None
 
     def _initialize_config(
         self,
@@ -102,7 +91,6 @@ class Paidiverpy:
         Returns:
             Configuration: The configuration object.
         """
-
         general_config = {}
         if input_path:
             general_config["input_path"] = input_path
@@ -115,10 +103,9 @@ class Paidiverpy:
 
         if config_file_path:
             return Configuration(config_file_path)
-        else:
-            config = Configuration()
-            config.add_config("general", general_config)
-            return config
+        config = Configuration()
+        config.add_config("general", general_config)
+        return config
 
     def _initialize_metadata(self) -> MetadataParser:
         """Initialize the metadata object.
@@ -127,27 +114,17 @@ class Paidiverpy:
             MetadataParser: The metadata object.
         """
         general = self.config.general
-        if getattr(general, "metadata_path", None) and getattr(
-            general, "metadata_type", None
-        ):
+        if getattr(general, "metadata_path", None) and getattr(general, "metadata_type", None):
             return MetadataParser(config=self.config, logger=self.logger)
-        else:
-            self.logger.info(
-                "Metadata type is not specified. Loading files from the input path."
-            )
-            self.logger.info(
-                "Metadata will be created from the files in the input path."
-            )
-            file_pattern = str(
-                Path(general.input_path).joinpath(general.file_name_pattern)
-            )
-            list_of_files = glob.glob(file_pattern)
-            list_of_files = [os.path.basename(file) for file in list_of_files]
-            metadata = pd.DataFrame(list_of_files, columns=["image-filename"])
-            metadata = metadata.reset_index().rename(columns={"index": "ID"})
-            return metadata
+        self.logger.info("Metadata type is not specified. Loading files from the input path.")
+        self.logger.info("Metadata will be created from the files in the input path.")
+        file_pattern = str(Path(general.input_path).joinpath(general.file_name_pattern))
+        list_of_files = Path.glob.glob(file_pattern)
+        list_of_files = [Path.name(file) for file in list_of_files]
+        metadata = pd.DataFrame(list_of_files, columns=["image-filename"])
+        return metadata.reset_index().rename(columns={"index": "ID"})
 
-    def get_metadata(self, flag: int = None) -> pd.DataFrame:
+    def get_metadata(self, flag: int | None = None) -> pd.DataFrame:
         """Get the metadata object.
 
         Args:
@@ -164,13 +141,11 @@ class Paidiverpy:
                 return self.metadata.metadata.sort_values("image-datetime").copy()
             if "image-datetime" not in self.metadata.metadata.columns:
                 return self.metadata.metadata[self.metadata.metadata["flag"] <= flag].copy()
-            return self.metadata.metadata[
-                self.metadata.metadata["flag"] <= flag
-            ].sort_values("image-datetime").copy()
+            return self.metadata.metadata[self.metadata.metadata["flag"] <= flag].sort_values("image-datetime").copy()
         return self.metadata
 
     def set_metadata(self, metadata: pd.DataFrame) -> None:
-        """Set the metadata
+        """Set the metadata.
 
         Args:
             metadata (pd.DataFrame): The metadata object.
@@ -191,7 +166,8 @@ class Paidiverpy:
         """
         if isinstance(self.metadata, MetadataParser):
             return self.metadata.waypoints
-        raise ValueError("Waypoints are not loaded in the metadata.")
+        msg = "Waypoints are not loaded in the metadata."
+        raise ValueError(msg)
 
     def show_images(self, step_name: str) -> None:
         """Show the images.
@@ -204,7 +180,7 @@ class Paidiverpy:
 
     def save_images(
         self,
-        step: Union[str, int] = None,
+        step: str | int | None = None,
         by_order: bool = False,
         image_format: str = "png",
     ) -> None:
@@ -227,7 +203,7 @@ class Paidiverpy:
             output_path=output_path,
             image_format=image_format,
         )
-        self.logger.info("Images are saved.")
+        self.logger.info("Images are saved to: %s", output_path)
 
     def plot_trimmed_photos(self, new_metadata: pd.DataFrame) -> None:
         """Plot the trimmed photos.
@@ -236,10 +212,8 @@ class Paidiverpy:
             new_metadata (pd.DataFrame): The new metadata.
         """
         metadata = self.get_metadata()
-        if not "image-longitude" in metadata.columns or not "image-longitude" in new_metadata.columns:
-            self.logger.warning(
-                "Longitude and Latitude columns are not found in the metadata."
-            )
+        if "image-longitude" not in metadata.columns or "image-longitude" not in new_metadata.columns:
+            self.logger.warning("Longitude and Latitude columns are not found in the metadata.")
             self.logger.warning("Plotting will not be performed.")
             return
         plt.figure(figsize=(20, 10))
@@ -248,7 +222,7 @@ class Paidiverpy:
         plt.legend(["Original", "After Trim"])
         plt.show()
 
-    def clear_steps(self, value: Union[int, str], by_order: bool = True) -> None:
+    def clear_steps(self, value: int | str, by_order: bool = True) -> None:
         """Clear steps from the images and metadata.
 
         Args:
@@ -272,14 +246,12 @@ class Paidiverpy:
         Returns:
             dict: The steps metadata.
         """
-        steps_metadata = {}
-        for key, value in config_part.__dict__.items():
-            steps_metadata[key] = value
-        return steps_metadata
+        return dict(config_part.__dict__.items())
 
-    def _get_method_by_mode(
-        self, params: DynamicConfig, method_dict: dict, mode: str
-    ) -> tuple:
+    def _get_method_by_mode(self,
+                            params: DynamicConfig,
+                            method_dict: dict,
+                            mode: str) -> tuple:
         """Get the method by mode.
 
         Args:
@@ -294,7 +266,8 @@ class Paidiverpy:
             tuple: The method and parameters.
         """
         if mode not in method_dict:
-            raise ValueError(f"Unsupported mode: {mode}")
+            msg = f"Unsupported mode: {mode}"
+            raise ValueError(msg)
         method_info = method_dict[mode]
         if not isinstance(params, method_info["params"]):
             params = method_info["params"](**params)

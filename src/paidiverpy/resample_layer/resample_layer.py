@@ -1,30 +1,30 @@
-""" ResampleLayer class.
+"""ResampleLayer class.
+
+Resample the images based on the configuration file.
 """
 
 import logging
-from typing import List, Union
+import geopandas as gpd
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from geopy.distance import geodesic
 from shapely.geometry import Polygon
-import geopandas as gpd
-import matplotlib.pyplot as plt
 from paidiverpy import Paidiverpy
-from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.config.config import Configuration
+from paidiverpy.config.resample_params import RESAMPLE_LAYER_METHODS
+from paidiverpy.config.resample_params import ResampleAltitudeParams
+from paidiverpy.config.resample_params import ResampleDatetimeParams
+from paidiverpy.config.resample_params import ResampleDepthParams
+from paidiverpy.config.resample_params import ResampleFixedParams
+from paidiverpy.config.resample_params import ResampleObscureParams
+from paidiverpy.config.resample_params import ResampleOverlappingParams
+from paidiverpy.config.resample_params import ResamplePercentParams
+from paidiverpy.config.resample_params import ResamplePitchRollParams
+from paidiverpy.config.resample_params import ResampleRegionParams
 from paidiverpy.images_layer import ImagesLayer
-from paidiverpy.config.resample_params import (
-    RESAMPLE_LAYER_METHODS,
-    ResampleDatetimeParams,
-    ResampleDepthParams,
-    ResampleAltitudeParams,
-    ResamplePitchRollParams,
-    ResampleOverlappingParams,
-    ResampleFixedParams,
-    ResamplePercentParams,
-    ResampleRegionParams,
-    ResampleObscureParams,
-)
+from paidiverpy.metadata_parser import MetadataParser
+from utils import raise_value_error
 
 
 class ResampleLayer(Paidiverpy):
@@ -51,24 +51,23 @@ class ResampleLayer(Paidiverpy):
 
     def __init__(
         self,
-        config_file_path: str = None,
-        input_path: str = None,
-        output_path: str = None,
-        metadata_path: str = None,
-        metadata_type: str = None,
+        config_file_path: str | None = None,
+        input_path: str | None = None,
+        output_path: str | None = None,
+        metadata_path: str | None = None,
+        metadata_type: str | None = None,
         metadata: MetadataParser = None,
         config: Configuration = None,
-        logger: logging.Logger = None,
+        logger: logging.Logger | None = None,
         images: ImagesLayer = None,
         paidiverpy: "Paidiverpy" = None,
-        step_name: str = None,
-        parameters: dict = None,
-        config_index: int = None,
+        step_name: str | None = None,
+        parameters: dict | None = None,
+        config_index: int | None = None,
         raise_error: bool = False,
         verbose: int = 2,
         n_jobs: int = 1,
     ):
-
         super().__init__(
             config_file_path=config_file_path,
             input_path=input_path,
@@ -91,19 +90,20 @@ class ResampleLayer(Paidiverpy):
                 parameters["step_name"] = self.step_name
             self.config_index = self.config.add_step(config_index, parameters)
         self.step_order = len(self.images.steps)
-        self.step_metadata = self._calculate_steps_metadata(
-            self.config.steps[self.config_index]
-        )
+        self.step_metadata = self._calculate_steps_metadata(self.config.steps[self.config_index])
 
     def run(self) -> None:
         """Run the resample layer steps on the images based on the configuration.
+
+        Run the resample layer steps on the images based on the configuration.
 
         Raises:
             ValueError: The mode is not defined in the configuration file.
         """
         mode = self.step_metadata.get("mode")
         if not mode:
-            raise ValueError("The mode is not defined in the configuration file.")
+            msg = "The mode is not defined in the configuration file."
+            raise ValueError(msg)
         test = self.step_metadata.get("test")
         params = self.step_metadata.get("params") or {}
         method, params = self._get_method_by_mode(params, RESAMPLE_LAYER_METHODS, mode)
@@ -112,17 +112,14 @@ class ResampleLayer(Paidiverpy):
         except Exception as e:
             self.logger.error("Error in resample layer: %s", e)
             if self.raise_error:
-                self.logger.error("Resample layer step failed.")
-                raise e
+                raise_value_error("Resample layer step failed.")
             self.logger.error("Resample layer step will be skipped.")
             metadata = self.get_metadata(flag="all")
         if self.step_order == 0:
             return metadata
         if not test:
             new_metadata = self.get_metadata(flag="all")
-            new_metadata.loc[new_metadata.index.isin(metadata.index), "flag"] = (
-                metadata.flag
-            )
+            new_metadata.loc[new_metadata.index.isin(metadata.index), "flag"] = metadata.flag
             self.set_metadata(new_metadata)
             self.step_name = f"trim_{mode}" if not self.step_name else self.step_name
             self.images.add_step(
@@ -131,12 +128,14 @@ class ResampleLayer(Paidiverpy):
                 metadata=self.get_metadata(),
                 update_metadata=True,
             )
+            return None
+        return None
 
     def _by_percent(
         self,
-        step_order: int = None,
+        step_order: int | None = None,
         test: bool = False,
-        params: ResamplePercentParams = ResamplePercentParams(),
+        params: ResamplePercentParams = None,
     ) -> pd.DataFrame:
         """Resample the metadata by a percentage.
 
@@ -149,8 +148,9 @@ class ResampleLayer(Paidiverpy):
         Returns:
             pd.DataFrame: Metadata with the photos to be removed flagged.
         """
-
-        metadata = self.get_metadata().sample(frac=1, random_state=np.random.seed())
+        if params is None:
+            params = ResamplePercentParams()
+        metadata = self.get_metadata().sample(frac=1, random_state=np.random.default_rng())
         new_metadata = metadata.sample(frac=params.value)
         if step_order == 0:
             return new_metadata
@@ -162,9 +162,9 @@ class ResampleLayer(Paidiverpy):
 
     def _by_fixed_number(
         self,
-        step_order: int = None,
+        step_order: int | None = None,
         test: bool = False,
-        params: ResampleFixedParams = ResampleFixedParams(),
+        params: ResampleFixedParams = None,
     ) -> pd.DataFrame:
         """Resample the metadata by a fixed number of photos.
 
@@ -177,11 +177,11 @@ class ResampleLayer(Paidiverpy):
         Returns:
             pd.DataFrame: Metadata with the photos to be removed flagged.
         """
-        metadata = self.get_metadata().sample(frac=1, random_state=np.random.seed())
+        if params is None:
+            params = ResampleFixedParams()
+        metadata = self.get_metadata().sample(frac=1, random_state=np.random.default_rng())
         if params.value > len(self.get_metadata()):
-            self.logger.info(
-                "Number of photos to be removed is greater than the number of photos in the metadata."
-            )
+            self.logger.info("Number of photos to be removed is greater than the number of photos in the metadata.")
             self.logger.info("No photos will be removed.")
             return self.get_metadata()
         new_metadata = metadata.sample(n=params.value)
@@ -195,9 +195,9 @@ class ResampleLayer(Paidiverpy):
 
     def _by_datetime(
         self,
-        step_order: int = None,
+        step_order: int | None = None,
         test: bool = False,
-        params: ResampleDatetimeParams = ResampleDatetimeParams(),
+        params: ResampleDatetimeParams = None,
     ) -> pd.DataFrame:
         """Resample the metadata by datetime.
 
@@ -213,26 +213,20 @@ class ResampleLayer(Paidiverpy):
         Returns:
             pd.DataFrame: Metadata with the photos to be removed flagged.
         """
+        if params is None:
+            params = ResampleDatetimeParams()
         metadata = self.get_metadata()
         start_date = params.min
         end_date = params.max
         if not start_date and not end_date:
             return metadata
-        if start_date is None:
-            start_date = metadata["image-datetime"].min()
-        else:
-            start_date = pd.to_datetime(start_date)
-        if end_date is None:
-            end_date = metadata["image-datetime"].max()
-        else:
-            end_date = pd.to_datetime(end_date)
+        start_date = metadata["image-datetime"].min() if start_date is None else pd.to_datetime(start_date)
+        end_date = metadata["image-datetime"].max() if end_date is None else pd.to_datetime(end_date)
         if start_date > end_date:
-            raise ValueError("Start date cannot be greater than end date")
+            msg = "Start date cannot be greater than end date"
+            raise ValueError(msg)
         if step_order == 0:
-            return metadata.loc[
-                (metadata["image-datetime"] >= start_date)
-                & (metadata["image-datetime"] <= end_date)
-            ]
+            return metadata.loc[(metadata["image-datetime"] >= start_date) & (metadata["image-datetime"] <= end_date)]
         metadata.loc[
             (metadata["image-datetime"] < start_date) | (metadata["image-datetime"] > end_date),
             "flag",
@@ -248,9 +242,9 @@ class ResampleLayer(Paidiverpy):
 
     def _by_depth(
         self,
-        step_order: int = None,
+        step_order: int | None = None,
         test: bool = False,
-        params: ResampleDepthParams = ResampleDepthParams(),
+        params: ResampleDepthParams = None,
     ) -> pd.DataFrame:
         """Resample the metadata by depth.
 
@@ -263,6 +257,8 @@ class ResampleLayer(Paidiverpy):
         Returns:
             pd.DataFrame: Metadata with the photos to be removed flagged.
         """
+        if params is None:
+            params = ResampleDepthParams()
         metadata = self.get_metadata()
         metadata.loc[:, "depth_m"] = metadata["depth_m"].abs()
         if params.by == "lower":
@@ -280,9 +276,9 @@ class ResampleLayer(Paidiverpy):
 
     def _by_altitude(
         self,
-        step_order: int = None,
+        step_order: int | None = None,
         test: bool = False,
-        params: ResampleAltitudeParams = ResampleAltitudeParams(),
+        params: ResampleAltitudeParams = None,
     ) -> pd.DataFrame:
         """Resample the metadata by altitude.
 
@@ -295,6 +291,8 @@ class ResampleLayer(Paidiverpy):
         Returns:
             pd.DataFrame: Metadata with the photos to be removed flagged.
         """
+        if params is None:
+            params = ResampleAltitudeParams()
         metadata = self.get_metadata()
         metadata.loc[:, "altitude_m"] = metadata["altitude_m"].abs()
         metadata.loc[metadata["altitude_m"] > params.value, "flag"] = step_order
@@ -309,9 +307,9 @@ class ResampleLayer(Paidiverpy):
 
     def _by_pitch_roll(
         self,
-        step_order: int = None,
+        step_order: int | None = None,
         test: bool = False,
-        params: ResamplePitchRollParams = ResamplePitchRollParams(),
+        params: ResamplePitchRollParams = None,
     ) -> pd.DataFrame:
         """Resample the metadata by pitch and roll.
 
@@ -324,12 +322,13 @@ class ResampleLayer(Paidiverpy):
         Returns:
             pd.DataFrame: Metadata with the photos to be removed flagged.
         """
+        if params is None:
+            params = ResamplePitchRollParams()
         metadata = self.get_metadata()
         metadata.loc[:, "pitch_deg"] = metadata["pitch_deg"].abs()
         metadata.loc[:, "roll_deg"] = metadata["roll_deg"].abs()
         metadata.loc[
-            (metadata["pitch_deg"] > params.pitch)
-            & (metadata["roll_deg"] > params.roll),
+            (metadata["pitch_deg"] > params.pitch) & (metadata["roll_deg"] > params.roll),
             "flag",
         ] = step_order
         self.logger.info(
@@ -343,9 +342,9 @@ class ResampleLayer(Paidiverpy):
 
     def _by_region(
         self,
-        step_order: int = None,
+        step_order: int | None = None,
         test: bool = False,
-        params: ResampleRegionParams = ResampleRegionParams(),
+        params: ResampleRegionParams = None,
     ) -> pd.DataFrame:
         """Resample the metadata by region.
 
@@ -358,6 +357,8 @@ class ResampleLayer(Paidiverpy):
         Returns:
             pd.DataFrame: _description_
         """
+        if params is None:
+            params = ResampleRegionParams()
         metadata = self.get_metadata()
         if params.file:
             polygons = gpd.read_file(params.file)
@@ -371,16 +372,16 @@ class ResampleLayer(Paidiverpy):
                             (min_lon, max_lat),
                             (max_lon, max_lat),
                             (max_lon, min_lat),
-                        ]
-                    )
-                ]
+                        ],
+                    ),
+                ],
             )
 
-        def point_in_any_polygon(point):
+        def _point_in_any_polygon(point: tuple) -> bool:
             return any(polygon.contains(point) for polygon in polygons.geometry)
 
         metadata["flag"] = metadata.apply(
-            lambda x: x["flag"] if point_in_any_polygon(x["point"]) else step_order,
+            lambda x: x["flag"] if _point_in_any_polygon(x["point"]) else step_order,
             axis=1,
         )
         self.logger.info(
@@ -394,9 +395,9 @@ class ResampleLayer(Paidiverpy):
 
     def _by_obscure_photos(
         self,
-        step_order: int = None,
+        step_order: int | None = None,
         test: bool = False,
-        params: ResampleObscureParams = ResampleObscureParams(),
+        params: ResampleObscureParams = None,
     ) -> pd.DataFrame:
         """Resample the metadata by obscure photos.
 
@@ -409,16 +410,15 @@ class ResampleLayer(Paidiverpy):
         Returns:
             pd.DataFrame: Metadata with the photos to be removed flagged.
         """
+        if params is None:
+            params = ResampleObscureParams()
         metadata = self.get_metadata()
         images = self.images.get_step(step=self.config_index, by_order=True)
 
-        def compute_mean(image_chunk):
+        def _compute_mean(image_chunk: np.ndarray) -> np.ndarray:
             return np.mean(image_chunk, axis=(1, 2)) / 255
 
-        if self.n_jobs == 1:
-            brightness = compute_mean(images)
-        else:
-            brightness = images.map_blocks(compute_mean, dtype=float)
+        brightness = _compute_mean(images) if self.n_jobs == 1 else images.map_blocks(_compute_mean, dtype=float)
 
         metadata.loc[brightness < params.min, "flag"] = step_order
         metadata.loc[brightness > params.max, "flag"] = step_order
@@ -438,9 +438,9 @@ class ResampleLayer(Paidiverpy):
 
     def _by_overlapping(
         self,
-        step_order: int = None,
+        step_order: int | None = None,
         test: bool = False,
-        params: ResampleOverlappingParams = ResampleOverlappingParams(),
+        params: ResampleOverlappingParams = None,
     ) -> pd.DataFrame:
         """Resample the metadata by overlapping photos.
 
@@ -453,6 +453,8 @@ class ResampleLayer(Paidiverpy):
         Returns:
             pd.DataFrame: Metadata with the photos to be removed flagged.
         """
+        if params is None:
+            params = ResampleOverlappingParams()
         metadata = self.get_metadata()
 
         metadata.loc[:, "pitch_deg"] = metadata["pitch_deg"].abs()
@@ -463,24 +465,16 @@ class ResampleLayer(Paidiverpy):
         overlap_threshold = params.threshold
         camera_distance = params.camera_distance
 
-        metadata["approx_vertdim_m"] = (
-            2 * (metadata["altitude_m"] + camera_distance) * np.tan(np.radians(theta / 2))
-        )
-        metadata["approx_horizdim_m"] = (
-            2 * (metadata["altitude_m"] + camera_distance) * np.tan(np.radians(omega / 2))
-        )
+        metadata["approx_vertdim_m"] = 2 * (metadata["altitude_m"] + camera_distance) * np.tan(np.radians(theta / 2))
+        metadata["approx_horizdim_m"] = 2 * (metadata["altitude_m"] + camera_distance) * np.tan(np.radians(omega / 2))
         metadata["approx_area_m2"] = (
             4
             * ((metadata["altitude_m"] + camera_distance) ** 2)
             * np.tan(np.radians(theta / 2))
             * np.tan(np.radians(omega / 2))
         )
-        metadata["headingoffset_rad"] = np.arctan(
-            metadata["approx_horizdim_m"] / metadata["approx_vertdim_m"]
-        )
-        metadata["cornerdist_m"] = (
-            0.5 * metadata["approx_horizdim_m"] / np.sin(metadata["headingoffset_rad"])
-        )
+        metadata["headingoffset_rad"] = np.arctan(metadata["approx_horizdim_m"] / metadata["approx_vertdim_m"])
+        metadata["cornerdist_m"] = 0.5 * metadata["approx_horizdim_m"] / np.sin(metadata["headingoffset_rad"])
         metadata["longpos_deg"] = metadata["image-longitude"] + 360
 
         corner_columns = [
@@ -494,7 +488,6 @@ class ResampleLayer(Paidiverpy):
             "BRcornerlat",
         ]
         metadata[corner_columns] = 0.0
-        # Iterate over each photo to calculate corner coordinates
         for i, row in metadata.iterrows():
             lat, lon, heading_deg, headingoffset_rad, cornerdist_m = row[
                 [
@@ -506,38 +499,29 @@ class ResampleLayer(Paidiverpy):
                 ]
             ]
 
-            metadata.loc[i, "TRcornerlong"], metadata.loc[i, "TRcornerlat"] = (
-                ResampleLayer.calculate_corner(
-                    lat, lon, heading_deg, headingoffset_rad, cornerdist_m, 0
-                )
+            metadata.loc[i, "TRcornerlong"], metadata.loc[i, "TRcornerlat"] = ResampleLayer.calculate_corner(
+                lat, lon, heading_deg, headingoffset_rad, cornerdist_m, 0,
             )
-            metadata.loc[i, "TLcornerlong"], metadata.loc[i, "TLcornerlat"] = (
-                ResampleLayer.calculate_corner(
-                    lat,
-                    lon,
-                    heading_deg,
-                    headingoffset_rad,
-                    cornerdist_m,
-                    -2 * headingoffset_rad * 180 / np.pi,
-                )
+            metadata.loc[i, "TLcornerlong"], metadata.loc[i, "TLcornerlat"] = ResampleLayer.calculate_corner(
+                lat,
+                lon,
+                heading_deg,
+                headingoffset_rad,
+                cornerdist_m,
+                -2 * headingoffset_rad * 180 / np.pi,
             )
-            metadata.loc[i, "BLcornerlong"], metadata.loc[i, "BLcornerlat"] = (
-                ResampleLayer.calculate_corner(
-                    lat, lon, heading_deg, headingoffset_rad, cornerdist_m, 180
-                )
+            metadata.loc[i, "BLcornerlong"], metadata.loc[i, "BLcornerlat"] = ResampleLayer.calculate_corner(
+                lat, lon, heading_deg, headingoffset_rad, cornerdist_m, 180,
             )
-            metadata.loc[i, "BRcornerlong"], metadata.loc[i, "BRcornerlat"] = (
-                ResampleLayer.calculate_corner(
-                    lat,
-                    lon,
-                    heading_deg,
-                    headingoffset_rad,
-                    cornerdist_m,
-                    180 - 2 * headingoffset_rad * 180 / np.pi,
-                )
+            metadata.loc[i, "BRcornerlong"], metadata.loc[i, "BRcornerlat"] = ResampleLayer.calculate_corner(
+                lat,
+                lon,
+                heading_deg,
+                headingoffset_rad,
+                cornerdist_m,
+                180 - 2 * headingoffset_rad * 180 / np.pi,
             )
 
-        # Calculate the coordinates for the first photo
         n = pd.DataFrame(
             {
                 "long_deg": [
@@ -552,7 +536,7 @@ class ResampleLayer(Paidiverpy):
                     metadata["BRcornerlat"].iloc[0],
                     metadata["BLcornerlat"].iloc[0],
                 ],
-            }
+            },
         )
 
         chn = np.append(
@@ -562,9 +546,6 @@ class ResampleLayer(Paidiverpy):
         )
         coordsn = pd.DataFrame(chn, columns=["long_deg", "lat_deg"])
 
-        # Find overlaps
-
-        
         metadata["overlap"] = 0
         metadata["polygon_m"] = Polygon(coordsn.values)
         # for i in range(1, len(metadata)):
@@ -583,7 +564,7 @@ class ResampleLayer(Paidiverpy):
                         metadata["BRcornerlat"].loc[i],
                         metadata["BLcornerlat"].loc[i],
                     ],
-                }
+                },
             )
 
             chm = np.append(
@@ -603,10 +584,7 @@ class ResampleLayer(Paidiverpy):
                     overlap_area = polygon_n.intersection(polygon_m).area
                     overlap_percentage_n = overlap_area / polygon_n.area
                     overlap_percentage_m = overlap_area / polygon_m.area
-                    if (
-                        overlap_percentage_n > overlap_threshold
-                        or overlap_percentage_m > overlap_threshold
-                    ):
+                    if overlap_percentage_n > overlap_threshold or overlap_percentage_m > overlap_threshold:
                         metadata.loc[i, "overlap"] = 1
                     else:
                         coordsn = coordsm
@@ -614,9 +592,7 @@ class ResampleLayer(Paidiverpy):
             else:
                 coordsn = coordsm
                 metadata.loc[i, "overlap"] = 0
-        self.logger.info(
-            "Number of photos to be removed: %s", int(metadata["overlap"].sum())
-        )
+        self.logger.info("Number of photos to be removed: %s", int(metadata["overlap"].sum()))
         new_metadata = self.get_metadata()
         new_metadata.loc[metadata["overlap"] == 1, "flag"] = step_order
         if test:
@@ -635,13 +611,8 @@ class ResampleLayer(Paidiverpy):
         gdf = gpd.GeoDataFrame(metadata, geometry="polygon_m")
         _, ax = plt.subplots(figsize=(15, 15))
 
-        gdf[gdf.overlap == 0].plot(
-            ax=ax, facecolor="none", edgecolor="black", label="No Overlap"
-        )
-        gdf[gdf.overlap == 1].plot(
-            ax=ax, facecolor="none", edgecolor="red", label="Overlap"
-        )
-        plt.savefig("overlap.png")
+        gdf[gdf.overlap == 0].plot(ax=ax, facecolor="none", edgecolor="black", label="No Overlap")
+        gdf[gdf.overlap == 1].plot(ax=ax, facecolor="none", edgecolor="red", label="Overlap")
         plt.show()
 
     @staticmethod
