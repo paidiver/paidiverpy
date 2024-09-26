@@ -1,9 +1,6 @@
 general:
-  input_path: '/mnt/code/code/noc/paidiver/paidiverpy/examples/data/jen/'
-  output_path: '/mnt/code/code/noc/paidiver/paidiverpy/examples/data/'
-  metadata_path: '/mnt/code/code/noc/paidiver/paidiverpy/examples/metadata/metadata_benthic.csv'
-  metadata_type: 'CSV_FILE'
-  append_data_to_metadata: '/mnt/code/code/noc/paidiver/paidiverpy/examples/data/jen/waypoints/scidata_20180610.csv'
+  sample_data: 'benthic_csv'
+  output_path: './output'
   n_jobs: 1
   image_type: 'JPG'
   sampling:
