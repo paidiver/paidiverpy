@@ -3,7 +3,7 @@
 import logging
 
 
-class VariableNotFound(Exception):
+class VariableNotFoundError(Exception):
     """Exception raised for when a variable is not found in the dataset.
 
     Args:

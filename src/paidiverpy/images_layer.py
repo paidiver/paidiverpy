@@ -1,26 +1,27 @@
-""" Module to handle images and metadata for each step in the pipeline
-"""
+"""Module to handle images and metadata for each step in the pipeline."""
 
-from typing import List, Union
-from io import BytesIO
 import base64
-
-import matplotlib.pyplot as plt
-from PIL import Image
-from IPython.display import HTML
-import pandas as pd
-import numpy as np
+from io import BytesIO
 import dask.array as da
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from IPython.display import HTML
+from PIL import Image
 
+MAX_IMAGES_TO_SHOW = 12
+NUM_CHANNELS_GRAY = 1
+NUM_CHANNELS_RGBA = 4
+NUM_DIMS_GRAY = 2
 
 class ImagesLayer:
-    """Class to handle images and metadata for each step in the pipeline
+    """Class to handle images and metadata for each step in the pipeline.
 
     Args:
         output_path (str): Path to save the images. Default is None.
     """
 
-    def __init__(self, output_path: str = None):
+    def __init__(self, output_path: str | None = None):
         self.steps = []
         self.step_metadata = []
         self.images = []
@@ -31,12 +32,12 @@ class ImagesLayer:
     def add_step(
         self,
         step: str,
-        images: Union[np.ndarray, da.core.Array] = None,
+        images: np.ndarray | da.core.Array = None,
         metadata: pd.DataFrame = None,
-        step_metadata: dict = None,
+        step_metadata: dict | None = None,
         update_metadata: bool = False,
     ) -> None:
-        """Add a step to the pipeline
+        """Add a step to the pipeline.
 
         Args:
             step (str): The step to add
@@ -52,9 +53,7 @@ class ImagesLayer:
 
             last_filenames = np.array(self.filenames[-1])
             new_filenames = np.isin(last_filenames, metadata["image-filename"])
-            new_images = [
-                image for image, filename in zip(last_images, new_filenames) if filename
-            ]
+            new_images = [image for image, filename in zip(last_images, new_filenames, strict=False) if filename]
             self.images.append(new_images)
         else:
             self.images.append(images)
@@ -63,7 +62,7 @@ class ImagesLayer:
         self.filenames.append(metadata["image-filename"].tolist())
 
     def remove_steps_by_name(self, step: tuple) -> int:
-        """Remove steps by name
+        """Remove steps by name.
 
         Args:
             step (str): The step to remove
@@ -78,7 +77,7 @@ class ImagesLayer:
         return index
 
     def remove_steps_by_order(self, step_order: int) -> None:
-        """Remove steps by order
+        """Remove steps by order.
 
         Args:
             step_order (int): The step order to remove
@@ -88,7 +87,7 @@ class ImagesLayer:
         self.filenames = self.filenames[:step_order]
 
     def get_last_step_order(self) -> int:
-        """Get the last step order
+        """Get the last step order.
 
         Returns:
             int: The last step order
@@ -96,9 +95,9 @@ class ImagesLayer:
         return len(self.steps) - 1
 
     def get_step(
-        self, step: Union[str, int] = None, by_order: bool = False, last: bool = False
-    ) -> List[Union[np.ndarray, da.core.Array]]:
-        """Get a step by name or order
+        self, step: str | int | None = None, by_order: bool = False, last: bool = False,
+    ) -> list[np.ndarray | da.core.Array]:
+        """Get a step by name or order.
 
         Args:
             step (Union[str, int], optional): The step to get. Defaults to None.
@@ -110,46 +109,26 @@ class ImagesLayer:
         """
         if last:
             return self.images[-1]
-        if by_order:
-            index = step
-        else:
-            index = self.steps.index(step)
+        index = step if by_order else self.steps.index(step)
         return self.images[index]
 
     def show(self, image_number: int = 0) -> None:
-        """Show the images in the pipeline
+        """Show the images in the pipeline.
 
         Args:
             image_number (int, optional): The index of the image to show. Defaults to 0.
         """
         return HTML(self._generate_html(image_number=image_number))
-        # plt.figure(figsize=(20, 20))
-        # for idx, images in enumerate(self.images):
-        #     plt.subplot(int(f"{len(self.images)}1{idx+1}"))
-        #     plt.title(self.steps[idx])
-        #     image = images[index]
-        #     if len(image.shape) == 2 or image.shape[-1] == 1:
-        #         plt.imshow(np.squeeze(image, axis=-1), cmap="gray")
-        #     elif image.shape[-1] == 4:
-        #         if image[:, :, 3].max() <= 1:
-        #             image[:, :, 3] = (image[:, :, 3] * 255).astype(np.uint8)
-        #         plt.imshow(image)
-
-        #     else:
-        #         plt.imshow(image)
-        #     # images[index].show(
-        #     #     int(f"{len(self.images)}1{idx+1}"), title=self.steps[idx]
-        #     # )
 
     def save(
         self,
-        step: Union[str, int] = None,
+        step: str | int | None = None,
         by_order: bool = False,
         last: bool = False,
-        output_path: str = None,
+        output_path: str | None = None,
         image_format: str = "png",
     ) -> None:
-        """Save the images in the pipeline
+        """Save the images in the pipeline.
 
         Args:
             step (Union[str, int], optional): The step to save. Defaults to None.
@@ -172,35 +151,36 @@ class ImagesLayer:
         for idx, image in enumerate(images):
             img_path = output_path / f"{self.filenames[step_order][idx]}.{image_format.lower()}"
             if image.shape[-1] == 1:
-                image = np.squeeze(image, axis=-1)
+                saved_image = np.squeeze(image, axis=-1)
                 cmap = "gray"
             else:
+                saved_image = image
                 cmap = None
-            plt.imsave(str(img_path), image, cmap=cmap)
+            plt.imsave(str(img_path), saved_image, cmap=cmap)
 
     def __repr__(self) -> str:
-        """Return the string representation of the object
+        """Return the string representation of the object.
 
         Returns:
             str: The string representation of the object
         """
         repr_str = ""
-        for step, image_paths in zip(self.steps, self.images):
+        for step, image_paths in zip(self.steps, self.images, strict=False):
             repr_str += f"Step: {step}\n"
             for image_path in image_paths:
                 repr_str += f"Image: {image_path}\n"
         return repr_str
 
     def _repr_html_(self) -> str:
-        """Return the HTML representation of the object
+        """Return the HTML representation of the object.
 
         Returns:
             str: The HTML representation of the object
         """
         return self._generate_html(self.max_images)
 
-    def __call__(self, max_images: int = None) -> HTML:
-        """Call the object
+    def __call__(self, max_images: int | None = None) -> HTML:
+        """Call the object.
 
         Args:
             max_images (int, optional): The maximum number of images to show.
@@ -213,8 +193,8 @@ class ImagesLayer:
             max_images = self.max_images
         return HTML(self._generate_html(max_images))
 
-    def _generate_html(self, max_images: int = 12, image_number: int=None) -> str:
-        """Generate the HTML representation of the object
+    def _generate_html(self, max_images: int = 12, image_number: int | None = None) -> str:
+        """Generate the HTML representation of the object.
 
         Args:
             max_images (int): The maximum number of images to show. Defaults to 12.
@@ -300,18 +280,15 @@ class ImagesLayer:
         </script>
         """
 
-        for step_index, (step, image_arrays) in enumerate(zip(self.steps, self.images)):
+        for step_index, (step, image_arrays) in enumerate(zip(self.steps, self.images, strict=False)):
             html += f"<div class='step-header'>Step: {step} <span id='arrow-{step_index}' class='toggle-arrow' onclick='toggleMetadata({step_index})'>►</span></div>"
             html += f"<div id='metadata-{step_index}' class='metadata' style='display:block;'>"
             if image_number is not None:
-                if len(image_arrays) > image_number:
-                    images_to_show = [image_arrays[image_number]]
-                else:
-                    images_to_show = []
+                images_to_show = [image_arrays[image_number]] if len(image_arrays) > image_number else []
                 second_set_images = 0
             else:
-                first_set_images = 12 if max_images > 12 else max_images
-                second_set_images = max_images - first_set_images if max_images > 12 else 0
+                first_set_images = min(max_images, MAX_IMAGES_TO_SHOW)
+                second_set_images = max_images - first_set_images if max_images > MAX_IMAGES_TO_SHOW else 0
                 images_to_show = image_arrays[:first_set_images]
             html += "<div class='image-container'>"
             if len(images_to_show) == 0:
@@ -321,25 +298,21 @@ class ImagesLayer:
                 size = (250, 250) if image_number is None else None
 
                 for image_index, image_array in enumerate(images_to_show):
-                    html += self._generate_single_image_html(image_array, step_index, image_index, size)                    
+                    html += self._generate_single_image_html(image_array, step_index, image_index, size)
                 html += "</div>"
                 if second_set_images > 0:
                     html += f"<button id='hide-button-{step_index}' class='hide-button' style='display:block;' onclick='hide({step_index})'>HIDE</button>"
                     html += f"<div id='more-images-{step_index}' class='image-container' style='display:block;'>"
-                    for image_index, image_array in enumerate(
-                        image_arrays[12:max_images], start=max_images
-                    ):
+                    for image_index, image_array in enumerate(image_arrays[12:max_images], start=max_images):
                         html += self._generate_single_image_html(image_array, step_index, image_index, size)
                     html += "</div>"
                     html += f"<button id='show-more-button-{step_index}' class='show-more-button' onclick='showMore({step_index})'>SHOW MORE</button>"
             html += "</div>"
         return html
 
-    def _generate_single_image_html(self,
-                                    image_array: Union[np.ndarray, da.core.Array],
-                                    step_index: int,
-                                    image_index: int,
-                                    size: tuple) -> str:
+    def _generate_single_image_html(
+        self, image_array: np.ndarray | da.core.Array, step_index: int, image_index: int, size: tuple,
+    ) -> str:
         image_id = f"image-{step_index}-{image_index}"
         html = f"<div><p onclick='toggleImage(\"{image_id}\")' style='cursor:pointer;'>Image: {self.filenames[step_index][image_index]} <span id='arrow-{image_id}' class='toggle-arrow'>►</span></p>"
         if image_array is not None:
@@ -349,9 +322,8 @@ class ImagesLayer:
         return html
 
     @staticmethod
-    def numpy_array_to_base64(image_array: Union[np.ndarray, da.core.Array],
-                              size: tuple = (150, 150)) -> str:
-        """Convert a numpy array to a base64 image
+    def numpy_array_to_base64(image_array: np.ndarray | da.core.Array, size: tuple = (150, 150)) -> str:
+        """Convert a numpy array to a base64 image.
 
         Args:
             image_array (Union[np.ndarray, da.core.Array]): The image array
@@ -360,25 +332,24 @@ class ImagesLayer:
         Returns:
             str: The base64 image
         """
-
         if isinstance(image_array, da.core.Array):
             image_array = image_array.compute()
-        if image_array.shape[-1] == 1:
+        if image_array.shape[-1] == NUM_CHANNELS_GRAY:
             image_array = np.squeeze(image_array, axis=-1)
         if image_array.dtype != np.uint8:
             image_array = image_array.astype(np.uint8)
-        if image_array.ndim == 2:  # Grayscale image
+        if image_array.ndim == NUM_DIMS_GRAY:
             pil_img = Image.fromarray(image_array, mode="L")
-        elif image_array.shape[-1] == 4:  # RGBA image
+        elif image_array.shape[-1] == NUM_CHANNELS_RGBA:
             if image_array[:, :, 3].max() <= 1:
                 image_array[:, :, 3] = (image_array[:, :, 3] * 255).astype(np.uint8)
             pil_img = Image.fromarray(image_array, mode="RGBA")
-        else:  # Color image (assume RGB)
+        else:
             pil_img = Image.fromarray(image_array, mode="RGB")
         if size:
             pil_img.thumbnail(size)
         buffer = BytesIO()
-        img_format = "PNG" if image_array.shape[-1] == 4 else "JPEG"
+        img_format = "PNG" if image_array.shape[-1] == NUM_CHANNELS_RGBA else "JPEG"
         pil_img.save(buffer, format=img_format)
         img_str = base64.b64encode(buffer.getvalue()).decode("utf-8")
         return f"data:image/{img_format.lower()};base64,{img_str}"

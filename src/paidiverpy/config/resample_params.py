@@ -1,9 +1,10 @@
-""" This module contains the dataclasses for the parameters of the convert layer
+"""Resample parameters dataclasses.
+
+This module contains the dataclasses for the parameters of the convert layer
 functions.
 """
 
 from dataclasses import dataclass
-from typing import List
 from utils import DynamicConfig
 
 
@@ -32,7 +33,7 @@ class ResampleAltitudeParams(DynamicConfig):
 
 @dataclass
 class ResamplePitchRollParams(DynamicConfig):
-    """This class contains the parameters for the pitch and roll res"""
+    """This class contains the parameters for the pitch and roll res."""
 
     pitch: float = None
     roll: float = None
@@ -47,9 +48,10 @@ class ResampleOverlappingParams(DynamicConfig):
     threshold: float = None
     camera_distance: float = 1.12
 
+
 @dataclass
 class ResampleFixedParams(DynamicConfig):
-    """This class contains the parameters for the fixed resampling"""
+    """This class contains the parameters for the fixed resampling."""
 
     value: int = 10
 
@@ -63,15 +65,15 @@ class ResamplePercentParams(DynamicConfig):
 
 @dataclass
 class ResampleRegionParams(DynamicConfig):
-    """This class contains the parameters for the region resampling"""
+    """This class contains the parameters for the region resampling."""
 
     file: str = None
-    limits: List[str] = None
+    limits: list[str] = None
 
 
 @dataclass
 class ResampleObscureParams(DynamicConfig):
-    """This class contains the parameters for the obscure resampling"""
+    """This class contains the parameters for the obscure resampling."""
 
     min: int = 0
     max: int = 1
