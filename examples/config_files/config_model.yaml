@@ -8,19 +8,11 @@ general:
   sampling:
     - mode: 'percent'
       params:
-        value: 0.3
-
+        value: 0.1
   convert:
     - mode: 'bits'
       params:
         output_bits: 8
-
-steps:
-  - sampling:
-      name: 'overlapping'
-      mode: 'overlapping'
-      test: True
+    - mode: 'to'
       params:
-        theta: 40
-        omega: 57
-        threshold: 0.5
+        to: 'gray'

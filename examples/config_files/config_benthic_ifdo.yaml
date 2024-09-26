@@ -1,28 +1,26 @@
 general:
-  sample_data: 'benthic_csv'
+  sample_data: 'benthic_ifdo'
   output_path: './output'
-  n_jobs: -1
-  image_type: 'JPG'
+  n_jobs: 8
   sampling:
-    - mode: 'fixed'
+    - mode: 'percent'
       params:
-        value: 20
+        value: 0.2
   convert:
     - mode: 'bits'
       params:
         output_bits: 8
-
 steps:
   - color:
-      name: 'grayscale'
+      name: 'color_correction'
       mode: 'grayscale'
   
   - sampling:
       name: 'datetime'
       mode: 'datetime'
       params:
-        min: '2018-06-11 04:14:00'
-        max: '2018-06-11 04:20:00'
+        min: '2016-05-11 04:14:00'
+        max: '2016-05-11 09:27:00'
 
   - sampling:
       name: 'overlapping'
@@ -33,7 +31,7 @@ steps:
         threshold: 0.5
 
   - color:
-      name: 'gaussian_blur'
+      name: 'color_correction'
       mode: 'gaussian_blur'
       params:
         sigma: 1.0
@@ -48,3 +46,4 @@ steps:
   - color:
       name: 'contrast'
       mode: 'contrast'
+
