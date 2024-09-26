@@ -1,0 +1,35 @@
+general:
+  convert:
+  - mode: bits
+    name: convert
+    params:
+      output_bits: 8
+    step_name: convert
+    test: false
+  image_type: BMP
+  input_path: /home/tobfer/.paidiverpy_cache/pelagic_csv/images
+  metadata_path: /home/tobfer/.paidiverpy_cache/pelagic_csv/metadata/metadata_pelagic_csv.csv
+  metadata_type: CSV_FILE
+  n_jobs: 1
+  name: raw
+  output_path: output
+  rename: null
+  sampling:
+  - mode: percent
+    name: sampling
+    params:
+      value: 0.9
+    step_name: sampling
+    test: false
+  step_name: raw
+steps:
+- sampling:
+    mode: fixed
+    name: Area1
+    params:
+      value: 10
+    test: false
+- color:
+    mode: contrast
+    name: contrast
+    test: false

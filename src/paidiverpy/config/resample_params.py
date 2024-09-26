@@ -44,8 +44,8 @@ class ResampleOverlappingParams(DynamicConfig):
 
     omega: float = 0.5
     theta: float = 0.5
-    threshold: float = 0.5
-
+    threshold: float = None
+    camera_distance: float = 1.12
 
 @dataclass
 class ResampleFixedParams(DynamicConfig):
