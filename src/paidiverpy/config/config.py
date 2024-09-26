@@ -200,10 +200,11 @@ class Configuration:
             raise ValueError("General configuration is not specified.")
         if not config_data["general"]:
             raise ValueError("General configuration is empty.")
-        if not config_data["general"].get("input_path") or not config_data[
-            "general"
-        ].get("output_path"):
-            raise ValueError("Input and output paths are not specified.")
+        if not config_data["general"].get("input_path"):
+            if not config_data["general"].get("sample_data"):
+                raise ValueError("Input path is not specified.")
+        if not config_data["general"].get("output_path"):
+            raise ValueError("Output path is not specified.")
         name = config_data["general"].get("name")
         if not name:
             config_data["general"]["name"] = "raw"

@@ -143,7 +143,7 @@ class Paidiverpy:
             )
             list_of_files = glob.glob(file_pattern)
             list_of_files = [os.path.basename(file) for file in list_of_files]
-            metadata = pd.DataFrame(list_of_files, columns=["filename"])
+            metadata = pd.DataFrame(list_of_files, columns=["image-filename"])
             metadata = metadata.reset_index().rename(columns={"index": "ID"})
             return metadata
 
@@ -159,14 +159,14 @@ class Paidiverpy:
         if isinstance(self.metadata, MetadataParser):
             flag = 0 if flag is None else flag
             if flag == "all":
-                if "datetime" not in self.metadata.metadata.columns:
-                    return self.metadata.metadata
-                return self.metadata.metadata.sort_values("datetime")
-            if "datetime" not in self.metadata.metadata.columns:
-                return self.metadata.metadata[self.metadata.metadata["flag"] <= flag]
+                if "image-datetime" not in self.metadata.metadata.columns:
+                    return self.metadata.metadata.copy()
+                return self.metadata.metadata.sort_values("image-datetime").copy()
+            if "image-datetime" not in self.metadata.metadata.columns:
+                return self.metadata.metadata[self.metadata.metadata["flag"] <= flag].copy()
             return self.metadata.metadata[
                 self.metadata.metadata["flag"] <= flag
-            ].sort_values("datetime")
+            ].sort_values("image-datetime").copy()
         return self.metadata
 
     def set_metadata(self, metadata: pd.DataFrame) -> None:
@@ -236,15 +236,15 @@ class Paidiverpy:
             new_metadata (pd.DataFrame): The new metadata.
         """
         metadata = self.get_metadata()
-        if not "lon" in metadata.columns or not "lon" in new_metadata.columns:
+        if not "image-longitude" in metadata.columns or not "image-longitude" in new_metadata.columns:
             self.logger.warning(
                 "Longitude and Latitude columns are not found in the metadata."
             )
             self.logger.warning("Plotting will not be performed.")
             return
         plt.figure(figsize=(20, 10))
-        plt.plot(metadata["lon"], metadata["lat"], ".k")
-        plt.plot(new_metadata["lon"], new_metadata["lat"], "or")
+        plt.plot(metadata["image-longitude"], metadata["image-latitude"], ".k")
+        plt.plot(new_metadata["image-longitude"], new_metadata["image-latitude"], "or")
         plt.legend(["Original", "After Trim"])
         plt.show()
 
