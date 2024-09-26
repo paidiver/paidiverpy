@@ -1,20 +1,19 @@
-""" Process the images in the position layer.
+"""Position layer module.
+
+Process the images in the position layer.
 """
 
 import logging
-from typing import List, Union
-import numpy as np
 import dask
+import dask.array as da
+import numpy as np
 from dask import compute
 from dask.diagnostics import ProgressBar
-import dask.array as da
 from paidiverpy import Paidiverpy
-from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.config.config import Configuration
+from paidiverpy.config.position_params import POSITION_LAYER_METHODS
 from paidiverpy.images_layer import ImagesLayer
-from paidiverpy.config.position_params import (
-    POSITION_LAYER_METHODS,
-)
+from paidiverpy.metadata_parser import MetadataParser
 from utils import DynamicConfig
 
 
@@ -42,24 +41,23 @@ class PositionLayer(Paidiverpy):
 
     def __init__(
         self,
-        config_file_path: str = None,
-        input_path: str = None,
-        output_path: str = None,
-        metadata_path: str = None,
-        metadata_type: str = None,
+        config_file_path: str | None = None,
+        input_path: str | None = None,
+        output_path: str | None = None,
+        metadata_path: str | None = None,
+        metadata_type: str | None = None,
         metadata: MetadataParser = None,
         config: Configuration = None,
-        logger: logging.Logger = None,
+        logger: logging.Logger | None = None,
         images: ImagesLayer = None,
         paidiverpy: "Paidiverpy" = None,
-        step_name: str = None,
-        parameters: dict = None,
-        config_index: int = None,
+        step_name: str | None = None,
+        parameters: dict | None = None,
+        config_index: int | None = None,
         raise_error: bool = False,
         verbose: int = 2,
         n_jobs: int = 1,
     ):
-
         super().__init__(
             config_file_path=config_file_path,
             input_path=input_path,
@@ -79,12 +77,12 @@ class PositionLayer(Paidiverpy):
         self.step_name = step_name
         if parameters:
             self.config_index = self.config.add_step(config_index, parameters)
-        self.step_metadata = self._calculate_steps_metadata(
-            self.config.steps[self.config_index]
-        )
+        self.step_metadata = self._calculate_steps_metadata(self.config.steps[self.config_index])
 
-    def run(self, add_new_step: bool = True) -> Union[ImagesLayer, None]:
-        """Run the color layer steps on the images based on the configuration
+    def run(self, add_new_step: bool = True) -> ImagesLayer | None:
+        """Run the position layer steps on the images based on the configuration.
+
+        Run the position layer steps on the images based on the configuration
         file or parameters.
 
         Args:
@@ -97,10 +95,10 @@ class PositionLayer(Paidiverpy):
         Returns:
             Union[ImagesLayer, None]: The images object with the new step added.
         """
-
         mode = self.step_metadata.get("mode")
         if not mode:
-            raise ValueError("The mode is not defined in the configuration file.")
+            msg = "The mode is not defined in the configuration file."
+            raise ValueError(msg)
         test = self.step_metadata.get("test")
         params = self.step_metadata.get("params") or {}
         method, params = self._get_method_by_mode(params, POSITION_LAYER_METHODS, mode)
@@ -110,9 +108,7 @@ class PositionLayer(Paidiverpy):
         else:
             image_list = self.process_parallel(images, method, params)
         if not test:
-            self.step_name = (
-                f"convert_{self.config_index}" if not self.step_name else self.step_name
-            )
+            self.step_name = f"convert_{self.config_index}" if not self.step_name else self.step_name
             if add_new_step:
                 self.images.add_step(
                     step=self.step_name,
@@ -120,13 +116,12 @@ class PositionLayer(Paidiverpy):
                     step_metadata=self.step_metadata,
                     metadata=self.get_metadata(),
                 )
-            else:
-                self.images.images[-1] = image_list
-                return self.images
+                return None
+            self.images.images[-1] = image_list
+            return self.images
+        return None
 
-    def process_sequentially(
-        self, images: List[np.ndarray], method: callable, params: dict
-    ) -> List[np.ndarray]:
+    def process_sequentially(self, images: list[np.ndarray], method: callable, params: dict) -> list[np.ndarray]:
         """Process the images sequentially.
 
         Args:
@@ -137,12 +132,11 @@ class PositionLayer(Paidiverpy):
         Returns:
             List[np.ndarray]: The list of processed images.
         """
-        image_list = [method(img, params=params) for img in images]
-        return image_list
+        return [method(img, params=params) for img in images]
 
     def process_parallel(
-        self, images: List[da.core.Array], method: callable, params: DynamicConfig
-    ) -> List[np.ndarray]:
+        self, images: list[da.core.Array], method: callable, params: DynamicConfig,
+    ) -> list[np.ndarray]:
         """Process the images in parallel.
 
         Args:
@@ -158,5 +152,4 @@ class PositionLayer(Paidiverpy):
             self.logger.info("Processing images using %s cores", self.n_jobs)
             with ProgressBar():
                 delayed_images = compute(*delayed_images)
-        image_list = [da.from_array(img) for img in delayed_images]
-        return image_list
+        return [da.from_array(img) for img in delayed_images]

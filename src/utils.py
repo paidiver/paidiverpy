@@ -1,10 +1,9 @@
-""" Module for utility functions.
-"""
+"""Module for utility functions."""
 
 import logging
 import multiprocessing
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 def initialise_logging(verbose: int = 2) -> logging.Logger:
@@ -25,7 +24,7 @@ def initialise_logging(verbose: int = 2) -> logging.Logger:
 
     logging.basicConfig(
         stream=sys.stdout,
-        format=("☁ paidiverpy ☁  | %(levelname)10s | " "%(asctime)s | %(message)s"),
+        format=("☁ paidiverpy ☁  | %(levelname)10s | %(asctime)s | %(message)s"),
         level=logging_level,
         datefmt="%Y-%m-%d %H:%M:%S",
     )
@@ -41,18 +40,24 @@ def get_n_jobs(n_jobs: int) -> int:
     Returns:
         int: The number of jobs to use.
     """
-
     if n_jobs == -1:
         return multiprocessing.cpu_count()
     if n_jobs > 1:
         return min(n_jobs, multiprocessing.cpu_count())
     return 1
 
+def raise_value_error(message: str) -> None:
+    """Raise a ValueError with the given message.
+
+    Args:
+        message (str): The message to raise the ValueError with.
+    """
+    raise ValueError(message)
 
 class DynamicConfig:
     """Dynamic configuration class."""
 
-    def update(self, **kwargs):
+    def update(self, **kwargs: dict) -> None:
         """Update the configuration."""
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -74,24 +79,10 @@ class DynamicConfig:
                     result[key] = str(value)
                 else:
                     result[key] = value
-            elif isinstance(value, DynamicConfig):
-                result[key] = value.to_dict()
-            elif issubclass(type(value), DynamicConfig):
+            elif isinstance(value, DynamicConfig) or issubclass(type(value), DynamicConfig):
                 result[key] = value.to_dict()
             elif isinstance(value, list):
-                result[key] = [
-                    v.to_dict() if isinstance(v, DynamicConfig) else v for v in value
-                ]
+                result[key] = [v.to_dict() if isinstance(v, DynamicConfig) else v for v in value]
             else:
                 result[key] = value
         return result
-
-
-# class ClassInstanceMethod:
-#     def __init__(self, func):
-#         self.func = func
-
-#     def __get__(self, instance, cls):
-#         if instance is not None:
-#             return lambda *args, **kwargs: self.func(instance, *args, **kwargs)
-#         return lambda *args, **kwargs: self.func(cls, *args, **kwargs)

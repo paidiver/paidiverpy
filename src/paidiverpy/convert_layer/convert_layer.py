@@ -1,31 +1,34 @@
-""" Convert the images in the convert layer based on the configuration file or
+"""Convert Layer.
+
+Convert the images in the convert layer based on the configuration file or
 parameters.
 """
 
 import logging
-from typing import List, Union
-import numpy as np
 import cv2
 import dask
+import dask.array as da
 import dask.delayed
+import numpy as np
 from dask import compute
 from dask.diagnostics import ProgressBar
-import dask.array as da
-from paidiverpy.metadata_parser import MetadataParser
-from paidiverpy.config.config import Configuration
-from paidiverpy.images_layer import ImagesLayer
 from paidiverpy import Paidiverpy
-from paidiverpy.config.convert_params import (
-    CONVERT_LAYER_METHODS,
-    BitParams,
-    ToParams,
-    BayerPatternParams,
-    NormalizeParams,
-    ResizeParams,
-    CropParams,
-)
+from paidiverpy.config.config import Configuration
+from paidiverpy.config.convert_params import CONVERT_LAYER_METHODS
+from paidiverpy.config.convert_params import BayerPatternParams
+from paidiverpy.config.convert_params import BitParams
+from paidiverpy.config.convert_params import CropParams
+from paidiverpy.config.convert_params import NormalizeParams
+from paidiverpy.config.convert_params import ResizeParams
+from paidiverpy.config.convert_params import ToParams
+from paidiverpy.images_layer import ImagesLayer
+from paidiverpy.metadata_parser import MetadataParser
 from utils import DynamicConfig
+from utils import raise_value_error
 
+EIGHT_BITS = 8
+SIXTEEN_BITS = 16
+THIRTY_TWO_BITS = 32
 
 class ConvertLayer(Paidiverpy):
     """Process the images in the convert layer.
@@ -51,24 +54,23 @@ class ConvertLayer(Paidiverpy):
 
     def __init__(
         self,
-        config_file_path: str = None,
-        input_path: str = None,
-        output_path: str = None,
-        metadata_path: str = None,
-        metadata_type: str = None,
+        config_file_path: str | None = None,
+        input_path: str | None = None,
+        output_path: str | None = None,
+        metadata_path: str | None = None,
+        metadata_type: str | None = None,
         metadata: MetadataParser = None,
         config: Configuration = None,
-        logger: logging.Logger = None,
+        logger: logging.Logger | None = None,
         images: ImagesLayer = None,
         paidiverpy: "Paidiverpy" = None,
-        step_name: str = None,
-        parameters: dict = None,
-        config_index: int = None,
+        step_name: str | None = None,
+        parameters: dict | None = None,
+        config_index: int | None = None,
         raise_error: bool = False,
         verbose: int = 2,
         n_jobs: int = 1,
     ):
-
         super().__init__(
             config_file_path=config_file_path,
             input_path=input_path,
@@ -88,12 +90,12 @@ class ConvertLayer(Paidiverpy):
         self.step_name = step_name
         if parameters:
             self.config_index = self.config.add_step(config_index, parameters)
-        self.step_metadata = self._calculate_steps_metadata(
-            self.config.steps[self.config_index]
-        )
+        self.step_metadata = self._calculate_steps_metadata(self.config.steps[self.config_index])
 
-    def run(self, add_new_step: bool = True) -> Union[ImagesLayer, None]:
-        """Run the convert layer steps on the images based on the configuration
+    def run(self, add_new_step: bool = True) -> ImagesLayer | None:
+        """Run the convert layer steps on the images based on the configuration.
+
+        Run the convert layer steps on the images based on the configuration
         file or parameters.
 
         Args:
@@ -108,7 +110,8 @@ class ConvertLayer(Paidiverpy):
         """
         mode = self.step_metadata.get("mode")
         if not mode:
-            raise ValueError("The mode is not defined in the configuration file.")
+            msg = "The mode is not defined in the configuration file."
+            raise ValueError(msg)
         test = self.step_metadata.get("test")
         params = self.step_metadata.get("params") or {}
         method, params = self._get_method_by_mode(params, CONVERT_LAYER_METHODS, mode)
@@ -118,9 +121,7 @@ class ConvertLayer(Paidiverpy):
         else:
             image_list = self.process_parallel(images, method, params)
         if not test:
-            self.step_name = (
-                f"convert_{self.config_index}" if not self.step_name else self.step_name
-            )
+            self.step_name = f"convert_{self.config_index}" if not self.step_name else self.step_name
             if add_new_step:
                 self.images.add_step(
                     step=self.step_name,
@@ -128,13 +129,12 @@ class ConvertLayer(Paidiverpy):
                     step_metadata=self.step_metadata,
                     metadata=self.get_metadata(),
                 )
-            else:
-                self.images.images[-1] = image_list
-                return self.images
+                return None
+            self.images.images[-1] = image_list
+            return self.images
+        return None
 
-    def process_sequentially(
-        self, images: List[np.ndarray], method: callable, params: dict
-    ) -> List[np.ndarray]:
+    def process_sequentially(self, images: list[np.ndarray], method: callable, params: dict) -> list[np.ndarray]:
         """Process the images sequentially.
 
         Args:
@@ -145,12 +145,11 @@ class ConvertLayer(Paidiverpy):
         Returns:
             List[np.ndarray]: The list of processed images.
         """
-        image_list = [method(img, params=params) for img in images]
-        return image_list
+        return [method(img, params=params) for img in images]
 
     def process_parallel(
-        self, images: List[da.core.Array], method: callable, params: DynamicConfig
-    ) -> List[np.ndarray]:
+        self, images: list[da.core.Array], method: callable, params: DynamicConfig,
+    ) -> list[np.ndarray]:
         """Process the images in parallel.
 
         Args:
@@ -166,12 +165,9 @@ class ConvertLayer(Paidiverpy):
             self.logger.info("Processing images using %s cores", self.n_jobs)
             with ProgressBar():
                 delayed_images = compute(*delayed_images)
-        image_list = [da.from_array(img) for img in delayed_images]
-        return image_list
+        return [da.from_array(img) for img in delayed_images]
 
-    def convert_bits(
-        self, image_data: np.ndarray, params: BitParams = BitParams()
-    ) -> np.ndarray:
+    def convert_bits(self, image_data: np.ndarray, params: BitParams = None) -> np.ndarray:
         """Convert the image to the specified number of bits.
 
         Args:
@@ -182,22 +178,23 @@ class ConvertLayer(Paidiverpy):
         Returns:
             np.ndarray: The image data with the specified number of bits.
         """
-        if params.output_bits == 8:
+        if params is None:
+            params = BitParams()
+        if params.output_bits == EIGHT_BITS:
             image_data = np.uint8(image_data * 255)
-        elif params.output_bits == 16:
+        elif params.output_bits == SIXTEEN_BITS:
             image_data = np.uint16(image_data * 65535)
-        elif params.output_bits == 32:
+        elif params.output_bits == THIRTY_TWO_BITS:
             image_data = np.float32(image_data)
         else:
             self.logger.warning("Unsupported output bits: %s", params.output_bits)
             if self.raise_error:
-                raise ValueError(f"Unsupported output bits: {params.output_bits}")
+                msg = f"Unsupported output bits: {params.output_bits}"
+                raise ValueError(msg)
 
         return image_data
 
-    def channel_convert(
-        self, image_data: np.ndarray, params: ToParams = ToParams()
-    ) -> np.ndarray:
+    def channel_convert(self, image_data: np.ndarray, params: ToParams = None) -> np.ndarray:
         """Convert the image to the specified channel.
 
         Args:
@@ -213,29 +210,30 @@ class ConvertLayer(Paidiverpy):
         Returns:
             np.ndarray: The image data with the specified channel.
         """
+        if params is None:
+            params = ToParams()
         try:
             if params.to == "RGB":
                 if image_data.shape[-1] == 1:
                     image_data = cv2.cvtColor(image_data, cv2.COLOR_GRAY2RGB)
                 else:
-                    raise ValueError("The image is already in RGB format.")
+                    raise_value_error("The image is already in RGB format.")
             elif params.to == "gray":
                 if image_data.shape[-1] == 1:
-                    raise ValueError("The image is already in grayscale.")
+                    raise_value_error("The image is already in grayscale.")
                 if params.channel_selector in [0, 1, 2]:
                     image_data = image_data[:, :, params.channel_selector]
                 else:
                     image_data = cv2.cvtColor(image_data, cv2.COLOR_BGR2GRAY)
         except Exception as e:
-            self.logger.error(f"Failed to convert the image to {params.to}: {str(e)}")
+            self.logger.warning("Failed to convert the image to %s: %s", params.to, e)
             if self.raise_error:
-                raise ValueError(
-                    f"Failed to convert the image to {params.to}: {str(e)}"
-                ) from e
+                msg = f"Failed to convert the image to {params.to}: {e}"
+                raise_value_error(msg)
         return image_data
 
     def get_bayer_pattern(
-        self, image_data: np.ndarray, params: BayerPatternParams = BayerPatternParams()
+        self, image_data: np.ndarray, params: BayerPatternParams = None,
     ) -> np.ndarray:
         """Convert the image to the specified Bayer pattern.
 
@@ -252,15 +250,17 @@ class ConvertLayer(Paidiverpy):
         Returns:
             np.ndarray: The image data with the specified Bayer pattern.
         """
-        # Determine the number of channels in the input image
+        if params is None:
+            params = BayerPatternParams()
         if image_data.shape[-1] != 1:
             self.logger.warning(
                 "Invalid Bayer pattern for a single-channel image: %s",
                 params.bayer_pattern,
             )
             if self.raise_error:
+                msg = "Invalid Bayer pattern for a single-channel image. Expected 'RG', 'BG', 'GR', or 'GB'."
                 raise ValueError(
-                    "Invalid Bayer pattern for a single-channel image. Expected 'RG', 'BG', 'GR', or 'GB'."
+                    msg,
                 )
             return image_data
         try:
@@ -276,18 +276,16 @@ class ConvertLayer(Paidiverpy):
                 params.bayer_pattern,
             )
             if self.raise_error:
+                msg = "Invalid Bayer pattern for a single-channel image. Expected 'RG', 'BG', 'GR', or 'GB'."
                 raise KeyError(
-                    "Invalid Bayer pattern for a single-channel image. Expected 'RG', 'BG', 'GR', or 'GB'."
+                    msg,
                 ) from exc
 
             return image_data
-        image_data = cv2.cvtColor(image_data, bayer_pattern)
+        return cv2.cvtColor(image_data, bayer_pattern)
 
-        return image_data
 
-    def normalize_image(
-        self, image_data: np.ndarray, params: NormalizeParams = NormalizeParams()
-    ) -> np.ndarray:
+    def normalize_image(self, image_data: np.ndarray, params: NormalizeParams = None) -> np.ndarray:
         """Normalize the image data.
 
         Args:
@@ -301,6 +299,8 @@ class ConvertLayer(Paidiverpy):
         Returns:
             np.ndarray: The normalized image data.
         """
+        if params is None:
+            params = NormalizeParams()
         try:
             return cv2.normalize(
                 image_data,
@@ -311,14 +311,13 @@ class ConvertLayer(Paidiverpy):
                 dtype=cv2.CV_32F,
             )
         except Exception as e:
-            self.logger.error(f"Failed to normalize the image: {str(e)}")
+            self.logger.warning("Failed to normalize the image: %s", e)
             if self.raise_error:
-                raise ValueError(f"Failed to normalize the image: {str(e)}") from e
+                msg = f"Failed to normalize the image: {e!s}"
+                raise ValueError(msg) from e
         return image_data
 
-    def resize(
-        self, image_data: np.ndarray, params: ResizeParams = ResizeParams()
-    ) -> np.ndarray:
+    def resize(self, image_data: np.ndarray, params: ResizeParams = None) -> np.ndarray:
         """Resize the image data.
 
         Args:
@@ -332,26 +331,25 @@ class ConvertLayer(Paidiverpy):
         Returns:
             np.ndarray: The resized image data.
         """
-
+        if params is None:
+            params = ResizeParams()
         try:
-            return cv2.resize(
-                image_data, (params.min, params.max), interpolation=cv2.INTER_LANCZOS4
-            )
+            return cv2.resize(image_data, (params.min, params.max), interpolation=cv2.INTER_LANCZOS4)
         except Exception as e:
-            self.logger.error(f"Failed to resize the image: {str(e)}")
+            self.logger.warning("Failed to resize the image: %s", e)
             if self.raise_error:
-                raise ValueError(f"Failed to resize the image: {str(e)}") from e
+                msg = f"Failed to resize the image: {e!s}"
+                raise ValueError(msg) from e
         return image_data
 
-    def crop_images(
-        self, image_data: np.ndarray, params: CropParams = CropParams()
-    ) -> np.ndarray:
+    def crop_images(self, image_data: np.ndarray, params: CropParams = None) -> np.ndarray:
         """Crop the image data.
 
         Args:
             image_data (np.ndarray): The image data.
             params (CropParams, optional): The parameters for the image cropping.
         Defaults to CropParams().
+
         Raises:
             ValueError: Crop range is out of bounds.
             ValueError: Failed to crop the image: {str(e)}
@@ -359,19 +357,18 @@ class ConvertLayer(Paidiverpy):
         Returns:
             np.ndarray: The cropped image data.
         """
+        if params is None:
+            params = CropParams()
         try:
             start_x, end_x = params.x[0]
             start_y, end_y = params.y[1]
-            if (
-                start_x < 0
-                or end_x > image_data.shape[1]
-                or start_y < 0
-                or end_y > image_data.shape[2]
-            ):
-                raise ValueError("Crop range is out of bounds.")
+            if start_x < 0 or end_x > image_data.shape[1] or start_y < 0 or end_y > image_data.shape[2]:
+                msg = "Crop range is out of bounds."
+                raise_value_error(msg)
             return image_data[:, start_x:end_x, start_y:end_y, :]
         except Exception as e:
-            self.logger.error("Failed to crop the image: %s", str(e))
+            self.logger.warning("Failed to crop the image: %s", e)
             if self.raise_error:
-                raise ValueError(f"Failed to crop the image: {str(e)}") from e
+                msg = f"Failed to crop the image: {e!s}"
+                raise ValueError(msg) from e
         return image_data
