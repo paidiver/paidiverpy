@@ -62,29 +62,6 @@ You can install `paidiverpy` either locally or on a notebook server such as JASM
     ```bash
     pip install -e .
     ```
-
-## Example Data
-
-To access example data, run the following commands:
-
-```bash
-mkdir -p examples/data && cd examples/data
-
-# jen images
-wget https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/jen_images.zip
-unzip jen_images.zip && rm -f jen_images.zip
-
-# mojtaba images
-wget https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/mojtaba_images.zip
-unzip mojtaba_images.zip && rm -f mojtaba_images.zip
-
-# loic images
-wget https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/loic_images.zip
-unzip loic_images.zip && rm -f loic_images.zip
-```
-
-These commands will download and extract the sample data into the `examples/data` directory.
-
 ## Package Organization
 
 ### Configuration File
@@ -131,12 +108,28 @@ Comprehensive documentation is forthcoming. Meanwhile, sample notebooks demonstr
 - [Rerun pipeline steps, modify configurations, and plot test data before applying changes](examples/example_notebooks/pipeline_interaction.ipynb)
 
 
+### Example Data
+
+The usage examples use some example data. If you want to download the example data by your self and test some codes, you can just run:
+
+```python
+from paidiverpý import data
+# replace dataset name by the name of the dataset that you want to download
+data.load(DATASET_NAME) 
+```
+
+We have now available the following datasets:
+
+- pelagic_csv
+- benthic_csv
+- benthic_ifdo
+
 ### Command-Line Arguments
 
 You can execute the pipelines using command-line arguments. Here’s an example:
 
 ```
-paidiverpy -c examples/config_files/config_1.yaml
+paidiverpy -c examples/config_files/config_simple.yaml
 ```
 
 This command will run the pipeline as specified in the configuration file and save the output images to the directory defined in the configuration file’s `output_path` setting.

@@ -17,6 +17,7 @@ from paidiverpy.config.position_params import (
 )
 from utils import DynamicConfig
 
+
 class PositionLayer(Paidiverpy):
     """Process the images in the position layer.
 
@@ -58,7 +59,6 @@ class PositionLayer(Paidiverpy):
         verbose: int = 2,
         n_jobs: int = 1,
     ):
-
 
         super().__init__(
             config_file_path=config_file_path,
