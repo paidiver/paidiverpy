@@ -4,7 +4,7 @@ import logging
 
 
 class VariableNotFound(Exception):
-    """ Exception raised for when a variable is not found in the dataset.
+    """Exception raised for when a variable is not found in the dataset.
 
     Args:
         Exception (Exception): The base exception class.
@@ -12,7 +12,7 @@ class VariableNotFound(Exception):
 
     def __init__(self, variable_name: str) -> None:
         """Initialise the exception.
-        
+
         Args:
             variable_name (str): The name of the variable that was not found.
         """
