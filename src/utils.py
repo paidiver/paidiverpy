@@ -1,5 +1,6 @@
 """ Module for utility functions.
 """
+
 import logging
 import multiprocessing
 from pathlib import Path
@@ -24,8 +25,7 @@ def initialise_logging(verbose: int = 2) -> logging.Logger:
 
     logging.basicConfig(
         stream=sys.stdout,
-        format=("☁ paidiverpy ☁  | %(levelname)10s | "
-                "%(asctime)s | %(message)s"),
+        format=("☁ paidiverpy ☁  | %(levelname)10s | " "%(asctime)s | %(message)s"),
         level=logging_level,
         datefmt="%Y-%m-%d %H:%M:%S",
     )
