@@ -1,9 +1,10 @@
-""" This module contains the dataclasses for the parameters of the color layer
+"""Color layer parameters dataclasses.
+
+This module contains the dataclasses for the parameters of the color layer
 functions.
 """
 
 from dataclasses import dataclass
-
 from utils import DynamicConfig
 
 
@@ -11,7 +12,10 @@ from utils import DynamicConfig
 class GrayScaleParams(DynamicConfig):
     """This class contains the parameters for the grayscale conversion."""
 
-    pass
+    keep_alpha: bool = False
+    method: str = "opencv"
+    invert_colors: bool = False
+
 
 
 @dataclass
@@ -48,7 +52,7 @@ class SharpenParams(DynamicConfig):
 
 @dataclass
 class ContrastAdjustmentParams(DynamicConfig):
-    """This class contains the parameters for the contrast adjustment"""
+    """This class contains the parameters for the contrast adjustment."""
 
     method: str = "clahe"
     kernel_size: int = None
@@ -58,7 +62,7 @@ class ContrastAdjustmentParams(DynamicConfig):
 
 @dataclass
 class IlluminationCorrectionParams(DynamicConfig):
-    """This class contains the parameters for the illumination correction"""
+    """This class contains the parameters for the illumination correction."""
 
     method: str = "rolling"
     radius: int = 100
@@ -66,7 +70,7 @@ class IlluminationCorrectionParams(DynamicConfig):
 
 @dataclass
 class DeblurParams(DynamicConfig):
-    """This class contains the parameters for the deblurring"""
+    """This class contains the parameters for the deblurring."""
 
     method: str = "wiener"
     psf_type: str = "gaussian"

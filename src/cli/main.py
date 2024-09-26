@@ -1,14 +1,18 @@
-import argparse
-import logging
-import sys
 
+"""Main module for the paidiverpy CLI."""
+import argparse
+import sys
 from paidiverpy.pipeline import Pipeline
 from utils import initialise_logging
 
 logger = initialise_logging()
 
+def process_action(parser: argparse.ArgumentParser) -> None:
+    """Process the action based on the arguments provided.
 
-def process_action(parser):
+    Args:
+        parser (argparse.ArgumentParser): The parser to parse the arguments from.
+    """
     args = parser.parse_args()
 
     if len(sys.argv) == 1:
@@ -21,7 +25,15 @@ def process_action(parser):
     pipeline.save_images()
 
 
-def add_arguments(parser):
+def add_arguments(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    """Add arguments to the parser.
+
+    Args:
+        parser (argparse.ArgumentParser): The parser to add arguments to.
+
+    Returns:
+        argparse.ArgumentParser: The parser with added arguments.
+    """
     parser.add_argument(
         "-c",
         "--configuration_file",
@@ -29,12 +41,11 @@ def add_arguments(parser):
         default="./config/config.yaml",
         help="Path to the configuration file 'config.yaml'",
     )
-
     return parser
 
 
-def main():
-
+def main() -> None:
+    """Main function for the paidiverpy CLI."""
     parser = argparse.ArgumentParser(description="Paidiverpy image preprocessing")
     parser = add_arguments(parser)
 
