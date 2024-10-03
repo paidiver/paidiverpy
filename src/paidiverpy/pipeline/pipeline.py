@@ -235,7 +235,7 @@ class Pipeline(Paidiverpy):
             if i % 4 == 0 and i > 0:
                 steps_html += '<div style="clear:both;"></div>'
             steps_html += f"""
-                <div id="step_{i}" title="Click to see more information" class="square" style="cursor: pointer; float:left; padding: 10px; width: max-content; height: 80px; margin: 10px; border: 1px solid #000; text-align: center; line-height: 80px;" onclick="showParameters('step_{i}')">
+                <div id="step_{i}" title="Click to see more information" class="square" style="cursor: pointer; float:left; padding: 10px; width: max-content; height: 80px; margin: 10px; border: 1px solid #000; border-style: {'dashed' if step.test else 'solid'}; text-align: center; line-height: 80px;" onclick="showParameters('step_{i}')">
                     <h2 style="font-size:20px;">{step.name.capitalize()}</h2>
                     <h2 style="font-size:13px;">Type: {step.step_name.capitalize()}</h2>
                 </div>
@@ -264,13 +264,21 @@ class Pipeline(Paidiverpy):
                 <pre>{json.dumps(self.config.general.to_dict(), indent=4)}</pre>
             </div>
         """
-
+        
+        dask_html = ""
+        if self.n_jobs > 1:
+            dask_html = f"""
+                <div style="float:left;">
+                    <h2 style="font-size:20px;">Parallel Processing - Number of workers: {self.n_jobs}</h2>
+                </div>
+            """
         return f"""
         <div style="display: flex; flex-wrap: wrap; align-items: center;">
             {general_html}
             {f'<div style="float:left; width: 50px; height: 80px; margin: 10px; text-align: center; line-height: 80px;">&#10132;</div>{steps_html}' if len(self.steps) > 1 else ''}
         </div>
         <div id="parameters" style="padding: 10px; margin: 10px;">{parameters_html}</div>
+        {dask_html}
         <script>
             function showParameters(id) {{
                 // Hide all parameter sections
