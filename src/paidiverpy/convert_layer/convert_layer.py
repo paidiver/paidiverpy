@@ -23,8 +23,8 @@ from paidiverpy.config.convert_params import ResizeParams
 from paidiverpy.config.convert_params import ToParams
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
-from utils import DynamicConfig
-from utils import raise_value_error
+from paidiverpy.utils import DynamicConfig
+from paidiverpy.utils import raise_value_error
 
 EIGHT_BITS = 8
 SIXTEEN_BITS = 16
@@ -229,7 +229,7 @@ class ConvertLayer(Paidiverpy):
                     image_data = image_data[:, :, params.channel_selector]
                 else:
                     image_data = cv2.cvtColor(image_data, cv2.COLOR_BGR2GRAY)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             self.logger.warning("Failed to convert the image to %s: %s", params.to, e)
             if self.raise_error:
                 msg = f"Failed to convert the image to {params.to}: {e}"
