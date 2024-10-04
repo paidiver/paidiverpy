@@ -12,6 +12,7 @@ from paidiverpy.open_layer import OpenLayer
 STEP_WITHOUT_PARAMS = 2
 STEP_WITH_PARAMS = 3
 
+
 class Pipeline(Paidiverpy):
     """Pipeline builder class for image preprocessing.
 
@@ -31,6 +32,7 @@ class Pipeline(Paidiverpy):
         config_index (int): The index of the configuration.
         raise_error (bool): Whether to raise an error.
         verbose (int): verbose level (0 = none, 1 = errors/warnings, 2 = info).
+        track_changes (bool): Whether to track changes. Defaults to True.
         n_jobs (int): The number of jobs to run in parallel.
     """
 
@@ -47,6 +49,7 @@ class Pipeline(Paidiverpy):
         logger: logging.Logger | None = None,
         raise_error: bool = False,
         verbose: int = 2,
+        track_changes: bool = True,
         n_jobs: int = 1,
     ):
         super().__init__(
@@ -60,6 +63,7 @@ class Pipeline(Paidiverpy):
             logger=logger,
             raise_error=raise_error,
             verbose=verbose,
+            track_changes=track_changes,
             n_jobs=n_jobs,
         )
 
@@ -115,10 +119,9 @@ class Pipeline(Paidiverpy):
                     raise ValueError(msg)
                 if isinstance(step_class, str):
                     step_class = globals()[step_class]
-                self.logger.info("Running step %s: %s - %s",
-                                 index,
-                                 step_name,
-                                 step_class.__name__)
+                self.logger.info(
+                    "Running step %s: %s - %s", index, step_name, step_class.__name__,
+                )
                 step_params["step_name"] = self._get_step_name(step_class)
                 step_params["name"] = step_name
                 if step_name == "raw":
@@ -127,6 +130,7 @@ class Pipeline(Paidiverpy):
                         config=self.config,
                         metadata=self.metadata,
                         parameters=step_params,
+                        track_changes=self.track_changes,
                         n_jobs=self.n_jobs,
                     )
                 else:
@@ -137,6 +141,7 @@ class Pipeline(Paidiverpy):
                         step_name=step_name,
                         parameters=step_params,
                         config_index=index - 1,
+                        track_changes=self.track_changes,
                         n_jobs=self.n_jobs,
                     )
                 step_instance.run()
@@ -211,14 +216,10 @@ class Pipeline(Paidiverpy):
             List[tuple]: The steps of the pipeline.
         """
         steps = []
-        raw_step = ("raw",
-                    OpenLayer,
-                    self.config.general.to_dict(convert_path=False))
+        raw_step = ("raw", OpenLayer, self.config.general.to_dict(convert_path=False))
         steps.append(raw_step)
         for _, step in enumerate(self.config.steps):
-            new_step = (step.name,
-                        STEPS_CLASS_TYPES[step.step_name],
-                        step.to_dict())
+            new_step = (step.name, STEPS_CLASS_TYPES[step.step_name], step.to_dict())
             steps.append(new_step)
         return steps
 
@@ -234,37 +235,51 @@ class Pipeline(Paidiverpy):
         for i, step in enumerate(self.config.steps):
             if i % 4 == 0 and i > 0:
                 steps_html += '<div style="clear:both;"></div>'
-            steps_html += f"""
-                <div id="step_{i}" title="Click to see more information" class="square" style="cursor: pointer; float:left; padding: 10px; width: max-content; height: 80px; margin: 10px; border: 1px solid #000; border-style: {'dashed' if step.test else 'solid'}; text-align: center; line-height: 80px;" onclick="showParameters('step_{i}')">
-                    <h2 style="font-size:20px;">{step.name.capitalize()}</h2>
-                    <h2 style="font-size:13px;">Type: {step.step_name.capitalize()}</h2>
-                </div>
-            """
+                steps_html += (
+                    f"""
+                    <div id="step_{i}" title="Click to see more information" class="square"
+                        style="cursor: pointer; float:left; padding: 10px; width: max-content;
+                        height: 80px; margin: 10px; border: 1px solid #000;
+                        border-style: {'dashed' if step.test else 'solid'}; text-align: center;
+                        line-height: 80px;" onclick="showParameters('step_{i}')">
+                        <h2 style="font-size:20px;">{step.name.capitalize()}</h2>
+                        <h2 style="font-size:13px;">Type: {step.step_name.capitalize()}</h2>
+                    </div>
+                    """
+                )
             if i < len(self.config.steps) - 1:
-                steps_html += """
-                    <div style="float:left; width: 50px; height: 80px; margin: 10px; text-align: center; line-height: 80px;">
+                steps_html += (
+                    """
+                    <div style="float:left; width: 50px; height: 80px; margin: 10px;
+                        text-align: center; line-height: 80px;">
                         &#10132;
                     </div>
-                """
+                    """
+                )
             parameters_html += f"""
                 <div id="parameters_step_{i}" class="parameters" style="display: none;">
                     <pre>{json.dumps(step.to_dict(), indent=4)}</pre>
                 </div>
             """
 
-        general_html = f"""
-        <div id="general" title="Click to see more information" class="square" style="float:left; cursor: pointer; padding: 10px; width: max-content; height: 80px; margin: 10px; border: 1px solid #000; text-align: center; line-height: 80px;" onclick="showParameters('general')">
-            <h2 style="font-size:20px;">{self.config.general.name.capitalize()}</h2>
-            <h2 style="font-size:13px;">Type: {self.config.general.step_name.capitalize()}</h2>
-        </div>
-        """
+        general_html = (
+            f"""
+            <div id="general" title="Click to see more information" class="square"
+                style="float:left; cursor: pointer; padding: 10px; width: max-content;
+                height: 80px; margin: 10px; border: 1px solid #000; text-align: center;
+                line-height: 80px;" onclick="showParameters('general')">
+                <h2 style="font-size:20px;">{self.config.general.name.capitalize()}</h2>
+                <h2 style="font-size:13px;">Type: {self.config.general.step_name.capitalize()}</h2>
+            </div>
+            """
+        )
 
         parameters_html += f"""
             <div id="parameters_general" class="parameters" style="display: none;">
                 <pre>{json.dumps(self.config.general.to_dict(), indent=4)}</pre>
             </div>
         """
-        
+
         dask_html = ""
         if self.n_jobs > 1:
             dask_html = f"""
@@ -272,10 +287,18 @@ class Pipeline(Paidiverpy):
                     <h2 style="font-size:20px;">Parallel Processing - Number of workers: {self.n_jobs}</h2>
                 </div>
             """
+        steps_html_part = (
+            f"""
+            <div style="float:left; width: 50px; height: 80px; margin: 10px;
+                text-align: center; line-height: 80px;">
+                &#10132;
+            </div>{steps_html}
+            """
+        )
         return f"""
         <div style="display: flex; flex-wrap: wrap; align-items: center;">
             {general_html}
-            {f'<div style="float:left; width: 50px; height: 80px; margin: 10px; text-align: center; line-height: 80px;">&#10132;</div>{steps_html}' if len(self.steps) > 1 else ''}
+            {steps_html_part if len(self.steps) > 0 else ''}
         </div>
         <div id="parameters" style="padding: 10px; margin: 10px;">{parameters_html}</div>
         {dask_html}
