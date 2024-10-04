@@ -24,7 +24,7 @@ from paidiverpy.config.resample_params import ResamplePitchRollParams
 from paidiverpy.config.resample_params import ResampleRegionParams
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
-from utils import raise_value_error
+from paidiverpy.utils import raise_value_error
 
 
 class ResampleLayer(Paidiverpy):
@@ -46,6 +46,7 @@ class ResampleLayer(Paidiverpy):
         config_index (int): The index of the configuration.
         raise_error (bool): Whether to raise an error.
         verbose (int): verbose level (0 = none, 1 = errors/warnings, 2 = info).
+        track_changes (bool): Whether to track the changes. Defaults to True.
         n_jobs (int): The number of jobs to run in parallel.
     """
 
@@ -66,6 +67,7 @@ class ResampleLayer(Paidiverpy):
         config_index: int | None = None,
         raise_error: bool = False,
         verbose: int = 2,
+        track_changes: bool = True,
         n_jobs: int = 1,
     ):
         super().__init__(
@@ -81,6 +83,7 @@ class ResampleLayer(Paidiverpy):
             paidiverpy=paidiverpy,
             raise_error=raise_error,
             verbose=verbose,
+            track_changes=track_changes,
             n_jobs=n_jobs,
         )
         self.config_index = config_index
@@ -109,7 +112,7 @@ class ResampleLayer(Paidiverpy):
         method, params = self._get_method_by_mode(params, RESAMPLE_LAYER_METHODS, mode)
         try:
             metadata = method(self.step_order, test=test, params=params)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             self.logger.error("Error in resample layer: %s", e)
             if self.raise_error:
                 raise_value_error("Resample layer step failed.")
@@ -127,6 +130,7 @@ class ResampleLayer(Paidiverpy):
                 step_metadata=self.step_metadata,
                 metadata=self.get_metadata(),
                 update_metadata=True,
+                track_changes=self.track_changes,
             )
             return None
         return None

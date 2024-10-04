@@ -23,8 +23,8 @@ from paidiverpy.config.convert_params import ResizeParams
 from paidiverpy.config.convert_params import ToParams
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
-from utils import DynamicConfig
-from utils import raise_value_error
+from paidiverpy.utils import DynamicConfig
+from paidiverpy.utils import raise_value_error
 
 EIGHT_BITS = 8
 SIXTEEN_BITS = 16
@@ -49,6 +49,7 @@ class ConvertLayer(Paidiverpy):
         config_index (int): The index of the configuration.
         raise_error (bool): Whether to raise an error.
         verbose (int): verbose level (0 = none, 1 = errors/warnings, 2 = info).
+        track_changes (bool): Whether to track changes. Defaults to True.
         n_jobs (int): The number of jobs to run in parallel.
     """
 
@@ -69,6 +70,7 @@ class ConvertLayer(Paidiverpy):
         config_index: int | None = None,
         raise_error: bool = False,
         verbose: int = 2,
+        track_changes: bool = True,
         n_jobs: int = 1,
     ):
         super().__init__(
@@ -84,6 +86,7 @@ class ConvertLayer(Paidiverpy):
             paidiverpy=paidiverpy,
             raise_error=raise_error,
             verbose=verbose,
+            track_changes=track_changes,
             n_jobs=n_jobs,
         )
 
@@ -128,6 +131,7 @@ class ConvertLayer(Paidiverpy):
                     images=image_list,
                     step_metadata=self.step_metadata,
                     metadata=self.get_metadata(),
+                    track_changes=self.track_changes,
                 )
                 return None
             self.images.images[-1] = image_list
@@ -225,7 +229,7 @@ class ConvertLayer(Paidiverpy):
                     image_data = image_data[:, :, params.channel_selector]
                 else:
                     image_data = cv2.cvtColor(image_data, cv2.COLOR_BGR2GRAY)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             self.logger.warning("Failed to convert the image to %s: %s", params.to, e)
             if self.raise_error:
                 msg = f"Failed to convert the image to {params.to}: {e}"

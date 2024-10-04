@@ -15,6 +15,8 @@ steps:
   - color:
       name: 'deblur'
       mode: 'deblur'
+      test: False
+      step_name: 'deblur'
       params:
         method: 'wiener'
         psf_type: 'gaussian'

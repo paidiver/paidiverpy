@@ -6,7 +6,7 @@ import zipfile
 from pathlib import Path
 import requests
 from tqdm import tqdm
-from utils import initialise_logging
+from paidiverpy.utils import initialise_logging
 
 logger = initialise_logging(verbose=2)
 

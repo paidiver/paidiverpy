@@ -7,9 +7,9 @@ import pandas as pd
 from paidiverpy.config.config import Configuration
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
-from utils import DynamicConfig
-from utils import get_n_jobs
-from utils import initialise_logging
+from paidiverpy.utils import DynamicConfig
+from paidiverpy.utils import get_n_jobs
+from paidiverpy.utils import initialise_logging
 
 
 class Paidiverpy:
@@ -28,6 +28,7 @@ class Paidiverpy:
         paidiverpy (Paidiverpy): The paidiverpy object.
         raise_error (bool): Whether to raise an error.
         verbose (int): verbose level (0 = none, 1 = errors/warnings, 2 = info).
+        track_changes (bool): Whether to track changes. Defaults to True.
         n_jobs (int): The number of n_jobs.
     """
 
@@ -45,6 +46,7 @@ class Paidiverpy:
         paidiverpy: "Paidiverpy" = None,
         raise_error: bool = False,
         verbose: int = 2,
+        track_changes: bool = True,
         n_jobs: int = 1,
     ):
         if paidiverpy:
@@ -55,11 +57,16 @@ class Paidiverpy:
             self.verbose = paidiverpy.verbose
             self.raise_error = paidiverpy.raise_error
             self.n_jobs = paidiverpy.n_jobs
+            self.track_changes = paidiverpy.track_changes
         else:
             self.verbose = verbose
             self.logger = logger or initialise_logging(verbose=self.verbose)
             self.config = config or self._initialize_config(
-                config_file_path, input_path, output_path, metadata_path, metadata_type,
+                config_file_path,
+                input_path,
+                output_path,
+                metadata_path,
+                metadata_type,
             )
             self.metadata = metadata or self._initialize_metadata()
             self.images = images or ImagesLayer(
@@ -70,6 +77,7 @@ class Paidiverpy:
             if not self.config.general.n_jobs:
                 self.config.general.n_jobs = n_jobs
             self.n_jobs = get_n_jobs(self.config.general.n_jobs)
+            self.track_changes = track_changes
 
     def _initialize_config(
         self,
@@ -114,13 +122,17 @@ class Paidiverpy:
             MetadataParser: The metadata object.
         """
         general = self.config.general
-        if getattr(general, "metadata_path", None) and getattr(general, "metadata_type", None):
+        if getattr(general, "metadata_path", None) and getattr(
+            general, "metadata_type", None,
+        ):
             return MetadataParser(config=self.config, logger=self.logger)
-        self.logger.info("Metadata type is not specified. Loading files from the input path.")
+        self.logger.info(
+            "Metadata type is not specified. Loading files from the input path.",
+        )
         self.logger.info("Metadata will be created from the files in the input path.")
-        file_pattern = str(Path(general.input_path).joinpath(general.file_name_pattern))
-        list_of_files = Path.glob.glob(file_pattern)
-        list_of_files = [Path.name(file) for file in list_of_files]
+        input_path = Path(general.input_path)
+        file_pattern = general.file_name_pattern
+        list_of_files = list(input_path.glob(file_pattern))
         metadata = pd.DataFrame(list_of_files, columns=["image-filename"])
         return metadata.reset_index().rename(columns={"index": "ID"})
 
@@ -140,8 +152,14 @@ class Paidiverpy:
                     return self.metadata.metadata.copy()
                 return self.metadata.metadata.sort_values("image-datetime").copy()
             if "image-datetime" not in self.metadata.metadata.columns:
-                return self.metadata.metadata[self.metadata.metadata["flag"] <= flag].copy()
-            return self.metadata.metadata[self.metadata.metadata["flag"] <= flag].sort_values("image-datetime").copy()
+                return self.metadata.metadata[
+                    self.metadata.metadata["flag"] <= flag
+                ].copy()
+            return (
+                self.metadata.metadata[self.metadata.metadata["flag"] <= flag]
+                .sort_values("image-datetime")
+                .copy()
+            )
         return self.metadata
 
     def set_metadata(self, metadata: pd.DataFrame) -> None:
@@ -212,8 +230,13 @@ class Paidiverpy:
             new_metadata (pd.DataFrame): The new metadata.
         """
         metadata = self.get_metadata()
-        if "image-longitude" not in metadata.columns or "image-longitude" not in new_metadata.columns:
-            self.logger.warning("Longitude and Latitude columns are not found in the metadata.")
+        if (
+            "image-longitude" not in metadata.columns
+            or "image-longitude" not in new_metadata.columns
+        ):
+            self.logger.warning(
+                "Longitude and Latitude columns are not found in the metadata.",
+            )
             self.logger.warning("Plotting will not be performed.")
             return
         plt.figure(figsize=(20, 10))
@@ -248,10 +271,9 @@ class Paidiverpy:
         """
         return dict(config_part.__dict__.items())
 
-    def _get_method_by_mode(self,
-                            params: DynamicConfig,
-                            method_dict: dict,
-                            mode: str) -> tuple:
+    def _get_method_by_mode(
+        self, params: DynamicConfig, method_dict: dict, mode: str,
+    ) -> tuple:
         """Get the method by mode.
 
         Args:
