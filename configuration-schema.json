@@ -932,12 +932,10 @@
         "type": "object",
         "properties": {
           "min": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "max": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           }
         }
       },
