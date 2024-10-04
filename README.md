@@ -1,10 +1,14 @@
 # Paidiverpy
 
-Paidiverpy is a Python package designed to create pipelines for preprocessing image data for biodiversity analysis.
+**Paidiverpy** is a Python package designed to create pipelines for preprocessing image data for biodiversity analysis. 
+
+> **Note:** This package is still in active development, and frequent updates and changes are expected. The API and features may evolve as we continue improving it.
+
+Comprehensive documentation is forthcoming.
 
 ## Installation
 
-You can install `paidiverpy` locally or on a notebook server such as JASMIN or the NOC Data Science Platform (DSP). The following steps are applicable to both environments, but the second and third steps are required if you are using a notebook server.
+You can install `paidiverpy` locally or on a notebook server such as JASMIN or the NOC Data Science Platform (DSP). The following steps are applicable to both environments, but steps 2 and 3 are required if you are using a notebook server.
 
 1. Clone the repository:
 
@@ -43,74 +47,110 @@ You can install `paidiverpy` locally or on a notebook server such as JASMIN or t
     ```bash
     pip install -e .
     ```
+
 ## Package Organization
 
 ### Configuration File
 
-First, create a configuration file. Some example configuration files for processing the example datasets are provided in the `example/config` directory. You can use these configuration files to test the example notebooks described in the [Usage section](#usage). However, remember to change the path of `input_path`, `output_path`, and `metadata_path`.
+First, create a configuration file. Example configuration files for processing the sample datasets are available in the `example/config` directory. You can use these files to test the example notebooks described in the [Usage section](#usage). Note that running the examples will automatically download the sample data.
+
+The configuration file should follow the JSON schema described in the [configuration file schema](configutation-schema.json). An online tool to validate configuration files is available [here](https://placeholder.com).
 
 ### Metadata
 
-To use this package, you may need a metadata file. The metadata file can be an IFDO.json file or a CSV file. If it is a CSV, it should contain a list of filenames of the files to be processed. The filename column should be named one of the following: `['filename', 'file_name', 'FileName', 'File Name']`.
+To use this package, you may need a metadata file, which can be an IFDO.json file (following the IFDO standard) or a CSV file. For CSV files, ensure the `filename` column uses one of the following headers: `['image-filename', 'filename', 'file_name', 'FileName', 'File Name']`.
 
-Some functions may also require datetime, latitude, and longitude data. These columns should have the following names:
-- Datetime columns: `['datetime', 'date_time', 'DateTime', 'Datetime']`
-- Latitude columns: `['lat', 'latitude_deg', 'latitude', 'Latitude', 'Latitude_deg', 'Lat']`
-- Longitude columns: `['lon', 'longitude_deg', 'longitude', 'Longitude', 'Longitude_deg', 'Lon']`
+Other columns like datetime, latitude, and longitude should follow these conventions:
+- Datetime: `['image-datetime', 'datetime', 'date_time', 'DateTime', 'Datetime']`
+- Latitude: `['image-latitude', 'lat', 'latitude_deg', 'latitude', 'Latitude', 'Latitude_deg', 'Lat']`
+- Longitude: `['image-longitude', 'lon', 'longitude_deg', 'longitude', 'Longitude', 'Longitude_deg', 'Lon']`
 
-Two examples of CSV metadatas are available in the `example/metadata` directory. The IFDO metadata feature has not been tested yet due to the lack of a dataset with an IFDO metadata for testing.
+Examples of CSV and IFDO metadata files are in the `example/metadata` directory.
 
 ### Layers
 
-The package is organized into several layers as shown below:
+The package is organized into multiple layers:
 
 ![Package Organization](docs/images/paidiver_organization.png)
 
-The parent class, `Paidiverpy`, contains the main functions and information necessary for image processing. Below this class, there are several subclasses, each responsible for different types of image processing: `OpenLayer`, `ConvertLayer`, `PositionLayer`, `ResampleLayer`, and `ColorLayer`.
+The `Paidiverpy` class serves as the main container for image processing functions. It manages several subclasses for specific processing tasks: `OpenLayer`, `ConvertLayer`, `PositionLayer`, `ResampleLayer`, and `ColorLayer`.
 
-To transfer information between layers, the following classes are used:
+Supporting classes include:
+- `Configuration`: Parses and manages configuration files.
+- `Metadata`: Handles metadata.
+- `ImagesLayer`: Stores outputs from each image processing step.
 
-- `Configuration`: Parses the configuration file and adds new configurations during processing.
-- `Metadata`: Parses the metadata and stores image metadata.
-- `ImagesLayer`: Stores the outputs of each image processing step. Each individual image inside the `ImagesLayer` is represented by an `ImageLayer` class, containing individual information about each image.
-
-The `Pipeline` class is crucial for integrating the entire processing pipeline into one simple class and performing all the steps described in the configuration file.
+The `Pipeline` class integrates all processing steps defined in the configuration file.
 
 ## Usage
 
-Comprehensive documentation is forthcoming. Meanwhile, sample notebooks demonstrating various use cases are available in the `examples/example_notebooks` directory:
+While comprehensive documentation is forthcoming, you can explore various use cases through sample notebooks in the `examples/example_notebooks` directory:
 
 - [Open and display a configuration file and a metadata file](examples/example_notebooks/config_metadata_example.ipynb)
 - [Run processing steps without creating a pipeline](examples/example_notebooks/simple_processing.ipynb)
-- [Run a pipeline described in a configuration file and interact with the outputs](examples/example_notebooks/pipeline.ipynb)
+- [Run a pipeline and interact with outputs](examples/example_notebooks/pipeline.ipynb)
 - [Run pipeline steps in test mode](examples/example_notebooks/pipeline_testing_steps.ipynb)
-
-- [Create your own pipeline from a Python script](examples/example_notebooks/pipeline_generation.ipynb)
-- [Rerun pipeline steps, modify configurations, and plot test data before applying changes](examples/example_notebooks/pipeline_interaction.ipynb)
-
+- [Create pipelines programmatically](examples/example_notebooks/pipeline_generation.ipynb)
+- [Rerun pipeline steps with modified configurations](examples/example_notebooks/pipeline_interaction.ipynb)
+- [Use parallelization with Dask](examples/example_notebooks/pipeline_dask.ipynb)
+- [Run a pipeline using a public dataset with IFDO metadata](examples/example_notebooks/pipeline_ifdo.ipynb)
 
 ### Example Data
 
-The usage examples use some example data. If you want to download the example data by your self and test some codes, you can just run:
+If you'd like to manually download example data for testing, you can use the following command:
 
 ```python
-from paidiverpý import data
-# replace dataset name by the name of the dataset that you want to download
+from paidiverpy import data
 data.load(DATASET_NAME) 
 ```
 
-We have now available the following datasets:
-
+Available datasets:
 - pelagic_csv
 - benthic_csv
 - benthic_ifdo
 
+Example data will be automatically downloaded when running the example notebooks.
+
 ### Command-Line Arguments
 
-You can execute the pipelines using command-line arguments. Here’s an example:
+Pipelines can be executed via command-line arguments. For example:
 
-```
+```bash
 paidiverpy -c examples/config_files/config_simple.yaml
 ```
 
-This command will run the pipeline as specified in the configuration file and save the output images to the directory defined in the configuration file’s `output_path` setting.
+This runs the pipeline according to the configuration file, saving output images to the directory defined in the `output_path`.
+
+### Docker Command
+
+You can also run Paidiverpy using Docker. You can either build the container locally or pull it from Docker Hub.
+
+1. **Build the container locally**:
+
+    ```bash
+    git clone git@github.com:paidiver/paidiverpy.git
+    cd paidiverpy
+    docker build -t paidiverpy .
+    ```
+
+2. **Pull the image from Docker Hub**:
+
+    ```bash
+    docker pull soutobias/paidiverpy:latest
+    ```
+
+Run the container with:
+
+```bash
+docker run --rm \
+  -v <OUTPUT_PATH>:/app/output/ \
+  -v <FULL_PATH_OF_CONFIGURATION_FILE_WITHOUT_FILENAME>:/app/config_files \
+  paidiverpy -c /app/examples/config_files/<CONFIGURATION_FILE_FILENAME>
+```
+
+In this command:
+- `<OUTPUT_PATH>`: The output path defined in your configuration file.
+- `<FULL_PATH_OF_CONFIGURATION_FILE_WITHOUT_FILENAME>`: The local directory of your configuration file.
+- `<CONFIGURATION_FILE_FILENAME>`: The name of the configuration file.
+
+The output images will be saved to the specified `output_path`.

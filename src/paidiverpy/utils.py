@@ -2,6 +2,7 @@
 
 import logging
 import multiprocessing
+import os
 import sys
 from pathlib import Path
 
@@ -46,6 +47,7 @@ def get_n_jobs(n_jobs: int) -> int:
         return min(n_jobs, multiprocessing.cpu_count())
     return 1
 
+
 def raise_value_error(message: str) -> None:
     """Raise a ValueError with the given message.
 
@@ -53,6 +55,14 @@ def raise_value_error(message: str) -> None:
         message (str): The message to raise the ValueError with.
     """
     raise ValueError(message)
+
+def is_running_in_docker() -> bool:
+    """Check if the code is running in a Docker container.
+
+    Returns:
+        bool: Whether the code is running in a Docker container.
+    """
+    return os.getenv("IS_DOCKER", None)
 
 class DynamicConfig:
     """Dynamic configuration class."""
@@ -79,10 +89,15 @@ class DynamicConfig:
                     result[key] = str(value)
                 else:
                     result[key] = value
-            elif isinstance(value, DynamicConfig) or issubclass(type(value), DynamicConfig):
+            elif isinstance(value, DynamicConfig) or issubclass(
+                type(value), DynamicConfig,
+            ):
                 result[key] = value.to_dict()
             elif isinstance(value, list):
-                result[key] = [v.to_dict() if isinstance(v, DynamicConfig) else v for v in value]
+                result[key] = [
+                    v.to_dict() if isinstance(v, DynamicConfig) else v for v in value
+                ]
             else:
                 result[key] = value
         return result
+

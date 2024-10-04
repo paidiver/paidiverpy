@@ -21,7 +21,7 @@ from paidiverpy.convert_layer import ConvertLayer
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.resample_layer import ResampleLayer
-from utils import DynamicConfig
+from paidiverpy.utils import DynamicConfig
 
 
 class OpenLayer(Paidiverpy):
@@ -42,6 +42,7 @@ class OpenLayer(Paidiverpy):
         parameters (dict): The parameters for the step.
         raise_error (bool): Whether to raise an error.
         verbose (int): verbose level (0 = none, 1 = errors/warnings, 2 = info).
+        track_changes (bool): Whether to track changes. Defaults to True.
         n_jobs (int): The number of jobs to run in parallel.
     """
 
@@ -61,6 +62,7 @@ class OpenLayer(Paidiverpy):
         parameters: dict | None = None,
         raise_error: bool = False,
         verbose: int = 2,
+        track_changes: bool = True,
         n_jobs: int = 1,
     ):
         super().__init__(
@@ -76,6 +78,7 @@ class OpenLayer(Paidiverpy):
             paidiverpy=paidiverpy,
             raise_error=raise_error,
             verbose=verbose,
+            track_changes=track_changes,
             n_jobs=n_jobs,
         )
 
@@ -186,6 +189,7 @@ class OpenLayer(Paidiverpy):
             images=image_list,
             step_metadata=self.step_metadata,
             metadata=metadata,
+            track_changes=self.track_changes,
         )
         del image_list
         gc.collect()
@@ -262,6 +266,6 @@ class OpenLayer(Paidiverpy):
             logger.warning("Failed to open %s: %s", img_path, e)
         except OSError as e:
             logger.warning("Failed to open %s: %s", img_path, e)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.warning("Failed to extract EXIF data from %s: %s", img_path, e)
         return exif

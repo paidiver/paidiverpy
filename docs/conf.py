@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = "baklava"
+project = "paidiverpy"
 copyright = "2024-09-03 14:12:44, Tobias Ferreira"
 author = "Tobias Ferreira"
 
@@ -61,7 +61,7 @@ todo_include_todos = False
 
 # -- Use autoapi.extension to run sphinx-apidoc -------
 
-autoapi_dirs = ["../src/baklava"]
+autoapi_dirs = ["../src/paidiverpy"]
 
 # -- Options for HTML output ----------------------------------------------
 
