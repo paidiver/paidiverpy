@@ -1,0 +1,90 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Validation</title>
+    <!-- Load AJV UMD Version -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ajv/8.1.0/ajv7.bundle.js" integrity="sha512-PuzkO+wOBh6m/Jux4nXgl2ItRzed77lFDidDX500DUNlvuzr4OrXtsFhN4q0CCxPoXjTFfiw1z4FmED9J/MMdQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- Load YAML Parser -->
+    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+</head>
+<body>
+    <h2>Upload Config File for Validation</h2>
+    <form id="upload-form">
+        <input type="file" id="file-input" accept=".json,.yaml" />
+        <button type="button" onclick="validateConfig()">Validate File</button>
+    </form>
+    <div id="validation-result"></div>
+
+    <script>
+        const schemaUrl = 'https://raw.githubusercontent.com/paidiver/paidiverpy/refs/heads/57-create-a-config-schema-config-validator-and-a-website-for-creating-config-files/configuration-schema.json';
+
+        // Function to validate the uploaded config
+        async function validateConfig() {
+            const fileInput = document.getElementById('file-input');
+            const resultDiv = document.getElementById('validation-result');
+
+            if (fileInput.files.length === 0) {
+                resultDiv.innerText = "Please upload a file.";
+                return;
+            }
+
+            // Fetch the JSON schema from the server
+            let schema;
+            try {
+                const response = await fetch(schemaUrl);
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch schema: ${response.statusText}`);
+                }
+                schema = await response.json();
+            } catch (error) {
+                resultDiv.innerText = `Error loading schema: ${error.message}`;
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                let configContent;
+                try {
+                    // Try to parse JSON or YAML
+                    configContent = parseContent(e.target.result, file.type);
+                } catch (error) {
+                    resultDiv.innerText = "Invalid file format.";
+                    return;
+                }
+
+                // Validate config content against the schema
+                const ajv = new window.ajv7();
+                console.log(configContent);
+                console.log(schema);
+                console.log(ajv);
+                const validate = ajv.compile(schema);
+                const valid = validate(configContent);
+
+                if (valid) {
+                    resultDiv.innerText = "Config file is valid!";
+                } else {
+                    resultDiv.innerHTML = "Validation errors:<br>" + JSON.stringify(validate.errors, null, 2);
+                }
+            };
+
+            reader.readAsText(file);
+        }
+
+        // Helper function to parse JSON or YAML
+        function parseContent(content, fileType) {
+            if (fileType === 'application/json') {
+                return JSON.parse(content);
+            } else if (fileType === 'application/x-yaml' || fileType === 'text/yaml') {
+                return jsyaml.load(content);  // You'll need to include the js-yaml library for this
+            } else {
+                throw new Error("Unsupported file format");
+            }
+        }
+    </script>
+</body>
+</html>

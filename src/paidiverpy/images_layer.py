@@ -3,12 +3,15 @@
 import base64
 import gc
 from io import BytesIO
+from pathlib import Path
 import dask.array as da
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from IPython.display import HTML
 from PIL import Image
+
+from paidiverpy.utils import is_running_in_docker
 
 MAX_IMAGES_TO_SHOW = 12
 NUM_CHANNELS_GRAY = 1
@@ -156,12 +159,15 @@ class ImagesLayer:
             image_format (str, optional): The image format to save. Defaults to "png".
         """
         images = self.get_step(step, by_order, last)
+        is_docker = is_running_in_docker()
         if last:
             step_order = len(self.steps) - 1
         elif by_order:
             step_order = step
         else:
             step_order = self.steps.index(step)
+        if is_docker:
+            output_path = Path("/app/output/")
         if not output_path:
             output_path = self.output_path
         if not output_path.exists():
@@ -311,7 +317,8 @@ class ImagesLayer:
         ):
             html += (
                 f"""
-                <div class='step-header'>Step: {step} <span id='arrow-{step_index}' class='toggle-arrow'
+                <div class='step-header'>Step: {step} <span id='arrow-{step_index}'
+                    class='toggle-arrow'
                     onclick='toggleMetadata({step_index})'>►</span>
                 </div>
                 """
