@@ -171,7 +171,7 @@
       "then": {
         "properties": {
           "params": {
-            "$ref": "#/position_params/reproject"
+            "$ref": "#/definitions/position_params/reproject"
           }
         }
       }
@@ -216,7 +216,7 @@
       "then": {
         "properties": {
           "params": {
-            "$ref": "#/convert_params/bit_params"
+            "$ref": "#/definitions/convert_params/bit_params"
           }
         }
       },
@@ -231,7 +231,7 @@
         "then": {
           "properties": {
             "params": {
-              "$ref": "#/convert_params/to_params"
+              "$ref": "#/definitions/convert_params/to_params"
             }
           }
         },
@@ -246,7 +246,7 @@
           "then": {
             "properties": {
               "params": {
-                "$ref": "#/convert_params/bayer_pattern_params"
+                "$ref": "#/definitions/convert_params/bayer_pattern_params"
               }
             }
           },
@@ -261,7 +261,7 @@
             "then": {
               "properties": {
                 "params": {
-                  "$ref": "#/convert_params/normalize_params"
+                  "$ref": "#/definitions/convert_params/normalize_params"
                 }
               }
             },
@@ -276,7 +276,7 @@
               "then": {
                 "properties": {
                   "params": {
-                    "$ref": "#/convert_params/resize_params"
+                    "$ref": "#/definitions/convert_params/resize_params"
                   }
                 }
               },
@@ -291,7 +291,7 @@
                 "then": {
                   "properties": {
                     "params": {
-                      "$ref": "#/convert_params/crop_params"
+                      "$ref": "#/definitions/convert_params/crop_params"
                     }
                   }
                 }
@@ -342,7 +342,7 @@
       "then": {
         "properties": {
           "params": {
-            "$ref": "#/color_params/grayscale"
+            "$ref": "#/definitions/color_params/grayscale"
           }
         }
       },
@@ -357,7 +357,7 @@
         "then": {
           "properties": {
             "params": {
-              "$ref": "#/color_params/gaussian_blur"
+              "$ref": "#/definitions/color_params/gaussian_blur"
             }
           }
         },
@@ -372,7 +372,7 @@
           "then": {
             "properties": {
               "params": {
-                "$ref": "#/color_params/edge_detection"
+                "$ref": "#/definitions/color_params/edge_detection"
               }
             }
           },
@@ -387,7 +387,7 @@
             "then": {
               "properties": {
                 "params": {
-                  "$ref": "#/color_params/sharpen"
+                  "$ref": "#/definitions/color_params/sharpen"
                 }
               }
             },
@@ -402,7 +402,7 @@
               "then": {
                 "properties": {
                   "params": {
-                    "$ref": "#/color_params/contrast"
+                    "$ref": "#/definitions/color_params/contrast"
                   }
                 }
               },
@@ -417,7 +417,7 @@
                 "then": {
                   "properties": {
                     "params": {
-                      "$ref": "#/color_params/illumination_correction"
+                      "$ref": "#/definitions/color_params/illumination_correction"
                     }
                   }
                 },
@@ -432,7 +432,7 @@
                   "then": {
                     "properties": {
                       "params": {
-                        "$ref": "#/color_params/deblur"
+                        "$ref": "#/definitions/color_params/deblur"
                       }
                     }
                   }
@@ -486,7 +486,7 @@
       "then": {
         "properties": {
           "params": {
-            "$ref": "#/sampling_params/datetime_params"
+            "$ref": "#/definitions/sampling_params/datetime_params"
           }
         }
       },
@@ -501,7 +501,7 @@
         "then": {
           "properties": {
             "params": {
-              "$ref": "#/sampling_params/depth_params"
+              "$ref": "#/definitions/sampling_params/depth_params"
             }
           }
         },
@@ -516,7 +516,7 @@
           "then": {
             "properties": {
               "params": {
-                "$ref": "#/sampling_params/altitude_params"
+                "$ref": "#/definitions/sampling_params/altitude_params"
               }
             }
           },
@@ -531,7 +531,7 @@
             "then": {
               "properties": {
                 "params": {
-                  "$ref": "#/sampling_params/pitch_roll_params"
+                  "$ref": "#/definitions/sampling_params/pitch_roll_params"
                 }
               }
             },
@@ -546,7 +546,7 @@
               "then": {
                 "properties": {
                   "params": {
-                    "$ref": "#/sampling_params/overlapping_params"
+                    "$ref": "#/definitions/sampling_params/overlapping_params"
                   }
                 }
               },
@@ -561,7 +561,7 @@
                 "then": {
                   "properties": {
                     "params": {
-                      "$ref": "#/sampling_params/fixed_params"
+                      "$ref": "#/definitions/sampling_params/fixed_params"
                     }
                   }
                 },
@@ -576,7 +576,7 @@
                   "then": {
                     "properties": {
                       "params": {
-                        "$ref": "#/sampling_params/percent_params"
+                        "$ref": "#/definitions/sampling_params/percent_params"
                       }
                     }
                   },
@@ -591,7 +591,7 @@
                     "then": {
                       "properties": {
                         "params": {
-                          "$ref": "#/sampling_params/region_params"
+                          "$ref": "#/definitions/sampling_params/region_params"
                         }
                       }
                     },
@@ -606,7 +606,7 @@
                       "then": {
                         "properties": {
                           "params": {
-                            "$ref": "#/sampling_params/obscure_params"
+                            "$ref": "#/definitions/sampling_params/obscure_params"
                           }
                         }
                       }
@@ -618,475 +618,475 @@
           }
         }
       }
-    }
-  },
-  "position_params": {
-    "reproject": {
-      "type": "object",
-      "properties": {
-        "placeholder": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "placeholder"
-      ]
-    }
-  },
-  "color_params": {
-    "grayscale": {
-      "type": "object",
-      "properties": {
-        "keep_alpha": {
-          "type": "boolean"
+    },
+    "position_params": {
+      "reproject": {
+        "type": "object",
+        "properties": {
+          "placeholder": {
+            "type": "string"
+          }
         },
-        "method": {
-          "type": "string",
-          "enum": [
-            "opencv",
-            "average",
-            "luminosity",
-            "desaturation"
-          ]
-        },
-        "invert_colors": {
-          "type": "boolean"
-        }
+        "required": [
+          "placeholder"
+        ]
       }
     },
-    "deblur": {
-      "type": "object",
-      "properties": {
-        "method": {
-          "type": "string",
-          "enum": [
-            "wiener"
-          ]
-        },
-        "psf_type": {
-          "type": "string",
-          "enum": [
-            "gaussian",
-            "motion"
-          ]
-        },
-        "sigma": {
-          "type": "number"
-        },
-        "angle": {
-          "type": "integer"
-        }
-      },
-      "required": [
-        "method"
-      ]
-    },
-    "gaussian_blur": {
-      "type": "object",
-      "properties": {
-        "sigma": {
-          "type": "number"
-        }
-      },
-      "required": [
-        "sigma"
-      ]
-    },
-    "edge_detection": {
-      "type": "object",
-      "properties": {
-        "method": {
-          "type": "string",
-          "enum": [
-            "sobel",
-            "Scharr",
-            "Scharr-with-mean",
-            "Canny"
-          ]
-        },
-        "blur_radius": {
-          "type": "number"
-        },
-        "threshold": {
-          "type": "number"
-        },
-        "object_type": {
-          "type": "string",
-          "enum": [
-            "Aggregate",
-            "other_method"
-          ]
-        },
-        "object_selection": {
-          "type": "string",
-          "enum": [
-            "Full ROI",
-            "other_method"
-          ]
-        },
-        "estimate_sharpness": {
-          "type": "boolean"
-        },
-        "deconv": {
-          "type": "boolean"
-        },
-        "deconv_method": {
-          "type": "string",
-          "enum": [
-            "um",
-            "lr"
-          ]
-        },
-        "deconv_iter": {
-          "type": "integer"
-        },
-        "deconv_mask_weight": {
-          "type": "number"
-        },
-        "small_float_val": {
-          "type": "number"
-        }
-      },
-      "required": [
-        "method",
-        "blur_radius",
-        "threshold"
-      ]
-    },
-    "sharpen": {
-      "type": "object",
-      "properties": {
-        "alpha": {
-          "type": "number"
-        },
-        "beta": {
-          "type": "number"
-        }
-      },
-      "required": [
-        "alpha",
-        "beta"
-      ]
-    },
-    "contrast": {
-      "type": "object",
-      "properties": {
-        "method": {
-          "type": "string",
-          "enum": [
-            "clahe",
-            "gamma"
-          ]
-        },
-        "kernel_size": {
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
-        "clip_limit": {
-          "type": "number"
-        },
-        "gamma_value": {
-          "type": "number"
-        }
-      },
-      "required": [
-        "method",
-        "clip_limit",
-        "gamma_value"
-      ]
-    },
-    "illumination_correction": {
-      "type": "object",
-      "properties": {
-        "method": {
-          "type": "string",
-          "enum": [
-            "rolling",
-            "other_method"
-          ]
-        },
-        "radius": {
-          "type": "integer"
-        }
-      },
-      "required": [
-        "method",
-        "radius"
-      ]
-    }
-  },
-  "convert_params": {
-    "bit_params": {
-      "type": "object",
-      "properties": {
-        "output_bits": {
-          "type": "integer",
-          "enum": [
-            8,
-            16,
-            32
-          ]
-        }
-      },
-      "required": [
-        "output_bits"
-      ]
-    },
-    "to_params": {
-      "type": "object",
-      "properties": {
-        "to": {
-          "type": "string",
-          "enum": [
-            "RGB",
-            "gray"
-          ]
-        },
-        "channel_selector": {
-          "type": "integer",
-          "minimum": 0
-        }
-      },
-      "required": [
-        "to"
-      ]
-    },
-    "bayer_pattern_params": {
-      "type": "object",
-      "properties": {
-        "bayer_pattern": {
-          "type": "string",
-          "enum": [
-            "RG",
-            "BG",
-            "GR",
-            "GB"
-          ]
-        }
-      },
-      "required": [
-        "bayer_pattern"
-      ]
-    },
-    "normalize_params": {
-      "type": "object",
-      "properties": {
-        "min": {
-          "type": "number"
-        },
-        "max": {
-          "type": "number"
-        }
-      },
-      "required": [
-        "min",
-        "max"
-      ]
-    },
-    "resize_params": {
-      "type": "object",
-      "properties": {
-        "min": {
-          "type": "integer",
-          "minimum": 1
-        },
-        "max": {
-          "type": "integer",
-          "minimum": 1
-        }
-      },
-      "required": [
-        "min",
-        "max"
-      ]
-    },
-    "crop_params": {
-      "type": "object",
-      "properties": {
-        "x": {
-          "type": "array",
-          "items": {
-            "type": "integer"
+    "color_params": {
+      "grayscale": {
+        "type": "object",
+        "properties": {
+          "keep_alpha": {
+            "type": "boolean"
           },
-          "minItems": 2,
-          "maxItems": 2
-        },
-        "y": {
-          "type": "array",
-          "items": {
-            "type": "integer"
+          "method": {
+            "type": "string",
+            "enum": [
+              "opencv",
+              "average",
+              "luminosity",
+              "desaturation"
+            ]
           },
-          "minItems": 2,
-          "maxItems": 2
+          "invert_colors": {
+            "type": "boolean"
+          }
         }
       },
-      "required": [
-        "x",
-        "y"
-      ]
-    }
-  },
-  "sampling_params": {
-    "datetime_params": {
-      "type": "object",
-      "properties": {
-        "min": {
-          "type": "string",
-          "format": "date-time"
+      "deblur": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "wiener"
+            ]
+          },
+          "psf_type": {
+            "type": "string",
+            "enum": [
+              "gaussian",
+              "motion"
+            ]
+          },
+          "sigma": {
+            "type": "number"
+          },
+          "angle": {
+            "type": "integer"
+          }
         },
-        "max": {
-          "type": "string",
-          "format": "date-time"
-        }
-      }
-    },
-    "depth_params": {
-      "type": "object",
-      "properties": {
-        "by": {
-          "type": "string",
-          "enum": [
-            "lower",
-            "upper"
-          ],
-          "default": "lower"
-        },
-        "value": {
-          "type": "number"
-        }
+        "required": [
+          "method"
+        ]
       },
-      "required": [
-        "value"
-      ]
-    },
-    "altitude_params": {
-      "type": "object",
-      "properties": {
-        "value": {
-          "type": "number"
-        }
-      },
-      "required": [
-        "value"
-      ]
-    },
-    "pitch_roll_params": {
-      "type": "object",
-      "properties": {
-        "pitch": {
-          "type": "number"
-        },
-        "roll": {
-          "type": "number"
-        }
-      },
-      "required": [
-        "pitch",
-        "roll"
-      ]
-    },
-    "overlapping_params": {
-      "type": "object",
-      "properties": {
-        "omega": {
-          "type": "number",
-          "minimum": 0
-        },
-        "theta": {
-          "type": "number",
-          "minimum": 0
-        },
-        "threshold": {
-          "type": "number"
-        },
-        "camera_distance": {
-          "type": "number",
-          "default": 1.12
-        }
-      },
-      "required": [
-        "omega",
-        "theta"
-      ]
-    },
-    "fixed_params": {
-      "type": "object",
-      "properties": {
-        "value": {
-          "type": "integer",
-          "default": 10
-        }
-      },
-      "required": [
-        "value"
-      ]
-    },
-    "percent_params": {
-      "type": "object",
-      "properties": {
-        "value": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 1
-        }
-      },
-      "required": [
-        "value"
-      ]
-    },
-    "region_params": {
-      "type": "object",
-      "properties": {
-        "file": {
-          "type": "string"
-        },
-        "limits": {
-          "type": "array",
-          "items": {
+      "gaussian_blur": {
+        "type": "object",
+        "properties": {
+          "sigma": {
             "type": "number"
           }
         },
-        "minItems": 4,
-        "maxItems": 4
+        "required": [
+          "sigma"
+        ]
       },
-      "anyOf": [
-        {
-          "required": [
-            "file"
-          ],
-          "not": {
+      "edge_detection": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "sobel",
+              "Scharr",
+              "Scharr-with-mean",
+              "Canny"
+            ]
+          },
+          "blur_radius": {
+            "type": "number"
+          },
+          "threshold": {
+            "type": "number"
+          },
+          "object_type": {
+            "type": "string",
+            "enum": [
+              "Aggregate",
+              "other_method"
+            ]
+          },
+          "object_selection": {
+            "type": "string",
+            "enum": [
+              "Full ROI",
+              "other_method"
+            ]
+          },
+          "estimate_sharpness": {
+            "type": "boolean"
+          },
+          "deconv": {
+            "type": "boolean"
+          },
+          "deconv_method": {
+            "type": "string",
+            "enum": [
+              "um",
+              "lr"
+            ]
+          },
+          "deconv_iter": {
+            "type": "integer"
+          },
+          "deconv_mask_weight": {
+            "type": "number"
+          },
+          "small_float_val": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "method",
+          "blur_radius",
+          "threshold"
+        ]
+      },
+      "sharpen": {
+        "type": "object",
+        "properties": {
+          "alpha": {
+            "type": "number"
+          },
+          "beta": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "alpha",
+          "beta"
+        ]
+      },
+      "contrast": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "clahe",
+              "gamma"
+            ]
+          },
+          "kernel_size": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "clip_limit": {
+            "type": "number"
+          },
+          "gamma_value": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "method",
+          "clip_limit",
+          "gamma_value"
+        ]
+      },
+      "illumination_correction": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "rolling",
+              "other_method"
+            ]
+          },
+          "radius": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "method",
+          "radius"
+        ]
+      }
+    },
+    "convert_params": {
+      "bit_params": {
+        "type": "object",
+        "properties": {
+          "output_bits": {
+            "type": "integer",
+            "enum": [
+              8,
+              16,
+              32
+            ]
+          }
+        },
+        "required": [
+          "output_bits"
+        ]
+      },
+      "to_params": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "string",
+            "enum": [
+              "RGB",
+              "gray"
+            ]
+          },
+          "channel_selector": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "to"
+        ]
+      },
+      "bayer_pattern_params": {
+        "type": "object",
+        "properties": {
+          "bayer_pattern": {
+            "type": "string",
+            "enum": [
+              "RG",
+              "BG",
+              "GR",
+              "GB"
+            ]
+          }
+        },
+        "required": [
+          "bayer_pattern"
+        ]
+      },
+      "normalize_params": {
+        "type": "object",
+        "properties": {
+          "min": {
+            "type": "number"
+          },
+          "max": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "min",
+          "max"
+        ]
+      },
+      "resize_params": {
+        "type": "object",
+        "properties": {
+          "min": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "max": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "min",
+          "max"
+        ]
+      },
+      "crop_params": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "y": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "minItems": 2,
+            "maxItems": 2
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ]
+      }
+    },
+    "sampling_params": {
+      "datetime_params": {
+        "type": "object",
+        "properties": {
+          "min": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "max": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "depth_params": {
+        "type": "object",
+        "properties": {
+          "by": {
+            "type": "string",
+            "enum": [
+              "lower",
+              "upper"
+            ],
+            "default": "lower"
+          },
+          "value": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      },
+      "altitude_params": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      },
+      "pitch_roll_params": {
+        "type": "object",
+        "properties": {
+          "pitch": {
+            "type": "number"
+          },
+          "roll": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "pitch",
+          "roll"
+        ]
+      },
+      "overlapping_params": {
+        "type": "object",
+        "properties": {
+          "omega": {
+            "type": "number",
+            "minimum": 0
+          },
+          "theta": {
+            "type": "number",
+            "minimum": 0
+          },
+          "threshold": {
+            "type": "number"
+          },
+          "camera_distance": {
+            "type": "number",
+            "default": 1.12
+          }
+        },
+        "required": [
+          "omega",
+          "theta"
+        ]
+      },
+      "fixed_params": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "integer",
+            "default": 10
+          }
+        },
+        "required": [
+          "value"
+        ]
+      },
+      "percent_params": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "required": [
+          "value"
+        ]
+      },
+      "region_params": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "string"
+          },
+          "limits": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "anyOf": [
+          {
+            "required": [
+              "file"
+            ],
+            "not": {
+              "required": [
+                "limits"
+              ]
+            }
+          },
+          {
             "required": [
               "limits"
             ]
           }
-        },
-        {
-          "required": [
-            "limits"
-          ]
-        }
-      ]
-    },
-    "obscure_params": {
-      "type": "object",
-      "properties": {
-        "min": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 1
-        },
-        "max": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 1
-        }
+        ]
       },
-      "required": [
-        "min",
-        "max"
-      ]
+      "obscure_params": {
+        "type": "object",
+        "properties": {
+          "min": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "max": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "required": [
+          "min",
+          "max"
+        ]
+      }
     }
   }
 }
