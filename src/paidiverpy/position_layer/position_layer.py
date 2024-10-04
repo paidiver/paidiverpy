@@ -14,7 +14,7 @@ from paidiverpy.config.config import Configuration
 from paidiverpy.config.position_params import POSITION_LAYER_METHODS
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
-from utils import DynamicConfig
+from paidiverpy.utils import DynamicConfig
 
 
 class PositionLayer(Paidiverpy):

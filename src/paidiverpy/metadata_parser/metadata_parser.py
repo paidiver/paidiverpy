@@ -7,13 +7,25 @@ import pandas as pd
 from mariqt.core import IfdoException
 from shapely.geometry import Point
 from paidiverpy.config.config import Configuration
-from utils import initialise_logging
+from paidiverpy.utils import initialise_logging
 
 filename_columns = ["image-filename", "filename", "file_name", "FileName", "File Name"]
 index_columns = ["id", "index", "ID", "Index", "Id"]
 datetime_columns = ["image-datetime", "datetime", "date_time", "DateTime", "Datetime"]
-lat_columns = ["image-latitude", "lat", "latitude_deg", "latitude", "Latitude", "Latitude_deg", "Lat"]
-lon_columns = ["image-longitude", "lon", "longitude_deg", "longitude", "Longitude", "Longitude_deg", "Lon"]
+lat_columns = ["image-latitude",
+               "lat",
+               "latitude_deg",
+               "latitude",
+               "Latitude",
+               "Latitude_deg",
+               "Lat"]
+lon_columns = ["image-longitude",
+               "lon",
+               "longitude_deg",
+               "longitude",
+               "Longitude",
+               "Longitude_deg",
+               "Lon"]
 
 
 class MetadataParser:
@@ -40,7 +52,9 @@ class MetadataParser:
         logger: logging.Logger | None = None,
     ):
         self.logger = logger or initialise_logging()
-        self.config = config or self._build_config(metadata_path, metadata_type, append_data_to_metadata)
+        self.config = config or self._build_config(metadata_path,
+                                                   metadata_type,
+                                                   append_data_to_metadata)
         self.metadata_type = getattr(self.config.general, "metadata_type", None)
         self.append_data_to_metadata = getattr(self.config.general, "append_data_to_metadata", None)
         self.metadata_path = getattr(self.config.general, "metadata_path", None)

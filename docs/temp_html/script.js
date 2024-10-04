@@ -1,7 +1,12 @@
+
+// schema = await fetch('configuration-schema.json').then(response => response.json());
+
+
+
 document.addEventListener('DOMContentLoaded', loadSchema);
 
 function loadSchema() {
-    const schemaUrl = 'configuration-schema.json'; // Replace with the correct path
+    const schemaUrl = '../../configuration-schema.json';
     fetch(schemaUrl)
         .then(response => {
             if (!response.ok) {
@@ -23,9 +28,13 @@ function generateForm(schema) {
 
     // Assuming schema.properties contains the main configuration sections
     const properties = schema.properties.general.properties;
+    console.log(properties);
+    console.log(schema.properties.general)
     
     for (const [key, value] of Object.entries(properties)) {
-        createFormField(key, value);
+        if (key !== 'sample_data'){
+            createFormField(key, value);
+        }
     }
 
     // Show the submit button after form is generated
@@ -42,10 +51,15 @@ function createFormField(name, schema) {
     formGroup.appendChild(label);
 
     let input;
-    if (schema.type === 'string') {
+    let schemaType = schema.type;
+    if (typeof(schemaType) === 'object') {
+        schemaType = schema.type[0]
+    }
+    console.log(schemaType)
+    if (schemaType === 'string') {
         input = document.createElement('input');
         input.type = 'text';
-    } else if (schema.type === 'boolean') {
+    } else if (schemaType === 'boolean') {
         input = document.createElement('select');
         const trueOption = document.createElement('option');
         trueOption.value = 'true';
@@ -55,10 +69,10 @@ function createFormField(name, schema) {
         falseOption.textContent = 'False';
         input.appendChild(trueOption);
         input.appendChild(falseOption);
-    } else if (schema.type === 'number') {
+    } else if (schemaType === 'number') {
         input = document.createElement('input');
         input.type = 'number';
-    } else if (schema.type === 'array') {
+    } else if (schemaType === 'array') {
         input = document.createElement('textarea');
         input.placeholder = "Comma separated values";
     }

@@ -10,7 +10,7 @@ from paidiverpy.config.color_params import COLOR_LAYER_METHODS
 from paidiverpy.config.convert_params import CONVERT_LAYER_METHODS
 from paidiverpy.config.position_params import POSITION_LAYER_METHODS
 from paidiverpy.config.resample_params import RESAMPLE_LAYER_METHODS
-from utils import DynamicConfig
+from paidiverpy.utils import DynamicConfig
 
 
 class GeneralConfig(DynamicConfig):

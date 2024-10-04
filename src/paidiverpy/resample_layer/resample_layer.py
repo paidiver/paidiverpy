@@ -24,7 +24,7 @@ from paidiverpy.config.resample_params import ResamplePitchRollParams
 from paidiverpy.config.resample_params import ResampleRegionParams
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
-from utils import raise_value_error
+from paidiverpy.utils import raise_value_error
 
 
 class ResampleLayer(Paidiverpy):
@@ -112,7 +112,7 @@ class ResampleLayer(Paidiverpy):
         method, params = self._get_method_by_mode(params, RESAMPLE_LAYER_METHODS, mode)
         try:
             metadata = method(self.step_order, test=test, params=params)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             self.logger.error("Error in resample layer: %s", e)
             if self.raise_error:
                 raise_value_error("Resample layer step failed.")
