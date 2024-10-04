@@ -1,11 +1,12 @@
-
 """Main module for the paidiverpy CLI."""
+
 import argparse
 import sys
 from paidiverpy.pipeline import Pipeline
-from utils import initialise_logging
+from paidiverpy.utils import initialise_logging
 
 logger = initialise_logging()
+
 
 def process_action(parser: argparse.ArgumentParser) -> None:
     """Process the action based on the arguments provided.
@@ -20,7 +21,9 @@ def process_action(parser: argparse.ArgumentParser) -> None:
         parser.print_help(sys.stderr)
         sys.exit(2)
 
-    pipeline = Pipeline(config_file_path=args.configuration_file, logger=logger, track_changes=False)
+    pipeline = Pipeline(
+        config_file_path=args.configuration_file, logger=logger, track_changes=False,
+    )
     pipeline.run()
     pipeline.save_images()
 

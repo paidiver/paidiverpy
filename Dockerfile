@@ -6,13 +6,13 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libopencv-dev \
-    libgdal-dev \
-    libgraphviz-dev \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update
+RUN apt-get install -y apt-utils build-essential
+RUN apt-get install -y libexempi-dev libxslt1-dev
+RUN apt-get install -y libgraphviz-dev
+RUN apt-get install -y libopencv-dev libgdal-dev
+RUN apt-get install -y curl unzip
+RUN rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade pip setuptools wheel
 

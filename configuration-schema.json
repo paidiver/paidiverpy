@@ -8,9 +8,6 @@
         "name": {
           "type": "string"
         },
-        "step_name": {
-          "type": "string"
-        },
         "sample_data": {
           "type": "string"
         },
@@ -42,10 +39,7 @@
           ]
         },
         "rename": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "sampling": {
           "type": [

@@ -8,6 +8,16 @@
         body {
             font-family: Arial, sans-serif;
         }
+        .container {
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-around;
+        }
+        .forms{
+        }
+        .config{
+        }
         .form-group {
             margin-bottom: 15px;
         }
@@ -22,8 +32,19 @@
     </style>
 </head>
 <body>
-    <h1>Create Configuration File</h1>
-    <form id="configForm"></form>
+    <h1>Paidiver Configuration File Generation</h1>
+    <div class="container">        
+        <div class="forms">
+            <h2>Form</h2>
+            <form id="configForm"></form>
+            <form id="stepList"></form>
+        </div>
+        <div class="config">
+            <h2>Config</h2>
+            <pre id="config"></pre>
+        </div>
+    </div>
+
     <button id="submitButton" style="display:none;">Submit</button>
 
     <script src="script.js"></script>

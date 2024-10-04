@@ -21,7 +21,7 @@ from paidiverpy.convert_layer import ConvertLayer
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.resample_layer import ResampleLayer
-from utils import DynamicConfig
+from paidiverpy.utils import DynamicConfig
 
 
 class OpenLayer(Paidiverpy):
@@ -266,6 +266,6 @@ class OpenLayer(Paidiverpy):
             logger.warning("Failed to open %s: %s", img_path, e)
         except OSError as e:
             logger.warning("Failed to open %s: %s", img_path, e)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.warning("Failed to extract EXIF data from %s: %s", img_path, e)
         return exif
