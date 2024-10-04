@@ -16,12 +16,16 @@ RUN rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade pip setuptools wheel
 
+RUN mkdir /app/config_files
+RUN mkdir /app/output
 COPY pyproject.toml .
 COPY configuration-schema.json .
 COPY LICENSE README.md ./
 COPY src/ src/
 
 RUN pip install .
+
+ENV IS_DOCKER=true
 
 ENTRYPOINT ["paidiverpy"]
 

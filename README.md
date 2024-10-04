@@ -114,3 +114,36 @@ paidiverpy -c examples/config_files/config_simple.yaml
 ```
 
 This command will run the pipeline as specified in the configuration file and save the output images to the directory defined in the configuration file’s `output_path` setting.
+
+### Docker command
+
+You can also run your codes as a docker container. In this case, you can build the container locally or you can pull the container from docker-hub.
+
+    1) **Build the container locally**
+
+    You need to clone the repo, change to the directory and then build the container
+
+    ```bash
+    git clone git@github.com:paidiver/paidiverpy.git
+    cd paidiverpy
+    docker build -t paidiverpy .
+    ```
+    
+    2) **Pull the image from docker-hub**
+
+    ```bash
+    docker pull soutobias/paidiverpy:latest
+    ```
+And then you can run the run command:
+
+
+```bash
+docker run --rm \
+  -v <OUTPUT_PATH>:/app/output/
+  -v <FULL_PATH_OF_CONFIGURATION_FILE_WITHOUT_FILENAME>:/app/config_files \
+  paidiverpy -c /app/examples/config_files/<CONFIGURATION_FILE_FILENAME>
+```
+
+In this run command, you need to replace the `<FULL_PATH_OF_CONFIGURATION_FILE_WITHOUT_FILENAME>` by te full path of the directory of your configuration file locally. You also need to replace `<CONFIGURATION_FILE_FILENAME>` by the configuration file filename.
+
+In this case, the output values will be sa
