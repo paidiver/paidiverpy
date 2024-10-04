@@ -54,7 +54,7 @@ You can install `paidiverpy` locally or on a notebook server such as JASMIN or t
 
 First, create a configuration file. Example configuration files for processing the sample datasets are available in the `example/config` directory. You can use these files to test the example notebooks described in the [Usage section](#usage). Note that running the examples will automatically download the sample data.
 
-The configuration file should follow the JSON schema described in the [configuration file schema](configutation-schema.json). An online tool to validate configuration files is available [here](https://placeholder.com).
+The configuration file should follow the JSON schema described in the [configuration file schema](configuration-schema.json). An online tool to validate configuration files is available [here](https://paidiver.github.io/paidiverpy/config_check.html).
 
 ### Metadata
 
