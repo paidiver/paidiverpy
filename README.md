@@ -47,7 +47,12 @@ You can install `paidiverpy` locally or on a notebook server such as JASMIN or t
 
 ### Configuration File
 
-First, create a configuration file. Some example configuration files for processing the example datasets are provided in the `example/config` directory. You can use these configuration files to test the example notebooks described in the [Usage section](#usage). However, remember to change the path of `input_path`, `output_path`, and `metadata_path`.
+First, create a configuration file. Some example configuration files for processing the example datasets are provided in the `example/config` directory. You can use these configuration files to test the example notebooks described in the [Usage section](#usage). In this case, it is important to mention that it will download automatically download the sample data available.
+
+We have a function to 
+
+
+The 
 
 ### Metadata
 
