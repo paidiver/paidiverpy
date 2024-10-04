@@ -1,6 +1,7 @@
 """Module to handle images and metadata for each step in the pipeline."""
 
 import base64
+import gc
 from io import BytesIO
 import dask.array as da
 import matplotlib.pyplot as plt
@@ -36,6 +37,7 @@ class ImagesLayer:
         metadata: pd.DataFrame = None,
         step_metadata: dict | None = None,
         update_metadata: bool = False,
+        track_changes: bool = True,
     ) -> None:
         """Add a step to the pipeline.
 
@@ -47,19 +49,25 @@ class ImagesLayer:
             step_metadata (dict, optional): The metadata for the step.
         Defaults to None.
             update_metadata (bool, optional): Whether to update the metadata.
+            track_changes (bool, optional): Whether to track changes. Defaults to True.
         """
         if update_metadata:
-            last_images = self.images[-1]
-
             last_filenames = np.array(self.filenames[-1])
             new_filenames = np.isin(last_filenames, metadata["image-filename"])
-            new_images = [image for image, filename in zip(last_images, new_filenames, strict=False) if filename]
+            new_images = [image for image, filename in zip(self.images[-1], new_filenames, strict=False) if filename]
+            if not track_changes and len(self.images) > 1:
+                len_images = len(self.images[-1])
+                self.images[-1] = [0 for _ in range(len_images)]
             self.images.append(new_images)
         else:
+            if not track_changes and len(self.images) > 1:
+                len_images = len(self.images[-1])
+                self.images[-1] = [0 for _ in range(len_images)]
             self.images.append(images)
         self.step_metadata.append(step_metadata)
         self.steps.append(step)
         self.filenames.append(metadata["image-filename"].tolist())
+        gc.collect()
 
     def remove_steps_by_name(self, step: tuple) -> int:
         """Remove steps by name.

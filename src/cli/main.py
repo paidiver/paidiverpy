@@ -20,7 +20,7 @@ def process_action(parser: argparse.ArgumentParser) -> None:
         parser.print_help(sys.stderr)
         sys.exit(2)
 
-    pipeline = Pipeline(config_file_path=args.configuration_file, logger=logger)
+    pipeline = Pipeline(config_file_path=args.configuration_file, logger=logger, track_changes=False)
     pipeline.run()
     pipeline.save_images()
 
