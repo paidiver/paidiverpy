@@ -33,7 +33,9 @@ dependencies = [
   "panel>=1.4.5",
   "dask-image==2024.5.3",
   "dask>=2024.9.0",
-  "distributed>=2024.9.0"
+  "distributed>=2024.9.0",
+  "jsonschema>=4.23.0",
+  "matplotlib>=3.5.0",
   ]
 license = {file = "LICENSE"}
 version = "0.1.0"

@@ -31,6 +31,7 @@ class Pipeline(Paidiverpy):
         config_index (int): The index of the configuration.
         raise_error (bool): Whether to raise an error.
         verbose (int): verbose level (0 = none, 1 = errors/warnings, 2 = info).
+        track_changes (bool): Whether to track changes. Defaults to True.
         n_jobs (int): The number of jobs to run in parallel.
     """
 
@@ -47,6 +48,7 @@ class Pipeline(Paidiverpy):
         logger: logging.Logger | None = None,
         raise_error: bool = False,
         verbose: int = 2,
+        track_changes: bool = True,
         n_jobs: int = 1,
     ):
         super().__init__(
@@ -60,6 +62,7 @@ class Pipeline(Paidiverpy):
             logger=logger,
             raise_error=raise_error,
             verbose=verbose,
+            track_changes=track_changes,
             n_jobs=n_jobs,
         )
 
@@ -127,6 +130,7 @@ class Pipeline(Paidiverpy):
                         config=self.config,
                         metadata=self.metadata,
                         parameters=step_params,
+                        track_changes=self.track_changes,
                         n_jobs=self.n_jobs,
                     )
                 else:
@@ -137,6 +141,7 @@ class Pipeline(Paidiverpy):
                         step_name=step_name,
                         parameters=step_params,
                         config_index=index - 1,
+                        track_changes=self.track_changes,
                         n_jobs=self.n_jobs,
                     )
                 step_instance.run()

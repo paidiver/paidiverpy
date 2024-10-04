@@ -2,7 +2,9 @@
 
 import json
 from pathlib import Path
+import jsonschema
 import yaml
+from jsonschema import validate
 from paidiverpy import data
 from paidiverpy.config.color_params import COLOR_LAYER_METHODS
 from paidiverpy.config.convert_params import CONVERT_LAYER_METHODS
@@ -174,15 +176,25 @@ class Configuration:
             config_file_path = Path(config_file_path)
             with config_file_path.open(encoding="utf-8") as config_file:
                 config_data = yaml.safe_load(config_file)
+            self._validate_config(config_data)
         except FileNotFoundError as e:
             msg = f"Failed to load the configuration file: {e!s}"
             raise FileNotFoundError(msg) from e
+        except jsonschema.exceptions.ValidationError as e:
+            msg = f"Failed to validate the configuration file: {e!s}"
+            raise jsonschema.exceptions.ValidationError(msg) from e
         except yaml.YAMLError as e:
             msg = f"Failed to load the configuration file: {e!s}"
             raise yaml.YAMLError(msg) from e
 
         self.general = self._validate_general_config(config_data)
         self._load_steps(config_data)
+
+    def _validate_config(self, config: dict) -> None:
+        schema_file_path = Path(__file__).resolve().parent.parent.parent.parent / "configuration-schema.json"
+        with schema_file_path.open("r", encoding="utf-8") as schema_file:
+            schema = json.load(schema_file)
+        validate(instance=config, schema=schema)
 
     def _validate_general_config(self, config_data: dict) -> GeneralConfig:
         """Validate the general configuration.
