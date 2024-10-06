@@ -235,44 +235,30 @@ class Pipeline(Paidiverpy):
         for i, step in enumerate(self.config.steps):
             if i % 4 == 0 and i > 0:
                 steps_html += '<div style="clear:both;"></div>'
-                steps_html += (
-                    f"""
-                    <div id="step_{i}" title="Click to see more information" class="square"
-                        style="cursor: pointer; float:left; padding: 10px; width: max-content;
-                        height: 80px; margin: 10px; border: 1px solid #000;
-                        border-style: {'dashed' if step.test else 'solid'}; text-align: center;
-                        line-height: 80px;" onclick="showParameters('step_{i}')">
-                        <h2 style="font-size:20px;">{step.name.capitalize()}</h2>
-                        <h2 style="font-size:13px;">Type: {step.step_name.capitalize()}</h2>
-                    </div>
-                    """
-                )
+            steps_html += f"""
+                <div id="step_{i}" title="Click to see more information" class="square" style="cursor: pointer; float:left; padding: 10px; width: max-content; height: 80px; margin: 10px; border: 1px solid #000; text-align: center; line-height: 80px;" onclick="showParameters('step_{i}')">
+                    <h2 style="font-size:20px;">{step.name.capitalize()}</h2>
+                    <h2 style="font-size:13px;">Type: {step.step_name.capitalize()}</h2>
+                </div>
+            """
             if i < len(self.config.steps) - 1:
-                steps_html += (
-                    """
-                    <div style="float:left; width: 50px; height: 80px; margin: 10px;
-                        text-align: center; line-height: 80px;">
+                steps_html += """
+                    <div style="float:left; width: 50px; height: 80px; margin: 10px; text-align: center; line-height: 80px;">
                         &#10132;
                     </div>
-                    """
-                )
+                """
             parameters_html += f"""
                 <div id="parameters_step_{i}" class="parameters" style="display: none;">
                     <pre>{json.dumps(step.to_dict(), indent=4)}</pre>
                 </div>
             """
 
-        general_html = (
-            f"""
-            <div id="general" title="Click to see more information" class="square"
-                style="float:left; cursor: pointer; padding: 10px; width: max-content;
-                height: 80px; margin: 10px; border: 1px solid #000; text-align: center;
-                line-height: 80px;" onclick="showParameters('general')">
-                <h2 style="font-size:20px;">{self.config.general.name.capitalize()}</h2>
-                <h2 style="font-size:13px;">Type: {self.config.general.step_name.capitalize()}</h2>
-            </div>
-            """
-        )
+        general_html = f"""
+        <div id="general" title="Click to see more information" class="square" style="float:left; cursor: pointer; padding: 10px; width: max-content; height: 80px; margin: 10px; border: 1px solid #000; text-align: center; line-height: 80px;" onclick="showParameters('general')">
+            <h2 style="font-size:20px;">{self.config.general.name.capitalize()}</h2>
+            <h2 style="font-size:13px;">Type: {self.config.general.step_name.capitalize()}</h2>
+        </div>
+        """
 
         parameters_html += f"""
             <div id="parameters_general" class="parameters" style="display: none;">
@@ -280,28 +266,12 @@ class Pipeline(Paidiverpy):
             </div>
         """
 
-        dask_html = ""
-        if self.n_jobs > 1:
-            dask_html = f"""
-                <div style="float:left;">
-                    <h2 style="font-size:20px;">Parallel Processing - Number of workers: {self.n_jobs}</h2>
-                </div>
-            """
-        steps_html_part = (
-            f"""
-            <div style="float:left; width: 50px; height: 80px; margin: 10px;
-                text-align: center; line-height: 80px;">
-                &#10132;
-            </div>{steps_html}
-            """
-        )
         return f"""
         <div style="display: flex; flex-wrap: wrap; align-items: center;">
             {general_html}
-            {steps_html_part if len(self.steps) > 0 else ''}
+            {f'<div style="float:left; width: 50px; height: 80px; margin: 10px; text-align: center; line-height: 80px;">&#10132;</div>{steps_html}' if len(self.steps) > 1 else ''}
         </div>
         <div id="parameters" style="padding: 10px; margin: 10px;">{parameters_html}</div>
-        {dask_html}
         <script>
             function showParameters(id) {{
                 // Hide all parameter sections
