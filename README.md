@@ -145,6 +145,7 @@ Run the container with:
 docker run --rm \
   -v <OUTPUT_PATH>:/app/output/ \
   -v <FULL_PATH_OF_CONFIGURATION_FILE_WITHOUT_FILENAME>:/app/config_files \
+  soutobias/paidiverpy:latest \ 
   paidiverpy -c /app/examples/config_files/<CONFIGURATION_FILE_FILENAME>
 ```
 
