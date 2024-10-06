@@ -39,7 +39,10 @@
           ]
         },
         "rename": {
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "sampling": {
           "type": [
