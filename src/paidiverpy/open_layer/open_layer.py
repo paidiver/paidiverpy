@@ -21,7 +21,7 @@ from paidiverpy.convert_layer import ConvertLayer
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.resample_layer import ResampleLayer
-from paidiverpy.utils import DynamicConfig
+from paidiverpy.utils import DynamicConfig, is_running_in_docker
 
 
 class OpenLayer(Paidiverpy):
@@ -86,6 +86,11 @@ class OpenLayer(Paidiverpy):
         if parameters:
             self.config.add_config("general", parameters)
 
+        is_docker = is_running_in_docker()
+        if self.config.general.sample_data:
+            self.correct_input_path = self.config.general.input_path
+        else:
+            self.correct_input_path = "/app/input/" if is_docker else self.config.general.input_path
         self.extract_exif()
         self.step_metadata = self._calculate_steps_metadata(self.config.general)
 
@@ -139,8 +144,9 @@ class OpenLayer(Paidiverpy):
                 )
                 self.config.steps.pop()
 
+
         img_path_list = [
-            self.config.general.input_path / filename for filename in self.get_metadata()["image-filename"]
+            self.correct_input_path / filename for filename in self.get_metadata()["image-filename"]
         ]
         if self.n_jobs == 1:
             image_list = [
@@ -236,7 +242,7 @@ class OpenLayer(Paidiverpy):
     def extract_exif(self) -> None:
         """Extract EXIF data from the images and add it to the metadata DataFrame."""
         img_path_list = [
-            self.config.general.input_path / filename for filename in self.get_metadata()["image-filename"]
+            self.correct_input_path / filename for filename in self.get_metadata()["image-filename"]
         ]
         exif_list = [OpenLayer.extract_exif_single(img_path,
                                                    self.logger) for img_path in img_path_list]
