@@ -22,16 +22,16 @@ You can install `paidiverpy` locally or on a notebook server such as JASMIN or t
     cd paidiverpy
     ```
 
-2. (Optional) Create a Python virtual environment to manage dependencies separately from other projects. For example, using `mamba`:
+2. (Optional) Create a Python virtual environment to manage dependencies separately from other projects. For example, using `conda`:
 
     ```bash
-    mamba init
+    conda init
 
     # Command to restart the terminal. This command may not be necessary if mamba init has already been successfully run before
     exec bash
 
-    mamba env create -f environment.yml
-    mamba activate Paidiverpy
+    conda env create -f environment.yml
+    conda activate Paidiverpy
     ```
 
 3. (Optional) For JASMIN or DSP users, you also need to install the environment in the Jupyter IPython kernel. Execute the following command:
