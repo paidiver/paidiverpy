@@ -18,6 +18,7 @@ RUN pip install --upgrade pip setuptools wheel
 
 RUN mkdir /app/config_files
 RUN mkdir /app/output
+RUN mkdir /app/input
 COPY pyproject.toml .
 COPY configuration-schema.json .
 COPY LICENSE README.md ./

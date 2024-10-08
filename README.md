@@ -137,18 +137,23 @@ You can also run Paidiverpy using Docker. You can either build the container loc
 
     ```bash
     docker pull soutobias/paidiverpy:latest
+    docker tag soutobias/paidiverpy:latest paidiverpy:latest
     ```
 
 Run the container with:
 
 ```bash
 docker run --rm \
-  -v <OUTPUT_PATH>:/app/output/ \
-  -v <FULL_PATH_OF_CONFIGURATION_FILE_WITHOUT_FILENAME>:/app/config_files \
-  paidiverpy -c /app/examples/config_files/<CONFIGURATION_FILE_FILENAME>
+-v <INPUT_PATH>:/app/input/ \
+-v <OUTPUT_PATH>:/app/output/ \
+-v <FULL_PATH_OF_CONFIGURATION_FILE_WITHOUT_FILENAME>:/app/config_files \
+paidiverpy \
+paidiverpy -c /app/examples/config_files/<CONFIGURATION_FILE_FILENAME>
 ```
 
+
 In this command:
+- `<INPUT_PATH>`: The input path defined in your configuration file, where the input images are located.
 - `<OUTPUT_PATH>`: The output path defined in your configuration file.
 - `<FULL_PATH_OF_CONFIGURATION_FILE_WITHOUT_FILENAME>`: The local directory of your configuration file.
 - `<CONFIGURATION_FILE_FILENAME>`: The name of the configuration file.
