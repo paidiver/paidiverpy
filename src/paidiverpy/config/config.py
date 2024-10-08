@@ -19,9 +19,9 @@ class GeneralConfig(DynamicConfig):
     def __init__(self, **kwargs: dict):
         self.name = kwargs.get("name", "raw")
         self.step_name = kwargs.get("step_name", "open")
-        sample_data = kwargs.get("sample_data", None)
-        if sample_data:
-            self._define_sample_data(sample_data)
+        self.sample_data = kwargs.get("sample_data", None)
+        if self.sample_data:
+            self._define_sample_data(self.sample_data)
         else:
             input_path = kwargs.get("input_path", None)
             if input_path:
