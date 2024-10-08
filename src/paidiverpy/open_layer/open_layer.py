@@ -87,7 +87,10 @@ class OpenLayer(Paidiverpy):
             self.config.add_config("general", parameters)
 
         is_docker = is_running_in_docker()
-        self.correct_input_path = "/app/input/" if is_docker else self.config.general.input_path
+        if self.config.general.sample_data:
+            self.correct_input_path = self.config.general.input_path
+        else:
+            self.correct_input_path = "/app/input/" if is_docker else self.config.general.input_path
         self.extract_exif()
         self.step_metadata = self._calculate_steps_metadata(self.config.general)
 
