@@ -61,6 +61,7 @@ docs = [
     "sphinx_rtd_theme",
     "sphinx-autoapi",
     "myst_parser",
+    "autoapi",
 ]
 publishing = [
     "build",
