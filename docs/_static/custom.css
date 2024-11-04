@@ -1,0 +1,23 @@
+/* custom.css */
+.grid-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px; /* Adjust spacing between items */
+}
+
+.grid-item {
+  flex: 1 1 calc(50% - 16px); /* 3 items per row, with spacing */
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+  box-sizing: border-box; /* Ensure padding and border are included in total width */
+}
+
+.grid-item h2 {
+  font-size: 20px;
+  margin: 0;
+}
+
+.grid-item p {
+  font-size: 13px;
+}
