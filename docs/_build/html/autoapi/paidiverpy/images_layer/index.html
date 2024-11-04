@@ -1,0 +1,790 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>paidiverpy.images_layer &#8212; paidiverpy 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-codeautolink.css?v=125d5c1c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=32502a18" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+
+    <script src="../../../_static/documentation_options.js?v=a1637f0b"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'autoapi/paidiverpy/images_layer/index';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="paidiverpy.metadata_parser" href="../metadata_parser/index.html" />
+    <link rel="prev" title="paidiverpy.exceptions" href="../exceptions/index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">paidiverpy 0.1.0 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../why.html">Why Paidiverpy?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../package_organisation.html">Package Organisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration_file.html">Configuration File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../images_metadata.html">Images Metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../example_data.html">Example Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gallery.html">Gallery</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/guide1/index.html">Guide 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/guide2/index.html">Guide 2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/guide3/index.html">Guide 3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/guide4/index.html">Guide 4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../performances.html">Performances</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Help &amp; Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing to paidiverpy</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../index.html">paidiverpy</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="../color_layer/index.html">paidiverpy.color_layer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../color_layer/color_layer/index.html">paidiverpy.color_layer.color_layer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../config/index.html">paidiverpy.config</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../config/color_params/index.html">paidiverpy.config.color_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../config/config/index.html">paidiverpy.config.config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../config/convert_params/index.html">paidiverpy.config.convert_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../config/pipeline_params/index.html">paidiverpy.config.pipeline_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../config/position_params/index.html">paidiverpy.config.position_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../config/resample_params/index.html">paidiverpy.config.resample_params</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../convert_layer/index.html">paidiverpy.convert_layer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../convert_layer/convert_layer/index.html">paidiverpy.convert_layer.convert_layer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../data/index.html">paidiverpy.data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../exceptions/index.html">paidiverpy.exceptions</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">paidiverpy.images_layer</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../metadata_parser/index.html">paidiverpy.metadata_parser</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../metadata_parser/metadata_parser/index.html">paidiverpy.metadata_parser.metadata_parser</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../open_layer/index.html">paidiverpy.open_layer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../open_layer/open_layer/index.html">paidiverpy.open_layer.open_layer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../paidiverpy/index.html">paidiverpy.paidiverpy</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../pipeline/index.html">paidiverpy.pipeline</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../pipeline/pipeline/index.html">paidiverpy.pipeline.pipeline</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../position_layer/index.html">paidiverpy.position_layer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../position_layer/position_layer/index.html">paidiverpy.position_layer.position_layer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../resample_layer/index.html">paidiverpy.resample_layer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../resample_layer/resample_layer/index.html">paidiverpy.resample_layer.resample_layer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/index.html">paidiverpy.utils</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>paidiverpy.images_layer</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.MAX_IMAGES_TO_SHOW"><code class="docutils literal notranslate"><span class="pre">MAX_IMAGES_TO_SHOW</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.NUM_CHANNELS_GRAY"><code class="docutils literal notranslate"><span class="pre">NUM_CHANNELS_GRAY</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.NUM_CHANNELS_RGBA"><code class="docutils literal notranslate"><span class="pre">NUM_CHANNELS_RGBA</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.NUM_DIMS_GRAY"><code class="docutils literal notranslate"><span class="pre">NUM_DIMS_GRAY</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer"><code class="docutils literal notranslate"><span class="pre">ImagesLayer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.steps"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.steps</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.step_metadata"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.step_metadata</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.images"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.images</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.max_images"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.max_images</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.output_path"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.output_path</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.filenames"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.filenames</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.add_step"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.add_step()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.remove_steps_by_name"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.remove_steps_by_name()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.remove_steps_by_order"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.remove_steps_by_order()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.get_last_step_order"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.get_last_step_order()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.get_step"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.get_step()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.show"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.show()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.save"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.save()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.__repr__"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.__repr__()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer._repr_html_"><code class="docutils literal notranslate"><span class="pre">ImagesLayer._repr_html_()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.__call__"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.__call__()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer._generate_html"><code class="docutils literal notranslate"><span class="pre">ImagesLayer._generate_html()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer._generate_single_image_html"><code class="docutils literal notranslate"><span class="pre">ImagesLayer._generate_single_image_html()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.numpy_array_to_base64"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.numpy_array_to_base64()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-paidiverpy.images_layer">
+<span id="paidiverpy-images-layer"></span><h1>paidiverpy.images_layer<a class="headerlink" href="#module-paidiverpy.images_layer" title="Link to this heading">#</a></h1>
+<p>Module to handle images and metadata for each step in the pipeline.</p>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paidiverpy.images_layer.MAX_IMAGES_TO_SHOW" title="paidiverpy.images_layer.MAX_IMAGES_TO_SHOW"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MAX_IMAGES_TO_SHOW</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paidiverpy.images_layer.NUM_CHANNELS_GRAY" title="paidiverpy.images_layer.NUM_CHANNELS_GRAY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NUM_CHANNELS_GRAY</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paidiverpy.images_layer.NUM_CHANNELS_RGBA" title="paidiverpy.images_layer.NUM_CHANNELS_RGBA"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NUM_CHANNELS_RGBA</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paidiverpy.images_layer.NUM_DIMS_GRAY" title="paidiverpy.images_layer.NUM_DIMS_GRAY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NUM_DIMS_GRAY</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paidiverpy.images_layer.ImagesLayer" title="paidiverpy.images_layer.ImagesLayer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImagesLayer</span></code></a></p></td>
+<td><p>Class to handle images and metadata for each step in the pipeline.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="paidiverpy.images_layer.MAX_IMAGES_TO_SHOW">
+<span class="sig-prename descclassname"><span class="pre">paidiverpy.images_layer.</span></span><span class="sig-name descname"><span class="pre">MAX_IMAGES_TO_SHOW</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="reference internal" href="../../../_modules/paidiverpy/images_layer.html#MAX_IMAGES_TO_SHOW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.images_layer.MAX_IMAGES_TO_SHOW" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="paidiverpy.images_layer.NUM_CHANNELS_GRAY">
+<span class="sig-prename descclassname"><span class="pre">paidiverpy.images_layer.</span></span><span class="sig-name descname"><span class="pre">NUM_CHANNELS_GRAY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="reference internal" href="../../../_modules/paidiverpy/images_layer.html#NUM_CHANNELS_GRAY"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.images_layer.NUM_CHANNELS_GRAY" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="paidiverpy.images_layer.NUM_CHANNELS_RGBA">
+<span class="sig-prename descclassname"><span class="pre">paidiverpy.images_layer.</span></span><span class="sig-name descname"><span class="pre">NUM_CHANNELS_RGBA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="reference internal" href="../../../_modules/paidiverpy/images_layer.html#NUM_CHANNELS_RGBA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.images_layer.NUM_CHANNELS_RGBA" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="paidiverpy.images_layer.NUM_DIMS_GRAY">
+<span class="sig-prename descclassname"><span class="pre">paidiverpy.images_layer.</span></span><span class="sig-name descname"><span class="pre">NUM_DIMS_GRAY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="reference internal" href="../../../_modules/paidiverpy/images_layer.html#NUM_DIMS_GRAY"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.images_layer.NUM_DIMS_GRAY" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="paidiverpy.images_layer.ImagesLayer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paidiverpy.images_layer.</span></span><span class="sig-name descname"><span class="pre">ImagesLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/paidiverpy/images_layer.html#ImagesLayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.images_layer.ImagesLayer" title="Link to this definition">#</a></dt>
+<dd><p>Class to handle images and metadata for each step in the pipeline.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>output_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Path to save the images. Default is None.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.images_layer.ImagesLayer.steps">
+<span class="sig-name descname"><span class="pre">steps</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="reference internal" href="../../../_modules/paidiverpy/images_layer.html#ImagesLayer.steps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.images_layer.ImagesLayer.steps" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.images_layer.ImagesLayer.step_metadata">
+<span class="sig-name descname"><span class="pre">step_metadata</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="reference internal" href="../../../_modules/paidiverpy/images_layer.html#ImagesLayer.step_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.images_layer.ImagesLayer.step_metadata" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.images_layer.ImagesLayer.images">
+<span class="sig-name descname"><span class="pre">images</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="reference internal" href="../../../_modules/paidiverpy/images_layer.html#ImagesLayer.images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.images_layer.ImagesLayer.images" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.images_layer.ImagesLayer.max_images">
+<span class="sig-name descname"><span class="pre">max_images</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="reference internal" href="../../../_modules/paidiverpy/images_layer.html#ImagesLayer.max_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.images_layer.ImagesLayer.max_images" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.images_layer.ImagesLayer.output_path">
+<span class="sig-name descname"><span class="pre">output_path</span></span><a class="reference internal" href="../../../_modules/paidiverpy/images_layer.html#ImagesLayer.output_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.images_layer.ImagesLayer.output_path" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.images_layer.ImagesLayer.filenames">
+<span class="sig-name descname"><span class="pre">filenames</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="reference internal" href="../../../_modules/paidiverpy/images_layer.html#ImagesLayer.filenames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.images_layer.ImagesLayer.filenames" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paidiverpy.images_layer.ImagesLayer.add_step">
+<span class="sig-name descname"><span class="pre">add_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">images</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><span class="pre">numpy.ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dask.array.core.Array</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.2.3)"><span class="pre">pandas.DataFrame</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_changes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/paidiverpy/images_layer.html#ImagesLayer.add_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.images_layer.ImagesLayer.add_step" title="Link to this definition">#</a></dt>
+<dd><p>Add a step to the pipeline.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>step</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The step to add</p></li>
+<li><p><strong>images</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>da.core.Array</em><em>]</em><em>, </em><em>optional</em>) – The images to add.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Defaults to None.</dt><dd><p>metadata (pd.DataFrame, optional): The metadata to add. Defaults to None.
+step_metadata (dict, optional): The metadata for the step.</p>
+</dd>
+<dt>Defaults to None.</dt><dd><p>update_metadata (bool, optional): Whether to update the metadata.
+track_changes (bool, optional): Whether to track changes. Defaults to True.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paidiverpy.images_layer.ImagesLayer.remove_steps_by_name">
+<span class="sig-name descname"><span class="pre">remove_steps_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../../../_modules/paidiverpy/images_layer.html#ImagesLayer.remove_steps_by_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.images_layer.ImagesLayer.remove_steps_by_name" title="Link to this definition">#</a></dt>
+<dd><p>Remove steps by name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>step</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The step to remove</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The index of the removed step</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paidiverpy.images_layer.ImagesLayer.remove_steps_by_order">
+<span class="sig-name descname"><span class="pre">remove_steps_by_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/paidiverpy/images_layer.html#ImagesLayer.remove_steps_by_order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.images_layer.ImagesLayer.remove_steps_by_order" title="Link to this definition">#</a></dt>
+<dd><p>Remove steps by order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>step_order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The step order to remove</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paidiverpy.images_layer.ImagesLayer.get_last_step_order">
+<span class="sig-name descname"><span class="pre">get_last_step_order</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../../../_modules/paidiverpy/images_layer.html#ImagesLayer.get_last_step_order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.images_layer.ImagesLayer.get_last_step_order" title="Link to this definition">#</a></dt>
+<dd><p>Get the last step order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The last step order</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paidiverpy.images_layer.ImagesLayer.get_step">
+<span class="sig-name descname"><span class="pre">get_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><span class="pre">numpy.ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dask.array.core.Array</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/paidiverpy/images_layer.html#ImagesLayer.get_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.images_layer.ImagesLayer.get_step" title="Link to this definition">#</a></dt>
+<dd><p>Get a step by name or order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>step</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em><em>, </em><em>optional</em>) – The step to get. Defaults to None.</p></li>
+<li><p><strong>by_order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, get the step by order. Defaults to False.</p></li>
+<li><p><strong>last</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, get the last step. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The images for the step</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Union[np.ndarray, da.core.Array]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paidiverpy.images_layer.ImagesLayer.show">
+<span class="sig-name descname"><span class="pre">show</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/paidiverpy/images_layer.html#ImagesLayer.show"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.images_layer.ImagesLayer.show" title="Link to this definition">#</a></dt>
+<dd><p>Show the images in the pipeline.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>image_number</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – The index of the image to show. Defaults to 0.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paidiverpy.images_layer.ImagesLayer.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'png'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/paidiverpy/images_layer.html#ImagesLayer.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.images_layer.ImagesLayer.save" title="Link to this definition">#</a></dt>
+<dd><p>Save the images in the pipeline.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>step</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em><em>, </em><em>optional</em>) – The step to save. Defaults to None.</p></li>
+<li><p><strong>by_order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, save the step by order. Defaults to False.</p></li>
+<li><p><strong>last</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, save the last step. Defaults to False.</p></li>
+<li><p><strong>output_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – The output path to save the images. Defaults to None.</p></li>
+<li><p><strong>image_format</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – The image format to save. Defaults to “png”.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paidiverpy.images_layer.ImagesLayer.__repr__">
+<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../_modules/paidiverpy/images_layer.html#ImagesLayer.__repr__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.images_layer.ImagesLayer.__repr__" title="Link to this definition">#</a></dt>
+<dd><p>Return the string representation of the object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The string representation of the object</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paidiverpy.images_layer.ImagesLayer._repr_html_">
+<span class="sig-name descname"><span class="pre">_repr_html_</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../_modules/paidiverpy/images_layer.html#ImagesLayer._repr_html_"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.images_layer.ImagesLayer._repr_html_" title="Link to this definition">#</a></dt>
+<dd><p>Return the HTML representation of the object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The HTML representation of the object</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paidiverpy.images_layer.ImagesLayer.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_images</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://ipython.readthedocs.io/en/stable/api/generated/IPython.display.html#IPython.display.HTML" title="(in IPython v8.29.0)"><span class="pre">IPython.display.HTML</span></a></span></span><a class="reference internal" href="../../../_modules/paidiverpy/images_layer.html#ImagesLayer.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.images_layer.ImagesLayer.__call__" title="Link to this definition">#</a></dt>
+<dd><p>Call the object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>max_images</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – The maximum number of images to show.</p>
+</dd>
+</dl>
+<p>Defaults to None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The HTML representation of the object</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>HTML</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paidiverpy.images_layer.ImagesLayer._generate_html">
+<span class="sig-name descname"><span class="pre">_generate_html</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_images</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../_modules/paidiverpy/images_layer.html#ImagesLayer._generate_html"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.images_layer.ImagesLayer._generate_html" title="Link to this definition">#</a></dt>
+<dd><p>Generate the HTML representation of the object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_images</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The maximum number of images to show. Defaults to 12.</p></li>
+<li><p><strong>image_number</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – The image number to show. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The HTML representation of the object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paidiverpy.images_layer.ImagesLayer._generate_single_image_html">
+<span class="sig-name descname"><span class="pre">_generate_single_image_html</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><span class="pre">numpy.ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dask.array.core.Array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../_modules/paidiverpy/images_layer.html#ImagesLayer._generate_single_image_html"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.images_layer.ImagesLayer._generate_single_image_html" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paidiverpy.images_layer.ImagesLayer.numpy_array_to_base64">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">numpy_array_to_base64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><span class="pre">numpy.ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dask.array.core.Array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(150,</span> <span class="pre">150)</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../_modules/paidiverpy/images_layer.html#ImagesLayer.numpy_array_to_base64"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.images_layer.ImagesLayer.numpy_array_to_base64" title="Link to this definition">#</a></dt>
+<dd><p>Convert a numpy array to a base64 image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_array</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>da.core.Array</em><em>]</em>) – The image array</p></li>
+<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><em>tuple</em></a><em>, </em><em>optional</em>) – _description_. Defaults to (150, 150).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The base64 image</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../exceptions/index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">paidiverpy.exceptions</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../metadata_parser/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">paidiverpy.metadata_parser</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.MAX_IMAGES_TO_SHOW"><code class="docutils literal notranslate"><span class="pre">MAX_IMAGES_TO_SHOW</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.NUM_CHANNELS_GRAY"><code class="docutils literal notranslate"><span class="pre">NUM_CHANNELS_GRAY</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.NUM_CHANNELS_RGBA"><code class="docutils literal notranslate"><span class="pre">NUM_CHANNELS_RGBA</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.NUM_DIMS_GRAY"><code class="docutils literal notranslate"><span class="pre">NUM_DIMS_GRAY</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer"><code class="docutils literal notranslate"><span class="pre">ImagesLayer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.steps"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.steps</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.step_metadata"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.step_metadata</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.images"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.images</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.max_images"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.max_images</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.output_path"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.output_path</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.filenames"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.filenames</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.add_step"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.add_step()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.remove_steps_by_name"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.remove_steps_by_name()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.remove_steps_by_order"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.remove_steps_by_order()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.get_last_step_order"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.get_last_step_order()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.get_step"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.get_step()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.show"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.show()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.save"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.save()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.__repr__"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.__repr__()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer._repr_html_"><code class="docutils literal notranslate"><span class="pre">ImagesLayer._repr_html_()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.__call__"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.__call__()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer._generate_html"><code class="docutils literal notranslate"><span class="pre">ImagesLayer._generate_html()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer._generate_single_image_html"><code class="docutils literal notranslate"><span class="pre">ImagesLayer._generate_single_image_html()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paidiverpy.images_layer.ImagesLayer.numpy_array_to_base64"><code class="docutils literal notranslate"><span class="pre">ImagesLayer.numpy_array_to_base64()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Tobias Ferreira
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024-09-03 14:12:44, Tobias Ferreira.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

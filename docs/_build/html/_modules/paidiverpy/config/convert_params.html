@@ -1,0 +1,497 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>paidiverpy.config.convert_params &#8212; paidiverpy 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-codeautolink.css?v=125d5c1c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=32502a18" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+
+    <script src="../../../_static/documentation_options.js?v=a1637f0b"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/paidiverpy/config/convert_params';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">paidiverpy 0.1.0 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../why.html">Why Paidiverpy?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../package_organisation.html">Package Organisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration_file.html">Configuration File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../images_metadata.html">Images Metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../example_data.html">Example Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gallery.html">Gallery</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/guide1/index.html">Guide 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/guide2/index.html">Guide 2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/guide3/index.html">Guide 3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/guide4/index.html">Guide 4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../performances.html">Performances</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Help &amp; Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing to paidiverpy</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../autoapi/paidiverpy/index.html">paidiverpy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/paidiverpy/color_layer/index.html">paidiverpy.color_layer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/paidiverpy/color_layer/color_layer/index.html">paidiverpy.color_layer.color_layer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/paidiverpy/config/index.html">paidiverpy.config</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/paidiverpy/config/color_params/index.html">paidiverpy.config.color_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/paidiverpy/config/config/index.html">paidiverpy.config.config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/paidiverpy/config/convert_params/index.html">paidiverpy.config.convert_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/paidiverpy/config/pipeline_params/index.html">paidiverpy.config.pipeline_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/paidiverpy/config/position_params/index.html">paidiverpy.config.position_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/paidiverpy/config/resample_params/index.html">paidiverpy.config.resample_params</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/paidiverpy/convert_layer/index.html">paidiverpy.convert_layer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/paidiverpy/convert_layer/convert_layer/index.html">paidiverpy.convert_layer.convert_layer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/paidiverpy/data/index.html">paidiverpy.data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/paidiverpy/exceptions/index.html">paidiverpy.exceptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/paidiverpy/images_layer/index.html">paidiverpy.images_layer</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/paidiverpy/metadata_parser/index.html">paidiverpy.metadata_parser</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/paidiverpy/metadata_parser/metadata_parser/index.html">paidiverpy.metadata_parser.metadata_parser</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/paidiverpy/open_layer/index.html">paidiverpy.open_layer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/paidiverpy/open_layer/open_layer/index.html">paidiverpy.open_layer.open_layer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/paidiverpy/paidiverpy/index.html">paidiverpy.paidiverpy</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/paidiverpy/pipeline/index.html">paidiverpy.pipeline</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/paidiverpy/pipeline/pipeline/index.html">paidiverpy.pipeline.pipeline</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/paidiverpy/position_layer/index.html">paidiverpy.position_layer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/paidiverpy/position_layer/position_layer/index.html">paidiverpy.position_layer.position_layer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/paidiverpy/resample_layer/index.html">paidiverpy.resample_layer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/paidiverpy/resample_layer/resample_layer/index.html">paidiverpy.resample_layer.resample_layer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/paidiverpy/utils/index.html">paidiverpy.utils</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for paidiverpy.config.convert_params</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Convert layer parameters dataclasses.</span>
+
+<span class="sd">This module contains the dataclasses for the parameters of the convert layer</span>
+<span class="sd">functions.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.utils</span> <span class="kn">import</span> <span class="n">DynamicConfig</span>
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="BitParams">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/convert_params/index.html#paidiverpy.config.convert_params.BitParams">[docs]</a>
+<span class="k">class</span> <span class="nc">BitParams</span><span class="p">(</span><span class="n">DynamicConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This class contains the parameters for the bit conversion.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="BitParams.output_bits">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/convert_params/index.html#paidiverpy.config.convert_params.BitParams.output_bits">[docs]</a>
+    <span class="n">output_bits</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span></div>
+</div>
+
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="ToParams">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/convert_params/index.html#paidiverpy.config.convert_params.ToParams">[docs]</a>
+<span class="k">class</span> <span class="nc">ToParams</span><span class="p">(</span><span class="n">DynamicConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This class contains the parameters for the channel conversion.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ToParams.to">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/convert_params/index.html#paidiverpy.config.convert_params.ToParams.to">[docs]</a>
+    <span class="n">to</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;uint8&quot;</span></div>
+
+<div class="viewcode-block" id="ToParams.channel_selector">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/convert_params/index.html#paidiverpy.config.convert_params.ToParams.channel_selector">[docs]</a>
+    <span class="n">channel_selector</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span></div>
+</div>
+
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="BayerPatternParams">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/convert_params/index.html#paidiverpy.config.convert_params.BayerPatternParams">[docs]</a>
+<span class="k">class</span> <span class="nc">BayerPatternParams</span><span class="p">(</span><span class="n">DynamicConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This class contains the parameters for the Bayer pattern conversion.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="BayerPatternParams.bayer_pattern">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/convert_params/index.html#paidiverpy.config.convert_params.BayerPatternParams.bayer_pattern">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bayer_pattern</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;BGGR&quot;</span></div>
+</div>
+
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="NormalizeParams">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/convert_params/index.html#paidiverpy.config.convert_params.NormalizeParams">[docs]</a>
+<span class="k">class</span> <span class="nc">NormalizeParams</span><span class="p">(</span><span class="n">DynamicConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This class contains the parameters for the image normalization.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="NormalizeParams.min">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/convert_params/index.html#paidiverpy.config.convert_params.NormalizeParams.min">[docs]</a>
+    <span class="nb">min</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="NormalizeParams.max">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/convert_params/index.html#paidiverpy.config.convert_params.NormalizeParams.max">[docs]</a>
+    <span class="nb">max</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span></div>
+</div>
+
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="ResizeParams">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/convert_params/index.html#paidiverpy.config.convert_params.ResizeParams">[docs]</a>
+<span class="k">class</span> <span class="nc">ResizeParams</span><span class="p">(</span><span class="n">DynamicConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This class contains the parameters for the image resizing.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ResizeParams.min">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/convert_params/index.html#paidiverpy.config.convert_params.ResizeParams.min">[docs]</a>
+    <span class="nb">min</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">256</span></div>
+
+<div class="viewcode-block" id="ResizeParams.max">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/convert_params/index.html#paidiverpy.config.convert_params.ResizeParams.max">[docs]</a>
+    <span class="nb">max</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">256</span></div>
+</div>
+
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="CropParams">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/convert_params/index.html#paidiverpy.config.convert_params.CropParams">[docs]</a>
+<span class="k">class</span> <span class="nc">CropParams</span><span class="p">(</span><span class="n">DynamicConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This class contains the parameters for the image cropping.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="CropParams.x">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/convert_params/index.html#paidiverpy.config.convert_params.CropParams.x">[docs]</a>
+    <span class="n">x</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CropParams.y">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/convert_params/index.html#paidiverpy.config.convert_params.CropParams.y">[docs]</a>
+    <span class="n">y</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CONVERT_LAYER_METHODS">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/convert_params/index.html#paidiverpy.config.convert_params.CONVERT_LAYER_METHODS">[docs]</a>
+<span class="n">CONVERT_LAYER_METHODS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;bits&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">BitParams</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;convert_bits&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">ToParams</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;channel_convert&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;bayer_pattern&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">BayerPatternParams</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;get_bayer_pattern&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;normalize&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">NormalizeParams</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;normalize_image&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;resize&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">ResizeParams</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;resize&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;crop&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">CropParams</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;crop_images&quot;</span><span class="p">},</span>
+<span class="p">}</span></div>
+
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Tobias Ferreira
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024-09-03 14:12:44, Tobias Ferreira.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
