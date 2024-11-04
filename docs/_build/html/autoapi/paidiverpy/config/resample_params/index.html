@@ -1,0 +1,340 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>paidiverpy.config.resample_params &mdash; paidiverpy 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="paidiverpy.convert_layer" href="../../convert_layer/index.html" />
+    <link rel="prev" title="paidiverpy.config.position_params" href="../position_params/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            paidiverpy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../../index.html">paidiverpy</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../../color_layer/index.html">paidiverpy.color_layer</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../index.html">paidiverpy.config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../convert_layer/index.html">paidiverpy.convert_layer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../data/index.html">paidiverpy.data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../exceptions/index.html">paidiverpy.exceptions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../images_layer/index.html">paidiverpy.images_layer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata_parser/index.html">paidiverpy.metadata_parser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../open_layer/index.html">paidiverpy.open_layer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../paidiverpy/index.html">paidiverpy.paidiverpy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../pipeline/index.html">paidiverpy.pipeline</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../position_layer/index.html">paidiverpy.position_layer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../resample_layer/index.html">paidiverpy.resample_layer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../utils/index.html">paidiverpy.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../index.html#classes">Classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../index.html#package-contents">Package Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../convert_layer-checkpoint/index.html">convert_layer-checkpoint</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">paidiverpy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">paidiverpy</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">paidiverpy.config</a></li>
+      <li class="breadcrumb-item active">paidiverpy.config.resample_params</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/autoapi/paidiverpy/config/resample_params/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-paidiverpy.config.resample_params">
+<span id="paidiverpy-config-resample-params"></span><h1>paidiverpy.config.resample_params<a class="headerlink" href="#module-paidiverpy.config.resample_params" title="Link to this heading"></a></h1>
+<p>Resample parameters dataclasses.</p>
+<p>This module contains the dataclasses for the parameters of the convert layer
+functions.</p>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paidiverpy.config.resample_params.RESAMPLE_LAYER_METHODS" title="paidiverpy.config.resample_params.RESAMPLE_LAYER_METHODS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RESAMPLE_LAYER_METHODS</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paidiverpy.config.resample_params.ResampleDatetimeParams" title="paidiverpy.config.resample_params.ResampleDatetimeParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResampleDatetimeParams</span></code></a></p></td>
+<td><p>This class contains the parameters for the datetime resampling.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paidiverpy.config.resample_params.ResampleDepthParams" title="paidiverpy.config.resample_params.ResampleDepthParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResampleDepthParams</span></code></a></p></td>
+<td><p>This class contains the parameters for the depth resampling.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paidiverpy.config.resample_params.ResampleAltitudeParams" title="paidiverpy.config.resample_params.ResampleAltitudeParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResampleAltitudeParams</span></code></a></p></td>
+<td><p>This class contains the parameters for the altitude resampling.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paidiverpy.config.resample_params.ResamplePitchRollParams" title="paidiverpy.config.resample_params.ResamplePitchRollParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResamplePitchRollParams</span></code></a></p></td>
+<td><p>This class contains the parameters for the pitch and roll res.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paidiverpy.config.resample_params.ResampleOverlappingParams" title="paidiverpy.config.resample_params.ResampleOverlappingParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResampleOverlappingParams</span></code></a></p></td>
+<td><p>This class contains the parameters for the overlapping resampling.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paidiverpy.config.resample_params.ResampleFixedParams" title="paidiverpy.config.resample_params.ResampleFixedParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResampleFixedParams</span></code></a></p></td>
+<td><p>This class contains the parameters for the fixed resampling.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paidiverpy.config.resample_params.ResamplePercentParams" title="paidiverpy.config.resample_params.ResamplePercentParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResamplePercentParams</span></code></a></p></td>
+<td><p>This class contains the parameters for the percent resampling.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#paidiverpy.config.resample_params.ResampleRegionParams" title="paidiverpy.config.resample_params.ResampleRegionParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResampleRegionParams</span></code></a></p></td>
+<td><p>This class contains the parameters for the region resampling.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paidiverpy.config.resample_params.ResampleObscureParams" title="paidiverpy.config.resample_params.ResampleObscureParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResampleObscureParams</span></code></a></p></td>
+<td><p>This class contains the parameters for the obscure resampling.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.ResampleDatetimeParams">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paidiverpy.config.resample_params.</span></span><span class="sig-name descname"><span class="pre">ResampleDatetimeParams</span></span><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#ResampleDatetimeParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.ResampleDatetimeParams" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../../utils/index.html#paidiverpy.utils.DynamicConfig" title="paidiverpy.utils.DynamicConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">paidiverpy.utils.DynamicConfig</span></code></a></p>
+<p>This class contains the parameters for the datetime resampling.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.ResampleDatetimeParams.min">
+<span class="sig-name descname"><span class="pre">min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#ResampleDatetimeParams.min"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.ResampleDatetimeParams.min" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.ResampleDatetimeParams.max">
+<span class="sig-name descname"><span class="pre">max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#ResampleDatetimeParams.max"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.ResampleDatetimeParams.max" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.ResampleDepthParams">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paidiverpy.config.resample_params.</span></span><span class="sig-name descname"><span class="pre">ResampleDepthParams</span></span><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#ResampleDepthParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.ResampleDepthParams" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../../utils/index.html#paidiverpy.utils.DynamicConfig" title="paidiverpy.utils.DynamicConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">paidiverpy.utils.DynamicConfig</span></code></a></p>
+<p>This class contains the parameters for the depth resampling.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.ResampleDepthParams.by">
+<span class="sig-name descname"><span class="pre">by</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'lower'</span></em><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#ResampleDepthParams.by"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.ResampleDepthParams.by" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.ResampleDepthParams.value">
+<span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#ResampleDepthParams.value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.ResampleDepthParams.value" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.ResampleAltitudeParams">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paidiverpy.config.resample_params.</span></span><span class="sig-name descname"><span class="pre">ResampleAltitudeParams</span></span><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#ResampleAltitudeParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.ResampleAltitudeParams" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../../utils/index.html#paidiverpy.utils.DynamicConfig" title="paidiverpy.utils.DynamicConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">paidiverpy.utils.DynamicConfig</span></code></a></p>
+<p>This class contains the parameters for the altitude resampling.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.ResampleAltitudeParams.value">
+<span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#ResampleAltitudeParams.value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.ResampleAltitudeParams.value" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.ResamplePitchRollParams">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paidiverpy.config.resample_params.</span></span><span class="sig-name descname"><span class="pre">ResamplePitchRollParams</span></span><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#ResamplePitchRollParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.ResamplePitchRollParams" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../../utils/index.html#paidiverpy.utils.DynamicConfig" title="paidiverpy.utils.DynamicConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">paidiverpy.utils.DynamicConfig</span></code></a></p>
+<p>This class contains the parameters for the pitch and roll res.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.ResamplePitchRollParams.pitch">
+<span class="sig-name descname"><span class="pre">pitch</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#ResamplePitchRollParams.pitch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.ResamplePitchRollParams.pitch" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.ResamplePitchRollParams.roll">
+<span class="sig-name descname"><span class="pre">roll</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#ResamplePitchRollParams.roll"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.ResamplePitchRollParams.roll" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.ResampleOverlappingParams">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paidiverpy.config.resample_params.</span></span><span class="sig-name descname"><span class="pre">ResampleOverlappingParams</span></span><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#ResampleOverlappingParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.ResampleOverlappingParams" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../../utils/index.html#paidiverpy.utils.DynamicConfig" title="paidiverpy.utils.DynamicConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">paidiverpy.utils.DynamicConfig</span></code></a></p>
+<p>This class contains the parameters for the overlapping resampling.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.ResampleOverlappingParams.omega">
+<span class="sig-name descname"><span class="pre">omega</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.5</span></em><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#ResampleOverlappingParams.omega"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.ResampleOverlappingParams.omega" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.ResampleOverlappingParams.theta">
+<span class="sig-name descname"><span class="pre">theta</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.5</span></em><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#ResampleOverlappingParams.theta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.ResampleOverlappingParams.theta" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.ResampleOverlappingParams.threshold">
+<span class="sig-name descname"><span class="pre">threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#ResampleOverlappingParams.threshold"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.ResampleOverlappingParams.threshold" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.ResampleOverlappingParams.camera_distance">
+<span class="sig-name descname"><span class="pre">camera_distance</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.12</span></em><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#ResampleOverlappingParams.camera_distance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.ResampleOverlappingParams.camera_distance" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.ResampleFixedParams">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paidiverpy.config.resample_params.</span></span><span class="sig-name descname"><span class="pre">ResampleFixedParams</span></span><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#ResampleFixedParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.ResampleFixedParams" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../../utils/index.html#paidiverpy.utils.DynamicConfig" title="paidiverpy.utils.DynamicConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">paidiverpy.utils.DynamicConfig</span></code></a></p>
+<p>This class contains the parameters for the fixed resampling.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.ResampleFixedParams.value">
+<span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#ResampleFixedParams.value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.ResampleFixedParams.value" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.ResamplePercentParams">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paidiverpy.config.resample_params.</span></span><span class="sig-name descname"><span class="pre">ResamplePercentParams</span></span><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#ResamplePercentParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.ResamplePercentParams" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../../utils/index.html#paidiverpy.utils.DynamicConfig" title="paidiverpy.utils.DynamicConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">paidiverpy.utils.DynamicConfig</span></code></a></p>
+<p>This class contains the parameters for the percent resampling.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.ResamplePercentParams.value">
+<span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.1</span></em><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#ResamplePercentParams.value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.ResamplePercentParams.value" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.ResampleRegionParams">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paidiverpy.config.resample_params.</span></span><span class="sig-name descname"><span class="pre">ResampleRegionParams</span></span><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#ResampleRegionParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.ResampleRegionParams" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../../utils/index.html#paidiverpy.utils.DynamicConfig" title="paidiverpy.utils.DynamicConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">paidiverpy.utils.DynamicConfig</span></code></a></p>
+<p>This class contains the parameters for the region resampling.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.ResampleRegionParams.file">
+<span class="sig-name descname"><span class="pre">file</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#ResampleRegionParams.file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.ResampleRegionParams.file" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.ResampleRegionParams.limits">
+<span class="sig-name descname"><span class="pre">limits</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#ResampleRegionParams.limits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.ResampleRegionParams.limits" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.ResampleObscureParams">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paidiverpy.config.resample_params.</span></span><span class="sig-name descname"><span class="pre">ResampleObscureParams</span></span><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#ResampleObscureParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.ResampleObscureParams" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../../utils/index.html#paidiverpy.utils.DynamicConfig" title="paidiverpy.utils.DynamicConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">paidiverpy.utils.DynamicConfig</span></code></a></p>
+<p>This class contains the parameters for the obscure resampling.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.ResampleObscureParams.min">
+<span class="sig-name descname"><span class="pre">min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#ResampleObscureParams.min"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.ResampleObscureParams.min" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.ResampleObscureParams.max">
+<span class="sig-name descname"><span class="pre">max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#ResampleObscureParams.max"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.ResampleObscureParams.max" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="paidiverpy.config.resample_params.RESAMPLE_LAYER_METHODS">
+<span class="sig-prename descclassname"><span class="pre">paidiverpy.config.resample_params.</span></span><span class="sig-name descname"><span class="pre">RESAMPLE_LAYER_METHODS</span></span><a class="reference internal" href="../../../../_modules/paidiverpy/config/resample_params.html#RESAMPLE_LAYER_METHODS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.config.resample_params.RESAMPLE_LAYER_METHODS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../position_params/index.html" class="btn btn-neutral float-left" title="paidiverpy.config.position_params" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../convert_layer/index.html" class="btn btn-neutral float-right" title="paidiverpy.convert_layer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024-09-03 14:12:44, Tobias Ferreira.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

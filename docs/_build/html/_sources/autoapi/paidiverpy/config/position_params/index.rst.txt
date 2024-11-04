@@ -1,0 +1,49 @@
+paidiverpy.config.position_params
+=================================
+
+.. py:module:: paidiverpy.config.position_params
+
+.. autoapi-nested-parse::
+
+   Position layer parameters.
+
+   This module contains the dataclasses for the parameters of the convert layer
+   functions.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   paidiverpy.config.position_params.POSITION_LAYER_METHODS
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   paidiverpy.config.position_params.ReprojectParams
+
+
+Module Contents
+---------------
+
+.. py:class:: ReprojectParams
+
+   Bases: :py:obj:`paidiverpy.utils.DynamicConfig`
+
+
+   This class contains the parameters for the bit conversion.
+
+
+   .. py:attribute:: placeholder
+      :type:  str
+      :value: 'placeholder'
+
+
+
+.. py:data:: POSITION_LAYER_METHODS
+

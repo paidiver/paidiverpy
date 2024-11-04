@@ -1,0 +1,468 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>paidiverpy.resample_layer.resample_layer &mdash; paidiverpy 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="paidiverpy.utils" href="../../utils/index.html" />
+    <link rel="prev" title="paidiverpy.resample_layer" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            paidiverpy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../../index.html">paidiverpy</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../../color_layer/index.html">paidiverpy.color_layer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../config/index.html">paidiverpy.config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../convert_layer/index.html">paidiverpy.convert_layer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../data/index.html">paidiverpy.data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../exceptions/index.html">paidiverpy.exceptions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../images_layer/index.html">paidiverpy.images_layer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata_parser/index.html">paidiverpy.metadata_parser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../open_layer/index.html">paidiverpy.open_layer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../paidiverpy/index.html">paidiverpy.paidiverpy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../pipeline/index.html">paidiverpy.pipeline</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../position_layer/index.html">paidiverpy.position_layer</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../index.html">paidiverpy.resample_layer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../utils/index.html">paidiverpy.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../index.html#classes">Classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../index.html#package-contents">Package Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../convert_layer-checkpoint/index.html">convert_layer-checkpoint</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">paidiverpy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">paidiverpy</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">paidiverpy.resample_layer</a></li>
+      <li class="breadcrumb-item active">paidiverpy.resample_layer.resample_layer</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/autoapi/paidiverpy/resample_layer/resample_layer/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-paidiverpy.resample_layer.resample_layer">
+<span id="paidiverpy-resample-layer-resample-layer"></span><h1>paidiverpy.resample_layer.resample_layer<a class="headerlink" href="#module-paidiverpy.resample_layer.resample_layer" title="Link to this heading"></a></h1>
+<p>ResampleLayer class.</p>
+<p>Resample the images based on the configuration file.</p>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#paidiverpy.resample_layer.resample_layer.ResampleLayer" title="paidiverpy.resample_layer.resample_layer.ResampleLayer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResampleLayer</span></code></a></p></td>
+<td><p>Process the images in the resample layer.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="paidiverpy.resample_layer.resample_layer.ResampleLayer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paidiverpy.resample_layer.resample_layer.</span></span><span class="sig-name descname"><span class="pre">ResampleLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../metadata_parser/index.html#paidiverpy.metadata_parser.MetadataParser" title="paidiverpy.metadata_parser.MetadataParser"><span class="pre">paidiverpy.metadata_parser.MetadataParser</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/config/index.html#paidiverpy.config.config.Configuration" title="paidiverpy.config.config.Configuration"><span class="pre">paidiverpy.config.config.Configuration</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.13)"><span class="pre">logging.Logger</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">images</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../images_layer/index.html#paidiverpy.images_layer.ImagesLayer" title="paidiverpy.images_layer.ImagesLayer"><span class="pre">paidiverpy.images_layer.ImagesLayer</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paidiverpy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../index.html#paidiverpy.Paidiverpy" title="paidiverpy.Paidiverpy"><span class="pre">paidiverpy.Paidiverpy</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_changes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/paidiverpy/resample_layer/resample_layer.html#ResampleLayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.resample_layer.resample_layer.ResampleLayer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../../index.html#paidiverpy.Paidiverpy" title="paidiverpy.Paidiverpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">paidiverpy.Paidiverpy</span></code></a></p>
+<p>Process the images in the resample layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_file_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The path to the configuration file.</p></li>
+<li><p><strong>input_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The path to the input files.</p></li>
+<li><p><strong>output_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The path to the output files.</p></li>
+<li><p><strong>metadata_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The path to the metadata file.</p></li>
+<li><p><strong>metadata_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The type of the metadata file.</p></li>
+<li><p><strong>metadata</strong> (<a class="reference internal" href="../../metadata_parser/index.html#paidiverpy.metadata_parser.MetadataParser" title="paidiverpy.metadata_parser.MetadataParser"><em>MetadataParser</em></a>) – The metadata object.</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="../../config/config/index.html#paidiverpy.config.config.Configuration" title="paidiverpy.config.config.Configuration"><em>Configuration</em></a>) – The configuration object.</p></li>
+<li><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.13)"><em>logging.Logger</em></a>) – The logger object.</p></li>
+<li><p><strong>images</strong> (<a class="reference internal" href="../../images_layer/index.html#paidiverpy.images_layer.ImagesLayer" title="paidiverpy.images_layer.ImagesLayer"><em>ImagesLayer</em></a>) – The images object.</p></li>
+<li><p><strong>paidiverpy</strong> (<a class="reference internal" href="../../index.html#paidiverpy.Paidiverpy" title="paidiverpy.Paidiverpy"><em>Paidiverpy</em></a>) – The paidiverpy object.</p></li>
+<li><p><strong>step_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The name of the step.</p></li>
+<li><p><strong>parameters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – The parameters for the step.</p></li>
+<li><p><strong>config_index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The index of the configuration.</p></li>
+<li><p><strong>raise_error</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether to raise an error.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – verbose level (0 = none, 1 = errors/warnings, 2 = info).</p></li>
+<li><p><strong>track_changes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether to track the changes. Defaults to True.</p></li>
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The number of jobs to run in parallel.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.resample_layer.resample_layer.ResampleLayer.config_index">
+<span class="sig-name descname"><span class="pre">config_index</span></span><a class="reference internal" href="../../../../_modules/paidiverpy/resample_layer/resample_layer.html#ResampleLayer.config_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.resample_layer.resample_layer.ResampleLayer.config_index" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.resample_layer.resample_layer.ResampleLayer.step_name">
+<span class="sig-name descname"><span class="pre">step_name</span></span><a class="reference internal" href="../../../../_modules/paidiverpy/resample_layer/resample_layer.html#ResampleLayer.step_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.resample_layer.resample_layer.ResampleLayer.step_name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.resample_layer.resample_layer.ResampleLayer.step_order">
+<span class="sig-name descname"><span class="pre">step_order</span></span><a class="reference internal" href="../../../../_modules/paidiverpy/resample_layer/resample_layer.html#ResampleLayer.step_order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.resample_layer.resample_layer.ResampleLayer.step_order" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="paidiverpy.resample_layer.resample_layer.ResampleLayer.step_metadata">
+<span class="sig-name descname"><span class="pre">step_metadata</span></span><a class="reference internal" href="../../../../_modules/paidiverpy/resample_layer/resample_layer.html#ResampleLayer.step_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.resample_layer.resample_layer.ResampleLayer.step_metadata" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paidiverpy.resample_layer.resample_layer.ResampleLayer.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/paidiverpy/resample_layer/resample_layer.html#ResampleLayer.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.resample_layer.resample_layer.ResampleLayer.run" title="Link to this definition"></a></dt>
+<dd><p>Run the resample layer steps on the images based on the configuration.</p>
+<p>Run the resample layer steps on the images based on the configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.13)"><strong>ValueError</strong></a> – The mode is not defined in the configuration file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paidiverpy.resample_layer.resample_layer.ResampleLayer._by_percent">
+<span class="sig-name descname"><span class="pre">_by_percent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/resample_params/index.html#paidiverpy.config.resample_params.ResamplePercentParams" title="paidiverpy.config.resample_params.ResamplePercentParams"><span class="pre">paidiverpy.config.resample_params.ResamplePercentParams</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paidiverpy/resample_layer/resample_layer.html#ResampleLayer._by_percent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.resample_layer.resample_layer.ResampleLayer._by_percent" title="Link to this definition"></a></dt>
+<dd><p>Resample the metadata by a percentage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>step_order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – The order of the step. Defaults to None.</p></li>
+<li><p><strong>test</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to test the step. Defaults to False.</p></li>
+<li><p><strong>params</strong> (<a class="reference internal" href="../../config/resample_params/index.html#paidiverpy.config.resample_params.ResamplePercentParams" title="paidiverpy.config.resample_params.ResamplePercentParams"><em>ResamplePercentParams</em></a><em>, </em><em>optional</em>) – The parameters for the resample.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Defaults to ResamplePercentParams().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Metadata with the photos to be removed flagged.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paidiverpy.resample_layer.resample_layer.ResampleLayer._by_fixed_number">
+<span class="sig-name descname"><span class="pre">_by_fixed_number</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/resample_params/index.html#paidiverpy.config.resample_params.ResampleFixedParams" title="paidiverpy.config.resample_params.ResampleFixedParams"><span class="pre">paidiverpy.config.resample_params.ResampleFixedParams</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paidiverpy/resample_layer/resample_layer.html#ResampleLayer._by_fixed_number"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.resample_layer.resample_layer.ResampleLayer._by_fixed_number" title="Link to this definition"></a></dt>
+<dd><p>Resample the metadata by a fixed number of photos.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>step_order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – The order of the step. Defaults to None.</p></li>
+<li><p><strong>test</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to test the step. Defaults to False.</p></li>
+<li><p><strong>params</strong> (<a class="reference internal" href="../../config/resample_params/index.html#paidiverpy.config.resample_params.ResampleFixedParams" title="paidiverpy.config.resample_params.ResampleFixedParams"><em>ResampleFixedParams</em></a><em>, </em><em>optional</em>) – The parameters for the resample.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Defaults to ResampleFixedParams().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Metadata with the photos to be removed flagged.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paidiverpy.resample_layer.resample_layer.ResampleLayer._by_datetime">
+<span class="sig-name descname"><span class="pre">_by_datetime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/resample_params/index.html#paidiverpy.config.resample_params.ResampleDatetimeParams" title="paidiverpy.config.resample_params.ResampleDatetimeParams"><span class="pre">paidiverpy.config.resample_params.ResampleDatetimeParams</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paidiverpy/resample_layer/resample_layer.html#ResampleLayer._by_datetime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.resample_layer.resample_layer.ResampleLayer._by_datetime" title="Link to this definition"></a></dt>
+<dd><p>Resample the metadata by datetime.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>step_order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – The order of the step. Defaults to None.</p></li>
+<li><p><strong>test</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to test the step. Defaults to False.</p></li>
+<li><p><strong>params</strong> (<a class="reference internal" href="../../config/resample_params/index.html#paidiverpy.config.resample_params.ResampleDatetimeParams" title="paidiverpy.config.resample_params.ResampleDatetimeParams"><em>ResampleDatetimeParams</em></a><em>, </em><em>optional</em>) – The parameters for the resample.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Defaults to ResampleDatetimeParams().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.13)"><strong>ValueError</strong></a> – Start date cannot be greater than end date.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Metadata with the photos to be removed flagged.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paidiverpy.resample_layer.resample_layer.ResampleLayer._by_depth">
+<span class="sig-name descname"><span class="pre">_by_depth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/resample_params/index.html#paidiverpy.config.resample_params.ResampleDepthParams" title="paidiverpy.config.resample_params.ResampleDepthParams"><span class="pre">paidiverpy.config.resample_params.ResampleDepthParams</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paidiverpy/resample_layer/resample_layer.html#ResampleLayer._by_depth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.resample_layer.resample_layer.ResampleLayer._by_depth" title="Link to this definition"></a></dt>
+<dd><p>Resample the metadata by depth.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>step_order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – The order of the step. Defaults to None.</p></li>
+<li><p><strong>test</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to test the step. Defaults to False.</p></li>
+<li><p><strong>params</strong> (<a class="reference internal" href="../../config/resample_params/index.html#paidiverpy.config.resample_params.ResampleDepthParams" title="paidiverpy.config.resample_params.ResampleDepthParams"><em>ResampleDepthParams</em></a><em>, </em><em>optional</em>) – The parameters for the resample.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Defaults to ResampleDepthParams().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Metadata with the photos to be removed flagged.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paidiverpy.resample_layer.resample_layer.ResampleLayer._by_altitude">
+<span class="sig-name descname"><span class="pre">_by_altitude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/resample_params/index.html#paidiverpy.config.resample_params.ResampleAltitudeParams" title="paidiverpy.config.resample_params.ResampleAltitudeParams"><span class="pre">paidiverpy.config.resample_params.ResampleAltitudeParams</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paidiverpy/resample_layer/resample_layer.html#ResampleLayer._by_altitude"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.resample_layer.resample_layer.ResampleLayer._by_altitude" title="Link to this definition"></a></dt>
+<dd><p>Resample the metadata by altitude.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>step_order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – The order of the step. Defaults to None.</p></li>
+<li><p><strong>test</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to test the step. Defaults to False.</p></li>
+<li><p><strong>params</strong> (<a class="reference internal" href="../../config/resample_params/index.html#paidiverpy.config.resample_params.ResampleAltitudeParams" title="paidiverpy.config.resample_params.ResampleAltitudeParams"><em>ResampleAltitudeParams</em></a><em>, </em><em>optional</em>) – The parameters for the resample.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Defaults to ResampleAltitudeParams().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Metadata with the photos to be removed flagged.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paidiverpy.resample_layer.resample_layer.ResampleLayer._by_pitch_roll">
+<span class="sig-name descname"><span class="pre">_by_pitch_roll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/resample_params/index.html#paidiverpy.config.resample_params.ResamplePitchRollParams" title="paidiverpy.config.resample_params.ResamplePitchRollParams"><span class="pre">paidiverpy.config.resample_params.ResamplePitchRollParams</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paidiverpy/resample_layer/resample_layer.html#ResampleLayer._by_pitch_roll"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.resample_layer.resample_layer.ResampleLayer._by_pitch_roll" title="Link to this definition"></a></dt>
+<dd><p>Resample the metadata by pitch and roll.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>step_order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – The order of the step. Defaults to None.</p></li>
+<li><p><strong>test</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to test the step. Defaults to False.</p></li>
+<li><p><strong>params</strong> (<a class="reference internal" href="../../config/resample_params/index.html#paidiverpy.config.resample_params.ResamplePitchRollParams" title="paidiverpy.config.resample_params.ResamplePitchRollParams"><em>ResamplePitchRollParams</em></a><em>, </em><em>optional</em>) – The parameters for the resample.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Defaults to ResamplePitchRollParams().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Metadata with the photos to be removed flagged.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paidiverpy.resample_layer.resample_layer.ResampleLayer._by_region">
+<span class="sig-name descname"><span class="pre">_by_region</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/resample_params/index.html#paidiverpy.config.resample_params.ResampleRegionParams" title="paidiverpy.config.resample_params.ResampleRegionParams"><span class="pre">paidiverpy.config.resample_params.ResampleRegionParams</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paidiverpy/resample_layer/resample_layer.html#ResampleLayer._by_region"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.resample_layer.resample_layer.ResampleLayer._by_region" title="Link to this definition"></a></dt>
+<dd><p>Resample the metadata by region.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>step_order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – The order of the step. Defaults to None.</p></li>
+<li><p><strong>test</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to test the step. Defaults to False.</p></li>
+<li><p><strong>params</strong> (<a class="reference internal" href="../../config/resample_params/index.html#paidiverpy.config.resample_params.ResampleRegionParams" title="paidiverpy.config.resample_params.ResampleRegionParams"><em>ResampleRegionParams</em></a><em>, </em><em>optional</em>) – The parameters for the resample.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Defaults to ResampleRegionParams().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_description_</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paidiverpy.resample_layer.resample_layer.ResampleLayer._by_obscure_photos">
+<span class="sig-name descname"><span class="pre">_by_obscure_photos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/resample_params/index.html#paidiverpy.config.resample_params.ResampleObscureParams" title="paidiverpy.config.resample_params.ResampleObscureParams"><span class="pre">paidiverpy.config.resample_params.ResampleObscureParams</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paidiverpy/resample_layer/resample_layer.html#ResampleLayer._by_obscure_photos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.resample_layer.resample_layer.ResampleLayer._by_obscure_photos" title="Link to this definition"></a></dt>
+<dd><p>Resample the metadata by obscure photos.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>step_order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – The order of the step. Defaults to None.</p></li>
+<li><p><strong>test</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to test the step. Defaults to False.</p></li>
+<li><p><strong>params</strong> (<a class="reference internal" href="../../config/resample_params/index.html#paidiverpy.config.resample_params.ResampleObscureParams" title="paidiverpy.config.resample_params.ResampleObscureParams"><em>ResampleObscureParams</em></a><em>, </em><em>optional</em>) – The parameters for the resample.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Defaults to ResampleObscureParams().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Metadata with the photos to be removed flagged.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paidiverpy.resample_layer.resample_layer.ResampleLayer._by_overlapping">
+<span class="sig-name descname"><span class="pre">_by_overlapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../config/resample_params/index.html#paidiverpy.config.resample_params.ResampleOverlappingParams" title="paidiverpy.config.resample_params.ResampleOverlappingParams"><span class="pre">paidiverpy.config.resample_params.ResampleOverlappingParams</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/paidiverpy/resample_layer/resample_layer.html#ResampleLayer._by_overlapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.resample_layer.resample_layer.ResampleLayer._by_overlapping" title="Link to this definition"></a></dt>
+<dd><p>Resample the metadata by overlapping photos.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>step_order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – The order of the step. Defaults to None.</p></li>
+<li><p><strong>test</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to test the step. Defaults to False.</p></li>
+<li><p><strong>params</strong> (<a class="reference internal" href="../../config/resample_params/index.html#paidiverpy.config.resample_params.ResampleOverlappingParams" title="paidiverpy.config.resample_params.ResampleOverlappingParams"><em>ResampleOverlappingParams</em></a><em>, </em><em>optional</em>) – The parameters for the resample.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Defaults to ResampleOverlappingParams().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Metadata with the photos to be removed flagged.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paidiverpy.resample_layer.resample_layer.ResampleLayer.plot_polygons">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">plot_polygons</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/paidiverpy/resample_layer/resample_layer.html#ResampleLayer.plot_polygons"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.resample_layer.resample_layer.ResampleLayer.plot_polygons" title="Link to this definition"></a></dt>
+<dd><p>Plot the polygons.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>metadata</strong> (<em>pd.DataFrame</em>) – The metadata with the polygons.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paidiverpy.resample_layer.resample_layer.ResampleLayer.calculate_corner">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calculate_corner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">heading_deg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">headingoffset_rad</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cornerdist_m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a></span></span><a class="reference internal" href="../../../../_modules/paidiverpy/resample_layer/resample_layer.html#ResampleLayer.calculate_corner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#paidiverpy.resample_layer.resample_layer.ResampleLayer.calculate_corner" title="Link to this definition"></a></dt>
+<dd><p>Calculate the corner coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lat</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The latitude.</p></li>
+<li><p><strong>lon</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The longitude.</p></li>
+<li><p><strong>heading_deg</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The heading in degrees.</p></li>
+<li><p><strong>headingoffset_rad</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The heading offset in radians.</p></li>
+<li><p><strong>cornerdist_m</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The corner distance in meters.</p></li>
+<li><p><strong>angle_offset</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The angle offset.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The corner coordinates.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="paidiverpy.resample_layer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../utils/index.html" class="btn btn-neutral float-right" title="paidiverpy.utils" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024-09-03 14:12:44, Tobias Ferreira.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

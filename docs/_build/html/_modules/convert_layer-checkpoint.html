@@ -1,0 +1,409 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>convert_layer-checkpoint &mdash; paidiverpy 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            paidiverpy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">paidiverpy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">convert_layer-checkpoint</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for convert_layer-checkpoint</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot; Open raw image file</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="kn">import</span> <span class="nn">dask</span>
+<span class="kn">from</span> <span class="nn">dask</span> <span class="kn">import</span> <span class="n">delayed</span><span class="p">,</span> <span class="n">compute</span>
+<span class="kn">from</span> <span class="nn">dask.diagnostics</span> <span class="kn">import</span> <span class="n">ProgressBar</span>
+<span class="kn">import</span> <span class="nn">dask.array</span> <span class="k">as</span> <span class="nn">da</span>
+<span class="kn">from</span> <span class="nn">paidiverpy</span> <span class="kn">import</span> <span class="n">Paidiverpy</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.config.convert_params</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CONVERT_LAYER_METHODS</span><span class="p">,</span>
+    <span class="n">BitParams</span><span class="p">,</span>
+    <span class="n">ToParams</span><span class="p">,</span>
+    <span class="n">BayerPatternParams</span><span class="p">,</span>
+    <span class="n">NormalizeParams</span><span class="p">,</span>
+    <span class="n">ResizeParams</span><span class="p">,</span>
+    <span class="n">CropParams</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="ConvertLayer">
+<a class="viewcode-back" href="../autoapi/convert_layer-checkpoint/index.html#convert_layer-checkpoint.ConvertLayer">[docs]</a>
+<span class="k">class</span> <span class="nc">ConvertLayer</span><span class="p">(</span><span class="n">Paidiverpy</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">config_file_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">input_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">catalog_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">catalog_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">catalog</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">images</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">paidiverpy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">step_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">config_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">raise_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">config_file_path</span><span class="o">=</span><span class="n">config_file_path</span><span class="p">,</span>
+            <span class="n">input_path</span><span class="o">=</span><span class="n">input_path</span><span class="p">,</span>
+            <span class="n">output_path</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span>
+            <span class="n">catalog_path</span><span class="o">=</span><span class="n">catalog_path</span><span class="p">,</span>
+            <span class="n">catalog_type</span><span class="o">=</span><span class="n">catalog_type</span><span class="p">,</span>
+            <span class="n">catalog</span><span class="o">=</span><span class="n">catalog</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+            <span class="n">images</span><span class="o">=</span><span class="n">images</span><span class="p">,</span>
+            <span class="n">paidiverpy</span><span class="o">=</span><span class="n">paidiverpy</span><span class="p">,</span>
+            <span class="n">raise_error</span><span class="o">=</span><span class="n">raise_error</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="ConvertLayer.step_name">
+<a class="viewcode-back" href="../autoapi/convert_layer-checkpoint/index.html#convert_layer-checkpoint.ConvertLayer.step_name">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_name</span> <span class="o">=</span> <span class="n">step_name</span></div>
+
+        <span class="k">if</span> <span class="n">parameters</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">config_index</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+<div class="viewcode-block" id="ConvertLayer.step_metadata">
+<a class="viewcode-back" href="../autoapi/convert_layer-checkpoint/index.html#convert_layer-checkpoint.ConvertLayer.step_metadata">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_steps_metadata</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">config_index</span><span class="p">]</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ConvertLayer.run">
+<a class="viewcode-back" href="../autoapi/convert_layer-checkpoint/index.html#convert_layer-checkpoint.ConvertLayer.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">add_new_step</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mode&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mode</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The mode is not defined in the configuration file.&quot;</span><span class="p">)</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">method</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_method_by_mode</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">CONVERT_LAYER_METHODS</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">get_step</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">images</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">by_order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">image_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_sequentially</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">image_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_parallel</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">test</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">step_name</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;convert_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">config_index</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_name</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_name</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">add_new_step</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
+                    <span class="n">step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span>
+                    <span class="n">images</span><span class="o">=</span><span class="n">image_list</span><span class="p">,</span>
+                    <span class="n">step_metadata</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">,</span>
+                    <span class="n">catalog</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_catalog</span><span class="p">(),</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">image_list</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span></div>
+
+
+<div class="viewcode-block" id="ConvertLayer.process_sequentially">
+<a class="viewcode-back" href="../autoapi/convert_layer-checkpoint/index.html#convert_layer-checkpoint.ConvertLayer.process_sequentially">[docs]</a>
+    <span class="k">def</span> <span class="nf">process_sequentially</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">mask</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">method</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span> <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">data</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">mask</span><span class="p">[:,</span> <span class="p">:,:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">image_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">MaskedArray</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">image_list</span></div>
+
+
+<div class="viewcode-block" id="ConvertLayer.process_parallel">
+<a class="viewcode-back" href="../autoapi/convert_layer-checkpoint/index.html#convert_layer-checkpoint.ConvertLayer.process_parallel">[docs]</a>
+    <span class="k">def</span> <span class="nf">process_parallel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="c1"># mask = images.mask</span>
+        <span class="c1"># data = images.data</span>
+        <span class="c1"># def apply_function_wrapper(chunk: np.ndarray) -&gt; np.ndarray:</span>
+        <span class="c1">#     return np.array([method(image, params) for image in chunk])</span>
+        <span class="c1"># self.logger.info(&quot;Processing images using %s cores&quot;, self.n_jobs)</span>
+        <span class="c1"># if method.__name__ in [&quot;normalize_image&quot;, &quot;resize&quot;, &quot;crop_images&quot;]:</span>
+        <span class="c1">#     images_task = [dask.delayed(method)(image) for image in data]</span>
+        <span class="c1">#     image_list = dask.compute(*images_task)</span>
+        <span class="c1">#     data = da.from_array(np.stack(image_list))</span>
+        <span class="c1"># else:</span>
+        <span class="c1">#     data = data.map_blocks(apply_function_wrapper, dtype=data.dtype)</span>
+        <span class="c1"># if len(data.shape) == 3:</span>
+        <span class="c1">#     data = np.expand_dims(data, axis=-1)</span>
+        <span class="c1"># if data.shape[-1] == 1 and mask.shape[-1] == 3:</span>
+        <span class="c1">#     mask = np.expand_dims(mask[:, :,:, 0], axis=-1)</span>
+        <span class="c1"># image_list = da.ma.masked_array(data, mask=mask)</span>
+        <span class="c1"># return image_list</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">getmaskarray</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">dask</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">getdata</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
+
+        <span class="nd">@delayed</span>
+        <span class="k">def</span> <span class="nf">apply_function_wrapper</span><span class="p">(</span><span class="n">chunk</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">method</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">chunk</span><span class="p">])</span>
+
+        <span class="n">delayed_image_chunks</span> <span class="o">=</span> <span class="p">[</span><span class="n">apply_function_wrapper</span><span class="p">(</span><span class="n">chunk</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">to_delayed</span><span class="p">()]</span>
+        <span class="n">delayed_images</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">from_delayed</span><span class="p">(</span><span class="n">delayed_image_chunks</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">processed_chunks</span> <span class="o">=</span> <span class="n">delayed_images</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+
+        <span class="c1"># # delayed_image_chunks = [apply_function_wrapper(chunk) for chunk in data.to_delayed()]</span>
+        <span class="c1"># with dask.config.set(scheduler=&#39;threads&#39;, num_workers=self.n_jobs):</span>
+        <span class="c1">#     self.logger.info(&quot;Processing images using %s cores&quot;, self.n_jobs)</span>
+        <span class="c1">#     with ProgressBar():</span>
+        <span class="c1">#         processed_chunks1 = compute(*delayed_image_chunks)</span>
+        <span class="c1">#         processed_chunks = compute(*processed_chunks1)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="n">processed_chunks</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">processed_chunks</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">processed_chunks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">processed_data</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">processed_chunks</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">processed_data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">processed_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">processed_data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">processed_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">mask</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">image_list</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">(</span><span class="n">processed_data</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">image_list</span></div>
+
+
+<div class="viewcode-block" id="ConvertLayer.convert_bits">
+<a class="viewcode-back" href="../autoapi/convert_layer-checkpoint/index.html#convert_layer-checkpoint.ConvertLayer.convert_bits">[docs]</a>
+    <span class="k">def</span> <span class="nf">convert_bits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_data</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">BitParams</span> <span class="o">=</span> <span class="n">BitParams</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">output_bits</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span>
+            <span class="n">image_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">(</span><span class="n">image_data</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">params</span><span class="o">.</span><span class="n">output_bits</span> <span class="o">==</span> <span class="mi">16</span><span class="p">:</span>
+            <span class="n">image_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">(</span><span class="n">image_data</span> <span class="o">*</span> <span class="mi">65535</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">params</span><span class="o">.</span><span class="n">output_bits</span> <span class="o">==</span> <span class="mi">32</span><span class="p">:</span>
+            <span class="n">image_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">image_data</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Unsupported output bits: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">output_bits</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported output bits: </span><span class="si">{</span><span class="n">params</span><span class="o">.</span><span class="n">output_bits</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">image_data</span></div>
+
+
+<div class="viewcode-block" id="ConvertLayer.channel_convert">
+<a class="viewcode-back" href="../autoapi/convert_layer-checkpoint/index.html#convert_layer-checkpoint.ConvertLayer.channel_convert">[docs]</a>
+    <span class="k">def</span> <span class="nf">channel_convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_data</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ToParams</span> <span class="o">=</span> <span class="n">ToParams</span><span class="p">()):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">to</span> <span class="o">==</span> <span class="s2">&quot;RGB&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">image_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">image_data</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_GRAY2RGB</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The image is already in RGB format.&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">params</span><span class="o">.</span><span class="n">to</span> <span class="o">==</span> <span class="s2">&quot;gray&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">image_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The image is already in grayscale.&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">channel_selector</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]:</span>
+                    <span class="n">image_data</span> <span class="o">=</span> <span class="n">image_data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">params</span><span class="o">.</span><span class="n">channel_selector</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">image_data</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to convert the image to </span><span class="si">{</span><span class="n">params</span><span class="o">.</span><span class="n">to</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Failed to convert the image to </span><span class="si">{</span><span class="n">params</span><span class="o">.</span><span class="n">to</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+        <span class="k">return</span> <span class="n">image_data</span></div>
+
+
+<div class="viewcode-block" id="ConvertLayer.get_bayer_pattern">
+<a class="viewcode-back" href="../autoapi/convert_layer-checkpoint/index.html#convert_layer-checkpoint.ConvertLayer.get_bayer_pattern">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_bayer_pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_data</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">BayerPatternParams</span> <span class="o">=</span> <span class="n">BayerPatternParams</span><span class="p">()):</span>
+        <span class="c1"># Determine the number of channels in the input image</span>
+        <span class="k">if</span> <span class="n">image_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Invalid Bayer pattern for a single-channel image: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">params</span><span class="o">.</span><span class="n">bayer_pattern</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Invalid Bayer pattern for a single-channel image. Expected &#39;RG&#39;, &#39;BG&#39;, &#39;GR&#39;, or &#39;GB&#39;.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">image_data</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">bayer_pattern</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;RG&quot;</span><span class="p">:</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BAYER_RG2RGB</span><span class="p">,</span>
+                <span class="s2">&quot;BG&quot;</span><span class="p">:</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BAYER_BG2RGB</span><span class="p">,</span>
+                <span class="s2">&quot;GR&quot;</span><span class="p">:</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BAYER_GR2RGB</span><span class="p">,</span>
+                <span class="s2">&quot;GB&quot;</span><span class="p">:</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BAYER_GB2RGB</span>
+            <span class="p">}[</span><span class="n">params</span><span class="o">.</span><span class="n">bayer_pattern</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Invalid Bayer pattern for a single-channel image: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">params</span><span class="o">.</span><span class="n">bayer_pattern</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">exc</span>
+
+            <span class="k">return</span> <span class="n">image_data</span>
+        <span class="n">image_data</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">bayer_pattern</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">image_data</span></div>
+
+
+<div class="viewcode-block" id="ConvertLayer.normalize_image">
+<a class="viewcode-back" href="../autoapi/convert_layer-checkpoint/index.html#convert_layer-checkpoint.ConvertLayer.normalize_image">[docs]</a>
+    <span class="k">def</span> <span class="nf">normalize_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_data</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">NormalizeParams</span> <span class="o">=</span> <span class="n">NormalizeParams</span><span class="p">()):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv2</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span>
+                <span class="n">image_data</span><span class="p">,</span> <span class="n">image_data</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">min</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">max</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">NORM_MINMAX</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">CV_32F</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to normalize the image: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to normalize the image: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+        <span class="k">return</span> <span class="n">image_data</span></div>
+
+
+    <span class="c1"># if params.autoscale:</span>
+        <span class="c1">#     try:</span>
+        <span class="c1">#         min_val = np.min(image_data, axis=(0, 1), keepdims=True)</span>
+        <span class="c1">#         max_val = np.max(image_data, axis=(0, 1), keepdims=True)</span>
+        <span class="c1">#         image_data = (image_data - min_val) / (max_val - min_val)</span>
+        <span class="c1">#     except Exception as e:</span>
+        <span class="c1">#         self.logger.error(&quot;Failed to autoscale the image: %s&quot;, e)</span>
+        <span class="c1">#         if self.raise_error:</span>
+        <span class="c1">#             raise ValueError(f&quot;Failed to autoscale the image: {str(e)}&quot;) from e</span>
+        <span class="c1">#     return image_data</span>
+
+<div class="viewcode-block" id="ConvertLayer.resize">
+<a class="viewcode-back" href="../autoapi/convert_layer-checkpoint/index.html#convert_layer-checkpoint.ConvertLayer.resize">[docs]</a>
+    <span class="k">def</span> <span class="nf">resize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_data</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ResizeParams</span> <span class="o">=</span> <span class="n">ResizeParams</span><span class="p">()):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span>
+                <span class="n">image_data</span><span class="p">,</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">min</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">max</span><span class="p">),</span> <span class="n">interpolation</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">INTER_LANCZOS4</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to resize the image: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to resize the image: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+        <span class="k">return</span> <span class="n">image_data</span></div>
+
+
+<div class="viewcode-block" id="ConvertLayer.crop_images">
+<a class="viewcode-back" href="../autoapi/convert_layer-checkpoint/index.html#convert_layer-checkpoint.ConvertLayer.crop_images">[docs]</a>
+    <span class="k">def</span> <span class="nf">crop_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_data</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">CropParams</span> <span class="o">=</span> <span class="n">CropParams</span><span class="p">()):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">start_x</span><span class="p">,</span> <span class="n">end_x</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">start_y</span><span class="p">,</span> <span class="n">end_y</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">start_x</span> <span class="o">&lt;</span> <span class="mi">0</span>
+                <span class="ow">or</span> <span class="n">end_x</span> <span class="o">&gt;</span> <span class="n">image_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="ow">or</span> <span class="n">start_y</span> <span class="o">&lt;</span> <span class="mi">0</span>
+                <span class="ow">or</span> <span class="n">end_y</span> <span class="o">&gt;</span> <span class="n">image_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Crop range is out of bounds.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">image_data</span><span class="p">[:,</span> <span class="n">start_x</span><span class="p">:</span><span class="n">end_x</span><span class="p">,</span> <span class="n">start_y</span><span class="p">:</span><span class="n">end_y</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to crop the image: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to crop the image: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+        <span class="k">return</span> <span class="n">image_data</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024-09-03 14:12:44, Tobias Ferreira.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

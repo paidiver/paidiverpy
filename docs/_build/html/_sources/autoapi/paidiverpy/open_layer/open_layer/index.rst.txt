@@ -1,0 +1,129 @@
+paidiverpy.open_layer.open_layer
+================================
+
+.. py:module:: paidiverpy.open_layer.open_layer
+
+.. autoapi-nested-parse::
+
+   Open raw image file.
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   paidiverpy.open_layer.open_layer.OpenLayer
+
+
+Module Contents
+---------------
+
+.. py:class:: OpenLayer(config_file_path: str | None = None, input_path: str | None = None, output_path: str | None = None, metadata_path: str | None = None, metadata_type: str | None = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, config: paidiverpy.config.config.Configuration = None, logger: logging.Logger | None = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: paidiverpy.Paidiverpy = None, step_name: str = 'raw', parameters: dict | None = None, raise_error: bool = False, verbose: int = 2, track_changes: bool = True, n_jobs: int = 1)
+
+   Bases: :py:obj:`paidiverpy.Paidiverpy`
+
+
+   Open raw image file.
+
+   :param config_file_path: The path to the configuration file.
+   :type config_file_path: str
+   :param input_path: The path to the input files.
+   :type input_path: str
+   :param output_path: The path to the output files.
+   :type output_path: str
+   :param metadata_path: The path to the metadata file.
+   :type metadata_path: str
+   :param metadata_type: The type of the metadata file.
+   :type metadata_type: str
+   :param metadata: The metadata object.
+   :type metadata: MetadataParser
+   :param config: The configuration object.
+   :type config: Configuration
+   :param logger: The logger object.
+   :type logger: logging.Logger
+   :param images: The images object.
+   :type images: ImagesLayer
+   :param paidiverpy: The paidiverpy object.
+   :type paidiverpy: Paidiverpy
+   :param step_name: The name of the step.
+   :type step_name: str
+   :param parameters: The parameters for the step.
+   :type parameters: dict
+   :param raise_error: Whether to raise an error.
+   :type raise_error: bool
+   :param verbose: verbose level (0 = none, 1 = errors/warnings, 2 = info).
+   :type verbose: int
+   :param track_changes: Whether to track changes. Defaults to True.
+   :type track_changes: bool
+   :param n_jobs: The number of jobs to run in parallel.
+   :type n_jobs: int
+
+
+   .. py:attribute:: step_name
+
+
+   .. py:attribute:: step_metadata
+
+
+   .. py:method:: run() -> None
+
+      Run the open layer steps based on the configuration file or parameters.
+
+
+
+   .. py:method:: import_image() -> None
+
+      Import images with optional Dask parallelization.
+
+
+
+   .. py:method:: process_image(img_path: str) -> numpy.ndarray | dask.array.core.Array
+
+      Process a single image file.
+
+      :param img_path: The path to the image file
+      :type img_path: str
+
+      :returns: The processed image data
+      :rtype: Union[np.ndarray, dask.array.core.Array]
+
+
+
+   .. py:method:: open_image(img_path: str) -> numpy.ndarray | dask.array.core.Array
+
+      Open an image file.
+
+      :param img_path: The path to the image file
+      :type img_path: str
+
+      :raises ValueError: Failed to open the image
+
+      :returns: The image data
+      :rtype: Union[np.ndarray, dask.array.core.Array]
+
+
+
+   .. py:method:: extract_exif() -> None
+
+      Extract EXIF data from the images and add it to the metadata DataFrame.
+
+
+
+   .. py:method:: extract_exif_single(img_path: str, logger: logging.Logger) -> dict
+      :staticmethod:
+
+
+      Extract EXIF data from a single image file.
+
+      :param img_path: The path to the image file.
+      :type img_path: str
+      :param logger: The logger object.
+      :type logger: logging.Logger
+
+      :returns: The EXIF data.
+      :rtype: dict
+
+
+

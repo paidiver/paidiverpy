@@ -1,0 +1,217 @@
+paidiverpy.config.resample_params
+=================================
+
+.. py:module:: paidiverpy.config.resample_params
+
+.. autoapi-nested-parse::
+
+   Resample parameters dataclasses.
+
+   This module contains the dataclasses for the parameters of the convert layer
+   functions.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   paidiverpy.config.resample_params.RESAMPLE_LAYER_METHODS
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   paidiverpy.config.resample_params.ResampleDatetimeParams
+   paidiverpy.config.resample_params.ResampleDepthParams
+   paidiverpy.config.resample_params.ResampleAltitudeParams
+   paidiverpy.config.resample_params.ResamplePitchRollParams
+   paidiverpy.config.resample_params.ResampleOverlappingParams
+   paidiverpy.config.resample_params.ResampleFixedParams
+   paidiverpy.config.resample_params.ResamplePercentParams
+   paidiverpy.config.resample_params.ResampleRegionParams
+   paidiverpy.config.resample_params.ResampleObscureParams
+
+
+Module Contents
+---------------
+
+.. py:class:: ResampleDatetimeParams
+
+   Bases: :py:obj:`paidiverpy.utils.DynamicConfig`
+
+
+   This class contains the parameters for the datetime resampling.
+
+
+   .. py:attribute:: min
+      :type:  str
+      :value: None
+
+
+
+   .. py:attribute:: max
+      :type:  str
+      :value: None
+
+
+
+.. py:class:: ResampleDepthParams
+
+   Bases: :py:obj:`paidiverpy.utils.DynamicConfig`
+
+
+   This class contains the parameters for the depth resampling.
+
+
+   .. py:attribute:: by
+      :type:  str
+      :value: 'lower'
+
+
+
+   .. py:attribute:: value
+      :type:  float
+      :value: None
+
+
+
+.. py:class:: ResampleAltitudeParams
+
+   Bases: :py:obj:`paidiverpy.utils.DynamicConfig`
+
+
+   This class contains the parameters for the altitude resampling.
+
+
+   .. py:attribute:: value
+      :type:  float
+      :value: None
+
+
+
+.. py:class:: ResamplePitchRollParams
+
+   Bases: :py:obj:`paidiverpy.utils.DynamicConfig`
+
+
+   This class contains the parameters for the pitch and roll res.
+
+
+   .. py:attribute:: pitch
+      :type:  float
+      :value: None
+
+
+
+   .. py:attribute:: roll
+      :type:  float
+      :value: None
+
+
+
+.. py:class:: ResampleOverlappingParams
+
+   Bases: :py:obj:`paidiverpy.utils.DynamicConfig`
+
+
+   This class contains the parameters for the overlapping resampling.
+
+
+   .. py:attribute:: omega
+      :type:  float
+      :value: 0.5
+
+
+
+   .. py:attribute:: theta
+      :type:  float
+      :value: 0.5
+
+
+
+   .. py:attribute:: threshold
+      :type:  float
+      :value: None
+
+
+
+   .. py:attribute:: camera_distance
+      :type:  float
+      :value: 1.12
+
+
+
+.. py:class:: ResampleFixedParams
+
+   Bases: :py:obj:`paidiverpy.utils.DynamicConfig`
+
+
+   This class contains the parameters for the fixed resampling.
+
+
+   .. py:attribute:: value
+      :type:  int
+      :value: 10
+
+
+
+.. py:class:: ResamplePercentParams
+
+   Bases: :py:obj:`paidiverpy.utils.DynamicConfig`
+
+
+   This class contains the parameters for the percent resampling.
+
+
+   .. py:attribute:: value
+      :type:  float
+      :value: 0.1
+
+
+
+.. py:class:: ResampleRegionParams
+
+   Bases: :py:obj:`paidiverpy.utils.DynamicConfig`
+
+
+   This class contains the parameters for the region resampling.
+
+
+   .. py:attribute:: file
+      :type:  str
+      :value: None
+
+
+
+   .. py:attribute:: limits
+      :type:  list[str]
+      :value: None
+
+
+
+.. py:class:: ResampleObscureParams
+
+   Bases: :py:obj:`paidiverpy.utils.DynamicConfig`
+
+
+   This class contains the parameters for the obscure resampling.
+
+
+   .. py:attribute:: min
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: max
+      :type:  int
+      :value: 1
+
+
+
+.. py:data:: RESAMPLE_LAYER_METHODS
+

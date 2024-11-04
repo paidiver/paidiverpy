@@ -1,0 +1,275 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>paidiverpy.config.resample_params &mdash; paidiverpy 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            paidiverpy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">paidiverpy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">paidiverpy.config.resample_params</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for paidiverpy.config.resample_params</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Resample parameters dataclasses.</span>
+
+<span class="sd">This module contains the dataclasses for the parameters of the convert layer</span>
+<span class="sd">functions.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.utils</span> <span class="kn">import</span> <span class="n">DynamicConfig</span>
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="ResampleDatetimeParams">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResampleDatetimeParams">[docs]</a>
+<span class="k">class</span> <span class="nc">ResampleDatetimeParams</span><span class="p">(</span><span class="n">DynamicConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This class contains the parameters for the datetime resampling.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ResampleDatetimeParams.min">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResampleDatetimeParams.min">[docs]</a>
+    <span class="nb">min</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="ResampleDatetimeParams.max">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResampleDatetimeParams.max">[docs]</a>
+    <span class="nb">max</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span></div>
+</div>
+
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="ResampleDepthParams">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResampleDepthParams">[docs]</a>
+<span class="k">class</span> <span class="nc">ResampleDepthParams</span><span class="p">(</span><span class="n">DynamicConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This class contains the parameters for the depth resampling.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ResampleDepthParams.by">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResampleDepthParams.by">[docs]</a>
+    <span class="n">by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;lower&quot;</span></div>
+
+<div class="viewcode-block" id="ResampleDepthParams.value">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResampleDepthParams.value">[docs]</a>
+    <span class="n">value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span></div>
+</div>
+
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="ResampleAltitudeParams">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResampleAltitudeParams">[docs]</a>
+<span class="k">class</span> <span class="nc">ResampleAltitudeParams</span><span class="p">(</span><span class="n">DynamicConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This class contains the parameters for the altitude resampling.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ResampleAltitudeParams.value">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResampleAltitudeParams.value">[docs]</a>
+    <span class="n">value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span></div>
+</div>
+
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="ResamplePitchRollParams">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResamplePitchRollParams">[docs]</a>
+<span class="k">class</span> <span class="nc">ResamplePitchRollParams</span><span class="p">(</span><span class="n">DynamicConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This class contains the parameters for the pitch and roll res.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ResamplePitchRollParams.pitch">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResamplePitchRollParams.pitch">[docs]</a>
+    <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="ResamplePitchRollParams.roll">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResamplePitchRollParams.roll">[docs]</a>
+    <span class="n">roll</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span></div>
+</div>
+
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="ResampleOverlappingParams">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResampleOverlappingParams">[docs]</a>
+<span class="k">class</span> <span class="nc">ResampleOverlappingParams</span><span class="p">(</span><span class="n">DynamicConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This class contains the parameters for the overlapping resampling.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ResampleOverlappingParams.omega">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResampleOverlappingParams.omega">[docs]</a>
+    <span class="n">omega</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span></div>
+
+<div class="viewcode-block" id="ResampleOverlappingParams.theta">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResampleOverlappingParams.theta">[docs]</a>
+    <span class="n">theta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span></div>
+
+<div class="viewcode-block" id="ResampleOverlappingParams.threshold">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResampleOverlappingParams.threshold">[docs]</a>
+    <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="ResampleOverlappingParams.camera_distance">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResampleOverlappingParams.camera_distance">[docs]</a>
+    <span class="n">camera_distance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.12</span></div>
+</div>
+
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="ResampleFixedParams">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResampleFixedParams">[docs]</a>
+<span class="k">class</span> <span class="nc">ResampleFixedParams</span><span class="p">(</span><span class="n">DynamicConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This class contains the parameters for the fixed resampling.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ResampleFixedParams.value">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResampleFixedParams.value">[docs]</a>
+    <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span></div>
+</div>
+
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="ResamplePercentParams">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResamplePercentParams">[docs]</a>
+<span class="k">class</span> <span class="nc">ResamplePercentParams</span><span class="p">(</span><span class="n">DynamicConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This class contains the parameters for the percent resampling.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ResamplePercentParams.value">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResamplePercentParams.value">[docs]</a>
+    <span class="n">value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span></div>
+</div>
+
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="ResampleRegionParams">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResampleRegionParams">[docs]</a>
+<span class="k">class</span> <span class="nc">ResampleRegionParams</span><span class="p">(</span><span class="n">DynamicConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This class contains the parameters for the region resampling.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ResampleRegionParams.file">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResampleRegionParams.file">[docs]</a>
+    <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="ResampleRegionParams.limits">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResampleRegionParams.limits">[docs]</a>
+    <span class="n">limits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
+</div>
+
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="ResampleObscureParams">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResampleObscureParams">[docs]</a>
+<span class="k">class</span> <span class="nc">ResampleObscureParams</span><span class="p">(</span><span class="n">DynamicConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This class contains the parameters for the obscure resampling.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ResampleObscureParams.min">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResampleObscureParams.min">[docs]</a>
+    <span class="nb">min</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="ResampleObscureParams.max">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResampleObscureParams.max">[docs]</a>
+    <span class="nb">max</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="RESAMPLE_LAYER_METHODS">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.RESAMPLE_LAYER_METHODS">[docs]</a>
+<span class="n">RESAMPLE_LAYER_METHODS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">ResampleDatetimeParams</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;_by_datetime&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">ResampleDepthParams</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;_by_depth&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;altitude&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">ResampleAltitudeParams</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;_by_altitude&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;pitch_roll&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">ResamplePitchRollParams</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;_by_pitch_roll&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;overlapping&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">ResampleOverlappingParams</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;_by_overlapping&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;fixed&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">ResampleFixedParams</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;_by_fixed_number&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;percent&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">ResamplePercentParams</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;_by_percent&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">ResampleRegionParams</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;_by_region&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;obscure&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">ResampleObscureParams</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;_by_obscure_photos&quot;</span><span class="p">},</span>
+<span class="p">}</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024-09-03 14:12:44, Tobias Ferreira.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

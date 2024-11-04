@@ -1,0 +1,525 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>paidiverpy.convert_layer.convert_layer &mdash; paidiverpy 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            paidiverpy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">paidiverpy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">paidiverpy.convert_layer.convert_layer</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for paidiverpy.convert_layer.convert_layer</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Convert Layer.</span>
+
+<span class="sd">Convert the images in the convert layer based on the configuration file or</span>
+<span class="sd">parameters.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">dask</span>
+<span class="kn">import</span> <span class="nn">dask.array</span> <span class="k">as</span> <span class="nn">da</span>
+<span class="kn">import</span> <span class="nn">dask.delayed</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">dask</span> <span class="kn">import</span> <span class="n">compute</span>
+<span class="kn">from</span> <span class="nn">dask.diagnostics</span> <span class="kn">import</span> <span class="n">ProgressBar</span>
+<span class="kn">from</span> <span class="nn">paidiverpy</span> <span class="kn">import</span> <span class="n">Paidiverpy</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.config.config</span> <span class="kn">import</span> <span class="n">Configuration</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.config.convert_params</span> <span class="kn">import</span> <span class="n">CONVERT_LAYER_METHODS</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.config.convert_params</span> <span class="kn">import</span> <span class="n">BayerPatternParams</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.config.convert_params</span> <span class="kn">import</span> <span class="n">BitParams</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.config.convert_params</span> <span class="kn">import</span> <span class="n">CropParams</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.config.convert_params</span> <span class="kn">import</span> <span class="n">NormalizeParams</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.config.convert_params</span> <span class="kn">import</span> <span class="n">ResizeParams</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.config.convert_params</span> <span class="kn">import</span> <span class="n">ToParams</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.images_layer</span> <span class="kn">import</span> <span class="n">ImagesLayer</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.metadata_parser</span> <span class="kn">import</span> <span class="n">MetadataParser</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.utils</span> <span class="kn">import</span> <span class="n">DynamicConfig</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.utils</span> <span class="kn">import</span> <span class="n">raise_value_error</span>
+
+<div class="viewcode-block" id="EIGHT_BITS">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/convert_layer/convert_layer/index.html#paidiverpy.convert_layer.convert_layer.EIGHT_BITS">[docs]</a>
+<span class="n">EIGHT_BITS</span> <span class="o">=</span> <span class="mi">8</span></div>
+
+<div class="viewcode-block" id="SIXTEEN_BITS">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/convert_layer/convert_layer/index.html#paidiverpy.convert_layer.convert_layer.SIXTEEN_BITS">[docs]</a>
+<span class="n">SIXTEEN_BITS</span> <span class="o">=</span> <span class="mi">16</span></div>
+
+<div class="viewcode-block" id="THIRTY_TWO_BITS">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/convert_layer/convert_layer/index.html#paidiverpy.convert_layer.convert_layer.THIRTY_TWO_BITS">[docs]</a>
+<span class="n">THIRTY_TWO_BITS</span> <span class="o">=</span> <span class="mi">32</span></div>
+
+
+<div class="viewcode-block" id="ConvertLayer">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/convert_layer/index.html#paidiverpy.convert_layer.convert_layer.ConvertLayer">[docs]</a>
+<span class="k">class</span> <span class="nc">ConvertLayer</span><span class="p">(</span><span class="n">Paidiverpy</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Process the images in the convert layer.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config_file_path (str): The path to the configuration file.</span>
+<span class="sd">        input_path (str): The path to the input files.</span>
+<span class="sd">        output_path (str): The path to the output files.</span>
+<span class="sd">        metadata_path (str): The path to the metadata file.</span>
+<span class="sd">        metadata_type (str): The type of the metadata file.</span>
+<span class="sd">        metadata (MetadataParser): The metadata object.</span>
+<span class="sd">        config (Configuration): The configuration object.</span>
+<span class="sd">        logger (logging.Logger): The logger object.</span>
+<span class="sd">        images (ImagesLayer): The images object.</span>
+<span class="sd">        paidiverpy (Paidiverpy): The paidiverpy object.</span>
+<span class="sd">        step_name (str): The name of the step.</span>
+<span class="sd">        parameters (dict): The parameters for the step.</span>
+<span class="sd">        config_index (int): The index of the configuration.</span>
+<span class="sd">        raise_error (bool): Whether to raise an error.</span>
+<span class="sd">        verbose (int): verbose level (0 = none, 1 = errors/warnings, 2 = info).</span>
+<span class="sd">        track_changes (bool): Whether to track changes. Defaults to True.</span>
+<span class="sd">        n_jobs (int): The number of jobs to run in parallel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">config_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">metadata_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">metadata_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="p">:</span> <span class="n">MetadataParser</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">Configuration</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">images</span><span class="p">:</span> <span class="n">ImagesLayer</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">paidiverpy</span><span class="p">:</span> <span class="s2">&quot;Paidiverpy&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">step_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">parameters</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">config_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">raise_error</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">track_changes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">n_jobs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">config_file_path</span><span class="o">=</span><span class="n">config_file_path</span><span class="p">,</span>
+            <span class="n">input_path</span><span class="o">=</span><span class="n">input_path</span><span class="p">,</span>
+            <span class="n">output_path</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span>
+            <span class="n">metadata_path</span><span class="o">=</span><span class="n">metadata_path</span><span class="p">,</span>
+            <span class="n">metadata_type</span><span class="o">=</span><span class="n">metadata_type</span><span class="p">,</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+            <span class="n">images</span><span class="o">=</span><span class="n">images</span><span class="p">,</span>
+            <span class="n">paidiverpy</span><span class="o">=</span><span class="n">paidiverpy</span><span class="p">,</span>
+            <span class="n">raise_error</span><span class="o">=</span><span class="n">raise_error</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="n">track_changes</span><span class="o">=</span><span class="n">track_changes</span><span class="p">,</span>
+            <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="ConvertLayer.step_name">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/convert_layer/convert_layer/index.html#paidiverpy.convert_layer.convert_layer.ConvertLayer.step_name">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_name</span> <span class="o">=</span> <span class="n">step_name</span></div>
+
+        <span class="k">if</span> <span class="n">parameters</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">config_index</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+<div class="viewcode-block" id="ConvertLayer.step_metadata">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/convert_layer/convert_layer/index.html#paidiverpy.convert_layer.convert_layer.ConvertLayer.step_metadata">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_steps_metadata</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">config_index</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="ConvertLayer.run">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/convert_layer/index.html#paidiverpy.convert_layer.convert_layer.ConvertLayer.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">add_new_step</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ImagesLayer</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the convert layer steps on the images based on the configuration.</span>
+
+<span class="sd">        Run the convert layer steps on the images based on the configuration</span>
+<span class="sd">        file or parameters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            add_new_step (bool, optional): Whether to add a new step to the images object.</span>
+<span class="sd">        Defaults to True.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: The mode is not defined in the configuration file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Union[ImagesLayer, None]: The images object with the new step added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mode&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mode</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;The mode is not defined in the configuration file.&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">method</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_method_by_mode</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">CONVERT_LAYER_METHODS</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">get_step</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">images</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">by_order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">image_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_sequentially</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">image_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_parallel</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">test</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">step_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;convert_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">config_index</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_name</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_name</span>
+            <span class="k">if</span> <span class="n">add_new_step</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
+                    <span class="n">step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span>
+                    <span class="n">images</span><span class="o">=</span><span class="n">image_list</span><span class="p">,</span>
+                    <span class="n">step_metadata</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">,</span>
+                    <span class="n">metadata</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_metadata</span><span class="p">(),</span>
+                    <span class="n">track_changes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">track_changes</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">image_list</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="ConvertLayer.process_sequentially">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/convert_layer/index.html#paidiverpy.convert_layer.convert_layer.ConvertLayer.process_sequentially">[docs]</a>
+    <span class="k">def</span> <span class="nf">process_sequentially</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">images</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">method</span><span class="p">:</span> <span class="nb">callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process the images sequentially.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            images (List[np.ndarray]): The list of images to process.</span>
+<span class="sd">            method (callable): The method to apply to the images.</span>
+<span class="sd">            params (dict): The parameters for the method.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[np.ndarray]: The list of processed images.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">method</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span> <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">images</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="ConvertLayer.process_parallel">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/convert_layer/index.html#paidiverpy.convert_layer.convert_layer.ConvertLayer.process_parallel">[docs]</a>
+    <span class="k">def</span> <span class="nf">process_parallel</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">images</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">da</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Array</span><span class="p">],</span> <span class="n">method</span><span class="p">:</span> <span class="nb">callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">DynamicConfig</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process the images in parallel.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            images (List[da.core.Array]): The list of images to process.</span>
+<span class="sd">            method (callable): The method to apply to the images.</span>
+<span class="sd">            params (DynamicConfig): The parameters for the method.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[da.core.Array]: The list of processed images.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">delayed_images</span> <span class="o">=</span> <span class="p">[</span><span class="n">dask</span><span class="o">.</span><span class="n">delayed</span><span class="p">(</span><span class="n">method</span><span class="p">)(</span><span class="n">img</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">images</span><span class="p">]</span>
+        <span class="k">with</span> <span class="n">dask</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">scheduler</span><span class="o">=</span><span class="s2">&quot;threads&quot;</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Processing images using </span><span class="si">%s</span><span class="s2"> cores&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">ProgressBar</span><span class="p">():</span>
+                <span class="n">delayed_images</span> <span class="o">=</span> <span class="n">compute</span><span class="p">(</span><span class="o">*</span><span class="n">delayed_images</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">da</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">img</span><span class="p">)</span> <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">delayed_images</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="ConvertLayer.convert_bits">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/convert_layer/index.html#paidiverpy.convert_layer.convert_layer.ConvertLayer.convert_bits">[docs]</a>
+    <span class="k">def</span> <span class="nf">convert_bits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">BitParams</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the image to the specified number of bits.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image_data (np.ndarray): The image data.</span>
+<span class="sd">            params (BitParams, optional): The parameters for the bit conversion.</span>
+<span class="sd">        Defaults to BitParams().</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The image data with the specified number of bits.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">BitParams</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">output_bits</span> <span class="o">==</span> <span class="n">EIGHT_BITS</span><span class="p">:</span>
+            <span class="n">image_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">(</span><span class="n">image_data</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">params</span><span class="o">.</span><span class="n">output_bits</span> <span class="o">==</span> <span class="n">SIXTEEN_BITS</span><span class="p">:</span>
+            <span class="n">image_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">(</span><span class="n">image_data</span> <span class="o">*</span> <span class="mi">65535</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">params</span><span class="o">.</span><span class="n">output_bits</span> <span class="o">==</span> <span class="n">THIRTY_TWO_BITS</span><span class="p">:</span>
+            <span class="n">image_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">image_data</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Unsupported output bits: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">output_bits</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Unsupported output bits: </span><span class="si">{</span><span class="n">params</span><span class="o">.</span><span class="n">output_bits</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">image_data</span></div>
+
+
+<div class="viewcode-block" id="ConvertLayer.channel_convert">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/convert_layer/index.html#paidiverpy.convert_layer.convert_layer.ConvertLayer.channel_convert">[docs]</a>
+    <span class="k">def</span> <span class="nf">channel_convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ToParams</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the image to the specified channel.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image_data (np.ndarray): The image data.</span>
+<span class="sd">            params (ToParams, optional): The parameters for the channel conversion.</span>
+<span class="sd">        Defaults to ToParams().</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: The image is already in RGB format.</span>
+<span class="sd">            ValueError: The image is already in grayscale.</span>
+<span class="sd">            ValueError: Failed to convert the image to {params.to}: {str(e)}</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The image data with the specified channel.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">ToParams</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">to</span> <span class="o">==</span> <span class="s2">&quot;RGB&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">image_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">image_data</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_GRAY2RGB</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">raise_value_error</span><span class="p">(</span><span class="s2">&quot;The image is already in RGB format.&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">params</span><span class="o">.</span><span class="n">to</span> <span class="o">==</span> <span class="s2">&quot;gray&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">image_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">raise_value_error</span><span class="p">(</span><span class="s2">&quot;The image is already in grayscale.&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">channel_selector</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]:</span>
+                    <span class="n">image_data</span> <span class="o">=</span> <span class="n">image_data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">params</span><span class="o">.</span><span class="n">channel_selector</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">image_data</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: BLE001</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Failed to convert the image to </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">to</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Failed to convert the image to </span><span class="si">{</span><span class="n">params</span><span class="o">.</span><span class="n">to</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">raise_value_error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">image_data</span></div>
+
+
+<div class="viewcode-block" id="ConvertLayer.get_bayer_pattern">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/convert_layer/index.html#paidiverpy.convert_layer.convert_layer.ConvertLayer.get_bayer_pattern">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_bayer_pattern</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">image_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">BayerPatternParams</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the image to the specified Bayer pattern.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image_data (np.ndarray): The image data.</span>
+<span class="sd">            params (BayerPatternParams, optional): The parameters for the Bayer pattern conversion.</span>
+<span class="sd">        Defaults to BayerPatternParams().</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: Invalid Bayer pattern for a single-channel image.</span>
+<span class="sd">            KeyError: Invalid Bayer pattern for a single-channel image.</span>
+<span class="sd">        Expected &#39;RG&#39;, &#39;BG&#39;, &#39;GR&#39;, or &#39;GB&#39;.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The image data with the specified Bayer pattern.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">BayerPatternParams</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">image_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Invalid Bayer pattern for a single-channel image: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">params</span><span class="o">.</span><span class="n">bayer_pattern</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Invalid Bayer pattern for a single-channel image. Expected &#39;RG&#39;, &#39;BG&#39;, &#39;GR&#39;, or &#39;GB&#39;.&quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="n">msg</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">image_data</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">bayer_pattern</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;RG&quot;</span><span class="p">:</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BAYER_RG2RGB</span><span class="p">,</span>
+                <span class="s2">&quot;BG&quot;</span><span class="p">:</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BAYER_BG2RGB</span><span class="p">,</span>
+                <span class="s2">&quot;GR&quot;</span><span class="p">:</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BAYER_GR2RGB</span><span class="p">,</span>
+                <span class="s2">&quot;GB&quot;</span><span class="p">:</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BAYER_GB2RGB</span><span class="p">,</span>
+            <span class="p">}[</span><span class="n">params</span><span class="o">.</span><span class="n">bayer_pattern</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Invalid Bayer pattern for a single-channel image: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">params</span><span class="o">.</span><span class="n">bayer_pattern</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Invalid Bayer pattern for a single-channel image. Expected &#39;RG&#39;, &#39;BG&#39;, &#39;GR&#39;, or &#39;GB&#39;.&quot;</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                    <span class="n">msg</span><span class="p">,</span>
+                <span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
+
+            <span class="k">return</span> <span class="n">image_data</span>
+        <span class="k">return</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">bayer_pattern</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ConvertLayer.normalize_image">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/convert_layer/index.html#paidiverpy.convert_layer.convert_layer.ConvertLayer.normalize_image">[docs]</a>
+    <span class="k">def</span> <span class="nf">normalize_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">NormalizeParams</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Normalize the image data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image_data (np.ndarray): The image data.</span>
+<span class="sd">            params (NormalizeParams, optional): The parameters for the image normalization.</span>
+<span class="sd">        Defaults to NormalizeParams().</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: Failed to normalize the image: {str(e)}</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The normalized image data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">NormalizeParams</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv2</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span>
+                <span class="n">image_data</span><span class="p">,</span>
+                <span class="n">image_data</span><span class="p">,</span>
+                <span class="n">params</span><span class="o">.</span><span class="n">min</span><span class="p">,</span>
+                <span class="n">params</span><span class="o">.</span><span class="n">max</span><span class="p">,</span>
+                <span class="n">cv2</span><span class="o">.</span><span class="n">NORM_MINMAX</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">CV_32F</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Failed to normalize the image: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Failed to normalize the image: </span><span class="si">{</span><span class="n">e</span><span class="si">!s}</span><span class="s2">&quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+        <span class="k">return</span> <span class="n">image_data</span></div>
+
+
+<div class="viewcode-block" id="ConvertLayer.resize">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/convert_layer/index.html#paidiverpy.convert_layer.convert_layer.ConvertLayer.resize">[docs]</a>
+    <span class="k">def</span> <span class="nf">resize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ResizeParams</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resize the image data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image_data (np.ndarray): The image data.</span>
+<span class="sd">            params (ResizeParams, optional): The parameters for the image resizing.</span>
+<span class="sd">        Defaults to ResizeParams().</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: Failed to resize the image: {str(e)}</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The resized image data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">ResizeParams</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">min</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">max</span><span class="p">),</span> <span class="n">interpolation</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">INTER_LANCZOS4</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Failed to resize the image: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Failed to resize the image: </span><span class="si">{</span><span class="n">e</span><span class="si">!s}</span><span class="s2">&quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+        <span class="k">return</span> <span class="n">image_data</span></div>
+
+
+<div class="viewcode-block" id="ConvertLayer.crop_images">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/convert_layer/index.html#paidiverpy.convert_layer.convert_layer.ConvertLayer.crop_images">[docs]</a>
+    <span class="k">def</span> <span class="nf">crop_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">CropParams</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Crop the image data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image_data (np.ndarray): The image data.</span>
+<span class="sd">            params (CropParams, optional): The parameters for the image cropping.</span>
+<span class="sd">        Defaults to CropParams().</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: Crop range is out of bounds.</span>
+<span class="sd">            ValueError: Failed to crop the image: {str(e)}</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The cropped image data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">CropParams</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">start_x</span><span class="p">,</span> <span class="n">end_x</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">start_y</span><span class="p">,</span> <span class="n">end_y</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">start_x</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">end_x</span> <span class="o">&gt;</span> <span class="n">image_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">or</span> <span class="n">start_y</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">end_y</span> <span class="o">&gt;</span> <span class="n">image_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Crop range is out of bounds.&quot;</span>
+                <span class="n">raise_value_error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">image_data</span><span class="p">[:,</span> <span class="n">start_x</span><span class="p">:</span><span class="n">end_x</span><span class="p">,</span> <span class="n">start_y</span><span class="p">:</span><span class="n">end_y</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Failed to crop the image: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Failed to crop the image: </span><span class="si">{</span><span class="n">e</span><span class="si">!s}</span><span class="s2">&quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+        <span class="k">return</span> <span class="n">image_data</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024-09-03 14:12:44, Tobias Ferreira.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

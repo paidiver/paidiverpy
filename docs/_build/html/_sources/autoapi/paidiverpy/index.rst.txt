@@ -1,0 +1,210 @@
+paidiverpy
+==========
+
+.. py:module:: paidiverpy
+
+.. autoapi-nested-parse::
+
+   msm_os base package.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/paidiverpy/color_layer/index
+   /autoapi/paidiverpy/config/index
+   /autoapi/paidiverpy/convert_layer/index
+   /autoapi/paidiverpy/data/index
+   /autoapi/paidiverpy/exceptions/index
+   /autoapi/paidiverpy/images_layer/index
+   /autoapi/paidiverpy/metadata_parser/index
+   /autoapi/paidiverpy/open_layer/index
+   /autoapi/paidiverpy/paidiverpy/index
+   /autoapi/paidiverpy/pipeline/index
+   /autoapi/paidiverpy/position_layer/index
+   /autoapi/paidiverpy/resample_layer/index
+   /autoapi/paidiverpy/utils/index
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   paidiverpy.Paidiverpy
+
+
+Package Contents
+----------------
+
+.. py:class:: Paidiverpy(config_file_path: str | None = None, input_path: str | None = None, output_path: str | None = None, metadata_path: str | None = None, metadata_type: str | None = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, config: paidiverpy.config.config.Configuration = None, logger: logging.Logger | None = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: Paidiverpy = None, raise_error: bool = False, verbose: int = 2, track_changes: bool = True, n_jobs: int = 1)
+
+   Main class for the paidiverpy package.
+
+   :param config_file_path: The path to the configuration file.
+   :type config_file_path: str
+   :param input_path: The path to the input files.
+   :type input_path: str
+   :param output_path: The path to the output files.
+   :type output_path: str
+   :param metadata_path: The path to the metadata file.
+   :type metadata_path: str
+   :param metadata_type: The type of the metadata file.
+   :type metadata_type: str
+   :param metadata: The metadata object.
+   :type metadata: MetadataParser
+   :param config: The configuration object.
+   :type config: Configuration
+   :param logger: The logger object.
+   :type logger: logging.Logger
+   :param images: The images object.
+   :type images: ImagesLayer
+   :param paidiverpy: The paidiverpy object.
+   :type paidiverpy: Paidiverpy
+   :param raise_error: Whether to raise an error.
+   :type raise_error: bool
+   :param verbose: verbose level (0 = none, 1 = errors/warnings, 2 = info).
+   :type verbose: int
+   :param track_changes: Whether to track changes. Defaults to True.
+   :type track_changes: bool
+   :param n_jobs: The number of n_jobs.
+   :type n_jobs: int
+
+
+   .. py:method:: _initialize_config(config_file_path: str, input_path: str, output_path: str, metadata_path: str, metadata_type: str) -> paidiverpy.config.config.Configuration
+
+      Initialize the configuration object.
+
+      :param config_file_path: Configuration file path.
+      :type config_file_path: str
+      :param input_path: input path.
+      :type input_path: str
+      :param output_path: output path.
+      :type output_path: str
+      :param metadata_path: metadata path.
+      :type metadata_path: str
+      :param metadata_type: metadata type.
+      :type metadata_type: str
+
+      :returns: The configuration object.
+      :rtype: Configuration
+
+
+
+   .. py:method:: _initialize_metadata() -> paidiverpy.metadata_parser.MetadataParser
+
+      Initialize the metadata object.
+
+      :returns: The metadata object.
+      :rtype: MetadataParser
+
+
+
+   .. py:method:: get_metadata(flag: int | None = None) -> pandas.DataFrame
+
+      Get the metadata object.
+
+      :param flag: The flag value. Defaults to None.
+      :type flag: int, optional
+
+      :returns: The metadata object.
+      :rtype: pd.DataFrame
+
+
+
+   .. py:method:: set_metadata(metadata: pandas.DataFrame) -> None
+
+      Set the metadata.
+
+      :param metadata: The metadata object.
+      :type metadata: pd.DataFrame
+
+
+
+   .. py:method:: get_waypoints() -> pandas.DataFrame
+
+      Get the waypoints.
+
+      :raises ValueError: Waypoints are not loaded in the metadata.
+
+      :returns: The waypoints
+      :rtype: pd.DataFrame
+
+
+
+   .. py:method:: show_images(step_name: str) -> None
+
+      Show the images.
+
+      :param step_name: The step name.
+      :type step_name: str
+
+
+
+   .. py:method:: save_images(step: str | int | None = None, by_order: bool = False, image_format: str = 'png') -> None
+
+      Save the images.
+
+      :param step: The step name or order. Defaults to None.
+      :type step: Union[str, int], optional
+      :param by_order: Whether to save by order. Defaults to False.
+      :type by_order: bool, optional
+      :param image_format: The image format. Defaults to "png".
+      :type image_format: str, optional
+
+
+
+   .. py:method:: plot_trimmed_photos(new_metadata: pandas.DataFrame) -> None
+
+      Plot the trimmed photos.
+
+      :param new_metadata: The new metadata.
+      :type new_metadata: pd.DataFrame
+
+
+
+   .. py:method:: clear_steps(value: int | str, by_order: bool = True) -> None
+
+      Clear steps from the images and metadata.
+
+      :param value: Step name or order.
+      :type value: Union[int, str]
+      :param by_order: Whether to remove by order. Defaults to True.
+      :type by_order: bool, optional
+
+
+
+   .. py:method:: _calculate_steps_metadata(config_part: paidiverpy.config.config.Configuration) -> dict
+
+      Calculate the steps metadata.
+
+      :param config_part: The configuration part.
+      :type config_part: Configuration
+
+      :returns: The steps metadata.
+      :rtype: dict
+
+
+
+   .. py:method:: _get_method_by_mode(params: paidiverpy.utils.DynamicConfig, method_dict: dict, mode: str) -> tuple
+
+      Get the method by mode.
+
+      :param params: The parameters.
+      :type params: DynamicConfig
+      :param method_dict: The method dictionary.
+      :type method_dict: dict
+      :param mode: The mode.
+      :type mode: str
+
+      :raises ValueError: Unsupported mode.
+
+      :returns: The method and parameters.
+      :rtype: tuple
+
+
+

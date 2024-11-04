@@ -1,0 +1,257 @@
+paidiverpy.config.color_params
+==============================
+
+.. py:module:: paidiverpy.config.color_params
+
+.. autoapi-nested-parse::
+
+   Color layer parameters dataclasses.
+
+   This module contains the dataclasses for the parameters of the color layer
+   functions.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   paidiverpy.config.color_params.COLOR_LAYER_METHODS
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   paidiverpy.config.color_params.GrayScaleParams
+   paidiverpy.config.color_params.GaussianBlurParams
+   paidiverpy.config.color_params.EdgeDetectionParams
+   paidiverpy.config.color_params.SharpenParams
+   paidiverpy.config.color_params.ContrastAdjustmentParams
+   paidiverpy.config.color_params.IlluminationCorrectionParams
+   paidiverpy.config.color_params.DeblurParams
+
+
+Module Contents
+---------------
+
+.. py:class:: GrayScaleParams
+
+   Bases: :py:obj:`paidiverpy.utils.DynamicConfig`
+
+
+   This class contains the parameters for the grayscale conversion.
+
+
+   .. py:attribute:: keep_alpha
+      :type:  bool
+      :value: False
+
+
+
+   .. py:attribute:: method
+      :type:  str
+      :value: 'opencv'
+
+
+
+   .. py:attribute:: invert_colors
+      :type:  bool
+      :value: False
+
+
+
+.. py:class:: GaussianBlurParams
+
+   Bases: :py:obj:`paidiverpy.utils.DynamicConfig`
+
+
+   This class contains the parameters for the Gaussian blur.
+
+
+   .. py:attribute:: sigma
+      :type:  float
+      :value: 1.0
+
+
+
+.. py:class:: EdgeDetectionParams
+
+   Bases: :py:obj:`paidiverpy.utils.DynamicConfig`
+
+
+   This class contains the parameters for the edge detection.
+
+
+   .. py:attribute:: method
+      :type:  str
+      :value: 'sobel'
+
+
+
+   .. py:attribute:: blur_radius
+      :type:  float
+      :value: 1.0
+
+
+
+   .. py:attribute:: threshold
+      :type:  float
+      :value: 0.1
+
+
+
+   .. py:attribute:: object_type
+      :type:  str
+      :value: 'bright'
+
+
+
+   .. py:attribute:: object_selection
+      :type:  str
+      :value: 'largest'
+
+
+
+   .. py:attribute:: estimate_sharpness
+      :type:  bool
+      :value: False
+
+
+
+   .. py:attribute:: deconv
+      :type:  bool
+      :value: False
+
+
+
+   .. py:attribute:: deconv_method
+      :type:  str
+      :value: 'richardson_lucy'
+
+
+
+   .. py:attribute:: deconv_iter
+      :type:  int
+      :value: 10
+
+
+
+   .. py:attribute:: deconv_mask_weight
+      :type:  float
+      :value: 0.03
+
+
+
+   .. py:attribute:: small_float_val
+      :type:  float
+      :value: 1e-06
+
+
+
+.. py:class:: SharpenParams
+
+   Bases: :py:obj:`paidiverpy.utils.DynamicConfig`
+
+
+   This class contains the parameters for the sharpening.
+
+
+   .. py:attribute:: alpha
+      :type:  float
+      :value: 1.5
+
+
+
+   .. py:attribute:: beta
+      :type:  float
+
+
+.. py:class:: ContrastAdjustmentParams
+
+   Bases: :py:obj:`paidiverpy.utils.DynamicConfig`
+
+
+   This class contains the parameters for the contrast adjustment.
+
+
+   .. py:attribute:: method
+      :type:  str
+      :value: 'clahe'
+
+
+
+   .. py:attribute:: kernel_size
+      :type:  int
+      :value: None
+
+
+
+   .. py:attribute:: clip_limit
+      :type:  float
+      :value: 0.01
+
+
+
+   .. py:attribute:: gamma_value
+      :type:  float
+      :value: 0.5
+
+
+
+.. py:class:: IlluminationCorrectionParams
+
+   Bases: :py:obj:`paidiverpy.utils.DynamicConfig`
+
+
+   This class contains the parameters for the illumination correction.
+
+
+   .. py:attribute:: method
+      :type:  str
+      :value: 'rolling'
+
+
+
+   .. py:attribute:: radius
+      :type:  int
+      :value: 100
+
+
+
+.. py:class:: DeblurParams
+
+   Bases: :py:obj:`paidiverpy.utils.DynamicConfig`
+
+
+   This class contains the parameters for the deblurring.
+
+
+   .. py:attribute:: method
+      :type:  str
+      :value: 'wiener'
+
+
+
+   .. py:attribute:: psf_type
+      :type:  str
+      :value: 'gaussian'
+
+
+
+   .. py:attribute:: sigma
+      :type:  float
+      :value: 20
+
+
+
+   .. py:attribute:: angle
+      :type:  int
+      :value: 45
+
+
+
+.. py:data:: COLOR_LAYER_METHODS
+

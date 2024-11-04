@@ -1,0 +1,299 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>paidiverpy.config.color_params &mdash; paidiverpy 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            paidiverpy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">paidiverpy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">paidiverpy.config.color_params</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for paidiverpy.config.color_params</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Color layer parameters dataclasses.</span>
+
+<span class="sd">This module contains the dataclasses for the parameters of the color layer</span>
+<span class="sd">functions.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.utils</span> <span class="kn">import</span> <span class="n">DynamicConfig</span>
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="GrayScaleParams">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.GrayScaleParams">[docs]</a>
+<span class="k">class</span> <span class="nc">GrayScaleParams</span><span class="p">(</span><span class="n">DynamicConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This class contains the parameters for the grayscale conversion.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="GrayScaleParams.keep_alpha">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.GrayScaleParams.keep_alpha">[docs]</a>
+    <span class="n">keep_alpha</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="GrayScaleParams.method">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.GrayScaleParams.method">[docs]</a>
+    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;opencv&quot;</span></div>
+
+<div class="viewcode-block" id="GrayScaleParams.invert_colors">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.GrayScaleParams.invert_colors">[docs]</a>
+    <span class="n">invert_colors</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
+</div>
+
+
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="GaussianBlurParams">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.GaussianBlurParams">[docs]</a>
+<span class="k">class</span> <span class="nc">GaussianBlurParams</span><span class="p">(</span><span class="n">DynamicConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This class contains the parameters for the Gaussian blur.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="GaussianBlurParams.sigma">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.GaussianBlurParams.sigma">[docs]</a>
+    <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span></div>
+</div>
+
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="EdgeDetectionParams">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.EdgeDetectionParams">[docs]</a>
+<span class="k">class</span> <span class="nc">EdgeDetectionParams</span><span class="p">(</span><span class="n">DynamicConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This class contains the parameters for the edge detection.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="EdgeDetectionParams.method">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.EdgeDetectionParams.method">[docs]</a>
+    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;sobel&quot;</span></div>
+
+<div class="viewcode-block" id="EdgeDetectionParams.blur_radius">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.EdgeDetectionParams.blur_radius">[docs]</a>
+    <span class="n">blur_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span></div>
+
+<div class="viewcode-block" id="EdgeDetectionParams.threshold">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.EdgeDetectionParams.threshold">[docs]</a>
+    <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span></div>
+
+<div class="viewcode-block" id="EdgeDetectionParams.object_type">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.EdgeDetectionParams.object_type">[docs]</a>
+    <span class="n">object_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bright&quot;</span></div>
+
+<div class="viewcode-block" id="EdgeDetectionParams.object_selection">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.EdgeDetectionParams.object_selection">[docs]</a>
+    <span class="n">object_selection</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;largest&quot;</span></div>
+
+<div class="viewcode-block" id="EdgeDetectionParams.estimate_sharpness">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.EdgeDetectionParams.estimate_sharpness">[docs]</a>
+    <span class="n">estimate_sharpness</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="EdgeDetectionParams.deconv">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.EdgeDetectionParams.deconv">[docs]</a>
+    <span class="n">deconv</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="EdgeDetectionParams.deconv_method">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.EdgeDetectionParams.deconv_method">[docs]</a>
+    <span class="n">deconv_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;richardson_lucy&quot;</span></div>
+
+<div class="viewcode-block" id="EdgeDetectionParams.deconv_iter">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.EdgeDetectionParams.deconv_iter">[docs]</a>
+    <span class="n">deconv_iter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span></div>
+
+<div class="viewcode-block" id="EdgeDetectionParams.deconv_mask_weight">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.EdgeDetectionParams.deconv_mask_weight">[docs]</a>
+    <span class="n">deconv_mask_weight</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.03</span></div>
+
+<div class="viewcode-block" id="EdgeDetectionParams.small_float_val">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.EdgeDetectionParams.small_float_val">[docs]</a>
+    <span class="n">small_float_val</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span></div>
+</div>
+
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="SharpenParams">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.SharpenParams">[docs]</a>
+<span class="k">class</span> <span class="nc">SharpenParams</span><span class="p">(</span><span class="n">DynamicConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This class contains the parameters for the sharpening.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SharpenParams.alpha">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.SharpenParams.alpha">[docs]</a>
+    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.5</span></div>
+
+<div class="viewcode-block" id="SharpenParams.beta">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.SharpenParams.beta">[docs]</a>
+    <span class="n">beta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5</span></div>
+</div>
+
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="ContrastAdjustmentParams">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.ContrastAdjustmentParams">[docs]</a>
+<span class="k">class</span> <span class="nc">ContrastAdjustmentParams</span><span class="p">(</span><span class="n">DynamicConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This class contains the parameters for the contrast adjustment.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ContrastAdjustmentParams.method">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.ContrastAdjustmentParams.method">[docs]</a>
+    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;clahe&quot;</span></div>
+
+<div class="viewcode-block" id="ContrastAdjustmentParams.kernel_size">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.ContrastAdjustmentParams.kernel_size">[docs]</a>
+    <span class="n">kernel_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="ContrastAdjustmentParams.clip_limit">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.ContrastAdjustmentParams.clip_limit">[docs]</a>
+    <span class="n">clip_limit</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span></div>
+
+<div class="viewcode-block" id="ContrastAdjustmentParams.gamma_value">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.ContrastAdjustmentParams.gamma_value">[docs]</a>
+    <span class="n">gamma_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span></div>
+</div>
+
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="IlluminationCorrectionParams">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.IlluminationCorrectionParams">[docs]</a>
+<span class="k">class</span> <span class="nc">IlluminationCorrectionParams</span><span class="p">(</span><span class="n">DynamicConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This class contains the parameters for the illumination correction.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="IlluminationCorrectionParams.method">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.IlluminationCorrectionParams.method">[docs]</a>
+    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;rolling&quot;</span></div>
+
+<div class="viewcode-block" id="IlluminationCorrectionParams.radius">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.IlluminationCorrectionParams.radius">[docs]</a>
+    <span class="n">radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span></div>
+</div>
+
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="DeblurParams">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.DeblurParams">[docs]</a>
+<span class="k">class</span> <span class="nc">DeblurParams</span><span class="p">(</span><span class="n">DynamicConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This class contains the parameters for the deblurring.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DeblurParams.method">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.DeblurParams.method">[docs]</a>
+    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;wiener&quot;</span></div>
+
+<div class="viewcode-block" id="DeblurParams.psf_type">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.DeblurParams.psf_type">[docs]</a>
+    <span class="n">psf_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gaussian&quot;</span></div>
+
+<div class="viewcode-block" id="DeblurParams.sigma">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.DeblurParams.sigma">[docs]</a>
+    <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">20</span></div>
+
+<div class="viewcode-block" id="DeblurParams.angle">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.DeblurParams.angle">[docs]</a>
+    <span class="n">angle</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">45</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="COLOR_LAYER_METHODS">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/config/color_params/index.html#paidiverpy.config.color_params.COLOR_LAYER_METHODS">[docs]</a>
+<span class="n">COLOR_LAYER_METHODS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;grayscale&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">GrayScaleParams</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;grayscale&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;gaussian_blur&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">GaussianBlurParams</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;gaussian_blur&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;edge_detection&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">EdgeDetectionParams</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;edge_detection&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;sharpen&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">SharpenParams</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;sharpen&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;contrast&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">ContrastAdjustmentParams</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;contrast_adjustment&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;deblur&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">DeblurParams</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;deblur&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;illumination_correction&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">IlluminationCorrectionParams</span><span class="p">,</span>
+        <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;illumination_correction&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024-09-03 14:12:44, Tobias Ferreira.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

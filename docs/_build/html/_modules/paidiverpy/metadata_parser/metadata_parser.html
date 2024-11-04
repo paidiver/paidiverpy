@@ -1,0 +1,440 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>paidiverpy.metadata_parser.metadata_parser &mdash; paidiverpy 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            paidiverpy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">paidiverpy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">paidiverpy.metadata_parser.metadata_parser</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for paidiverpy.metadata_parser.metadata_parser</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Module for parsing metadata files.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">mariqt.sources.ifdo</span> <span class="k">as</span> <span class="nn">miqtifdo</span>
+<span class="kn">import</span> <span class="nn">mariqt.tests</span> <span class="k">as</span> <span class="nn">miqtt</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">mariqt.core</span> <span class="kn">import</span> <span class="n">IfdoException</span>
+<span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="kn">import</span> <span class="n">Point</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.config.config</span> <span class="kn">import</span> <span class="n">Configuration</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.utils</span> <span class="kn">import</span> <span class="n">initialise_logging</span>
+
+<div class="viewcode-block" id="filename_columns">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/metadata_parser/metadata_parser/index.html#paidiverpy.metadata_parser.filename_columns">[docs]</a>
+<span class="n">filename_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;image-filename&quot;</span><span class="p">,</span> <span class="s2">&quot;filename&quot;</span><span class="p">,</span> <span class="s2">&quot;file_name&quot;</span><span class="p">,</span> <span class="s2">&quot;FileName&quot;</span><span class="p">,</span> <span class="s2">&quot;File Name&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="index_columns">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/metadata_parser/metadata_parser/index.html#paidiverpy.metadata_parser.index_columns">[docs]</a>
+<span class="n">index_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="s2">&quot;ID&quot;</span><span class="p">,</span> <span class="s2">&quot;Index&quot;</span><span class="p">,</span> <span class="s2">&quot;Id&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="datetime_columns">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/metadata_parser/metadata_parser/index.html#paidiverpy.metadata_parser.datetime_columns">[docs]</a>
+<span class="n">datetime_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;image-datetime&quot;</span><span class="p">,</span> <span class="s2">&quot;datetime&quot;</span><span class="p">,</span> <span class="s2">&quot;date_time&quot;</span><span class="p">,</span> <span class="s2">&quot;DateTime&quot;</span><span class="p">,</span> <span class="s2">&quot;Datetime&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="lat_columns">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/metadata_parser/metadata_parser/index.html#paidiverpy.metadata_parser.lat_columns">[docs]</a>
+<span class="n">lat_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;image-latitude&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;lat&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;latitude_deg&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;latitude&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;Latitude&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;Latitude_deg&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;Lat&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="lon_columns">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/metadata_parser/metadata_parser/index.html#paidiverpy.metadata_parser.lon_columns">[docs]</a>
+<span class="n">lon_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;image-longitude&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;lon&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;longitude_deg&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;longitude&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;Longitude&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;Longitude_deg&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;Lon&quot;</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="MetadataParser">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/metadata_parser/metadata_parser/index.html#paidiverpy.metadata_parser.MetadataParser">[docs]</a>
+<span class="k">class</span> <span class="nc">MetadataParser</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for parsing metadata files.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config (Configuration): Configuration object.</span>
+<span class="sd">        metadata_path (str): Path to the metadata file.</span>
+<span class="sd">        metadata_type (str): Type of the metadata file.</span>
+<span class="sd">        append_data_to_metadata (str): Path to the file with additional data.</span>
+<span class="sd">        logger (logging.Logger): Logger object.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: Metadata path is not specified.</span>
+<span class="sd">        ValueError: Metadata type is not specified.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">Configuration</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">metadata_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">metadata_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">append_data_to_metadata</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<div class="viewcode-block" id="MetadataParser.logger">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/metadata_parser/metadata_parser/index.html#paidiverpy.metadata_parser.MetadataParser.logger">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">initialise_logging</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MetadataParser.config">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/metadata_parser/metadata_parser/index.html#paidiverpy.metadata_parser.MetadataParser.config">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_config</span><span class="p">(</span><span class="n">metadata_path</span><span class="p">,</span>
+                                                   <span class="n">metadata_type</span><span class="p">,</span>
+                                                   <span class="n">append_data_to_metadata</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MetadataParser.metadata_type">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/metadata_parser/metadata_parser/index.html#paidiverpy.metadata_parser.MetadataParser.metadata_type">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata_type</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">general</span><span class="p">,</span> <span class="s2">&quot;metadata_type&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MetadataParser.append_data_to_metadata">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/metadata_parser/metadata_parser/index.html#paidiverpy.metadata_parser.MetadataParser.append_data_to_metadata">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">append_data_to_metadata</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">general</span><span class="p">,</span> <span class="s2">&quot;append_data_to_metadata&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MetadataParser.metadata_path">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/metadata_parser/metadata_parser/index.html#paidiverpy.metadata_parser.MetadataParser.metadata_path">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata_path</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">general</span><span class="p">,</span> <span class="s2">&quot;metadata_path&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata_path</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Metadata path is not specified.&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata_type</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Metadata type is not specified.&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MetadataParser.metadata">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/metadata_parser/metadata_parser/index.html#paidiverpy.metadata_parser.MetadataParser.metadata">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_metadata</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MetadataParser.dataset_metadata">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/metadata_parser/metadata_parser/index.html#paidiverpy.metadata_parser.MetadataParser.dataset_metadata">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset_metadata</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="MetadataParser._build_config">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/metadata_parser/metadata_parser/index.html#paidiverpy.metadata_parser.MetadataParser._build_config">[docs]</a>
+    <span class="k">def</span> <span class="nf">_build_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metadata_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">append_data_to_metadata</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Configuration</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build a configuration object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            metadata_path (str): Metadata file path.</span>
+<span class="sd">            metadata_type (str): Metadata file type.</span>
+<span class="sd">            append_data_to_metadata (str): Additional data file path.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Configuration: Configuration object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">general_params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;input_path&quot;</span><span class="p">:</span> <span class="s2">&quot;placeholder&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;output_path&quot;</span><span class="p">:</span> <span class="s2">&quot;placeholder&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;metadata_path&quot;</span><span class="p">:</span> <span class="n">metadata_path</span><span class="p">,</span>
+            <span class="s2">&quot;metadata_type&quot;</span><span class="p">:</span> <span class="n">metadata_type</span><span class="p">,</span>
+            <span class="s2">&quot;append_data_to_metadata&quot;</span><span class="p">:</span> <span class="n">append_data_to_metadata</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">Configuration</span><span class="p">(</span><span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;placeholder&quot;</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="s2">&quot;placeholder&quot;</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_config</span><span class="p">(</span><span class="s2">&quot;general&quot;</span><span class="p">,</span> <span class="n">general_params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">config</span></div>
+
+
+<div class="viewcode-block" id="MetadataParser.open_metadata">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/metadata_parser/metadata_parser/index.html#paidiverpy.metadata_parser.MetadataParser.open_metadata">[docs]</a>
+    <span class="k">def</span> <span class="nf">open_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Open metadata file.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: Metadata type is not supported.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pd.DataFrame: Metadata DataFrame.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata_type</span> <span class="o">==</span> <span class="s2">&quot;IFDO&quot;</span><span class="p">:</span>
+            <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open_ifdo_metadata</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata_type</span> <span class="o">==</span> <span class="s2">&quot;CSV_FILE&quot;</span><span class="p">:</span>
+            <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open_csv_metadata</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Metadata type is not supported.&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">append_data_to_metadata</span><span class="p">:</span>
+            <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_data_to_metadata</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;flag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_coordinates</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MetadataParser._process_coordinates">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/metadata_parser/metadata_parser/index.html#paidiverpy.metadata_parser.MetadataParser._process_coordinates">[docs]</a>
+    <span class="k">def</span> <span class="nf">_process_coordinates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process coordinates in the metadata.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            metadata (pd.DataFrame): Metadata DataFrame.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pd.DataFrame: Metadata DataFrame.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rename_columns</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="n">lat_columns</span><span class="p">)</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rename_columns</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="n">lon_columns</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;image-longitude&quot;</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="s2">&quot;image-latitude&quot;</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;point&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;image-longitude&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;image-latitude&quot;</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">metadata</span></div>
+
+
+<div class="viewcode-block" id="MetadataParser._rename_columns">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/metadata_parser/metadata_parser/index.html#paidiverpy.metadata_parser.MetadataParser._rename_columns">[docs]</a>
+    <span class="k">def</span> <span class="nf">_rename_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">raise_error</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Rename columns in the metadata.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            metadata (pd.DataFrame): Metadata DataFrame.</span>
+<span class="sd">            columns (list): List of columns to rename.</span>
+<span class="sd">            raise_error (bool, optional): Raise error if column is not found.</span>
+<span class="sd">        Defaults to False.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: Metadata does not have a column.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pd.DataFrame: Metadata DataFrame.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">col</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">columns</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">raise_error</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s2">&quot;Metadata does not have a </span><span class="si">%s</span><span class="s2"> type column. It should have one of the following columns: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">columns</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Metadata does not have any column like: </span><span class="si">{</span><span class="n">columns</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="n">msg</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Metadata does not have a </span><span class="si">%s</span><span class="s2"> type column. It should have one of the following columns: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">columns</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Some functions may not work properly.&quot;</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">metadata</span>
+
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">]})</span>
+                <span class="n">columns_1</span> <span class="o">=</span> <span class="n">columns</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">columns_1</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">columns_1</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">return</span> <span class="n">metadata</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns_1</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="MetadataParser._add_data_to_metadata">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/metadata_parser/metadata_parser/index.html#paidiverpy.metadata_parser.MetadataParser._add_data_to_metadata">[docs]</a>
+    <span class="k">def</span> <span class="nf">_add_data_to_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add additional data to the metadata.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            metadata (pd.DataFrame): Metadata DataFrame.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: Metadata does not have a filename column.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pd.DataFrame: Metadata DataFrame.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_metadata</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">append_data_to_metadata</span><span class="p">)</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="s2">&quot;filename&quot;</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">col</span> <span class="ow">in</span> <span class="n">new_metadata</span><span class="o">.</span><span class="n">columns</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">filename_columns</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Metadata does not have a filename column: </span><span class="si">{</span><span class="n">filename_columns</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="n">msg</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">new_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rename_columns</span><span class="p">(</span><span class="n">new_metadata</span><span class="p">,</span> <span class="n">filename_columns</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">metadata</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">new_metadata</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;image-filename&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="MetadataParser._open_ifdo_metadata">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/metadata_parser/metadata_parser/index.html#paidiverpy.metadata_parser.MetadataParser._open_ifdo_metadata">[docs]</a>
+    <span class="k">def</span> <span class="nf">_open_ifdo_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Open iFDO metadata file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pd.DataFrame: Metadata DataFrame.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">metadata_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata_path</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata_path</span><span class="p">,</span>
+                                                         <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata_path</span><span class="p">)</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">miqtifdo</span><span class="o">.</span><span class="n">iFDO_Reader</span><span class="p">(</span><span class="n">metadata_path</span><span class="p">)</span><span class="o">.</span><span class="n">ifdo</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_ifdo</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset_metadata</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;image-set-header&quot;</span><span class="p">]</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;image-set-items&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="s2">&quot;image-filename&quot;</span><span class="p">})</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="s2">&quot;ID&quot;</span><span class="p">})</span>
+        <span class="k">if</span> <span class="s2">&quot;image-datetime&quot;</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;image-datetime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;image-datetime&quot;</span><span class="p">])</span>
+            <span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;image-datetime&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">metadata</span></div>
+
+
+<div class="viewcode-block" id="MetadataParser._open_csv_metadata">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/metadata_parser/metadata_parser/index.html#paidiverpy.metadata_parser.MetadataParser._open_csv_metadata">[docs]</a>
+    <span class="k">def</span> <span class="nf">_open_csv_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Open CSV metadata file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pd.DataFrame: Metadata DataFrame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata_path</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">col</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">columns</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">index_columns</span><span class="p">):</span>
+            <span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="s2">&quot;ID&quot;</span><span class="p">})</span>
+
+        <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rename_columns</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="n">filename_columns</span><span class="p">,</span> <span class="n">raise_error</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rename_columns</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="n">datetime_columns</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;image-datetime&quot;</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;image-datetime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;image-datetime&quot;</span><span class="p">])</span>
+            <span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;image-datetime&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">metadata</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="MetadataParser._validate_ifdo">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/metadata_parser/metadata_parser/index.html#paidiverpy.metadata_parser.MetadataParser._validate_ifdo">[docs]</a>
+    <span class="k">def</span> <span class="nf">_validate_ifdo</span><span class="p">(</span><span class="n">ifdo_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;validate_ifdo method.</span>
+
+<span class="sd">        Validates input data against iFDO scheme. Raises an exception if the</span>
+<span class="sd">        data is invalid.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ifdo_data (Dict): parsed iFDO data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">miqtt</span><span class="o">.</span><span class="n">are_valid_ifdo_fields</span><span class="p">(</span><span class="n">ifdo_data</span><span class="p">[</span><span class="s2">&quot;image-set-header&quot;</span><span class="p">])</span>
+        <span class="n">unique_names</span> <span class="o">=</span> <span class="n">miqtt</span><span class="o">.</span><span class="n">filesHaveUniqueName</span><span class="p">(</span><span class="n">ifdo_data</span><span class="p">[</span><span class="s2">&quot;image-set-items&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">unique_names</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">IfdoException</span><span class="p">({</span><span class="s2">&quot;Validation error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Duplicate filenames found: </span><span class="si">{</span><span class="n">unique_names</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="MetadataParser.__repr__">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/metadata_parser/metadata_parser/index.html#paidiverpy.metadata_parser.MetadataParser.__repr__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the string representation of the metadata.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: String representation of the metadata.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MetadataParser._repr_html_">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/metadata_parser/metadata_parser/index.html#paidiverpy.metadata_parser.MetadataParser._repr_html_">[docs]</a>
+    <span class="k">def</span> <span class="nf">_repr_html_</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the HTML representation of the metadata.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: HTML representation of the metadata.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;This is a instance of &#39;MetadataParser&#39;&lt;br&gt;&lt;br&gt;&quot;</span>
+
+        <span class="k">return</span> <span class="n">message</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">_repr_html_</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024-09-03 14:12:44, Tobias Ferreira.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

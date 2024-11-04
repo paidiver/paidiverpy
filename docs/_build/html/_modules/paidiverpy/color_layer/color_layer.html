@@ -1,0 +1,1119 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>paidiverpy.color_layer.color_layer &mdash; paidiverpy 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            paidiverpy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">paidiverpy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">paidiverpy.color_layer.color_layer</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for paidiverpy.color_layer.color_layer</h1><div class="highlight"><pre>
+<span></span>
+<span class="sd">&quot;&quot;&quot;Color layer module.</span>
+
+<span class="sd">This module contains the ColorLayer class for processing the images in the</span>
+<span class="sd">color layer.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">dask</span>
+<span class="kn">import</span> <span class="nn">dask.array</span> <span class="k">as</span> <span class="nn">da</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">dask</span> <span class="kn">import</span> <span class="n">compute</span>
+<span class="kn">from</span> <span class="nn">dask.diagnostics</span> <span class="kn">import</span> <span class="n">ProgressBar</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">ndimage</span>
+<span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="n">color</span>
+<span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="n">measure</span>
+<span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="n">morphology</span>
+<span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="n">restoration</span>
+<span class="kn">from</span> <span class="nn">skimage.exposure</span> <span class="kn">import</span> <span class="n">adjust_gamma</span>
+<span class="kn">from</span> <span class="nn">skimage.exposure</span> <span class="kn">import</span> <span class="n">equalize_adapthist</span>
+<span class="kn">from</span> <span class="nn">skimage.filters</span> <span class="kn">import</span> <span class="n">gaussian</span>
+<span class="kn">from</span> <span class="nn">skimage.filters</span> <span class="kn">import</span> <span class="n">scharr</span>
+<span class="kn">from</span> <span class="nn">skimage.filters</span> <span class="kn">import</span> <span class="n">unsharp_mask</span>
+<span class="kn">from</span> <span class="nn">skimage.restoration</span> <span class="kn">import</span> <span class="n">rolling_ball</span>
+<span class="kn">from</span> <span class="nn">skimage.restoration</span> <span class="kn">import</span> <span class="n">wiener</span>
+<span class="kn">from</span> <span class="nn">skimage.segmentation</span> <span class="kn">import</span> <span class="n">checkerboard_level_set</span>
+<span class="kn">from</span> <span class="nn">skimage.segmentation</span> <span class="kn">import</span> <span class="n">morphological_chan_vese</span>
+<span class="kn">from</span> <span class="nn">skimage.transform</span> <span class="kn">import</span> <span class="n">resize</span>
+<span class="kn">from</span> <span class="nn">paidiverpy</span> <span class="kn">import</span> <span class="n">Paidiverpy</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.config.color_params</span> <span class="kn">import</span> <span class="n">COLOR_LAYER_METHODS</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.config.color_params</span> <span class="kn">import</span> <span class="n">ContrastAdjustmentParams</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.config.color_params</span> <span class="kn">import</span> <span class="n">DeblurParams</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.config.color_params</span> <span class="kn">import</span> <span class="n">EdgeDetectionParams</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.config.color_params</span> <span class="kn">import</span> <span class="n">GaussianBlurParams</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.config.color_params</span> <span class="kn">import</span> <span class="n">GrayScaleParams</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.config.color_params</span> <span class="kn">import</span> <span class="n">IlluminationCorrectionParams</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.config.color_params</span> <span class="kn">import</span> <span class="n">SharpenParams</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.config.config</span> <span class="kn">import</span> <span class="n">Configuration</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.images_layer</span> <span class="kn">import</span> <span class="n">ImagesLayer</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.metadata_parser</span> <span class="kn">import</span> <span class="n">MetadataParser</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.utils</span> <span class="kn">import</span> <span class="n">DynamicConfig</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.utils</span> <span class="kn">import</span> <span class="n">raise_value_error</span>
+
+<div class="viewcode-block" id="NUM_CHANNELS_RGB">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/color_layer/index.html#paidiverpy.color_layer.color_layer.NUM_CHANNELS_RGB">[docs]</a>
+<span class="n">NUM_CHANNELS_RGB</span> <span class="o">=</span> <span class="mi">3</span></div>
+
+<div class="viewcode-block" id="NUM_CHANNELS_RGBA">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/color_layer/index.html#paidiverpy.color_layer.color_layer.NUM_CHANNELS_RGBA">[docs]</a>
+<span class="n">NUM_CHANNELS_RGBA</span> <span class="o">=</span> <span class="mi">4</span></div>
+
+<div class="viewcode-block" id="NUM_IMAGE_DIMS">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/color_layer/index.html#paidiverpy.color_layer.color_layer.NUM_IMAGE_DIMS">[docs]</a>
+<span class="n">NUM_IMAGE_DIMS</span> <span class="o">=</span> <span class="mi">2</span></div>
+
+<div class="viewcode-block" id="DEFAULT_BITS">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/color_layer/index.html#paidiverpy.color_layer.color_layer.DEFAULT_BITS">[docs]</a>
+<span class="n">DEFAULT_BITS</span> <span class="o">=</span> <span class="mi">8</span></div>
+
+
+<div class="viewcode-block" id="ColorLayer">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/index.html#paidiverpy.color_layer.color_layer.ColorLayer">[docs]</a>
+<span class="k">class</span> <span class="nc">ColorLayer</span><span class="p">(</span><span class="n">Paidiverpy</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ColorLayer class.</span>
+
+<span class="sd">    Process the images in the color layer.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config_file_path (str): The path to the configuration file.</span>
+<span class="sd">        input_path (str): The path to the input files.</span>
+<span class="sd">        output_path (str): The path to the output files.</span>
+<span class="sd">        metadata_path (str): The path to the metadata file.</span>
+<span class="sd">        metadata_type (str): The type of the metadata file.</span>
+<span class="sd">        metadata (MetadataParser): The metadata object.</span>
+<span class="sd">        config (Configuration): The configuration object.</span>
+<span class="sd">        logger (logging.Logger): The logger object.</span>
+<span class="sd">        images (ImagesLayer): The images object.</span>
+<span class="sd">        paidiverpy (Paidiverpy): The paidiverpy object.</span>
+<span class="sd">        step_name (str): The name of the step.</span>
+<span class="sd">        parameters (dict): The parameters for the step.</span>
+<span class="sd">        config_index (int): The index of the configuration.</span>
+<span class="sd">        raise_error (bool): Whether to raise an error.</span>
+<span class="sd">        verbose (int): verbose level (0 = none, 1 = errors/warnings, 2 = info).</span>
+<span class="sd">        track_changes (bool): Whether to track changes. Defaults to True.</span>
+<span class="sd">        n_jobs (int): The number of jobs to run in parallel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">config_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">metadata_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">metadata_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="p">:</span> <span class="n">MetadataParser</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">Configuration</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">images</span><span class="p">:</span> <span class="n">ImagesLayer</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">paidiverpy</span><span class="p">:</span> <span class="s2">&quot;Paidiverpy&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">step_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">parameters</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">config_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">raise_error</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">track_changes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">n_jobs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">config_file_path</span><span class="o">=</span><span class="n">config_file_path</span><span class="p">,</span>
+            <span class="n">input_path</span><span class="o">=</span><span class="n">input_path</span><span class="p">,</span>
+            <span class="n">output_path</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span>
+            <span class="n">metadata_path</span><span class="o">=</span><span class="n">metadata_path</span><span class="p">,</span>
+            <span class="n">metadata_type</span><span class="o">=</span><span class="n">metadata_type</span><span class="p">,</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+            <span class="n">images</span><span class="o">=</span><span class="n">images</span><span class="p">,</span>
+            <span class="n">paidiverpy</span><span class="o">=</span><span class="n">paidiverpy</span><span class="p">,</span>
+            <span class="n">raise_error</span><span class="o">=</span><span class="n">raise_error</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="n">track_changes</span><span class="o">=</span><span class="n">track_changes</span><span class="p">,</span>
+            <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="ColorLayer.step_name">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/color_layer/index.html#paidiverpy.color_layer.color_layer.ColorLayer.step_name">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_name</span> <span class="o">=</span> <span class="n">step_name</span></div>
+
+        <span class="k">if</span> <span class="n">parameters</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">config_index</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+<div class="viewcode-block" id="ColorLayer.step_metadata">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/color_layer/index.html#paidiverpy.color_layer.color_layer.ColorLayer.step_metadata">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_steps_metadata</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">config_index</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="ColorLayer.run">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/index.html#paidiverpy.color_layer.color_layer.ColorLayer.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">add_new_step</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ImagesLayer</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Color layer run method.</span>
+
+<span class="sd">        Run the color layer steps on the images based on the configuration</span>
+<span class="sd">        file or parameters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            add_new_step (bool, optional): Whether to add a new step to the images object.</span>
+<span class="sd">        Defaults to True.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: The mode is not defined in the configuration file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Union[ImagesLayer, None]: The images object with the new step added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mode&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mode</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;The mode is not defined in the configuration file.&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">method</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_method_by_mode</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">COLOR_LAYER_METHODS</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">get_step</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">images</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">by_order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">image_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_sequentially</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">image_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_parallel</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">test</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">step_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;convert_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">config_index</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_name</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_name</span>
+            <span class="k">if</span> <span class="n">add_new_step</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
+                    <span class="n">step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span>
+                    <span class="n">images</span><span class="o">=</span><span class="n">image_list</span><span class="p">,</span>
+                    <span class="n">step_metadata</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">,</span>
+                    <span class="n">metadata</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_metadata</span><span class="p">(),</span>
+                    <span class="n">track_changes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">track_changes</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">image_list</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="ColorLayer.process_sequentially">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/index.html#paidiverpy.color_layer.color_layer.ColorLayer.process_sequentially">[docs]</a>
+    <span class="k">def</span> <span class="nf">process_sequentially</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">images</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">method</span><span class="p">:</span> <span class="nb">callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process the images sequentially.</span>
+
+<span class="sd">        Method to process the images sequentially.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            images (List[np.ndarray]): The list of images to process.</span>
+<span class="sd">            method (callable): The method to apply to the images.</span>
+<span class="sd">            params (dict): The parameters for the method.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[np.ndarray]: The list of processed images.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">method</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span> <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">images</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="ColorLayer.process_parallel">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/index.html#paidiverpy.color_layer.color_layer.ColorLayer.process_parallel">[docs]</a>
+    <span class="k">def</span> <span class="nf">process_parallel</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">images</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">da</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Array</span><span class="p">],</span> <span class="n">method</span><span class="p">:</span> <span class="nb">callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">DynamicConfig</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process the images in parallel.</span>
+
+<span class="sd">        Method to process the images in parallel.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            images (List[da.core.Array]): The list of images to process.</span>
+<span class="sd">            method (callable): The method to apply to the images.</span>
+<span class="sd">            params (DynamicConfig): The parameters for the method.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[da.core.Array]: The list of processed images.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">delayed_images</span> <span class="o">=</span> <span class="p">[</span><span class="n">dask</span><span class="o">.</span><span class="n">delayed</span><span class="p">(</span><span class="n">method</span><span class="p">)(</span><span class="n">img</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">images</span><span class="p">]</span>
+        <span class="k">with</span> <span class="n">dask</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">scheduler</span><span class="o">=</span><span class="s2">&quot;threads&quot;</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Processing images using </span><span class="si">%s</span><span class="s2"> cores&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">ProgressBar</span><span class="p">():</span>
+                <span class="n">delayed_images</span> <span class="o">=</span> <span class="n">compute</span><span class="p">(</span><span class="o">*</span><span class="n">delayed_images</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">da</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">img</span><span class="p">)</span> <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">delayed_images</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="ColorLayer._apply_grayscale_conversion">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/index.html#paidiverpy.color_layer.color_layer.ColorLayer._apply_grayscale_conversion">[docs]</a>
+    <span class="k">def</span> <span class="nf">_apply_grayscale_conversion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                    <span class="n">image_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                                    <span class="n">params</span><span class="p">:</span> <span class="n">GrayScaleParams</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;GrayScale conversion.</span>
+
+<span class="sd">        Apply the grayscale conversion method specified by params</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image_data (np.ndarray): The input image.</span>
+<span class="sd">            params (GrayScaleParams): Parameters for the grayscale conversion.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The grayscale image.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;average&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;luminosity&quot;</span><span class="p">:</span>
+            <span class="n">band1</span> <span class="o">=</span> <span class="mf">0.2126</span> <span class="o">*</span> <span class="n">image_data</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">band2</span> <span class="o">=</span> <span class="mf">0.7152</span> <span class="o">*</span> <span class="n">image_data</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">band3</span> <span class="o">=</span> <span class="mf">0.0722</span> <span class="o">*</span> <span class="n">image_data</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">band1</span> <span class="o">+</span> <span class="n">band2</span> <span class="o">+</span> <span class="n">band3</span>
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;desaturation&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="k">return</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ColorLayer.grayscale">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/index.html#paidiverpy.color_layer.color_layer.ColorLayer.grayscale">[docs]</a>
+    <span class="k">def</span> <span class="nf">grayscale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">GrayScaleParams</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the image to grayscale.</span>
+
+<span class="sd">        Method to convert the image to grayscale.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image_data (np.ndarray): The input image.</span>
+<span class="sd">            params (GrayScaleParams, optional): Parameters for the grayscale conversion.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the input image does not have 3 channels or 4 channels with alpha.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The grayscale image.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">GrayScaleParams</span><span class="p">()</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">image_data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="n">NUM_IMAGE_DIMS</span> <span class="ow">or</span>
+            <span class="p">(</span><span class="n">image_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">NUM_CHANNELS_RGB</span> <span class="ow">and</span>
+            <span class="n">image_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">NUM_CHANNELS_RGBA</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Input image must have 3 or 4 channels in the last dimension.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Input image must have 3 or 4 channels in the last dimension.&quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">image_data</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">keep_alpha</span> <span class="ow">and</span> <span class="n">image_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">NUM_CHANNELS_RGBA</span><span class="p">:</span>
+                <span class="n">alpha_channel</span> <span class="o">=</span> <span class="n">image_data</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">NUM_CHANNELS_RGBA</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">image_data</span> <span class="o">=</span> <span class="n">image_data</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="n">NUM_CHANNELS_RGB</span><span class="p">]</span>
+            <span class="n">image_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_grayscale_conversion</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">invert_colors</span><span class="p">:</span>
+                <span class="n">image_data</span> <span class="o">=</span> <span class="mi">255</span> <span class="o">-</span> <span class="n">image_data</span>
+
+            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">keep_alpha</span> <span class="ow">and</span> <span class="s2">&quot;alpha_channel&quot;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
+                <span class="n">image_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">([</span><span class="n">image_data</span><span class="p">,</span> <span class="n">alpha_channel</span><span class="p">])</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Error converting image to grayscale: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Error converting image to grayscale: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+
+        <span class="k">return</span> <span class="n">image_data</span></div>
+
+
+<div class="viewcode-block" id="ColorLayer.gaussian_blur">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/index.html#paidiverpy.color_layer.color_layer.ColorLayer.gaussian_blur">[docs]</a>
+    <span class="k">def</span> <span class="nf">gaussian_blur</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                      <span class="n">image_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                      <span class="n">params</span><span class="p">:</span> <span class="n">GaussianBlurParams</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gaussian blur.</span>
+
+<span class="sd">        Method to apply Gaussian blur to the image.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image_data (np.ndarray): The image to apply Gaussian blur.</span>
+<span class="sd">            params (GaussianBlurParams, optional): the parameters for the method.</span>
+<span class="sd">        Defaults to GaussianBlurParams().</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: Error applying Gaussian blur.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The image in grayscale.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">GaussianBlurParams</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">image_data</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">GaussianBlur</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">params</span><span class="o">.</span><span class="n">sigma</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Error applying Gaussian blur: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Error applying Gaussian blur: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+        <span class="k">return</span> <span class="n">image_data</span></div>
+
+
+<div class="viewcode-block" id="ColorLayer.sharpen">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/index.html#paidiverpy.color_layer.color_layer.ColorLayer.sharpen">[docs]</a>
+    <span class="k">def</span> <span class="nf">sharpen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">SharpenParams</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sharpening.</span>
+
+<span class="sd">        Method to apply sharpening to the image.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image_data (np.ndarray): The image to apply sharpening.</span>
+<span class="sd">            params (SharpenParams, optional): Params for method. Defaults to SharpenParams().</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: Error applying sharpening.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The image with sharpening applied.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">SharpenParams</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">bits</span> <span class="o">=</span> <span class="n">image_data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">itemsize</span> <span class="o">*</span> <span class="n">DEFAULT_BITS</span>
+            <span class="n">image_data</span> <span class="o">=</span> <span class="n">unsharp_mask</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span> <span class="n">amount</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">beta</span><span class="p">)</span>
+            <span class="n">multiply_factor</span> <span class="o">=</span> <span class="mi">255</span> <span class="k">if</span> <span class="n">bits</span> <span class="o">==</span> <span class="n">DEFAULT_BITS</span> <span class="k">else</span> <span class="mi">65535</span>
+            <span class="n">image_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">image_data</span> <span class="o">*</span> <span class="n">multiply_factor</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">multiply_factor</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">uint8</span> <span class="k">if</span> <span class="n">bits</span> <span class="o">==</span> <span class="n">DEFAULT_BITS</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Error applying sharpening: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Error applying sharpening: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+        <span class="k">return</span> <span class="n">image_data</span></div>
+
+
+<div class="viewcode-block" id="ColorLayer.contrast_adjustment">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/index.html#paidiverpy.color_layer.color_layer.ColorLayer.contrast_adjustment">[docs]</a>
+    <span class="k">def</span> <span class="nf">contrast_adjustment</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">image_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">params</span><span class="p">:</span> <span class="n">ContrastAdjustmentParams</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Contrast adjustment.</span>
+
+<span class="sd">        Method to apply contrast adjustment to the image.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image_data (np.ndarray): The image to apply contrast adjustment.</span>
+<span class="sd">            params (ContrastAdjustmentParams, optional): Params for method.</span>
+<span class="sd">        Defaults to ContrastAdjustmentParams().</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: Error applying contrast adjustment.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The image with contrast adjustment applied.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">ContrastAdjustmentParams</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">method</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">method</span>
+            <span class="n">kernel_size</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">)</span> <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">kernel_size</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">clip_limit</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">clip_limit</span>
+            <span class="n">gamma_value</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">gamma_value</span>
+            <span class="n">bits</span> <span class="o">=</span> <span class="n">image_data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">itemsize</span> <span class="o">*</span> <span class="n">DEFAULT_BITS</span>
+            <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;clahe&quot;</span><span class="p">:</span>
+                <span class="n">image_data</span> <span class="o">=</span> <span class="n">equalize_adapthist</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">clip_limit</span><span class="o">=</span><span class="n">clip_limit</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="n">kernel_size</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;gamma&quot;</span><span class="p">:</span>
+                <span class="n">image_data</span> <span class="o">=</span> <span class="n">adjust_gamma</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="n">gamma_value</span><span class="p">)</span>
+
+            <span class="n">multiply_factor</span> <span class="o">=</span> <span class="mi">255</span> <span class="k">if</span> <span class="n">bits</span> <span class="o">==</span> <span class="n">DEFAULT_BITS</span> <span class="k">else</span> <span class="mi">65535</span>
+            <span class="n">image_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">image_data</span> <span class="o">*</span> <span class="n">multiply_factor</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">multiply_factor</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">uint8</span> <span class="k">if</span> <span class="n">bits</span> <span class="o">==</span> <span class="n">DEFAULT_BITS</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Error applying contrast adjustment: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Error applying contrast adjustment: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+
+        <span class="k">return</span> <span class="n">image_data</span></div>
+
+
+<div class="viewcode-block" id="ColorLayer.illumination_correction">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/index.html#paidiverpy.color_layer.color_layer.ColorLayer.illumination_correction">[docs]</a>
+    <span class="k">def</span> <span class="nf">illumination_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                <span class="n">image_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                                <span class="n">params</span><span class="p">:</span> <span class="n">IlluminationCorrectionParams</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Illumination correction.</span>
+
+<span class="sd">        Method to apply illumination correction to the image.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image_data (np.ndarray): The image to apply illumination correction.</span>
+<span class="sd">            params (IlluminationCorrectionParams, optional): Params for method.</span>
+<span class="sd">        Defaults to IlluminationCorrectionParams().</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: Error applying illumination correction.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The image with illumination correction applied.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">IlluminationCorrectionParams</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">method</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">method</span>
+            <span class="n">radius</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">radius</span>
+
+            <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;rolling&quot;</span><span class="p">:</span>
+                <span class="n">background</span> <span class="o">=</span> <span class="n">rolling_ball</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">)</span>
+                <span class="n">image_data</span> <span class="o">=</span> <span class="n">image_data</span> <span class="o">-</span> <span class="n">background</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Error applying contrast adjustment: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Error applying contrast adjustment: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+        <span class="k">return</span> <span class="n">image_data</span></div>
+
+
+<div class="viewcode-block" id="ColorLayer.deblur">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/index.html#paidiverpy.color_layer.color_layer.ColorLayer.deblur">[docs]</a>
+    <span class="k">def</span> <span class="nf">deblur</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">DeblurParams</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Deblurring.</span>
+
+<span class="sd">        Method to apply deblurring to the image.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image_data (np.ndarray): The image to apply deblurring.</span>
+<span class="sd">            params (DeblurParams, optional): Params for method.</span>
+<span class="sd">        Defaults to DeblurParams().</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: Unknown PSF type. Please use &#39;gaussian&#39; or &#39;motion&#39;.</span>
+<span class="sd">            ValueError: Unknown method type. Please use &#39;wiener&#39;.</span>
+<span class="sd">            NotImplementedError: Unknown method type. Please use &#39;wiener&#39;.</span>
+<span class="sd">            ValueError: Error applying contrast adjustment.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The image with deblurring applied.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">DeblurParams</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">method</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">method</span>
+            <span class="n">psf_type</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">psf_type</span>
+            <span class="n">sigma</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">sigma</span>
+            <span class="n">angle</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">angle</span>
+            <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;wiener&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">psf_type</span> <span class="o">==</span> <span class="s2">&quot;gaussian&quot;</span><span class="p">:</span>
+                    <span class="n">psf</span> <span class="o">=</span> <span class="n">ColorLayer</span><span class="o">.</span><span class="n">gaussian_psf</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">image_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">psf_type</span> <span class="o">==</span> <span class="s2">&quot;motion&quot;</span><span class="p">:</span>
+                    <span class="n">psf</span> <span class="o">=</span> <span class="n">ColorLayer</span><span class="o">.</span><span class="n">motion_psf</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">image_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">length</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Unknown PSF type. Please use &#39;gaussian&#39; or &#39;motion&#39;.&quot;</span>
+                    <span class="n">raise_value_error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="n">bits</span> <span class="o">=</span> <span class="n">image_data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">itemsize</span> <span class="o">*</span> <span class="n">DEFAULT_BITS</span>
+                <span class="k">if</span> <span class="n">image_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">image_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">image_data</span><span class="p">)</span>
+                <span class="n">image_data</span> <span class="o">=</span> <span class="n">wiener</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">psf</span><span class="p">,</span> <span class="n">balance</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+                <span class="n">multiply_factor</span> <span class="o">=</span> <span class="mi">255</span> <span class="k">if</span> <span class="n">bits</span> <span class="o">==</span> <span class="n">DEFAULT_BITS</span> <span class="k">else</span> <span class="mi">65535</span>
+                <span class="n">image_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">image_data</span> <span class="o">*</span> <span class="n">multiply_factor</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">multiply_factor</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">uint8</span> <span class="k">if</span> <span class="n">bits</span> <span class="o">==</span> <span class="n">DEFAULT_BITS</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">,</span>
+                <span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Unknown method type. Please use &#39;wiener&#39;.&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Unknown method type. Please use &#39;wiener&#39;.&quot;</span>
+                    <span class="n">raise_value_error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Error applying contrast adjustment: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Error applying contrast adjustment: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">raise_value_error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">image_data</span></div>
+
+
+<div class="viewcode-block" id="ColorLayer.edge_detection">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/index.html#paidiverpy.color_layer.color_layer.ColorLayer.edge_detection">[docs]</a>
+    <span class="k">def</span> <span class="nf">edge_detection</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">image_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">params</span><span class="p">:</span> <span class="n">EdgeDetectionParams</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Edge detection.</span>
+
+<span class="sd">        Method to apply edge detection to the image.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image_data (np.ndarray): The image to apply edge detection.</span>
+<span class="sd">            params (EdgeDetectionParams, optional): Params for method.</span>
+<span class="sd">        Defaults to EdgeDetectionParams().</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            e: Error applying edge detection.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The image with edge detection applied.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">EdgeDetectionParams</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;sobel&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">cv2</span><span class="o">.</span><span class="n">Sobel</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">CV_64F</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ksize</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span> <span class="kc">None</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">image_data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="n">NUM_CHANNELS_RGB</span> <span class="ow">and</span> <span class="n">image_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">NUM_CHANNELS_RGB</span><span class="p">:</span>
+                <span class="n">gray_image_data</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">gray_image_data</span> <span class="o">=</span> <span class="n">image_data</span>
+                <span class="n">image_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">((</span><span class="n">image_data</span><span class="p">,</span> <span class="n">image_data</span><span class="p">,</span> <span class="n">image_data</span><span class="p">))</span>
+            <span class="n">filled_edges</span> <span class="o">=</span> <span class="n">ColorLayer</span><span class="o">.</span><span class="n">detect_edges</span><span class="p">(</span><span class="n">gray_image_data</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">blur_radius</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">threshold</span><span class="p">)</span>
+            <span class="n">label_image_data</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">filled_edges</span><span class="p">,</span> <span class="n">connectivity</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">props</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">regionprops</span><span class="p">(</span><span class="n">label_image_data</span><span class="p">,</span> <span class="n">gray_image_data</span><span class="p">)</span>
+
+            <span class="n">valid_object</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">props</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">max_area</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">max_area_ind</span> <span class="o">=</span> <span class="mi">0</span>
+
+                <span class="n">area_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+                <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">prop</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">props</span><span class="p">):</span>
+                    <span class="n">area_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prop</span><span class="o">.</span><span class="n">axis_major_length</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">prop</span><span class="o">.</span><span class="n">axis_major_length</span> <span class="o">&gt;</span> <span class="n">max_area</span><span class="p">:</span>
+                        <span class="n">max_area</span> <span class="o">=</span> <span class="n">prop</span><span class="o">.</span><span class="n">axis_major_length</span>
+                        <span class="n">max_area_ind</span> <span class="o">=</span> <span class="n">index</span>
+
+                <span class="n">area_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">area_list</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                <span class="n">selected_index</span> <span class="o">=</span> <span class="n">max_area_ind</span>
+
+                <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">object_selection</span> <span class="o">!=</span> <span class="s2">&quot;Full ROI&quot;</span> <span class="ow">and</span> <span class="n">params</span><span class="o">.</span><span class="n">object_type</span> <span class="o">!=</span> <span class="s2">&quot;Aggregate&quot;</span><span class="p">:</span>
+                    <span class="n">bw_image_data</span> <span class="o">=</span> <span class="n">label_image_data</span> <span class="o">==</span> <span class="n">props</span><span class="p">[</span><span class="n">selected_index</span><span class="p">]</span><span class="o">.</span><span class="n">label</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">bw_image_data</span> <span class="o">=</span> <span class="n">label_image_data</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                    <span class="c1"># Recompute props on single mask</span>
+                    <span class="n">props</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">regionprops</span><span class="p">(</span><span class="n">bw_image_data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span> <span class="n">gray_image_data</span><span class="p">)</span>
+                    <span class="n">selected_index</span> <span class="o">=</span> <span class="mi">0</span>
+
+                <span class="n">bw</span> <span class="o">=</span> <span class="n">bw_image_data</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">bw_image_data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">bw_image_data</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">bw_image_data</span><span class="p">)</span>
+
+                <span class="n">features</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">clip_frac</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">bw</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">bw</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">bw</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:])</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">bw</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]))</span> <span class="o">/</span> <span class="p">(</span>
+                    <span class="mi">2</span> <span class="o">*</span> <span class="n">bw</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">bw</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="p">)</span>
+
+                <span class="c1"># Save simple features of the object</span>
+                <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">object_selection</span> <span class="o">!=</span> <span class="s2">&quot;Full ROI&quot;</span><span class="p">:</span>
+                    <span class="n">selected_prop</span> <span class="o">=</span> <span class="n">props</span><span class="p">[</span><span class="n">selected_index</span><span class="p">]</span>
+                    <span class="n">features</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="n">selected_prop</span><span class="o">.</span><span class="n">area</span><span class="p">,</span>
+                            <span class="s2">&quot;minor_axis_length&quot;</span><span class="p">:</span> <span class="n">selected_prop</span><span class="o">.</span><span class="n">axis_minor_length</span><span class="p">,</span>
+                            <span class="s2">&quot;major_axis_length&quot;</span><span class="p">:</span> <span class="n">selected_prop</span><span class="o">.</span><span class="n">axis_major_length</span><span class="p">,</span>
+                            <span class="s2">&quot;aspect_ratio&quot;</span><span class="p">:</span> <span class="p">(</span>
+                                <span class="p">(</span><span class="n">selected_prop</span><span class="o">.</span><span class="n">axis_minor_length</span> <span class="o">/</span> <span class="n">selected_prop</span><span class="o">.</span><span class="n">axis_major_length</span><span class="p">)</span>
+                                <span class="k">if</span> <span class="n">selected_prop</span><span class="o">.</span><span class="n">axis_major_length</span> <span class="o">!=</span> <span class="mi">0</span>
+                                <span class="k">else</span> <span class="mi">1</span>
+                            <span class="p">),</span>
+                            <span class="s2">&quot;orientation&quot;</span><span class="p">:</span> <span class="n">selected_prop</span><span class="o">.</span><span class="n">orientation</span><span class="p">,</span>
+                        <span class="p">},</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">features</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="n">bw</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">bw</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                            <span class="s2">&quot;minor_axis_length&quot;</span><span class="p">:</span> <span class="nb">min</span><span class="p">(</span><span class="n">bw</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bw</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                            <span class="s2">&quot;major_axis_length&quot;</span><span class="p">:</span> <span class="nb">max</span><span class="p">(</span><span class="n">bw</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bw</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                            <span class="s2">&quot;aspect_ratio&quot;</span><span class="p">:</span> <span class="p">(</span>
+                                <span class="p">(</span><span class="n">props</span><span class="p">[</span><span class="n">selected_index</span><span class="p">]</span><span class="o">.</span><span class="n">axis_minor_length</span> <span class="o">/</span> <span class="n">props</span><span class="p">[</span><span class="n">selected_index</span><span class="p">]</span><span class="o">.</span><span class="n">axis_major_length</span><span class="p">)</span>
+                                <span class="k">if</span> <span class="n">props</span><span class="p">[</span><span class="n">selected_index</span><span class="p">]</span><span class="o">.</span><span class="n">axis_major_length</span> <span class="o">!=</span> <span class="mi">0</span>
+                                <span class="k">else</span> <span class="mi">1</span>
+                            <span class="p">),</span>
+                            <span class="s2">&quot;orientation&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                        <span class="p">},</span>
+                    <span class="p">)</span>
+
+                <span class="c1"># save all features except for those with  pixel data</span>
+                <span class="n">output_dict</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="n">prop</span><span class="p">:</span> <span class="n">props</span><span class="p">[</span><span class="n">selected_index</span><span class="p">][</span><span class="n">prop</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">props</span><span class="p">[</span><span class="n">selected_index</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">prop</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;convex_image&quot;</span><span class="p">,</span> <span class="s2">&quot;filled_image&quot;</span><span class="p">,</span> <span class="s2">&quot;image&quot;</span><span class="p">,</span> <span class="s2">&quot;coords&quot;</span><span class="p">]</span>
+                <span class="p">}</span>
+                <span class="n">features</span> <span class="o">=</span> <span class="n">output_dict</span>
+                <span class="n">features</span><span class="p">[</span><span class="s2">&quot;clipped_fraction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">clip_frac</span>
+                <span class="n">valid_object</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">features</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                    <span class="s2">&quot;minor_axis_length&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                    <span class="s2">&quot;major_axis_length&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                    <span class="s2">&quot;aspect_ratio&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="s2">&quot;orientation&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                    <span class="s2">&quot;clippped_fraction&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="n">features</span><span class="p">[</span><span class="s2">&quot;valid_object&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">valid_object</span>
+
+            <span class="c1"># sharpness analysis of the image using FFTs</span>
+            <span class="n">features</span> <span class="o">=</span> <span class="n">ColorLayer</span><span class="o">.</span><span class="n">sharpness_analysis</span><span class="p">(</span><span class="n">gray_image_data</span><span class="p">,</span> <span class="n">image_data</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">estimate_sharpness</span><span class="p">)</span>
+
+            <span class="c1"># mask the raw image with smoothed foreground mask</span>
+            <span class="n">blurd_bw_image_data</span> <span class="o">=</span> <span class="n">gaussian</span><span class="p">(</span><span class="n">bw_image_data</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">blur_radius</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">blurd_bw_image_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">blurd_bw_image_data</span> <span class="o">=</span> <span class="n">blurd_bw_image_data</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">blurd_bw_image_data</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                <span class="n">image_data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">image_data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">ind</span><span class="p">]</span> <span class="o">*</span> <span class="n">blurd_bw_image_data</span>
+
+            <span class="c1"># normalize the image as a float</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">image_data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">image_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">image_data</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">image_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">image_data</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">image_data</span><span class="p">)</span>
+
+            <span class="n">image_data</span> <span class="o">=</span> <span class="n">ColorLayer</span><span class="o">.</span><span class="n">deconvolution</span><span class="p">(</span>
+                <span class="n">image_data</span><span class="p">,</span>
+                <span class="n">bw_image_data</span><span class="p">,</span>
+                <span class="n">blurd_bw_image_data</span><span class="p">,</span>
+                <span class="n">params</span><span class="o">.</span><span class="n">deconv</span><span class="p">,</span>
+                <span class="n">params</span><span class="o">.</span><span class="n">deconv_method</span><span class="p">,</span>
+                <span class="n">params</span><span class="o">.</span><span class="n">deconv_iter</span><span class="p">,</span>
+                <span class="n">params</span><span class="o">.</span><span class="n">deconv_mask_weight</span><span class="p">,</span>
+                <span class="n">params</span><span class="o">.</span><span class="n">small_float_val</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Error applying edge detection: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Error applying edge detection: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+        <span class="k">return</span> <span class="n">image_data</span><span class="p">,</span> <span class="n">features</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ColorLayer.gaussian_psf">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/index.html#paidiverpy.color_layer.color_layer.ColorLayer.gaussian_psf">[docs]</a>
+    <span class="k">def</span> <span class="nf">gaussian_psf</span><span class="p">(</span><span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gaussian point spread function.</span>
+
+<span class="sd">        Create a Gaussian point spread function (PSF).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            size (int): The size of the PSF.</span>
+<span class="sd">            sigma (float): The standard deviation of the PSF.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The Gaussian PSF.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">psf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>
+        <span class="n">psf</span><span class="p">[</span><span class="n">size</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="n">size</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">psf</span> <span class="o">=</span> <span class="n">gaussian</span><span class="p">(</span><span class="n">psf</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
+        <span class="n">psf</span> <span class="o">/=</span> <span class="n">psf</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">psf</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ColorLayer.motion_psf">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/index.html#paidiverpy.color_layer.color_layer.ColorLayer.motion_psf">[docs]</a>
+    <span class="k">def</span> <span class="nf">motion_psf</span><span class="p">(</span><span class="n">size</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Motion point spread function.</span>
+
+<span class="sd">        Create a motion point spread function (PSF).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            size (float): size of the PSF</span>
+<span class="sd">            length (float): length of the PSF</span>
+<span class="sd">            angle (float): angle of the PSF</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The motion PSF</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">psf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>
+        <span class="n">center</span> <span class="o">=</span> <span class="n">size</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">angle_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">length</span><span class="p">):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">center</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle_rad</span><span class="p">))</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">center</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle_rad</span><span class="p">))</span>
+            <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">size</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="n">size</span><span class="p">:</span>
+                <span class="n">psf</span><span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">psf</span> <span class="o">/=</span> <span class="n">psf</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">psf</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ColorLayer.normalize_img">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/index.html#paidiverpy.color_layer.color_layer.ColorLayer.normalize_img">[docs]</a>
+    <span class="k">def</span> <span class="nf">normalize_img</span><span class="p">(</span><span class="n">img</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Normalize the image.</span>
+
+<span class="sd">        Normalize the image to [0, 1].</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            img (np.ndarray): The image to normalize</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The normalized image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">min_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+        <span class="n">max_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+
+        <span class="c1"># Shift and scale the image to [0, 1]</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">img</span> <span class="o">-</span> <span class="n">min_val</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">max_val</span> <span class="o">-</span> <span class="n">min_val</span><span class="p">)</span></div>
+
+
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ColorLayer.deconvolution">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/index.html#paidiverpy.color_layer.color_layer.ColorLayer.deconvolution">[docs]</a>
+    <span class="k">def</span> <span class="nf">deconvolution</span><span class="p">(</span>
+        <span class="n">img</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">bw_img</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">blurd_bw_img</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">deconv</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">deconv_method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">deconv_iter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">deconv_mask_weight</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">small_float_val</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Deconvolution.</span>
+
+<span class="sd">        Perform deconvolution on the image.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            img (np.ndarray): The image to deconvolve</span>
+<span class="sd">            bw_img (np.ndarray): The binary image to use for deconvolution</span>
+<span class="sd">            blurd_bw_img (np.ndarray): The blurred binary image to use for deconvolution</span>
+<span class="sd">            deconv (bool): Whether to perform deconvolution</span>
+<span class="sd">            deconv_method (str): The method to use for deconvolution</span>
+<span class="sd">            deconv_iter (int): The number of iterations for deconvolution</span>
+<span class="sd">            deconv_mask_weight (float): The weight for the deconvolution mask</span>
+<span class="sd">            small_float_val (float, optional): The small float value. Defaults to 1e-6.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The deconvolved image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">deconv</span><span class="p">:</span>
+            <span class="c1"># Get the intensity image in HSV space for sharpening</span>
+            <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
+                <span class="n">hsv_img</span> <span class="o">=</span> <span class="n">color</span><span class="o">.</span><span class="n">rgb2hsv</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+            <span class="n">v_img</span> <span class="o">=</span> <span class="n">hsv_img</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">blurd_bw_img</span>
+
+            <span class="c1"># Unsharp mask before masking with binary image</span>
+            <span class="k">if</span> <span class="n">deconv_method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;um&quot;</span><span class="p">:</span>
+                <span class="n">old_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">v_img</span><span class="p">)</span>
+                <span class="n">blurd</span> <span class="o">=</span> <span class="n">gaussian</span><span class="p">(</span><span class="n">v_img</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+                <span class="n">hpfilt</span> <span class="o">=</span> <span class="n">v_img</span> <span class="o">-</span> <span class="n">blurd</span> <span class="o">*</span> <span class="n">deconv_mask_weight</span>
+                <span class="n">v_img</span> <span class="o">=</span> <span class="n">hpfilt</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">deconv_mask_weight</span><span class="p">)</span>
+
+                <span class="n">new_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">v_img</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">new_mean</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">v_img</span> <span class="o">*=</span> <span class="n">old_mean</span> <span class="o">/</span> <span class="n">new_mean</span>
+
+                <span class="n">v_img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">v_img</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">v_img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">(</span><span class="mi">255</span> <span class="o">*</span> <span class="n">v_img</span><span class="p">)</span>
+
+            <span class="c1"># Resize bw_img to match v_img shape</span>
+            <span class="n">bw_img</span> <span class="o">=</span> <span class="n">resize</span><span class="p">(</span><span class="n">bw_img</span><span class="p">,</span> <span class="n">v_img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="n">v_img</span><span class="p">[</span><span class="n">v_img</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">small_float_val</span>
+
+            <span class="c1"># Richardson-Lucy deconvolution</span>
+            <span class="k">if</span> <span class="n">deconv_method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;lr&quot;</span><span class="p">:</span>
+                <span class="n">psf</span> <span class="o">=</span> <span class="n">ColorLayer</span><span class="o">.</span><span class="n">make_gaussian</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+                <span class="n">v_img</span> <span class="o">=</span> <span class="n">restoration</span><span class="o">.</span><span class="n">richardson_lucy</span><span class="p">(</span><span class="n">v_img</span><span class="p">,</span> <span class="n">psf</span><span class="p">,</span> <span class="n">deconv_iter</span><span class="p">)</span>
+
+                <span class="n">v_img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">v_img</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">v_img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">(</span><span class="mi">255</span> <span class="o">*</span> <span class="n">v_img</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">v_img</span><span class="p">)</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">v_img</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">255</span> <span class="o">*</span> <span class="n">v_img</span><span class="p">)</span>
+
+            <span class="c1"># Restore the RGB image from HSV</span>
+            <span class="n">v_img</span><span class="p">[</span><span class="n">v_img</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">small_float_val</span>
+            <span class="n">hsv_img</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">v_img</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">color</span><span class="o">.</span><span class="n">hsv2rgb</span><span class="p">(</span><span class="n">hsv_img</span><span class="p">)</span>
+
+            <span class="c1"># Restore img to 8-bit</span>
+            <span class="n">img_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+            <span class="n">img_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">img</span><span class="p">)</span> <span class="o">-</span> <span class="n">img_min</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span> <span class="k">if</span> <span class="n">img_range</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">(</span><span class="mi">255</span> <span class="o">*</span> <span class="p">(</span><span class="n">img</span> <span class="o">-</span> <span class="n">img_min</span><span class="p">)</span> <span class="o">/</span> <span class="n">img_range</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Restore img to 8-bit</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">(</span><span class="mi">255</span> <span class="o">*</span> <span class="n">img</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">img</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ColorLayer.sharpness_analysis">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/index.html#paidiverpy.color_layer.color_layer.ColorLayer.sharpness_analysis">[docs]</a>
+    <span class="k">def</span> <span class="nf">sharpness_analysis</span><span class="p">(</span>
+        <span class="n">gray_img</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">img</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">features</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+        <span class="n">estimate_sharpness</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sharpness analysis.</span>
+
+<span class="sd">        Estimate the sharpness of the image using FFTs.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            gray_img (np.ndarray): The grayscale image</span>
+<span class="sd">            img (np.ndarray): The image</span>
+<span class="sd">            features (dict): The features of the image</span>
+<span class="sd">            estimate_sharpness (bool, optional): Whether to estimate sharpness.</span>
+<span class="sd">        Defaults to True.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: The features of the image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">estimate_sharpness</span> <span class="ow">and</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;valid_object&quot;</span><span class="p">]:</span>
+            <span class="n">pad_size</span> <span class="o">=</span> <span class="mi">6</span>
+            <span class="n">max_dim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">gray_img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+            <span class="c1"># Determine pad size for FFT</span>
+            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">15</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">max_dim</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="o">**</span><span class="n">s</span><span class="p">:</span>
+                    <span class="n">pad_r</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="n">s</span> <span class="o">-</span> <span class="n">gray_img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">pad_c</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="n">s</span> <span class="o">-</span> <span class="n">gray_img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">real_img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">gray_img</span><span class="p">,</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="n">pad_r</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">pad_c</span><span class="p">)],</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;constant&quot;</span><span class="p">)</span>
+                    <span class="n">pad_size</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="n">s</span>
+                    <span class="k">break</span>
+
+            <span class="c1"># Prefilter the image to remove some of the DC component</span>
+            <span class="n">real_img</span> <span class="o">=</span> <span class="n">real_img</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+
+            <span class="c1"># Window the image to reduce ringing and energy leakage</span>
+            <span class="n">wind</span> <span class="o">=</span> <span class="n">ColorLayer</span><span class="o">.</span><span class="n">make_gaussian</span><span class="p">(</span><span class="n">pad_size</span><span class="p">,</span> <span class="n">pad_size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+            <span class="c1"># Estimate blur of the image using the method from Roberts et al. 2011</span>
+            <span class="n">the_fft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft2</span><span class="p">(</span><span class="n">real_img</span> <span class="o">*</span> <span class="n">wind</span><span class="p">)</span>
+            <span class="n">fft_mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">the_fft</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float&quot;</span><span class="p">)</span>
+            <span class="n">fft_mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">fft_mag</span><span class="p">)</span>
+            <span class="n">fft_mag</span> <span class="o">=</span> <span class="n">gaussian</span><span class="p">(</span><span class="n">fft_mag</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+            <span class="c1"># Find all frequencies with energy above 5% of the max in the spectrum</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">fft_mag</span> <span class="o">&gt;</span> <span class="mf">0.02</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">fft_mag</span><span class="p">)</span>
+
+            <span class="n">rr</span><span class="p">,</span> <span class="n">cc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+            <span class="n">rr</span> <span class="o">=</span> <span class="p">(</span><span class="n">rr</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="n">pad_size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">/</span> <span class="n">pad_size</span>
+            <span class="n">cc</span> <span class="o">=</span> <span class="p">(</span><span class="n">cc</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="n">pad_size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">/</span> <span class="n">pad_size</span>
+            <span class="n">features</span><span class="p">[</span><span class="s2">&quot;sharpness&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">rr</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">cc</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">features</span>
+        <span class="n">features</span><span class="p">[</span><span class="s2">&quot;sharpness&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">features</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ColorLayer.detect_edges">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/index.html#paidiverpy.color_layer.color_layer.ColorLayer.detect_edges">[docs]</a>
+    <span class="k">def</span> <span class="nf">detect_edges</span><span class="p">(</span><span class="n">img</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                     <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                     <span class="n">blur_radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                     <span class="n">threshold</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Detect edges.</span>
+
+<span class="sd">        Detect edges in the image.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            img (np.ndarray): The image to detect edges</span>
+<span class="sd">            method (str): The method to use for edge detection</span>
+<span class="sd">            blur_radius (float): The radius for the blur</span>
+<span class="sd">            threshold (tuple): The threshold for edge detection</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The filled edges</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;Scharr&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="n">NUM_CHANNELS_RGB</span><span class="p">:</span>
+                <span class="n">edges_mags</span> <span class="o">=</span> <span class="p">[</span><span class="n">scharr</span><span class="p">(</span><span class="n">img</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NUM_CHANNELS_RGB</span><span class="p">)]</span>
+                <span class="n">filled_edges</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">ColorLayer</span><span class="o">.</span><span class="n">process_edges</span><span class="p">(</span><span class="n">edges_mag</span><span class="p">,</span> <span class="n">threshold</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">blur_radius</span><span class="p">)</span> <span class="k">for</span> <span class="n">edges_mag</span> <span class="ow">in</span> <span class="n">edges_mags</span>
+                <span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">edges_mag</span> <span class="o">=</span> <span class="n">scharr</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+                <span class="n">filled_edges</span> <span class="o">=</span> <span class="n">ColorLayer</span><span class="o">.</span><span class="n">process_edges</span><span class="p">(</span><span class="n">edges_mag</span><span class="p">,</span> <span class="n">threshold</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">blur_radius</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;Scharr-with-mean&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="n">NUM_CHANNELS_RGB</span><span class="p">:</span>
+                <span class="n">edges_mags</span> <span class="o">=</span> <span class="p">[</span><span class="n">scharr</span><span class="p">(</span><span class="n">img</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+                <span class="n">filled_edges</span> <span class="o">=</span> <span class="p">[</span><span class="n">ColorLayer</span><span class="o">.</span><span class="n">process_edges_mean</span><span class="p">(</span><span class="n">edges_mag</span><span class="p">,</span> <span class="n">blur_radius</span><span class="p">)</span> <span class="k">for</span> <span class="n">edges_mag</span> <span class="ow">in</span> <span class="n">edges_mags</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">edges_mag</span> <span class="o">=</span> <span class="n">scharr</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+                <span class="n">filled_edges</span> <span class="o">=</span> <span class="n">ColorLayer</span><span class="o">.</span><span class="n">process_edges_mean</span><span class="p">(</span><span class="n">edges_mag</span><span class="p">,</span> <span class="n">blur_radius</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;Canny&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="n">NUM_CHANNELS_RGB</span><span class="p">:</span>
+                <span class="n">edges</span> <span class="o">=</span> <span class="p">[</span><span class="n">cv2</span><span class="o">.</span><span class="n">Canny</span><span class="p">(</span><span class="n">img</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">threshold</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">threshold</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NUM_CHANNELS_RGB</span><span class="p">)]</span>
+                <span class="n">filled_edges</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">morphology</span><span class="o">.</span><span class="n">erosion</span><span class="p">(</span>
+                        <span class="n">ndimage</span><span class="o">.</span><span class="n">binary_fill_holes</span><span class="p">(</span><span class="n">morphology</span><span class="o">.</span><span class="n">closing</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="n">morphology</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">blur_radius</span><span class="p">))),</span>
+                        <span class="n">morphology</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">blur_radius</span><span class="p">),</span>
+                    <span class="p">)</span>
+                    <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">edges</span>
+                <span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">edges</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">Canny</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">threshold</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">threshold</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">edges</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">closing</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">morphology</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">blur_radius</span><span class="p">))</span>
+                <span class="n">filled_edges</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">binary_fill_holes</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+                <span class="n">filled_edges</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">erosion</span><span class="p">(</span><span class="n">filled_edges</span><span class="p">,</span> <span class="n">morphology</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">blur_radius</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">init_ls</span> <span class="o">=</span> <span class="n">checkerboard_level_set</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="mi">6</span><span class="p">)</span>
+            <span class="n">ls</span> <span class="o">=</span> <span class="n">morphological_chan_vese</span><span class="p">(</span>
+                <span class="n">img</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="n">NUM_CHANNELS_RGB</span> <span class="k">else</span> <span class="n">img</span><span class="p">,</span>
+                <span class="n">num_iter</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+                <span class="n">init_level_set</span><span class="o">=</span><span class="n">init_ls</span><span class="p">,</span>
+                <span class="n">smoothing</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">filled_edges</span> <span class="o">=</span> <span class="n">ls</span>
+        <span class="k">return</span> <span class="n">filled_edges</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ColorLayer.process_edges">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/index.html#paidiverpy.color_layer.color_layer.ColorLayer.process_edges">[docs]</a>
+    <span class="k">def</span> <span class="nf">process_edges</span><span class="p">(</span><span class="n">edges_mag</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">low_threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">blur_radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process the edges.</span>
+
+<span class="sd">        Process the edges using the low threshold.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            edges_mag (np.ndarray): The edges magnitude</span>
+<span class="sd">            low_threshold (float): The low threshold</span>
+<span class="sd">            blur_radius (float): The radius for the blur</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The filled edges</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">edges_med</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">edges_mag</span><span class="p">)</span>
+        <span class="n">edges_thresh</span> <span class="o">=</span> <span class="n">low_threshold</span> <span class="o">*</span> <span class="n">edges_med</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="n">edges_mag</span> <span class="o">&gt;=</span> <span class="n">edges_thresh</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">closing</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">morphology</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">blur_radius</span><span class="p">))</span>
+        <span class="n">filled_edges</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">binary_fill_holes</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">morphology</span><span class="o">.</span><span class="n">erosion</span><span class="p">(</span><span class="n">filled_edges</span><span class="p">,</span> <span class="n">morphology</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">blur_radius</span><span class="p">))</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ColorLayer.process_edges_mean">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/index.html#paidiverpy.color_layer.color_layer.ColorLayer.process_edges_mean">[docs]</a>
+    <span class="k">def</span> <span class="nf">process_edges_mean</span><span class="p">(</span><span class="n">edges_mag</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">blur_radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process the edges.</span>
+
+<span class="sd">        Process the edges using the mean.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            edges_mag (np.ndarray): The edges magnitude</span>
+<span class="sd">            blur_radius (float): The radius for the blur</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The filled edges</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">edges_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">edges_mag</span><span class="p">)</span>
+        <span class="n">edges_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">edges_mag</span><span class="p">)</span>
+        <span class="n">edges_thresh</span> <span class="o">=</span> <span class="n">edges_mean</span> <span class="o">+</span> <span class="n">edges_std</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="n">edges_mag</span> <span class="o">&gt;</span> <span class="n">edges_thresh</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">closing</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">morphology</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">blur_radius</span><span class="p">))</span>
+        <span class="n">filled_edges</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">binary_fill_holes</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">morphology</span><span class="o">.</span><span class="n">erosion</span><span class="p">(</span><span class="n">filled_edges</span><span class="p">,</span> <span class="n">morphology</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">blur_radius</span><span class="p">))</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ColorLayer.make_gaussian">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/color_layer/index.html#paidiverpy.color_layer.color_layer.ColorLayer.make_gaussian">[docs]</a>
+    <span class="k">def</span> <span class="nf">make_gaussian</span><span class="p">(</span><span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">fwhm</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">center</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Make a square gaussian kernel.</span>
+
+<span class="sd">        Method to make a square gaussian kernel.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            size (int): The size of the square.</span>
+<span class="sd">            fwhm (int, optional): The full-width-half-maximum. Defaults to 3.</span>
+<span class="sd">            center (tuple, optional): The center of the square. Defaults to None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The square gaussian kernel.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">center</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x0</span> <span class="o">=</span> <span class="n">y0</span> <span class="o">=</span> <span class="n">size</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x0</span> <span class="o">=</span> <span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">y0</span> <span class="o">=</span> <span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">y0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">fwhm</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">output</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024-09-03 14:12:44, Tobias Ferreira.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

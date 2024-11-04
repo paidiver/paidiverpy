@@ -1,0 +1,243 @@
+paidiverpy.convert_layer
+========================
+
+.. py:module:: paidiverpy.convert_layer
+
+.. autoapi-nested-parse::
+
+   __init__.py file for convert_layer module.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/paidiverpy/convert_layer/convert_layer/index
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   paidiverpy.convert_layer.ConvertLayer
+
+
+Package Contents
+----------------
+
+.. py:class:: ConvertLayer(config_file_path: str | None = None, input_path: str | None = None, output_path: str | None = None, metadata_path: str | None = None, metadata_type: str | None = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, config: paidiverpy.config.config.Configuration = None, logger: logging.Logger | None = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: paidiverpy.Paidiverpy = None, step_name: str | None = None, parameters: dict | None = None, config_index: int | None = None, raise_error: bool = False, verbose: int = 2, track_changes: bool = True, n_jobs: int = 1)
+
+   Bases: :py:obj:`paidiverpy.Paidiverpy`
+
+
+   Process the images in the convert layer.
+
+   :param config_file_path: The path to the configuration file.
+   :type config_file_path: str
+   :param input_path: The path to the input files.
+   :type input_path: str
+   :param output_path: The path to the output files.
+   :type output_path: str
+   :param metadata_path: The path to the metadata file.
+   :type metadata_path: str
+   :param metadata_type: The type of the metadata file.
+   :type metadata_type: str
+   :param metadata: The metadata object.
+   :type metadata: MetadataParser
+   :param config: The configuration object.
+   :type config: Configuration
+   :param logger: The logger object.
+   :type logger: logging.Logger
+   :param images: The images object.
+   :type images: ImagesLayer
+   :param paidiverpy: The paidiverpy object.
+   :type paidiverpy: Paidiverpy
+   :param step_name: The name of the step.
+   :type step_name: str
+   :param parameters: The parameters for the step.
+   :type parameters: dict
+   :param config_index: The index of the configuration.
+   :type config_index: int
+   :param raise_error: Whether to raise an error.
+   :type raise_error: bool
+   :param verbose: verbose level (0 = none, 1 = errors/warnings, 2 = info).
+   :type verbose: int
+   :param track_changes: Whether to track changes. Defaults to True.
+   :type track_changes: bool
+   :param n_jobs: The number of jobs to run in parallel.
+   :type n_jobs: int
+
+
+   .. py:attribute:: step_name
+
+
+   .. py:attribute:: step_metadata
+
+
+   .. py:method:: run(add_new_step: bool = True) -> paidiverpy.images_layer.ImagesLayer | None
+
+      Run the convert layer steps on the images based on the configuration.
+
+      Run the convert layer steps on the images based on the configuration
+      file or parameters.
+
+      :param add_new_step: Whether to add a new step to the images object.
+      :type add_new_step: bool, optional
+
+      Defaults to True.
+
+      :raises ValueError: The mode is not defined in the configuration file.
+
+      :returns: The images object with the new step added.
+      :rtype: Union[ImagesLayer, None]
+
+
+
+   .. py:method:: process_sequentially(images: list[numpy.ndarray], method: callable, params: dict) -> list[numpy.ndarray]
+
+      Process the images sequentially.
+
+      :param images: The list of images to process.
+      :type images: List[np.ndarray]
+      :param method: The method to apply to the images.
+      :type method: callable
+      :param params: The parameters for the method.
+      :type params: dict
+
+      :returns: The list of processed images.
+      :rtype: List[np.ndarray]
+
+
+
+   .. py:method:: process_parallel(images: list[dask.array.core.Array], method: callable, params: paidiverpy.utils.DynamicConfig) -> list[numpy.ndarray]
+
+      Process the images in parallel.
+
+      :param images: The list of images to process.
+      :type images: List[da.core.Array]
+      :param method: The method to apply to the images.
+      :type method: callable
+      :param params: The parameters for the method.
+      :type params: DynamicConfig
+
+      :returns: The list of processed images.
+      :rtype: List[da.core.Array]
+
+
+
+   .. py:method:: convert_bits(image_data: numpy.ndarray, params: paidiverpy.config.convert_params.BitParams = None) -> numpy.ndarray
+
+      Convert the image to the specified number of bits.
+
+      :param image_data: The image data.
+      :type image_data: np.ndarray
+      :param params: The parameters for the bit conversion.
+      :type params: BitParams, optional
+
+      Defaults to BitParams().
+
+      :returns: The image data with the specified number of bits.
+      :rtype: np.ndarray
+
+
+
+   .. py:method:: channel_convert(image_data: numpy.ndarray, params: paidiverpy.config.convert_params.ToParams = None) -> numpy.ndarray
+
+      Convert the image to the specified channel.
+
+      :param image_data: The image data.
+      :type image_data: np.ndarray
+      :param params: The parameters for the channel conversion.
+      :type params: ToParams, optional
+
+      Defaults to ToParams().
+
+      :raises ValueError: The image is already in RGB format.
+      :raises ValueError: The image is already in grayscale.
+      :raises ValueError: Failed to convert the image to {params.to}: {str(e)}
+
+      :returns: The image data with the specified channel.
+      :rtype: np.ndarray
+
+
+
+   .. py:method:: get_bayer_pattern(image_data: numpy.ndarray, params: paidiverpy.config.convert_params.BayerPatternParams = None) -> numpy.ndarray
+
+      Convert the image to the specified Bayer pattern.
+
+      :param image_data: The image data.
+      :type image_data: np.ndarray
+      :param params: The parameters for the Bayer pattern conversion.
+      :type params: BayerPatternParams, optional
+
+      Defaults to BayerPatternParams().
+
+      :raises ValueError: Invalid Bayer pattern for a single-channel image.
+      :raises KeyError: Invalid Bayer pattern for a single-channel image.
+
+      Expected 'RG', 'BG', 'GR', or 'GB'.
+
+      :returns: The image data with the specified Bayer pattern.
+      :rtype: np.ndarray
+
+
+
+   .. py:method:: normalize_image(image_data: numpy.ndarray, params: paidiverpy.config.convert_params.NormalizeParams = None) -> numpy.ndarray
+
+      Normalize the image data.
+
+      :param image_data: The image data.
+      :type image_data: np.ndarray
+      :param params: The parameters for the image normalization.
+      :type params: NormalizeParams, optional
+
+      Defaults to NormalizeParams().
+
+      :raises ValueError: Failed to normalize the image: {str(e)}
+
+      :returns: The normalized image data.
+      :rtype: np.ndarray
+
+
+
+   .. py:method:: resize(image_data: numpy.ndarray, params: paidiverpy.config.convert_params.ResizeParams = None) -> numpy.ndarray
+
+      Resize the image data.
+
+      :param image_data: The image data.
+      :type image_data: np.ndarray
+      :param params: The parameters for the image resizing.
+      :type params: ResizeParams, optional
+
+      Defaults to ResizeParams().
+
+      :raises ValueError: Failed to resize the image: {str(e)}
+
+      :returns: The resized image data.
+      :rtype: np.ndarray
+
+
+
+   .. py:method:: crop_images(image_data: numpy.ndarray, params: paidiverpy.config.convert_params.CropParams = None) -> numpy.ndarray
+
+      Crop the image data.
+
+      :param image_data: The image data.
+      :type image_data: np.ndarray
+      :param params: The parameters for the image cropping.
+      :type params: CropParams, optional
+
+      Defaults to CropParams().
+
+      :raises ValueError: Crop range is out of bounds.
+      :raises ValueError: Failed to crop the image: {str(e)}
+
+      :returns: The cropped image data.
+      :rtype: np.ndarray
+
+
+

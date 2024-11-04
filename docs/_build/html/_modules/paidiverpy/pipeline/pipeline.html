@@ -1,0 +1,450 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>paidiverpy.pipeline.pipeline &mdash; paidiverpy 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            paidiverpy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">paidiverpy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">paidiverpy.pipeline.pipeline</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for paidiverpy.pipeline.pipeline</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Pipeline builder class for image preprocessing.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">gc</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">paidiverpy</span> <span class="kn">import</span> <span class="n">Paidiverpy</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.config.config</span> <span class="kn">import</span> <span class="n">Configuration</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.config.pipeline_params</span> <span class="kn">import</span> <span class="n">STEPS_CLASS_TYPES</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.metadata_parser</span> <span class="kn">import</span> <span class="n">MetadataParser</span>
+<span class="kn">from</span> <span class="nn">paidiverpy.open_layer</span> <span class="kn">import</span> <span class="n">OpenLayer</span>
+
+<div class="viewcode-block" id="STEP_WITHOUT_PARAMS">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/pipeline/pipeline/index.html#paidiverpy.pipeline.STEP_WITHOUT_PARAMS">[docs]</a>
+<span class="n">STEP_WITHOUT_PARAMS</span> <span class="o">=</span> <span class="mi">2</span></div>
+
+<div class="viewcode-block" id="STEP_WITH_PARAMS">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/pipeline/pipeline/index.html#paidiverpy.pipeline.STEP_WITH_PARAMS">[docs]</a>
+<span class="n">STEP_WITH_PARAMS</span> <span class="o">=</span> <span class="mi">3</span></div>
+
+
+
+<div class="viewcode-block" id="Pipeline">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/pipeline/pipeline/index.html#paidiverpy.pipeline.Pipeline">[docs]</a>
+<span class="k">class</span> <span class="nc">Pipeline</span><span class="p">(</span><span class="n">Paidiverpy</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pipeline builder class for image preprocessing.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config_file_path (str): The path to the configuration file.</span>
+<span class="sd">        input_path (str): The path to the input files.</span>
+<span class="sd">        output_path (str): The path to the output files.</span>
+<span class="sd">        metadata_path (str): The path to the metadata file.</span>
+<span class="sd">        metadata_type (str): The type of the metadata file.</span>
+<span class="sd">        metadata (MetadataParser): The metadata object.</span>
+<span class="sd">        config (Configuration): The configuration object.</span>
+<span class="sd">        logger (logging.Logger): The logger object.</span>
+<span class="sd">        images (ImagesLayer): The images object.</span>
+<span class="sd">        paidiverpy (Paidiverpy): The paidiverpy object.</span>
+<span class="sd">        step_name (str): The name of the step.</span>
+<span class="sd">        parameters (dict): The parameters for the step.</span>
+<span class="sd">        config_index (int): The index of the configuration.</span>
+<span class="sd">        raise_error (bool): Whether to raise an error.</span>
+<span class="sd">        verbose (int): verbose level (0 = none, 1 = errors/warnings, 2 = info).</span>
+<span class="sd">        track_changes (bool): Whether to track changes. Defaults to True.</span>
+<span class="sd">        n_jobs (int): The number of jobs to run in parallel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">config_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">steps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">metadata_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">metadata_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="p">:</span> <span class="n">MetadataParser</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">Configuration</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">raise_error</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">track_changes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">n_jobs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">config_file_path</span><span class="o">=</span><span class="n">config_file_path</span><span class="p">,</span>
+            <span class="n">input_path</span><span class="o">=</span><span class="n">input_path</span><span class="p">,</span>
+            <span class="n">output_path</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span>
+            <span class="n">metadata_path</span><span class="o">=</span><span class="n">metadata_path</span><span class="p">,</span>
+            <span class="n">metadata_type</span><span class="o">=</span><span class="n">metadata_type</span><span class="p">,</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+            <span class="n">raise_error</span><span class="o">=</span><span class="n">raise_error</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="n">track_changes</span><span class="o">=</span><span class="n">track_changes</span><span class="p">,</span>
+            <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">steps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_config_to_steps</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">:</span>
+                <span class="n">step_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_step_name</span><span class="p">(</span><span class="n">step</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">step</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">step</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+                <span class="n">step</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s2">&quot;step_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">step_name</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;raw&quot;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_config</span><span class="p">(</span><span class="s2">&quot;general&quot;</span><span class="p">,</span> <span class="n">step</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">step</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<div class="viewcode-block" id="Pipeline.steps">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/pipeline/pipeline/index.html#paidiverpy.pipeline.Pipeline.steps">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="n">steps</span></div>
+
+<div class="viewcode-block" id="Pipeline.runned_steps">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/pipeline/pipeline/index.html#paidiverpy.pipeline.Pipeline.runned_steps">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runned_steps</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.run">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/pipeline/pipeline/index.html#paidiverpy.pipeline.Pipeline.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the pipeline.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            from_step (int, optional): The step to start from. Defaults to None,</span>
+<span class="sd">        which means the pipeline will start from the last runned step.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: No steps defined for the pipeline</span>
+<span class="sd">            ValueError: Invalid step format</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No steps defined for the pipeline&quot;</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;No steps defined for the pipeline&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">from_step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">images</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">from_step</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">runned_steps</span> <span class="o">=</span> <span class="n">from_step</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">clear_steps</span><span class="p">(</span><span class="n">from_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;Step </span><span class="si">%s</span><span class="s2"> does not exist. Run the pipeline from the beginning&quot;</span><span class="p">,</span>
+                    <span class="n">from_step</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">index</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">runned_steps</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">step</span><span class="p">)</span> <span class="o">==</span> <span class="n">STEP_WITHOUT_PARAMS</span><span class="p">:</span>
+                    <span class="n">step_name</span><span class="p">,</span> <span class="n">step_class</span> <span class="o">=</span> <span class="n">step</span>
+                    <span class="n">step_params</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">step</span><span class="p">)</span> <span class="o">==</span> <span class="n">STEP_WITH_PARAMS</span><span class="p">:</span>
+                    <span class="n">step_name</span><span class="p">,</span> <span class="n">step_class</span><span class="p">,</span> <span class="n">step_params</span> <span class="o">=</span> <span class="n">step</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Invalid step format: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Invalid step format: </span><span class="si">{</span><span class="n">step</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">step_class</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="n">step_class</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()[</span><span class="n">step_class</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s2">&quot;Running step </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2"> - </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">step_class</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">step_params</span><span class="p">[</span><span class="s2">&quot;step_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_step_name</span><span class="p">(</span><span class="n">step_class</span><span class="p">)</span>
+                <span class="n">step_params</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">step_name</span>
+                <span class="k">if</span> <span class="n">step_name</span> <span class="o">==</span> <span class="s2">&quot;raw&quot;</span><span class="p">:</span>
+                    <span class="n">step_instance</span> <span class="o">=</span> <span class="n">step_class</span><span class="p">(</span>
+                        <span class="n">step_name</span><span class="o">=</span><span class="n">step_name</span><span class="p">,</span>
+                        <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                        <span class="n">metadata</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span>
+                        <span class="n">parameters</span><span class="o">=</span><span class="n">step_params</span><span class="p">,</span>
+                        <span class="n">track_changes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">track_changes</span><span class="p">,</span>
+                        <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">step_instance</span> <span class="o">=</span> <span class="n">step_class</span><span class="p">(</span>
+                        <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                        <span class="n">metadata</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span>
+                        <span class="n">images</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">,</span>
+                        <span class="n">step_name</span><span class="o">=</span><span class="n">step_name</span><span class="p">,</span>
+                        <span class="n">parameters</span><span class="o">=</span><span class="n">step_params</span><span class="p">,</span>
+                        <span class="n">config_index</span><span class="o">=</span><span class="n">index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                        <span class="n">track_changes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">track_changes</span><span class="p">,</span>
+                        <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="n">step_instance</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">step_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">images</span> <span class="o">=</span> <span class="n">step_instance</span><span class="o">.</span><span class="n">images</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">set_metadata</span><span class="p">(</span><span class="n">step_instance</span><span class="o">.</span><span class="n">get_metadata</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">runned_steps</span> <span class="o">=</span> <span class="n">index</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Step </span><span class="si">%s</span><span class="s2"> completed&quot;</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+
+                <span class="k">del</span> <span class="n">step_instance</span>
+                <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.export_config">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/pipeline/pipeline/index.html#paidiverpy.pipeline.Pipeline.export_config">[docs]</a>
+    <span class="k">def</span> <span class="nf">export_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Export the configuration to a yaml file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            output_path (str): The path to the output file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.add_step">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/pipeline/pipeline/index.html#paidiverpy.pipeline.Pipeline.add_step">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_step</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">step_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">step_class</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">type</span><span class="p">,</span>
+        <span class="n">parameters</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+        <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">substitute</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a step to the pipeline.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            step_name (str): Name of the step.</span>
+<span class="sd">            step_class (Union[str, type]): Class of the step.</span>
+<span class="sd">            parameters (dict): Parameters for the step.</span>
+<span class="sd">            index (int, optional): Index of the step. It is only used when you want</span>
+<span class="sd">        to add a step in a specific position. Defaults to None.</span>
+<span class="sd">            substitute (bool, optional): Whether to substitute the step in the</span>
+<span class="sd">        specified index. Defaults to False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">):</span>
+            <span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">step_name</span>
+        <span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;step_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_step_name</span><span class="p">(</span><span class="n">step_class</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">index</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">substitute</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">step_name</span><span class="p">,</span> <span class="n">step_class</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="p">(</span><span class="n">step_name</span><span class="p">,</span> <span class="n">step_class</span><span class="p">,</span> <span class="n">parameters</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">step_name</span><span class="p">,</span> <span class="n">step_class</span><span class="p">,</span> <span class="n">parameters</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Pipeline._get_step_name">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/pipeline/pipeline/index.html#paidiverpy.pipeline.Pipeline._get_step_name">[docs]</a>
+    <span class="k">def</span> <span class="nf">_get_step_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_class</span><span class="p">:</span> <span class="nb">type</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the name of the step class.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            step_class (type): The class of the step.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The name of the step class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">key_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">STEPS_CLASS_TYPES</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">val_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">STEPS_CLASS_TYPES</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">key_list</span><span class="p">[</span><span class="n">val_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">step_class</span><span class="p">)]</span></div>
+
+
+<div class="viewcode-block" id="Pipeline._convert_config_to_steps">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/pipeline/pipeline/index.html#paidiverpy.pipeline.Pipeline._convert_config_to_steps">[docs]</a>
+    <span class="k">def</span> <span class="nf">_convert_config_to_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the configuration to steps.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[tuple]: The steps of the pipeline.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">raw_step</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="n">OpenLayer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">convert_path</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+        <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">raw_step</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">steps</span><span class="p">):</span>
+            <span class="n">new_step</span> <span class="o">=</span> <span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">STEPS_CLASS_TYPES</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">step_name</span><span class="p">],</span> <span class="n">step</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+            <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_step</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">steps</span></div>
+
+
+<div class="viewcode-block" id="Pipeline.to_html">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/pipeline/pipeline/index.html#paidiverpy.pipeline.Pipeline.to_html">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_html</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate HTML representation of the pipeline.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The HTML representation of the pipeline.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">steps_html</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">parameters_html</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">steps</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">steps_html</span> <span class="o">+=</span> <span class="s1">&#39;&lt;div style=&quot;clear:both;&quot;&gt;&lt;/div&gt;&#39;</span>
+            <span class="n">steps_html</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                &lt;div id=&quot;step_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot; title=&quot;Click to see more information&quot; class=&quot;square&quot; style=&quot;cursor: pointer; float:left; padding: 10px; width: max-content; height: 80px; margin: 10px; border: 1px solid #000; text-align: center; line-height: 80px;&quot; onclick=&quot;showParameters(&#39;step_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&#39;)&quot;&gt;</span>
+<span class="s2">                    &lt;h2 style=&quot;font-size:20px;&quot;&gt;</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">&lt;/h2&gt;</span>
+<span class="s2">                    &lt;h2 style=&quot;font-size:13px;&quot;&gt;Type: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">step_name</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">&lt;/h2&gt;</span>
+<span class="s2">                &lt;/div&gt;</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">steps_html</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                    &lt;div style=&quot;float:left; width: 50px; height: 80px; margin: 10px; text-align: center; line-height: 80px;&quot;&gt;</span>
+<span class="s2">                        &amp;#10132;</span>
+<span class="s2">                    &lt;/div&gt;</span>
+<span class="s2">                &quot;&quot;&quot;</span>
+            <span class="n">parameters_html</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                &lt;div id=&quot;parameters_step_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot; class=&quot;parameters&quot; style=&quot;display: none;&quot;&gt;</span>
+<span class="s2">                    &lt;pre&gt;</span><span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span><span class="w"> </span><span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/pre&gt;</span>
+<span class="s2">                &lt;/div&gt;</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+
+        <span class="n">general_html</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;div id=&quot;general&quot; title=&quot;Click to see more information&quot; class=&quot;square&quot; style=&quot;float:left; cursor: pointer; padding: 10px; width: max-content; height: 80px; margin: 10px; border: 1px solid #000; text-align: center; line-height: 80px;&quot; onclick=&quot;showParameters(&#39;general&#39;)&quot;&gt;</span>
+<span class="s2">            &lt;h2 style=&quot;font-size:20px;&quot;&gt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">&lt;/h2&gt;</span>
+<span class="s2">            &lt;h2 style=&quot;font-size:13px;&quot;&gt;Type: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">step_name</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">&lt;/h2&gt;</span>
+<span class="s2">        &lt;/div&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+
+        <span class="n">parameters_html</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            &lt;div id=&quot;parameters_general&quot; class=&quot;parameters&quot; style=&quot;display: none;&quot;&gt;</span>
+<span class="s2">                &lt;pre&gt;</span><span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span><span class="w"> </span><span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/pre&gt;</span>
+<span class="s2">            &lt;/div&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;div style=&quot;display: flex; flex-wrap: wrap; align-items: center;&quot;&gt;</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">general_html</span><span class="si">}</span>
+<span class="s2">            </span><span class="si">{</span><span class="sa">f</span><span class="s1">&#39;&lt;div style=&quot;float:left; width: 50px; height: 80px; margin: 10px; text-align: center; line-height: 80px;&quot;&gt;&amp;#10132;&lt;/div&gt;</span><span class="si">{</span><span class="n">steps_html</span><span class="si">}</span><span class="s1">&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}</span>
+<span class="s2">        &lt;/div&gt;</span>
+<span class="s2">        &lt;div id=&quot;parameters&quot; style=&quot;padding: 10px; margin: 10px;&quot;&gt;</span><span class="si">{</span><span class="n">parameters_html</span><span class="si">}</span><span class="s2">&lt;/div&gt;</span>
+<span class="s2">        &lt;script&gt;</span>
+<span class="s2">            function showParameters(id) </span><span class="se">{{</span>
+<span class="s2">                // Hide all parameter sections</span>
+<span class="s2">                var currentTarget = document.getElementById(id);</span>
+<span class="s2">                var square = document.getElementsByClassName(&#39;square&#39;);</span>
+<span class="s2">                var allParams = document.getElementsByClassName(&#39;parameters&#39;);</span>
+<span class="s2">                var selectedParams = document.getElementById(&#39;parameters_&#39; + id);</span>
+<span class="s2">                var idWasVisible = false;</span>
+<span class="s2">                if (selectedParams) </span><span class="se">{{</span>
+<span class="s2">                    var idWasVisible = selectedParams.style.display === &#39;block&#39;;</span>
+<span class="s2">                </span><span class="se">}}</span>
+<span class="s2">                for (var i = 0; i &lt; square.length; i++) </span><span class="se">{{</span>
+<span class="s2">                    square[i].style.color = &#39;black&#39;;</span>
+<span class="s2">                </span><span class="se">}}</span>
+<span class="s2">                for (var i = 0; i &lt; allParams.length; i++) </span><span class="se">{{</span>
+<span class="s2">                    allParams[i].style.display = &#39;none&#39;;</span>
+<span class="s2">                </span><span class="se">}}</span>
+<span class="s2">                // Show the selected parameter section</span>
+<span class="s2">                if (selectedParams) </span><span class="se">{{</span>
+<span class="s2">                    if (idWasVisible) </span><span class="se">{{</span>
+<span class="s2">                        selectedParams.style.display = &#39;none&#39;;</span>
+<span class="s2">                        currentTarget.style.color = &#39;black&#39;;</span>
+<span class="s2">                    </span><span class="se">}}</span><span class="s2"> else </span><span class="se">{{</span>
+<span class="s2">                        selectedParams.style.display = &#39;block&#39;;</span>
+<span class="s2">                        currentTarget.style.color = &#39;red&#39;;</span>
+<span class="s2">                    </span><span class="se">}}</span>
+<span class="s2">                </span><span class="se">}}</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">        &lt;/script&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Pipeline._repr_html_">
+<a class="viewcode-back" href="../../../autoapi/paidiverpy/pipeline/pipeline/index.html#paidiverpy.pipeline.Pipeline._repr_html_">[docs]</a>
+    <span class="k">def</span> <span class="nf">_repr_html_</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate HTML representation of the pipeline.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The HTML representation of the pipeline.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_html</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024-09-03 14:12:44, Tobias Ferreira.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
