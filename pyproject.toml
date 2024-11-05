@@ -64,12 +64,16 @@ docs = [
     "sphinx-copybutton",
     "sphinx-book-theme",
     "myst_parser",
+<<<<<<< HEAD
     "nbsphinx",
     "numpydoc",
     "sphinx-last-updated-by-git",
     "sphinx-codeautolink",
     "sphinx_design",
     "pickleshare"
+=======
+    "autoapi",
+>>>>>>> develop
 ]
 publishing = [
     "build",
