@@ -8,7 +8,7 @@ The Paidiverpy package includes a selection of example datasets designed for tes
 Automatic Download
 ------------------
 
-When you execute the example notebooks in the :ref:`gallery examples <gallery>`, the required example data will be automatically downloaded. This facilitates an easy setup for users to quickly start testing and experimenting with the package.
+When you execute the example notebooks in the :doc:`gallery examples <gallery>`, the required example data will be automatically downloaded. This facilitates an easy setup for users to quickly start testing and experimenting with the package.
 
 Manual Download
 ------------------

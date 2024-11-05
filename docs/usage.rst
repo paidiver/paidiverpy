@@ -7,12 +7,18 @@ You can run your preprocessing pipeline using **Paidiverpy** in several ways, ty
 
 1. **Python Package**: Install the package and utilize it in your Python scripts.
 
-   .. ipython:: python
+   .. code-block:: text
 
-       from paidiverpy.pipeline import Pipeline
+      In [1]: from paidiverpy.pipeline import Pipeline
 
-       pipeline = Pipeline(config_file_path="../examples/config_files/config_simple2.yaml")
-       pipeline.run()
+      In [2]: pipeline = Pipeline(config_file_path="../examples/config_files/config_simple2.yaml")
+
+      In [3]: pipeline.run()
+      ☁ paidiverpy ☁  |       INFO | 2024-11-04 17:49:24 | Running step 0: raw - OpenLayer
+      ☁ paidiverpy ☁  |       INFO | 2024-11-04 17:49:25 | Step 0 completed
+      ☁ paidiverpy ☁  |       INFO | 2024-11-04 17:49:25 | Running step 1: color_correction - ColorLayer
+      ☁ paidiverpy ☁  |       INFO | 2024-11-04 17:49:25 | Step 1 completed
+
 
    In this example, we instantiate the `Pipeline` class and pass a configuration file containing the pipeline information and run the pipeline. The images will be processed as NumPy arrays.
 
@@ -20,7 +26,7 @@ You can run your preprocessing pipeline using **Paidiverpy** in several ways, ty
 
    .. code-block:: text
 
-       In [5]: pipeline
+      In [5]: pipeline
 
    .. raw:: html
        :file: _static/pipeline.html

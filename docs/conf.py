@@ -16,7 +16,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = "paidiverpy"
+project = "Paidiverpy"
 copyright = "2024-09-03 14:12:44, Tobias Ferreira"
 author = "Tobias Ferreira"
 
@@ -86,8 +86,29 @@ html_css_files = [
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {}
 
+
+html_logo = "_static/logo_paidiver_docs.png"
+html_favicon = '_static/favicon_paidiver.ico'
+# For sphinx_book_theme:
+html_theme_options = {
+    "repository_url": "https://www.github.com/paidiver/paidiverpy",
+    "use_repository_button": True,
+    "use_issues_button": True,
+    "use_edit_page_button": True,
+    "use_download_button": True,
+    "repository_branch": "master",
+    # "html_logo": "_static/argopy_logo_long.png",
+    "logo": {"image": html_logo},
+    # "display_version": True,
+    # "logo_only": True,
+    # "show_navbar_depth": 2,  # https://sphinx-book-theme.readthedocs.io/en/stable/customize/sidebar-primary.html?highlight=logo#control-the-depth-of-the-left-sidebar-lists-to-expand
+
+    "show_nav_level": 1,  # https://pydata-sphinx-theme.readthedocs.io/en/latest/user_guide/navigation.html#control-how-many-navigation-levels-are-shown-by-default
+    'collapse_navigation': False,  # https://pydata-sphinx-theme.readthedocs.io/en/latest/user_guide/navigation.html#remove-reveal-buttons-for-sidebar-items
+    # 'show_toc_level': 3,  # https://pydata-sphinx-theme.readthedocs.io/en/latest/user_guide/page-toc.html#show-more-levels-of-the-in-page-toc-by-default
+    # 'launch_buttons': { "thebe": True}
+}
 # nbsphinx options
 nbsphinx_execute = 'always'
 nbsphinx_allow_errors = True
@@ -101,7 +122,6 @@ nbsphinx_thumbnails = {
     'gallery/*-rst': 'images/notebook_icon.png',
     'orphan': '_static/favicon.svg',
 }
-
 
 # -- Options for Intersphinx
 

@@ -14,7 +14,7 @@ Notebook Examples
     .. grid-item-card:: Parse configuration and metadata files
         :img-top: _static/nb_examples_1.png
 
-        |select_float| |ds_bgc| |mode_expert| |src_erddap|
+        |mode_expert|
         ^^^
         A notebook to show how to open and parse configuration and metadata files
         +++
@@ -39,7 +39,7 @@ Notebook Examples
     .. grid-item-card:: Processing images without a pipeline
         :img-top: _static/nb_examples_2.png
 
-        |select_float| |ds_bgc| |mode_expert| |src_erddap|
+        |mode_standard|
         ^^^
         An example to processing images without a proper pipeline
         +++
@@ -64,7 +64,7 @@ Notebook Examples
     .. grid-item-card:: Simple pipeline example
         :img-top: _static/nb_examples_3.png
 
-        |select_float| |ds_bgc| |mode_expert| |src_erddap|
+        |mode_standard|
         ^^^
         A notebook to show how to run an entire pipeline described in a configuration file
         +++
@@ -89,7 +89,7 @@ Notebook Examples
     .. grid-item-card:: Run pipeline in test mode
         :img-top: _static/nb_examples_4.png
 
-        |select_float| |ds_bgc| |mode_expert| |src_erddap|
+        |mode_research|
         ^^^
         Investigate the output of a pipeline in test mode
         +++
@@ -114,7 +114,7 @@ Notebook Examples
     .. grid-item-card:: Generate the pipeline without a configuration file
         :img-top: _static/nb_examples_5.png
 
-        |select_float| |ds_bgc| |mode_expert| |src_erddap|
+        |mode_expert|
         ^^^
         Generate the pipeline without a describing the steps in the config file
         +++
@@ -139,7 +139,7 @@ Notebook Examples
     .. grid-item-card:: Rerun pipeline steps with modified configurations
         :img-top: _static/nb_examples_6.png
 
-        |select_float| |ds_bgc| |mode_expert| |src_erddap|
+        |mode_expert|
         ^^^
         Rerun pipeline steps with modified configurations
         +++
@@ -164,7 +164,7 @@ Notebook Examples
     .. grid-item-card:: Use parallelization with Dask
         :img-top: _static/nb_examples_7.png
 
-        |select_float| |ds_bgc| |mode_expert| |src_erddap|
+        |mode_expert|
         ^^^
         A notebook to show how to run an entire pipeline with parallelisation using Dask
         +++
@@ -189,7 +189,7 @@ Notebook Examples
     .. grid-item-card:: Example with real data and IFDO metadata
         :img-top: _static/nb_examples_8.png
 
-        |select_float| |ds_bgc| |mode_expert| |src_erddap|
+        |mode_standard|
         ^^^
         An example to processing a real dataset with IFDO metadata
         +++
