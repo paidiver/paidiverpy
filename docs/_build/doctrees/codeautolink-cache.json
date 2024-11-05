@@ -50,87 +50,12 @@
       "doc_lineno": 18
     }
   ],
+  "gallery": [],
   "images_metadata": [],
   "install": [],
   "package_organisation": [],
   "performances": [],
-  "usage": [
-    {
-      "source": "In [1]: from paidiverpy.pipeline import Pipeline\n\nIn [2]: pipeline = Pipeline(config_file_path=\"../examples/config_files/config_simple2.yaml\")\n\nIn [3]: pipeline.run()\n\u2601 paidiverpy \u2601  |       INFO | 2024-11-04 17:49:24 | Running step 0: raw - OpenLayer\n\u2601 paidiverpy \u2601  |       INFO | 2024-11-04 17:49:25 | Step 0 completed\n\u2601 paidiverpy \u2601  |       INFO | 2024-11-04 17:49:25 | Running step 1: color_correction - ColorLayer\n\u2601 paidiverpy \u2601  |       INFO | 2024-11-04 17:49:25 | Step 1 completed",
-      "names": [
-        {
-          "import_components": [
-            "paidiverpy",
-            "pipeline"
-          ],
-          "code_str": "paidiverpy.pipeline",
-          "lineno": 1,
-          "end_lineno": 1,
-          "context": "import_from",
-          "resolved_location": "paidiverpy.pipeline"
-        },
-        {
-          "import_components": [
-            "paidiverpy",
-            "pipeline",
-            "Pipeline"
-          ],
-          "code_str": "Pipeline",
-          "lineno": 1,
-          "end_lineno": 1,
-          "context": "import_target",
-          "resolved_location": "paidiverpy.pipeline.pipeline.Pipeline"
-        },
-        {
-          "import_components": [
-            "paidiverpy",
-            "pipeline",
-            "Pipeline"
-          ],
-          "code_str": "Pipeline",
-          "lineno": 3,
-          "end_lineno": 3,
-          "context": "none",
-          "resolved_location": "paidiverpy.pipeline.pipeline.Pipeline"
-        },
-        {
-          "import_components": [
-            "paidiverpy",
-            "pipeline",
-            "Pipeline",
-            "()"
-          ],
-          "code_str": "pipeline",
-          "lineno": 3,
-          "end_lineno": 3,
-          "context": "none",
-          "resolved_location": "paidiverpy.pipeline.pipeline.Pipeline"
-        },
-        {
-          "import_components": [
-            "paidiverpy",
-            "pipeline",
-            "Pipeline",
-            "()",
-            "run"
-          ],
-          "code_str": "pipeline.run",
-          "lineno": 5,
-          "end_lineno": 5,
-          "context": "none",
-          "resolved_location": "paidiverpy.pipeline.pipeline.Pipeline.run"
-        }
-      ],
-      "example": {
-        "document": "usage",
-        "ref_id": "usage",
-        "headings": [
-          "Usage"
-        ]
-      },
-      "doc_lineno": 1
-    }
-  ],
+  "usage": [],
   "user-guide/guide1/index": [],
   "user-guide/guide2/index": [],
   "user-guide/guide3/index": [],
@@ -164,6 +89,5 @@
   "autoapi/paidiverpy/resample_layer/index": [],
   "autoapi/paidiverpy/resample_layer/resample_layer/index": [],
   "autoapi/paidiverpy/utils/index": [],
-  "gallery": [],
   "index": []
 }

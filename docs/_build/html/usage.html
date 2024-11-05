@@ -8,7 +8,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Usage &#8212; paidiverpy 0.1.0 documentation</title>
+    <meta property="article:modified_time" content="2024-11-04T18:27:51+00:00" />
+    <title>Usage &#8212; Paidiverpy 0.1.0 documentation</title>
   
   
   
@@ -60,6 +61,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.1.0" />
+    <meta name="docbuild:last-update" content="Nov 04, 2024"/>
   </head>
   
   
@@ -134,7 +136,7 @@
   
   
   
-    <p class="title logo__title">paidiverpy 0.1.0 documentation</p>
+    <p class="title logo__title">Paidiverpy 0.1.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -260,6 +262,54 @@
 
 
 
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/usage.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
 <button onclick="toggleFullScreen()"
   class="btn btn-sm btn-fullscreen-button"
   title="Fullscreen mode"
@@ -315,15 +365,15 @@
 <p>You can run your preprocessing pipeline using <strong>Paidiverpy</strong> in several ways, typically requiring just one to three lines of code:</p>
 <ol class="arabic">
 <li><p><strong>Python Package</strong>: Install the package and utilize it in your Python scripts.</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [1]: </span><span class="kn">from</span> <span class="nn">paidiverpy.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>In [1]: from paidiverpy.pipeline import Pipeline
 
-<span class="gp">In [2]: </span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">config_file_path</span><span class="o">=</span><span class="s2">&quot;../examples/config_files/config_simple2.yaml&quot;</span><span class="p">)</span>
+In [2]: pipeline = Pipeline(config_file_path=&quot;../examples/config_files/config_simple2.yaml&quot;)
 
-<span class="gp">In [3]: </span><span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-<span class="go">☁ paidiverpy ☁  |       INFO | 2024-11-04 17:49:24 | Running step 0: raw - OpenLayer</span>
-<span class="go">☁ paidiverpy ☁  |       INFO | 2024-11-04 17:49:25 | Step 0 completed</span>
-<span class="go">☁ paidiverpy ☁  |       INFO | 2024-11-04 17:49:25 | Running step 1: color_correction - ColorLayer</span>
-<span class="go">☁ paidiverpy ☁  |       INFO | 2024-11-04 17:49:25 | Step 1 completed</span>
+In [3]: pipeline.run()
+☁ paidiverpy ☁  |       INFO | 2024-11-04 17:49:24 | Running step 0: raw - OpenLayer
+☁ paidiverpy ☁  |       INFO | 2024-11-04 17:49:25 | Step 0 completed
+☁ paidiverpy ☁  |       INFO | 2024-11-04 17:49:25 | Running step 1: color_correction - ColorLayer
+☁ paidiverpy ☁  |       INFO | 2024-11-04 17:49:25 | Step 1 completed
 </pre></div>
 </div>
 <p>In this example, we instantiate the <cite>Pipeline</cite> class and pass a configuration file containing the pipeline information and run the pipeline. The images will be processed as NumPy arrays.</p>
@@ -703,7 +753,10 @@ By Tobias Ferreira
   </div>
   
   <div class="footer-item">
-    
+    <p class="last-updated">
+  Last updated on Nov 04, 2024.
+  <br/>
+</p>
   </div>
   
   <div class="footer-item">
