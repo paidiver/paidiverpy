@@ -1,126 +1,623 @@
 
-
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="./">
-<head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to paidiverpy’s documentation! &mdash; paidiverpy 0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
 
 
-      <script src="_static/jquery.js?v=5d32c60e"></script>
-      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=01f34227"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="_static/js/theme.js"></script>
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <meta property="article:modified_time" content="2024-11-05T10:04:39+00:00" />
+    <title>Documentation &#8212; Paidiverpy 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-codeautolink.css?v=125d5c1c" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=32502a18" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+
+    <script src="_static/documentation_options.js?v=a1637f0b"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
+    <link rel="icon" href="_static/favicon_paidiver.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="API Reference" href="autoapi/index.html" />
-</head>
+    <link rel="next" title="Why Paidiverpy?" href="why.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.0" />
+    <meta name="docbuild:last-update" content="Nov 05, 2024"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
 
-<body class="wy-body-for-nav">
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
 
-
-          <a href="#" class="icon icon-home">
-            paidiverpy
-          </a>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a></li>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="#">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo_paidiver_docs.png" class="logo__image only-light" alt="Paidiverpy 0.1.0 documentation - Home"/>
+    <img src="_static/logo_paidiver_docs.png" class="logo__image only-dark pst-js-only" alt="Paidiverpy 0.1.0 documentation - Home"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="why.html">Why Paidiverpy?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package_organisation.html">Package Organisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration_file.html">Configuration File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="images_metadata.html">Images Metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_data.html">Example Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gallery.html">Gallery</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="user-guide/guide1/index.html">Guide 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-guide/guide2/index.html">Guide 2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-guide/guide3/index.html">Guide 3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-guide/guide4/index.html">Guide 4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="performances.html">Performances</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Help &amp; Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to paidiverpy</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="autoapi/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="autoapi/paidiverpy/index.html">paidiverpy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/paidiverpy/color_layer/index.html">paidiverpy.color_layer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/color_layer/color_layer/index.html">paidiverpy.color_layer.color_layer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/paidiverpy/config/index.html">paidiverpy.config</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/config/color_params/index.html">paidiverpy.config.color_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/config/config/index.html">paidiverpy.config.config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/config/convert_params/index.html">paidiverpy.config.convert_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/config/pipeline_params/index.html">paidiverpy.config.pipeline_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/config/position_params/index.html">paidiverpy.config.position_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/config/resample_params/index.html">paidiverpy.config.resample_params</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/paidiverpy/convert_layer/index.html">paidiverpy.convert_layer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/convert_layer/convert_layer/index.html">paidiverpy.convert_layer.convert_layer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/paidiverpy/data/index.html">paidiverpy.data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/paidiverpy/exceptions/index.html">paidiverpy.exceptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/paidiverpy/images_layer/index.html">paidiverpy.images_layer</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/paidiverpy/metadata_parser/index.html">paidiverpy.metadata_parser</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/metadata_parser/metadata_parser/index.html">paidiverpy.metadata_parser.metadata_parser</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/paidiverpy/open_layer/index.html">paidiverpy.open_layer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/open_layer/open_layer/index.html">paidiverpy.open_layer.open_layer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/paidiverpy/paidiverpy/index.html">paidiverpy.paidiverpy</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/paidiverpy/pipeline/index.html">paidiverpy.pipeline</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/pipeline/pipeline/index.html">paidiverpy.pipeline.pipeline</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/paidiverpy/position_layer/index.html">paidiverpy.position_layer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/position_layer/position_layer/index.html">paidiverpy.position_layer.position_layer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/paidiverpy/resample_layer/index.html">paidiverpy.resample_layer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/resample_layer/resample_layer/index.html">paidiverpy.resample_layer.resample_layer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/paidiverpy/utils/index.html">paidiverpy.utils</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
 </ul>
 
-        </div>
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
       </div>
-    </nav>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">paidiverpy</a>
-      </nav>
+<div class="sbt-scroll-pixel-helper"></div>
 
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Welcome to paidiverpy’s documentation!</li>
-      <li class="wy-breadcrumbs-aside">
-            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
-      </li>
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://www.github.com/paidiver/paidiverpy" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://www.github.com/paidiver/paidiverpy/edit/master/index.rst" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://www.github.com/paidiver/paidiverpy/issues/new?title=Issue%20on%20page%20%2Findex.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
   </ul>
-  <hr/>
 </div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
 
-  <section id="welcome-to-paidiverpy-s-documentation">
-<h1>Welcome to paidiverpy’s documentation!<a class="headerlink" href="#welcome-to-paidiverpy-s-documentation" title="Link to this heading"></a></h1>
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/index.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Documentation</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+Paidiverpy package documentation
+=======
+Welcome to paidiverpy’s documentation!
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; develop
+==========================================================</p>
+<p><strong>Paidiverpy</strong> is a Python package designed to create pipelines for preprocessing image data for biodiversity analysis.</p>
+<p><a class="reference external" href="//dx.doi.org/10.21105/joss.02425"><img alt="JOSS" src="https://img.shields.io/badge/DOI-10.21105%2Fjoss.02425-brightgreen" /></a> <a class="reference external" href="https://www.tidyverse.org/lifecycle/#stable"><img alt="lifecycle" src="https://img.shields.io/badge/lifecycle-stable-green.svg" /></a></p>
+<p><a class="reference external" href="https://www.apache.org/licenses/"><img alt="License" src="https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square" /></a> <a class="reference external" href="//pypi.org/project/argopy/"><img alt="Python version" src="https://img.shields.io/pypi/pyversions/argopy" /></a> <a class="reference external" href="https://anaconda.org/conda-forge/argopy"><img alt="Anaconda-Server Badge" src="https://anaconda.org/conda-forge/argopy/badges/platforms.svg" /></a></p>
+<div class="admonition-note admonition">
+<p class="admonition-title">Note</p>
+<p>This package is still in active development, and frequent updates and changes are expected. The API and features may evolve as we continue improving it.</p>
+<p>Comprehensive documentation is forthcoming.</p>
+</div>
+<section id="documentation">
+<h1>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">#</a></h1>
+<p><strong>Getting Started</strong></p>
+<ul class="simple">
+<li><p><a class="reference internal" href="why.html"><span class="doc">Why Paidiverpy?</span></a></p></li>
+<li><p><a class="reference internal" href="install.html"><span class="doc">Installation</span></a></p></li>
+<li><p><a class="reference internal" href="usage.html"><span class="doc">Usage</span></a></p></li>
+<li><p><a class="reference internal" href="package_organisation.html"><span class="doc">Package Organisation</span></a></p></li>
+<li><p><a class="reference internal" href="configuration_file.html"><span class="doc">Configuration File</span></a></p></li>
+<li><p><a class="reference internal" href="images_metadata.html"><span class="doc">Images Metadata</span></a></p></li>
+<li><p><a class="reference internal" href="example_data.html"><span class="doc">Example Data</span></a></p></li>
+<li><p><a class="reference internal" href="gallery.html"><span class="doc">Gallery of examples</span></a></p></li>
+</ul>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="why.html">Why Paidiverpy?</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="why.html#less-manual-effort-more-insightful-analysis">Less manual effort, more insightful analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="install.html#instructions">Instructions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#required-dependencies">Required dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#optional-dependencies">Optional dependencies</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package_organisation.html">Package Organisation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="package_organisation.html#core-classes">Core Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="package_organisation.html#supporting-classes">Supporting Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="package_organisation.html#pipeline-class">Pipeline Class</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="configuration_file.html">Configuration File</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="configuration_file.html#format-and-schema">Format and Schema</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_file.html#explanation-of-the-configuration-file">Explanation of the Configuration File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_file.html#example-configuration-files">Example Configuration Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_file.html#validation-tools">Validation Tools</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="images_metadata.html">Images Metadata</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="images_metadata.html#ifdo-file-format">IFDO File Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="images_metadata.html#csv-file-requirements">CSV File Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="images_metadata.html#example-files">Example Files</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="example_data.html">Example Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="example_data.html#automatic-download">Automatic Download</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_data.html#manual-download">Manual Download</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_data.html#available-datasets">Available Datasets</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gallery.html">Gallery</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gallery.html#notebook-examples">Notebook Examples</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p><strong>User Guide</strong></p>
+<ul class="simple">
+<li><p><a class="reference internal" href="user-guide/guide1/index.html"><span class="doc">Guide 1</span></a></p></li>
+<li><p><a class="reference internal" href="user-guide/guide2/index.html"><span class="doc">Guide 2</span></a></p></li>
+<li><p><a class="reference internal" href="user-guide/guide3/index.html"><span class="doc">Guide 3</span></a></p></li>
+<li><p><a class="reference internal" href="user-guide/guide4/index.html"><span class="doc">Guide 4</span></a></p></li>
+<li><p><a class="reference internal" href="performances.html"><span class="doc">Performances</span></a></p></li>
+</ul>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user-guide/guide1/index.html">Guide 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-guide/guide2/index.html">Guide 2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-guide/guide3/index.html">Guide 3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-guide/guide4/index.html">Guide 4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="performances.html">Performances</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Help &amp; Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to paidiverpy</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#where-to-start">Where to start?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#bug-reports-and-enhancement-requests">Bug reports and enhancement requests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#contributing-to-the-documentation">Contributing to the documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#working-with-the-code">Working with the code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#contributing-to-the-code-base">Contributing to the code base</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="autoapi/paidiverpy/index.html">paidiverpy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="autoapi/convert_layer-checkpoint/index.html">convert_layer-checkpoint</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </section>
-<section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading"></a></h1>
-<ul class="simple">
-<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
-</ul>
-</section>
 
 
-           </div>
-          </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="autoapi/index.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+                </article>
+              
 
-  <hr/>
-
-  <div role="contentinfo">
-    <p>&#169; Copyright 2024-09-03 14:12:44, Tobias Ferreira.</p>
-  </div>
-
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-
-
-</footer>
-        </div>
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="right-next"
+       href="why.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Why Paidiverpy?</p>
       </div>
-    </section>
-  </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Tobias Ferreira
+</p>
 
-</body>
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024-09-03 14:12:44, Tobias Ferreira.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  Last updated on Nov 05, 2024.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
 </html>
