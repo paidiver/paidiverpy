@@ -39,15 +39,19 @@
                 resultDiv.innerText = `Error loading schema: ${error.message}`;
                 return;
             }
+            console.log(schema)
 
             const file = fileInput.files[0];
             const reader = new FileReader();
 
             reader.onload = function (e) {
+                console.log(e.target.result);
+                console.log(file.type);
                 let configContent;
                 try {
                     configContent = parseContent(e.target.result, file.type);
                 } catch (error) {
+                    console.log(error);
                     resultDiv.innerText = "Invalid file format.";
                     return;
                 }
@@ -72,7 +76,7 @@
         function parseContent(content, fileType) {
             if (fileType === 'application/json') {
                 return JSON.parse(content);
-            } else if (fileType === 'application/x-yaml' || fileType === 'text/yaml') {
+            } else if (fileType === 'application/x-yaml' || fileType === 'text/yaml'  || fileType === 'application/yaml') {
                 return jsyaml.load(content);
             } else {
                 throw new Error("Unsupported file format");
