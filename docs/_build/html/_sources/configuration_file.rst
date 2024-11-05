@@ -80,4 +80,4 @@ To validate your configuration files, you can use the following resources:
 - Alternatively, you can validate the configuration file locally using:
 
 .. raw:: html
-    :file: _static/config_check.html
+    :file: config_check.html
