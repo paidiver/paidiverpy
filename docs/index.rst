@@ -66,11 +66,6 @@ Documentation
     user-guide/guide4/index
     performances
 
-**Help & Reference**
-
-* :doc:`contributing`
-* :doc:`api`
-
 .. toctree::
     :maxdepth: 2
     :caption: Help & Reference
