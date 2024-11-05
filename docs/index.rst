@@ -3,12 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-<<<<<<< HEAD
 Paidiverpy package documentation
-=======
-Welcome to paidiverpy's documentation!
->>>>>>> develop
-==========================================================
+====================
 
 **Paidiverpy** is a Python package designed to create pipelines for preprocessing image data for biodiversity analysis.
 
