@@ -1,9 +1,8 @@
 general:
-  input_path: '/mnt/code/code/noc/paidiver/paidiverpy/examples/data/jen/'
-  output_path: '/mnt/code/code/noc/paidiver/paidiverpy/examples/data/'
-  metadata_path: '/mnt/code/code/noc/paidiver/paidiverpy/examples/metadata/metadata_benthic.csv'
-  metadata_type: 'CSV_FILE'
-  append_data_to_metadata: '/mnt/code/code/noc/paidiver/paidiverpy/examples/data/jen/waypoints/scidata_20180610.csv'
+  input_path: '/input/data/path/'
+  output_path: '/output/data/path/'
+  metadata_path: '/metadata/path/metadata.json'
+  metadata_type: 'IFDO'
   image_type: 'JPG'
   sampling:
     - mode: 'percent'
@@ -16,3 +15,28 @@ general:
     - mode: 'to'
       params:
         to: 'gray'
+
+steps:
+  - color:
+      name: 'color_correction'
+      mode: 'grayscale'
+
+  - sampling:
+      name: 'datetime'
+      mode: 'datetime'
+      params:
+        min: '2016-05-11 04:14:00'
+        max: '2016-05-11 09:27:00'
+
+  - color:
+      name: 'color_correction'
+      mode: 'gaussian_blur'
+      params:
+        sigma: 1.0
+
+  - color:
+      name: 'sharpen'
+      mode: 'sharpen'
+      params:
+        alpha: 1.5
+        beta: -0.5
