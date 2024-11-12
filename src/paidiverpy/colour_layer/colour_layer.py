@@ -145,7 +145,7 @@ class ColourLayer(Paidiverpy):
         else:
             image_list = self.process_parallel(images, method, params)
         if not test:
-            self.step_name = f"convert_{self.config_index}" if not self.step_name else self.step_name
+            self.step_name = f"color_{self.config_index}" if not self.step_name else self.step_name
             if add_new_step:
                 self.images.add_step(
                     step=self.step_name,
@@ -191,7 +191,6 @@ class ColourLayer(Paidiverpy):
         """
         delayed_images = [dask.delayed(method)(img, params) for img in images]
         with dask.config.set(scheduler="threads", num_workers=self.n_jobs):
-            self.logger.info("Processing images using %s cores", self.n_jobs)
             with ProgressBar():
                 delayed_images = compute(*delayed_images)
         return [da.from_array(img) for img in delayed_images]
