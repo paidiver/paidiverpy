@@ -3,7 +3,7 @@
 Pipeline parameters for the paidiverpy package
 """
 
-from paidiverpy.color_layer import ColorLayer
+from paidiverpy.colour_layer import ColourLayer
 from paidiverpy.convert_layer import ConvertLayer
 from paidiverpy.open_layer import OpenLayer
 from paidiverpy.position_layer import PositionLayer
@@ -13,6 +13,6 @@ STEPS_CLASS_TYPES = {
     "position": PositionLayer,
     "sampling": ResampleLayer,
     "convert": ConvertLayer,
-    "color": ColorLayer,
+    "colour": ColourLayer,
     "raw": OpenLayer,
 }

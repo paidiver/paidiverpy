@@ -6,7 +6,7 @@ import jsonschema
 import yaml
 from jsonschema import validate
 from paidiverpy import data
-from paidiverpy.config.color_params import COLOR_LAYER_METHODS
+from paidiverpy.config.colour_params import COLOUR_LAYER_METHODS
 from paidiverpy.config.convert_params import CONVERT_LAYER_METHODS
 from paidiverpy.config.position_params import POSITION_LAYER_METHODS
 from paidiverpy.config.resample_params import RESAMPLE_LAYER_METHODS
@@ -96,12 +96,12 @@ class ConvertConfig(DynamicConfig):
             self.params = CONVERT_LAYER_METHODS[self.mode]["params"](**params)
 
 
-class ColorConfig(DynamicConfig):
-    """Color configuration class."""
+class ColourConfig(DynamicConfig):
+    """Colour configuration class."""
 
     def __init__(self, **kwargs: dict):
-        self.name = kwargs.get("name", "color")
-        self.step_name = kwargs.get("step_name", "color")
+        self.name = kwargs.get("name", "colour")
+        self.step_name = kwargs.get("step_name", "colour")
         self.mode = kwargs.get("mode", None)
         if not self.mode:
             msg = "The mode is not defined in the configuration file."
@@ -110,7 +110,7 @@ class ColorConfig(DynamicConfig):
         params = kwargs.get("params", None)
 
         if params:
-            self.params = COLOR_LAYER_METHODS[self.mode]["params"](**params)
+            self.params = COLOUR_LAYER_METHODS[self.mode]["params"](**params)
 
 
 class SamplingConfig(DynamicConfig):
@@ -133,7 +133,7 @@ config_class_mapping = {
     "general": GeneralConfig,
     "position": PositionConfig,
     "sampling": SamplingConfig,
-    "color": ColorConfig,
+    "colour": ColourConfig,
     "convert": ConvertConfig,
 }
 
