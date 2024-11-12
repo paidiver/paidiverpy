@@ -1,0 +1,703 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <meta property="article:modified_time" content="2024-11-12T12:29:58+00:00" />
+    <title>Colour/content-based processing &#8212; Paidiverpy 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-codeautolink.css?v=125d5c1c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=32502a18" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+
+    <script src="../../_static/documentation_options.js?v=a1637f0b"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user-guide/guide2/index';</script>
+    <link rel="icon" href="../../_static/favicon_paidiver.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Guide 3" href="../guide3/index.html" />
+    <link rel="prev" title="Position/size-based processing" href="../guide1/index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.0" />
+    <meta name="docbuild:last-update" content="Nov 12, 2024"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo_paidiver_docs.png" class="logo__image only-light" alt="Paidiverpy 0.1.0 documentation - Home"/>
+    <img src="../../_static/logo_paidiver_docs.png" class="logo__image only-dark pst-js-only" alt="Paidiverpy 0.1.0 documentation - Home"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../why.html">Why Paidiverpy?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../package_organisation.html">Package Organisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration_file.html">Configuration File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../images_metadata.html">Images Metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example_data.html">Example Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gallery.html">Gallery</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../guide1/index.html">Position/size-based processing</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Colour/content-based processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide3/index.html">Guide 3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide4/index.html">Guide 4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../performances.html">Performances</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Help &amp; Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing to paidiverpy</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../autoapi/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../autoapi/paidiverpy/index.html">paidiverpy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../autoapi/paidiverpy/colour_layer/index.html">paidiverpy.colour_layer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/paidiverpy/colour_layer/colour_layer/index.html">paidiverpy.colour_layer.colour_layer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../autoapi/paidiverpy/config/index.html">paidiverpy.config</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/paidiverpy/config/colour_params/index.html">paidiverpy.config.colour_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/paidiverpy/config/config/index.html">paidiverpy.config.config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/paidiverpy/config/convert_params/index.html">paidiverpy.config.convert_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/paidiverpy/config/pipeline_params/index.html">paidiverpy.config.pipeline_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/paidiverpy/config/position_params/index.html">paidiverpy.config.position_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/paidiverpy/config/resample_params/index.html">paidiverpy.config.resample_params</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../autoapi/paidiverpy/convert_layer/index.html">paidiverpy.convert_layer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/paidiverpy/convert_layer/convert_layer/index.html">paidiverpy.convert_layer.convert_layer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/paidiverpy/data/index.html">paidiverpy.data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/paidiverpy/exceptions/index.html">paidiverpy.exceptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/paidiverpy/images_layer/index.html">paidiverpy.images_layer</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../autoapi/paidiverpy/metadata_parser/index.html">paidiverpy.metadata_parser</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/paidiverpy/metadata_parser/metadata_parser/index.html">paidiverpy.metadata_parser.metadata_parser</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../autoapi/paidiverpy/open_layer/index.html">paidiverpy.open_layer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/paidiverpy/open_layer/open_layer/index.html">paidiverpy.open_layer.open_layer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/paidiverpy/paidiverpy/index.html">paidiverpy.paidiverpy</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../autoapi/paidiverpy/pipeline/index.html">paidiverpy.pipeline</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/paidiverpy/pipeline/pipeline/index.html">paidiverpy.pipeline.pipeline</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../autoapi/paidiverpy/position_layer/index.html">paidiverpy.position_layer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/paidiverpy/position_layer/position_layer/index.html">paidiverpy.position_layer.position_layer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../autoapi/paidiverpy/resample_layer/index.html">paidiverpy.resample_layer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/paidiverpy/resample_layer/resample_layer/index.html">paidiverpy.resample_layer.resample_layer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/paidiverpy/utils/index.html">paidiverpy.utils</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://www.github.com/paidiver/paidiverpy" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://www.github.com/paidiver/paidiverpy/edit/master/user-guide/guide2/index.rst" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://www.github.com/paidiver/paidiverpy/issues/new?title=Issue%20on%20page%20%2Fuser-guide/guide2/index.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/user-guide/guide2/index.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Colour/content-based processing</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">Introduction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#colour-alteration">1. Colour alteration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contrast-alteration">2. Contrast alteration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#backscatter-removal">3. Backscatter removal</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#illumination-correction">4. Illumination correction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#de-blurring">5. De-blurring</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="colour-content-based-processing">
+<h1>Colour/content-based processing<a class="headerlink" href="#colour-content-based-processing" title="Link to this heading">#</a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">#</a></h2>
+<p>Handling biodiversity images, especially those obtained in natural settings, presents numerous challenges. Issues such as inconsistent lighting, blurriness, and a hazy veil over images can drastically compromise image quality and practical usability. This section is dedicated to the modification and enhancement of the visual characteristics of these images, aiming to enhance clarity, detail resolution, and interpretative accuracy.</p>
+<p>The challenges extend beyond natural environments, influencing diverse imaging scenarios, including underwater settings [SC, MI]. These challenges predominantly stem from:</p>
+<ul class="simple">
+<li><p><strong>Light Attenuation and Environmental Interference</strong>: Factors such as water turbidity or forest canopy cover can severely limit light, leading to poor contrast and obscured details.</p></li>
+<li><p><strong>Absorption and Scattering</strong>: These processes, which respectively remove light energy and alter the direction of light paths, significantly degrade underwater image quality. Influenced by water temperature, salinity, and particles like marine snow, these factors affect the absorption coefficient, complicating the imaging process.</p></li>
+<li><p><strong>Camera and Sensor Limitations</strong>: Variations in sensor sizes, sensitivities, and focal lengths affect the field of view and the overall imaging quality.</p></li>
+<li><p><strong>Artificial Lighting Drawbacks</strong>: Utilized to counter low natural light, artificial lighting systems often suffer from non-uniform illumination, which can exacerbate scattering and absorption, sometimes creating overly bright spots in images.</p></li>
+</ul>
+<p>Our preprocessing module is designed to tackle these challenges head-on, aiming to:</p>
+<ul class="simple">
+<li><p><strong>Correct Errors</strong>: Rectify issues introduced by both camera hardware and environmental conditions during image capture.</p></li>
+<li><p><strong>Enhance Visual Clarity and Appeal</strong>: Boost the visual quality of images for deeper analysis and interpretation, making it easier to discern fine details and subtle features.</p></li>
+<li><p><strong>Standardize Data</strong>: Achieve consistency across images collected from different sources and under varied conditions, enhancing the reliability of data analyses and comparisons.</p></li>
+</ul>
+<p>Objective image quality metrics can be categorized into three main types depending on the availability of a reference image:</p>
+<ul class="simple">
+<li><p><strong>Full reference metrics</strong>: Requires an original, unaltered image for comparison.</p></li>
+<li><p><strong>Reduced-reference metrics</strong>: Utilizes only partial information from the original image.</p></li>
+<li><p><strong>No-reference or “blind” quality assessment</strong>: Does not rely on any reference image at all [SC].</p></li>
+</ul>
+<p>In our case, where no original image is available for comparison, we must rely on no-reference metrics to quantitatively assess the effectiveness of our preprocessing techniques. Our focus here will be on the specific quantitative metrics that have been utilized by researchers to gauge the performance of preprocessing algorithms in such contexts.</p>
+<p>[SC] Schettini, R., Corchs, S. “Underwater image processing: state of the art of restoration and image enhancement methods.” EURASIP Journal on Advances in Signal Processing, 2010.
+[MI] Massot-Campos, M., Yamada, T., Thornton, B. “Towards sensor agnostic artificial intelligence for underwater imagery.” IEEE Underwater Technology, 2023.</p>
+<p>—</p>
+</section>
+<section id="colour-alteration">
+<h2>1. Colour alteration<a class="headerlink" href="#colour-alteration" title="Link to this heading">#</a></h2>
+<p><strong>Overview</strong></p>
+<p>Colour alteration is essential for correcting colour distortions in underwater imagery. As depth increases, colours diminish at different rates based on their wavelengths. Red is the first to disappear at approximately 3 meters, followed by orange at 5 meters, yellow at 10 meters, and eventually green and purple at greater depths. Blue, due to its shorter wavelength, travels the furthest, resulting in underwater images being dominated by blue-green hues [RA]. Additionally, variations in light sources contribute to non-uniform colour casts, which are characteristic of typical underwater images. The primary challenge is light absorption, which is wavelength-dependent, causing a progressive loss of colours with increasing depth [SA].</p>
+<p><strong>Methodology</strong></p>
+<ul class="simple">
+<li><p><strong>Local Histogram Equalization</strong> [GA]: Enhances colour contrast locally within different regions of the image.</p></li>
+<li><p><strong>Automatic Colour Equalization (White balance adjustment)</strong> [CH]: Adjusts the colours automatically based on statistical analysis of the image’s colour distribution.</p></li>
+<li><p><strong>Local adaptive contrast enhancement</strong> [ZH]</p></li>
+<li><p><strong>Contrast-limited histogram equalization</strong> [SA]</p></li>
+</ul>
+<p><strong>Challenges</strong></p>
+<p>Some challenges arise during the colour alteration process:</p>
+<ul class="simple">
+<li><p><strong>Subjectivity</strong>: The “best” settings for colour alterations can be subjective and dependent on the intended use of the images.</p></li>
+</ul>
+<p><strong>Success Metrics</strong></p>
+<p>The success of colour alteration is measured by comparing processed images with true colour charts or known references. Accurate colour correction should result in images that closely match the expected real-world colours of the objects and environments depicted.</p>
+<p>[RA] Schettini, R., Corchs, S. “Underwater Image Processing: State of the Art of Restoration and Image Enhancement Methods.” EURASIP Journal on Advances in Signal Processing, 2010.
+[SA] Sankpal, S.S., Deshpande, S.S. “A review on image enhancement and color correction techniques for underwater images.” Advances in Computational Sciences and Technology, 2016.
+[GA] Garcia, R., Nicosevici, T., Cufí, X. “On the way to solve lighting problems in underwater imaging.” IEEE, 2002.
+[CH] Chambah, M., Semani, D., Renouf, A., et al. “Underwater color constancy: enhancement of automatic live fish recognition.” SPIE, 2003.
+[ZH] Zhang, W., Zhuang, P., Sun, H.H., et al. “Underwater image enhancement via minimal color loss and locally adaptive contrast enhancement.” IEEE Transactions on Image Processing, 2022.</p>
+<p>—</p>
+</section>
+<section id="contrast-alteration">
+<h2>2. Contrast alteration<a class="headerlink" href="#contrast-alteration" title="Link to this heading">#</a></h2>
+<p><strong>Overview</strong></p>
+<p>Contrast alteration is essential for enhancing images, especially those taken underwater. This module modifies the intensity of dark and bright areas in an image, greatly improving visual clarity. Capturing high-resolution underwater images is difficult due to issues like low contrast, poor visibility, and blurriness. Light attenuation, caused mainly by absorption and scattering, reduces image quality. Scattering is categorized into forward scattering, which causes blurriness, and backward scattering, which adds noise [AI]. Additionally, marine snow—particles suspended in the water—further degrades image quality [SC].</p>
+<p><strong>Methodology</strong></p>
+<p>Contrast alteration involves adjusting the histogram of pixel intensity values in an image, a technique known as histogram equalization. This method enhances the distinction between features by modifying the light and dark areas. Advanced approaches include:</p>
+<ul class="simple">
+<li><p><strong>Adaptive Histogram Equalization (AHE)</strong>: Enhances contrast by analyzing localized intensity distributions, improving visibility without increasing noise.</p></li>
+<li><p><strong>Contrast Limited Adaptive Histogram Equalization (CLAHE)</strong>: Refines AHE by applying contrast limiting, avoiding over-enhancement in specific blocks, for balanced enhancement throughout the image.</p></li>
+<li><p><strong>Gamma Correction</strong>: A non-linear transformation to adjust brightness and contrast.</p></li>
+</ul>
+<p><strong>Challenges</strong></p>
+<p>Several challenges complicate the process of contrast alteration:</p>
+<ul class="simple">
+<li><p><strong>Judgment</strong>: The optimal level of enhancement is subjective and depends on the image’s intended use and personal preference.</p></li>
+<li><p><strong>Poor Quality</strong>: Low initial quality can limit enhancement effectiveness.</p></li>
+<li><p><strong>Over-Enhancement</strong>: Excessive adjustment can create unnatural appearances and detail loss.</p></li>
+</ul>
+<p><strong>Success Metrics</strong></p>
+<p>The success of contrast alteration is measured by the clarity of image details and improved feature visibility, essential for tasks such as species identification.</p>
+<p>[AI] Almutiry, O., et al. “Underwater images contrast enhancement and its challenges: a survey.” Multimedia Tools and Applications, 2024.
+[SC] Schettini, R., Corchs, S. “Underwater image processing: state of the art of restoration and image enhancement methods.” EURASIP Journal on Advances in Signal Processing, 2010.</p>
+<p>—</p>
+</section>
+<section id="backscatter-removal">
+<h2>3. Backscatter removal<a class="headerlink" href="#backscatter-removal" title="Link to this heading">#</a></h2>
+<p><strong>Overview</strong></p>
+<p>Backscatter is a common issue in underwater photography, caused by light reflecting off particles suspended in water or air. This scattered light results in a hazy appearance and reduced visibility, creating a foggy effect that increases with distance. Backscatter leads to a significant loss of contrast in images, and its removal can enhance clarity and contrast [TS].</p>
+<p><strong>Methodology</strong></p>
+<p>Backscatter removal is typically achieved using dehazing algorithms, involving:</p>
+<ul class="simple">
+<li><p><strong>Estimation of Backscatter</strong>: A low-pass filter estimates spatial distribution of optical backscatter.</p></li>
+<li><p><strong>Subtraction and Scaling</strong>: The estimated backscatter is subtracted, followed by scaling to restore contrast.</p></li>
+</ul>
+<p><strong>Challenges</strong></p>
+<ul class="simple">
+<li><p><strong>Automation</strong>: Fully automating backscatter removal remains challenging.</p></li>
+<li><p><strong>Detail Preservation</strong>: Excessive removal can eliminate essential image details.</p></li>
+</ul>
+<p><strong>Success Metrics</strong></p>
+<p>Success is measured by increased contrast and reduced haze, ensuring essential details are preserved.</p>
+<p>[TS] Tsiotsios, C., et al. “Backscatter compensated photometric stereo with 3 sources.” IEEE, 2014.</p>
+<p>—</p>
+</section>
+<section id="illumination-correction">
+<h2>4. Illumination correction<a class="headerlink" href="#illumination-correction" title="Link to this heading">#</a></h2>
+<p><strong>Overview</strong></p>
+<p>Illumination correction addresses uneven lighting, ensuring uniform distribution. In underwater imaging, this often involves lens vignetting and light source positioning challenges. Vignetting darkens edges due to lens design, and autonomous vehicle lighting geometry introduces bright and dark zones, affecting colour and image quality.</p>
+<p><strong>Methodology</strong></p>
+<ul class="simple">
+<li><p><strong>Background Subtraction</strong>: Estimates and subtracts background illumination.</p></li>
+<li><p><strong>Histogram Matching</strong>: Normalizes light distribution by matching image histograms to reference values.</p></li>
+</ul>
+<p><strong>Challenges</strong></p>
+<ul class="simple">
+<li><p><strong>Dynamic Lighting</strong>: Consistent results are difficult with variable lighting.</p></li>
+<li><p><strong>Information Loss</strong>: Over-correction risks detail loss.</p></li>
+</ul>
+<p><strong>Success Metrics</strong></p>
+<p>Effective illumination correction minimizes over/underexposed areas, providing a clear view.</p>
+<p>[ST] Sternberg, S.R. “Biomedical image processing.” Computer, 1983.</p>
+<p>—</p>
+</section>
+<section id="de-blurring">
+<h2>5. De-blurring<a class="headerlink" href="#de-blurring" title="Link to this heading">#</a></h2>
+<p><strong>Overview</strong></p>
+<p>Blurring in images can result from camera shake, focus issues, or subject movement, and it significantly degrades image quality and obscures important details. Blurring is influenced by various factors, including the imaging environment and the stability of the camera during image capture. To address blurring, especially without prior knowledge of the blur’s cause, blind image deblurring techniques are employed [ZHA]. The degradation model for a blurry image can be expressed as:</p>
+<div class="math notranslate nohighlight">
+\[S = H * U + N\]</div>
+<p>where <span class="math notranslate nohighlight">\(S\)</span> is the blurry image, <span class="math notranslate nohighlight">\(H\)</span> is the blur kernel (point spread function, PSF), <span class="math notranslate nohighlight">\(U\)</span> is the original clear image, and <span class="math notranslate nohighlight">\(N\)</span> represents noise. The circular PSF, characterized by its radius <span class="math notranslate nohighlight">\(R\)</span>, is a common approximation for out-of-focus distortion.</p>
+<p><strong>Methodology</strong></p>
+<p>Restoring a blurred image involves estimating the original image from the degraded version using several techniques:</p>
+<ul class="simple">
+<li><p><strong>Wiener Filter</strong>: A widely used method for de-blurring, the Wiener filter restores the image by reducing the effect of noise and blur, assuming certain known parameters such as the signal-to-noise ratio (SNR) and the blur kernel’s characteristics.</p></li>
+<li><p><strong>Blind Deconvolution</strong>: An iterative method that estimates both the original image and the blur kernel, often used when the blur characteristics are unknown.</p></li>
+<li><p><strong>Total Variation (TV) Regularization</strong>: Reduces noise and preserves edges by applying regularization based on total variation of the image intensity.</p></li>
+</ul>
+<p><strong>Challenges</strong></p>
+<p>Several challenges complicate the de-blurring process:</p>
+<ul class="simple">
+<li><p><strong>Noise Trade-off</strong>: While de-blurring can sharpen images, it may also increase noise, especially in low-light conditions, leading to a potential trade-off between sharpness and noise levels.</p></li>
+<li><p><strong>Unknown Blur Kernel</strong>: If the blur characteristics are unknown, it is difficult to fully restore the original image, necessitating adaptive or blind deblurring techniques.</p></li>
+</ul>
+<p><strong>Success Metrics</strong></p>
+<p>The success of de-blurring is measured by the sharpness and clarity of the restored image. Sharper images with more defined details indicate successful de-blurring. However, it is essential to balance the enhancement of image details with the potential increase in noise, ensuring that the final image remains useful for analysis and interpretation.</p>
+<p>[ZHA] Zhang, Z., Zheng, L., Piao, Y., Tao, S., Xu, W., Gao, T., and Wu, X. “Blind remote sensing image deblurring using local binary pattern prior.” Remote Sensing, 2022.</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../guide1/index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Position/size-based processing</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../guide3/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Guide 3</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">Introduction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#colour-alteration">1. Colour alteration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contrast-alteration">2. Contrast alteration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#backscatter-removal">3. Backscatter removal</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#illumination-correction">4. Illumination correction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#de-blurring">5. De-blurring</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Tobias Ferreira
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024-09-03 14:12:44, Tobias Ferreira.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  Last updated on Nov 12, 2024.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

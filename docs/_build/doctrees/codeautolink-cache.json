@@ -1,0 +1,93 @@
+{
+  "configuration_file": [],
+  "contributing": [],
+  "example_data": [
+    {
+      "source": "from paidiverpy import data\ndata.load(DATASET_NAME)",
+      "names": [
+        {
+          "import_components": [
+            "paidiverpy"
+          ],
+          "code_str": "paidiverpy",
+          "lineno": 1,
+          "end_lineno": 1,
+          "context": "import_from",
+          "resolved_location": "paidiverpy"
+        },
+        {
+          "import_components": [
+            "paidiverpy",
+            "data"
+          ],
+          "code_str": "data",
+          "lineno": 1,
+          "end_lineno": 1,
+          "context": "import_target",
+          "resolved_location": "paidiverpy.data"
+        },
+        {
+          "import_components": [
+            "paidiverpy",
+            "data",
+            "load"
+          ],
+          "code_str": "data.load",
+          "lineno": 2,
+          "end_lineno": 2,
+          "context": "none",
+          "resolved_location": "paidiverpy.data.load"
+        }
+      ],
+      "example": {
+        "document": "example_data",
+        "ref_id": "manual-download",
+        "headings": [
+          "Example Data",
+          "Manual Download"
+        ]
+      },
+      "doc_lineno": 18
+    }
+  ],
+  "gallery": [],
+  "images_metadata": [],
+  "install": [],
+  "performances": [],
+  "usage": [],
+  "user-guide/guide1/index": [],
+  "user-guide/guide2/index": [],
+  "user-guide/guide3/index": [],
+  "user-guide/guide4/index": [],
+  "why": [],
+  "autoapi/index": [],
+  "autoapi/paidiverpy/colour_layer/colour_layer/index": [],
+  "autoapi/paidiverpy/colour_layer/index": [],
+  "autoapi/paidiverpy/config/colour_params/index": [],
+  "autoapi/paidiverpy/config/config/index": [],
+  "autoapi/paidiverpy/config/convert_params/index": [],
+  "autoapi/paidiverpy/config/index": [],
+  "autoapi/paidiverpy/config/pipeline_params/index": [],
+  "autoapi/paidiverpy/config/position_params/index": [],
+  "autoapi/paidiverpy/config/resample_params/index": [],
+  "autoapi/paidiverpy/convert_layer/convert_layer/index": [],
+  "autoapi/paidiverpy/convert_layer/index": [],
+  "autoapi/paidiverpy/data/index": [],
+  "autoapi/paidiverpy/exceptions/index": [],
+  "autoapi/paidiverpy/images_layer/index": [],
+  "autoapi/paidiverpy/index": [],
+  "autoapi/paidiverpy/metadata_parser/index": [],
+  "autoapi/paidiverpy/metadata_parser/metadata_parser/index": [],
+  "autoapi/paidiverpy/open_layer/index": [],
+  "autoapi/paidiverpy/open_layer/open_layer/index": [],
+  "autoapi/paidiverpy/paidiverpy/index": [],
+  "autoapi/paidiverpy/pipeline/index": [],
+  "autoapi/paidiverpy/pipeline/pipeline/index": [],
+  "autoapi/paidiverpy/position_layer/index": [],
+  "autoapi/paidiverpy/position_layer/position_layer/index": [],
+  "autoapi/paidiverpy/resample_layer/index": [],
+  "autoapi/paidiverpy/resample_layer/resample_layer/index": [],
+  "autoapi/paidiverpy/utils/index": [],
+  "index": [],
+  "package_organisation": []
+}
