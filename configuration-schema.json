@@ -33,7 +33,7 @@
           "type": ["number", "null"]
         },
         "rename": {
-          "type": ["string", "null"]
+          "type": "string"
         },
         "sampling": {
           "type": ["array", "null"],
@@ -276,7 +276,8 @@
             "sharpen",
             "contrast",
             "illumination_correction",
-            "deblur"
+            "deblur",
+            "colour_alteration"
           ]
         },
         "test": {
@@ -388,6 +389,22 @@
                     "properties": {
                       "params": {
                         "$ref": "#/definitions/colour_params/deblur"
+                      }
+                    }
+                  },
+                  "else": {
+                    "if": {
+                      "properties": {
+                        "mode": {
+                          "const": "colour_alteration"
+                        }
+                      }
+                    },
+                    "then": {
+                      "properties": {
+                        "params": {
+                          "$ref": "#/definitions/colour_params/colour_alteration"
+                        }
                       }
                     }
                   }
@@ -619,6 +636,16 @@
         },
         "required": ["method"]
       },
+      "colour_alteration": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": ["white-balance"]
+          }
+        },
+        "required": ["method"]
+      },
       "gaussian_blur": {
         "type": "object",
         "properties": {
@@ -633,21 +660,24 @@
         "properties": {
           "method": {
             "type": "string",
-            "enum": ["sobel", "Scharr", "Scharr-with-mean", "Canny"]
+            "enum": ["sobel", "scharr", "scharr-with-mean", "canny"]
           },
           "blur_radius": {
             "type": "number"
           },
           "threshold": {
-            "type": "number"
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
           },
           "object_type": {
             "type": "string",
-            "enum": ["Aggregate", "other_method"]
+            "enum": ["Aggregate", "isolated"]
           },
           "object_selection": {
             "type": "string",
-            "enum": ["Full ROI", "other_method"]
+            "enum": ["Full ROI", "Largest Area"]
           },
           "estimate_sharpness": {
             "type": "boolean"
@@ -657,7 +687,7 @@
           },
           "deconv_method": {
             "type": "string",
-            "enum": ["um", "lr"]
+            "enum": ["UM", "LR"]
           },
           "deconv_iter": {
             "type": "integer"
