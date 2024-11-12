@@ -31,8 +31,8 @@ The configuration file is written in YAML format and should adhere to the schema
             to: 'gray'
 
     steps:
-      - color:
-          name: 'color_correction'
+      - colour:
+          name: 'colour_correction'
           mode: 'grayscale'
 
       - sampling:
@@ -42,13 +42,13 @@ The configuration file is written in YAML format and should adhere to the schema
             min: '2016-05-11 04:14:00'
             max: '2016-05-11 09:27:00'
 
-      - color:
-          name: 'color_correction'
+      - colour:
+          name: 'colour_correction'
           mode: 'gaussian_blur'
           params:
             sigma: 1.0
 
-      - color:
+      - colour:
           name: 'sharpen'
           mode: 'sharpen'
           params:
@@ -61,7 +61,7 @@ Explanation of the Configuration File
 In the example above, the configuration file outlines a pipeline with the following steps:
 
 - Step 0. **Input Processing**: Open the images in the specified input path. The raw images will be converted to 8-bit, and only 10% of the images will be processed.
-- Step 1. **Color Conversion**: Convert the images to grayscale.
+- Step 1. **Colour Conversion**: Convert the images to grayscale.
 - Step 2. **Datetime Sampling**: Sample the images based on the datetime metadata.
 - Step 3. **Gaussian Blur**: Apply a Gaussian blur with a sigma of 1.0.
 - Step 4. **Sharpening**: Sharpen the images using an alpha of 1.5 and a beta of -0.5.

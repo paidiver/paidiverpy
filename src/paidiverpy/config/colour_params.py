@@ -1,6 +1,6 @@
-"""Color layer parameters dataclasses.
+"""Colour layer parameters dataclasses.
 
-This module contains the dataclasses for the parameters of the color layer
+This module contains the dataclasses for the parameters of the colour layer
 functions.
 """
 
@@ -14,8 +14,7 @@ class GrayScaleParams(DynamicConfig):
 
     keep_alpha: bool = False
     method: str = "opencv"
-    invert_colors: bool = False
-
+    invert_colours: bool = False
 
 
 @dataclass
@@ -78,7 +77,13 @@ class DeblurParams(DynamicConfig):
     angle: int = 45
 
 
-COLOR_LAYER_METHODS = {
+@dataclass
+class ColourAlterationParams(DynamicConfig):
+    """This class contains the parameters for the colour alteration"""
+    method: str = "white-balance"
+
+
+COLOUR_LAYER_METHODS = {
     "grayscale": {"params": GrayScaleParams, "method": "grayscale"},
     "gaussian_blur": {"params": GaussianBlurParams, "method": "gaussian_blur"},
     "edge_detection": {"params": EdgeDetectionParams, "method": "edge_detection"},
@@ -89,4 +94,5 @@ COLOR_LAYER_METHODS = {
         "params": IlluminationCorrectionParams,
         "method": "illumination_correction",
     },
+    "colour_alteration": {"params": ColourAlterationParams, "method": "colour_alteration"},
 }

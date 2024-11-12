@@ -16,41 +16,41 @@ You can install `paidiverpy` locally or on a notebook server such as JASMIN or t
 
 1. Clone the repository:
 
-    ```bash
-    # ssh
-    git clone git@github.com:paidiver/paidiverpy.git
+   ```bash
+   # ssh
+   git clone git@github.com:paidiver/paidiverpy.git
 
-    # https
-    # git clone https://github.com/paidiver/paidiverpy.git
+   # https
+   # git clone https://github.com/paidiver/paidiverpy.git
 
-    cd paidiverpy
-    ```
+   cd paidiverpy
+   ```
 
 2. (Optional) Create a Python virtual environment to manage dependencies separately from other projects. For example, using `conda`:
 
-    ```bash
-    conda init
+   ```bash
+   conda init
 
-    # Command to restart the terminal. This command may not be necessary if mamba init has already been successfully run before
-    exec bash
+   # Command to restart the terminal. This command may not be necessary if mamba init has already been successfully run before
+   exec bash
 
-    conda env create -f environment.yml
-    conda activate Paidiverpy
-    ```
+   conda env create -f environment.yml
+   conda activate Paidiverpy
+   ```
 
 3. (Optional) For JASMIN or DSP users, you also need to install the environment in the Jupyter IPython kernel. Execute the following command:
 
-    ```bash
-    python -m ipykernel install --user --name Paidiverpy
-    ```
+   ```bash
+   python -m ipykernel install --user --name Paidiverpy
+   ```
 
 4. Install the paidiverpy package:
 
-    Finally, you can install the paidiverpy package:
+   Finally, you can install the paidiverpy package:
 
-    ```bash
-    pip install -e .
-    ```
+   ```bash
+   pip install -e .
+   ```
 
 ## Package Organisation
 
@@ -65,6 +65,7 @@ The configuration file should follow the JSON schema described in the [configura
 To use this package, you may need a metadata file, which can be an IFDO.json file (following the IFDO standard) or a CSV file. For CSV files, ensure the `filename` column uses one of the following headers: `['image-filename', 'filename', 'file_name', 'FileName', 'File Name']`.
 
 Other columns like datetime, latitude, and longitude should follow these conventions:
+
 - Datetime: `['image-datetime', 'datetime', 'date_time', 'DateTime', 'Datetime']`
 - Latitude: `['image-latitude', 'lat', 'latitude_deg', 'latitude', 'Latitude', 'Latitude_deg', 'Lat']`
 - Longitude: `['image-longitude', 'lon', 'longitude_deg', 'longitude', 'Longitude', 'Longitude_deg', 'Lon']`
@@ -77,9 +78,10 @@ The package is organised into multiple layers:
 
 ![Package Organisation](docs/_static/paidiver_organisation.png)
 
-The `Paidiverpy` class serves as the main container for image processing functions. It manages several subclasses for specific processing tasks: `OpenLayer`, `ConvertLayer`, `PositionLayer`, `ResampleLayer`, and `ColorLayer`.
+The `Paidiverpy` class serves as the main container for image processing functions. It manages several subclasses for specific processing tasks: `OpenLayer`, `ConvertLayer`, `PositionLayer`, `ResampleLayer`, and `ColourLayer`.
 
 Supporting classes include:
+
 - `Configuration`: Parses and manages configuration files.
 - `Metadata`: Handles metadata.
 - `ImagesLayer`: Stores outputs from each image processing step.
@@ -109,6 +111,7 @@ data.load(DATASET_NAME)
 ```
 
 Available datasets:
+
 - pelagic_csv
 - benthic_csv
 - benthic_ifdo
@@ -131,18 +134,18 @@ You can also run Paidiverpy using Docker. You can either build the container loc
 
 1. **Build the container locally**:
 
-    ```bash
-    git clone git@github.com:paidiver/paidiverpy.git
-    cd paidiverpy
-    docker build -t paidiverpy .
-    ```
+   ```bash
+   git clone git@github.com:paidiver/paidiverpy.git
+   cd paidiverpy
+   docker build -t paidiverpy .
+   ```
 
 2. **Pull the image from Docker Hub**:
 
-    ```bash
-    docker pull soutobias/paidiverpy:latest
-    docker tag soutobias/paidiverpy:latest paidiverpy:latest
-    ```
+   ```bash
+   docker pull soutobias/paidiverpy:latest
+   docker tag soutobias/paidiverpy:latest paidiverpy:latest
+   ```
 
 Run the container with:
 
@@ -155,8 +158,8 @@ paidiverpy \
 paidiverpy -c /app/examples/config_files/<CONFIGURATION_FILE_FILENAME>
 ```
 
-
 In this command:
+
 - `<INPUT_PATH>`: The input path defined in your configuration file, where the input images are located.
 - `<OUTPUT_PATH>`: The output path defined in your configuration file.
 - `<FULL_PATH_OF_CONFIGURATION_FILE_WITHOUT_FILENAME>`: The local directory of your configuration file.
