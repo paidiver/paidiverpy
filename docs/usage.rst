@@ -16,7 +16,7 @@ You can run your preprocessing pipeline using **Paidiverpy** in several ways, ty
       In [3]: pipeline.run()
       ☁ paidiverpy ☁  |       INFO | 2024-11-04 17:49:24 | Running step 0: raw - OpenLayer
       ☁ paidiverpy ☁  |       INFO | 2024-11-04 17:49:25 | Step 0 completed
-      ☁ paidiverpy ☁  |       INFO | 2024-11-04 17:49:25 | Running step 1: color_correction - ColorLayer
+      ☁ paidiverpy ☁  |       INFO | 2024-11-04 17:49:25 | Running step 1: colour_correction - ColourLayer
       ☁ paidiverpy ☁  |       INFO | 2024-11-04 17:49:25 | Step 1 completed
 
 
