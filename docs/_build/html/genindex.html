@@ -170,6 +170,7 @@
 <li class="toctree-l1"><a class="reference internal" href="user-guide/guide3/index.html">Guide 3</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user-guide/guide4/index.html">Guide 4</a></li>
 <li class="toctree-l1"><a class="reference internal" href="performances.html">Performances</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_algorithms.html">Custom Algorithm Guide</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Help &amp; Reference</span></p>
 <ul class="nav bd-sidenav">
@@ -184,6 +185,7 @@
 <li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/config/colour_params/index.html">paidiverpy.config.colour_params</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/config/config/index.html">paidiverpy.config.config</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/config/convert_params/index.html">paidiverpy.config.convert_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/config/custom_params/index.html">paidiverpy.config.custom_params</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/config/pipeline_params/index.html">paidiverpy.config.pipeline_params</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/config/position_params/index.html">paidiverpy.config.position_params</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/config/resample_params/index.html">paidiverpy.config.resample_params</a></li>
@@ -191,6 +193,11 @@
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/paidiverpy/convert_layer/index.html">paidiverpy.convert_layer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/convert_layer/convert_layer/index.html">paidiverpy.convert_layer.convert_layer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/paidiverpy/custom_layer/index.html">paidiverpy.custom_layer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/custom_layer/base_custom_algorithm/index.html">paidiverpy.custom_layer.base_custom_algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/custom_layer/custom_layer/index.html">paidiverpy.custom_layer.custom_layer</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3"><a class="reference internal" href="autoapi/paidiverpy/data/index.html">paidiverpy.data</a></li>
@@ -611,14 +618,16 @@
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/paidiverpy/custom_layer/base_custom_algorithm/index.html#paidiverpy.custom_layer.base_custom_algorithm.BaseCustomAlgorithm">BaseCustomAlgorithm (class in paidiverpy.custom_layer.base_custom_algorithm)</a>
+</li>
       <li><a href="autoapi/paidiverpy/config/convert_params/index.html#paidiverpy.config.convert_params.BayerPatternParams.bayer_pattern">bayer_pattern (paidiverpy.config.convert_params.BayerPatternParams attribute)</a>
 </li>
       <li><a href="autoapi/paidiverpy/config/convert_params/index.html#paidiverpy.config.convert_params.BayerPatternParams">BayerPatternParams (class in paidiverpy.config.convert_params)</a>
 </li>
-      <li><a href="autoapi/paidiverpy/config/colour_params/index.html#paidiverpy.config.colour_params.SharpenParams.beta">beta (paidiverpy.config.colour_params.SharpenParams attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/paidiverpy/config/colour_params/index.html#paidiverpy.config.colour_params.SharpenParams.beta">beta (paidiverpy.config.colour_params.SharpenParams attribute)</a>
+</li>
       <li><a href="autoapi/paidiverpy/config/convert_params/index.html#paidiverpy.config.convert_params.BitParams">BitParams (class in paidiverpy.config.convert_params)</a>
 </li>
       <li><a href="autoapi/paidiverpy/config/colour_params/index.html#paidiverpy.config.colour_params.EdgeDetectionParams.blur_radius">blur_radius (paidiverpy.config.colour_params.EdgeDetectionParams attribute)</a>
@@ -650,6 +659,10 @@
 </li>
       </ul></li>
       <li><a href="autoapi/paidiverpy/config/convert_params/index.html#paidiverpy.config.convert_params.ToParams.channel_selector">channel_selector (paidiverpy.config.convert_params.ToParams attribute)</a>
+</li>
+      <li><a href="autoapi/paidiverpy/utils/index.html#paidiverpy.utils.check_and_install_dependencies">check_and_install_dependencies() (in module paidiverpy.utils)</a>
+</li>
+      <li><a href="autoapi/paidiverpy/config/config/index.html#paidiverpy.config.config.CustomConfig.class_name">class_name (paidiverpy.config.config.CustomConfig attribute)</a>
 </li>
       <li><a href="autoapi/paidiverpy/index.html#paidiverpy.Paidiverpy.clear_steps">clear_steps() (paidiverpy.Paidiverpy method)</a>
 
@@ -729,6 +742,16 @@
       </ul></li>
       <li><a href="autoapi/paidiverpy/config/convert_params/index.html#paidiverpy.config.convert_params.CropParams">CropParams (class in paidiverpy.config.convert_params)</a>
 </li>
+      <li><a href="autoapi/paidiverpy/config/config/index.html#paidiverpy.config.config.CustomConfig">CustomConfig (class in paidiverpy.config.config)</a>
+</li>
+      <li><a href="autoapi/paidiverpy/custom_layer/index.html#paidiverpy.custom_layer.CustomLayer">CustomLayer (class in paidiverpy.custom_layer)</a>
+
+      <ul>
+        <li><a href="autoapi/paidiverpy/custom_layer/custom_layer/index.html#paidiverpy.custom_layer.custom_layer.CustomLayer">(class in paidiverpy.custom_layer.custom_layer)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/paidiverpy/config/custom_params/index.html#paidiverpy.config.custom_params.CustomParams">CustomParams (class in paidiverpy.config.custom_params)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -770,7 +793,11 @@
 </li>
       </ul></li>
       <li><a href="autoapi/paidiverpy/colour_layer/colour_layer/index.html#paidiverpy.colour_layer.colour_layer.DEFAULT_BITS">DEFAULT_BITS (in module paidiverpy.colour_layer.colour_layer)</a>
+
+      <ul>
+        <li><a href="autoapi/paidiverpy/custom_layer/custom_layer/index.html#paidiverpy.custom_layer.custom_layer.DEFAULT_BITS">(in module paidiverpy.custom_layer.custom_layer)</a>
 </li>
+      </ul></li>
       <li><a href="autoapi/paidiverpy/colour_layer/colour_layer/index.html#paidiverpy.colour_layer.colour_layer.ColourLayer.detect_edges">detect_edges() (paidiverpy.colour_layer.colour_layer.ColourLayer static method)</a>
 
       <ul>
@@ -828,6 +855,8 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResampleRegionParams.file">file (paidiverpy.config.resample_params.ResampleRegionParams attribute)</a>
+</li>
+      <li><a href="autoapi/paidiverpy/config/config/index.html#paidiverpy.config.config.CustomConfig.file_path">file_path (paidiverpy.config.config.CustomConfig attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -909,6 +938,8 @@
       </ul></li>
       <li><a href="autoapi/paidiverpy/config/colour_params/index.html#paidiverpy.config.colour_params.IlluminationCorrectionParams">IlluminationCorrectionParams (class in paidiverpy.config.colour_params)</a>
 </li>
+      <li><a href="autoapi/paidiverpy/custom_layer/base_custom_algorithm/index.html#paidiverpy.custom_layer.base_custom_algorithm.BaseCustomAlgorithm.image_data">image_data (paidiverpy.custom_layer.base_custom_algorithm.BaseCustomAlgorithm attribute)</a>
+</li>
       <li><a href="autoapi/paidiverpy/images_layer/index.html#paidiverpy.images_layer.ImagesLayer.images">images (paidiverpy.images_layer.ImagesLayer attribute)</a>
 </li>
       <li><a href="autoapi/paidiverpy/images_layer/index.html#paidiverpy.images_layer.ImagesLayer">ImagesLayer (class in paidiverpy.images_layer)</a>
@@ -953,10 +984,16 @@
 </li>
       <li><a href="autoapi/paidiverpy/data/index.html#paidiverpy.data.load">load() (in module paidiverpy.data)</a>
 </li>
-      <li><a href="autoapi/paidiverpy/data/index.html#paidiverpy.data.load_persistent_paths">load_persistent_paths() (in module paidiverpy.data)</a>
+      <li><a href="autoapi/paidiverpy/custom_layer/custom_layer/index.html#paidiverpy.custom_layer.custom_layer.CustomLayer.load_custom_algorithm">load_custom_algorithm() (paidiverpy.custom_layer.custom_layer.CustomLayer method)</a>
+
+      <ul>
+        <li><a href="autoapi/paidiverpy/custom_layer/index.html#paidiverpy.custom_layer.CustomLayer.load_custom_algorithm">(paidiverpy.custom_layer.CustomLayer method)</a>
 </li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/paidiverpy/data/index.html#paidiverpy.data.load_persistent_paths">load_persistent_paths() (in module paidiverpy.data)</a>
+</li>
       <li><a href="autoapi/paidiverpy/data/index.html#paidiverpy.data.logger">logger (in module paidiverpy.data)</a>
 
       <ul>
@@ -1051,8 +1088,6 @@
         <li><a href="autoapi/paidiverpy/config/config/index.html#paidiverpy.config.config.SamplingConfig.mode">(paidiverpy.config.config.SamplingConfig attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     module
 
@@ -1071,6 +1106,8 @@
 </li>
         <li><a href="autoapi/paidiverpy/config/convert_params/index.html#module-paidiverpy.config.convert_params">paidiverpy.config.convert_params</a>
 </li>
+        <li><a href="autoapi/paidiverpy/config/custom_params/index.html#module-paidiverpy.config.custom_params">paidiverpy.config.custom_params</a>
+</li>
         <li><a href="autoapi/paidiverpy/config/pipeline_params/index.html#module-paidiverpy.config.pipeline_params">paidiverpy.config.pipeline_params</a>
 </li>
         <li><a href="autoapi/paidiverpy/config/position_params/index.html#module-paidiverpy.config.position_params">paidiverpy.config.position_params</a>
@@ -1080,6 +1117,12 @@
         <li><a href="autoapi/paidiverpy/convert_layer/index.html#module-paidiverpy.convert_layer">paidiverpy.convert_layer</a>
 </li>
         <li><a href="autoapi/paidiverpy/convert_layer/convert_layer/index.html#module-paidiverpy.convert_layer.convert_layer">paidiverpy.convert_layer.convert_layer</a>
+</li>
+        <li><a href="autoapi/paidiverpy/custom_layer/index.html#module-paidiverpy.custom_layer">paidiverpy.custom_layer</a>
+</li>
+        <li><a href="autoapi/paidiverpy/custom_layer/base_custom_algorithm/index.html#module-paidiverpy.custom_layer.base_custom_algorithm">paidiverpy.custom_layer.base_custom_algorithm</a>
+</li>
+        <li><a href="autoapi/paidiverpy/custom_layer/custom_layer/index.html#module-paidiverpy.custom_layer.custom_layer">paidiverpy.custom_layer.custom_layer</a>
 </li>
         <li><a href="autoapi/paidiverpy/data/index.html#module-paidiverpy.data">paidiverpy.data</a>
 </li>
@@ -1112,6 +1155,8 @@
         <li><a href="autoapi/paidiverpy/utils/index.html#module-paidiverpy.utils">paidiverpy.utils</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/paidiverpy/colour_layer/colour_layer/index.html#paidiverpy.colour_layer.colour_layer.ColourLayer.motion_psf">motion_psf() (paidiverpy.colour_layer.colour_layer.ColourLayer static method)</a>
 
       <ul>
@@ -1130,6 +1175,8 @@
 
       <ul>
         <li><a href="autoapi/paidiverpy/config/config/index.html#paidiverpy.config.config.ConvertConfig.name">(paidiverpy.config.config.ConvertConfig attribute)</a>
+</li>
+        <li><a href="autoapi/paidiverpy/config/config/index.html#paidiverpy.config.config.CustomConfig.name">(paidiverpy.config.config.CustomConfig attribute)</a>
 </li>
         <li><a href="autoapi/paidiverpy/config/config/index.html#paidiverpy.config.config.GeneralConfig.name">(paidiverpy.config.config.GeneralConfig attribute)</a>
 </li>
@@ -1157,17 +1204,27 @@
       <li><a href="autoapi/paidiverpy/images_layer/index.html#paidiverpy.images_layer.NUM_CHANNELS_GRAY">NUM_CHANNELS_GRAY (in module paidiverpy.images_layer)</a>
 </li>
       <li><a href="autoapi/paidiverpy/colour_layer/colour_layer/index.html#paidiverpy.colour_layer.colour_layer.NUM_CHANNELS_RGB">NUM_CHANNELS_RGB (in module paidiverpy.colour_layer.colour_layer)</a>
+
+      <ul>
+        <li><a href="autoapi/paidiverpy/custom_layer/custom_layer/index.html#paidiverpy.custom_layer.custom_layer.NUM_CHANNELS_RGB">(in module paidiverpy.custom_layer.custom_layer)</a>
 </li>
+      </ul></li>
       <li><a href="autoapi/paidiverpy/colour_layer/colour_layer/index.html#paidiverpy.colour_layer.colour_layer.NUM_CHANNELS_RGBA">NUM_CHANNELS_RGBA (in module paidiverpy.colour_layer.colour_layer)</a>
 
       <ul>
+        <li><a href="autoapi/paidiverpy/custom_layer/custom_layer/index.html#paidiverpy.custom_layer.custom_layer.NUM_CHANNELS_RGBA">(in module paidiverpy.custom_layer.custom_layer)</a>
+</li>
         <li><a href="autoapi/paidiverpy/images_layer/index.html#paidiverpy.images_layer.NUM_CHANNELS_RGBA">(in module paidiverpy.images_layer)</a>
 </li>
       </ul></li>
       <li><a href="autoapi/paidiverpy/images_layer/index.html#paidiverpy.images_layer.NUM_DIMS_GRAY">NUM_DIMS_GRAY (in module paidiverpy.images_layer)</a>
 </li>
       <li><a href="autoapi/paidiverpy/colour_layer/colour_layer/index.html#paidiverpy.colour_layer.colour_layer.NUM_IMAGE_DIMS">NUM_IMAGE_DIMS (in module paidiverpy.colour_layer.colour_layer)</a>
+
+      <ul>
+        <li><a href="autoapi/paidiverpy/custom_layer/custom_layer/index.html#paidiverpy.custom_layer.custom_layer.NUM_IMAGE_DIMS">(in module paidiverpy.custom_layer.custom_layer)</a>
 </li>
+      </ul></li>
       <li><a href="autoapi/paidiverpy/images_layer/index.html#paidiverpy.images_layer.ImagesLayer.numpy_array_to_base64">numpy_array_to_base64() (paidiverpy.images_layer.ImagesLayer static method)</a>
 </li>
   </ul></td>
@@ -1268,6 +1325,13 @@
 </li>
       </ul></li>
       <li>
+    paidiverpy.config.custom_params
+
+      <ul>
+        <li><a href="autoapi/paidiverpy/config/custom_params/index.html#module-paidiverpy.config.custom_params">module</a>
+</li>
+      </ul></li>
+      <li>
     paidiverpy.config.pipeline_params
 
       <ul>
@@ -1300,6 +1364,27 @@
 
       <ul>
         <li><a href="autoapi/paidiverpy/convert_layer/convert_layer/index.html#module-paidiverpy.convert_layer.convert_layer">module</a>
+</li>
+      </ul></li>
+      <li>
+    paidiverpy.custom_layer
+
+      <ul>
+        <li><a href="autoapi/paidiverpy/custom_layer/index.html#module-paidiverpy.custom_layer">module</a>
+</li>
+      </ul></li>
+      <li>
+    paidiverpy.custom_layer.base_custom_algorithm
+
+      <ul>
+        <li><a href="autoapi/paidiverpy/custom_layer/base_custom_algorithm/index.html#module-paidiverpy.custom_layer.base_custom_algorithm">module</a>
+</li>
+      </ul></li>
+      <li>
+    paidiverpy.custom_layer.custom_layer
+
+      <ul>
+        <li><a href="autoapi/paidiverpy/custom_layer/custom_layer/index.html#module-paidiverpy.custom_layer.custom_layer">module</a>
 </li>
       </ul></li>
       <li>
@@ -1409,6 +1494,8 @@
         <li><a href="autoapi/paidiverpy/utils/index.html#module-paidiverpy.utils">module</a>
 </li>
       </ul></li>
+      <li><a href="autoapi/paidiverpy/custom_layer/base_custom_algorithm/index.html#paidiverpy.custom_layer.base_custom_algorithm.BaseCustomAlgorithm.params">params (paidiverpy.custom_layer.base_custom_algorithm.BaseCustomAlgorithm attribute)</a>
+</li>
       <li><a href="autoapi/paidiverpy/data/index.html#paidiverpy.data.PERSISTENCE_FILE">PERSISTENCE_FILE (in module paidiverpy.data)</a>
 </li>
       <li><a href="autoapi/paidiverpy/pipeline/index.html#paidiverpy.pipeline.Pipeline">Pipeline (class in paidiverpy.pipeline)</a>
@@ -1443,6 +1530,8 @@
         <li><a href="autoapi/paidiverpy/position_layer/position_layer/index.html#paidiverpy.position_layer.position_layer.PositionLayer">(class in paidiverpy.position_layer.position_layer)</a>
 </li>
       </ul></li>
+      <li><a href="autoapi/paidiverpy/custom_layer/base_custom_algorithm/index.html#paidiverpy.custom_layer.base_custom_algorithm.BaseCustomAlgorithm.process">process() (paidiverpy.custom_layer.base_custom_algorithm.BaseCustomAlgorithm method)</a>
+</li>
       <li><a href="autoapi/paidiverpy/colour_layer/colour_layer/index.html#paidiverpy.colour_layer.colour_layer.ColourLayer.process_edges">process_edges() (paidiverpy.colour_layer.colour_layer.ColourLayer static method)</a>
 
       <ul>
@@ -1470,6 +1559,10 @@
 </li>
         <li><a href="autoapi/paidiverpy/convert_layer/index.html#paidiverpy.convert_layer.ConvertLayer.process_parallel">(paidiverpy.convert_layer.ConvertLayer method)</a>
 </li>
+        <li><a href="autoapi/paidiverpy/custom_layer/custom_layer/index.html#paidiverpy.custom_layer.custom_layer.CustomLayer.process_parallel">(paidiverpy.custom_layer.custom_layer.CustomLayer method)</a>
+</li>
+        <li><a href="autoapi/paidiverpy/custom_layer/index.html#paidiverpy.custom_layer.CustomLayer.process_parallel">(paidiverpy.custom_layer.CustomLayer method)</a>
+</li>
         <li><a href="autoapi/paidiverpy/position_layer/position_layer/index.html#paidiverpy.position_layer.position_layer.PositionLayer.process_parallel">(paidiverpy.position_layer.position_layer.PositionLayer method)</a>
 </li>
         <li><a href="autoapi/paidiverpy/position_layer/index.html#paidiverpy.position_layer.PositionLayer.process_parallel">(paidiverpy.position_layer.PositionLayer method)</a>
@@ -1483,6 +1576,10 @@
         <li><a href="autoapi/paidiverpy/convert_layer/convert_layer/index.html#paidiverpy.convert_layer.convert_layer.ConvertLayer.process_sequentially">(paidiverpy.convert_layer.convert_layer.ConvertLayer method)</a>
 </li>
         <li><a href="autoapi/paidiverpy/convert_layer/index.html#paidiverpy.convert_layer.ConvertLayer.process_sequentially">(paidiverpy.convert_layer.ConvertLayer method)</a>
+</li>
+        <li><a href="autoapi/paidiverpy/custom_layer/custom_layer/index.html#paidiverpy.custom_layer.custom_layer.CustomLayer.process_sequentially">(paidiverpy.custom_layer.custom_layer.CustomLayer method)</a>
+</li>
+        <li><a href="autoapi/paidiverpy/custom_layer/index.html#paidiverpy.custom_layer.CustomLayer.process_sequentially">(paidiverpy.custom_layer.CustomLayer method)</a>
 </li>
         <li><a href="autoapi/paidiverpy/position_layer/position_layer/index.html#paidiverpy.position_layer.position_layer.PositionLayer.process_sequentially">(paidiverpy.position_layer.position_layer.PositionLayer method)</a>
 </li>
@@ -1535,14 +1632,14 @@
 </li>
       <li><a href="autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResampleRegionParams">ResampleRegionParams (class in paidiverpy.config.resample_params)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/paidiverpy/convert_layer/convert_layer/index.html#paidiverpy.convert_layer.convert_layer.ConvertLayer.resize">resize() (paidiverpy.convert_layer.convert_layer.ConvertLayer method)</a>
 
       <ul>
         <li><a href="autoapi/paidiverpy/convert_layer/index.html#paidiverpy.convert_layer.ConvertLayer.resize">(paidiverpy.convert_layer.ConvertLayer method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/paidiverpy/config/convert_params/index.html#paidiverpy.config.convert_params.ResizeParams">ResizeParams (class in paidiverpy.config.convert_params)</a>
 </li>
       <li><a href="autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResamplePitchRollParams.roll">roll (paidiverpy.config.resample_params.ResamplePitchRollParams attribute)</a>
@@ -1555,6 +1652,10 @@
         <li><a href="autoapi/paidiverpy/convert_layer/convert_layer/index.html#paidiverpy.convert_layer.convert_layer.ConvertLayer.run">(paidiverpy.convert_layer.convert_layer.ConvertLayer method)</a>
 </li>
         <li><a href="autoapi/paidiverpy/convert_layer/index.html#paidiverpy.convert_layer.ConvertLayer.run">(paidiverpy.convert_layer.ConvertLayer method)</a>
+</li>
+        <li><a href="autoapi/paidiverpy/custom_layer/custom_layer/index.html#paidiverpy.custom_layer.custom_layer.CustomLayer.run">(paidiverpy.custom_layer.custom_layer.CustomLayer method)</a>
+</li>
+        <li><a href="autoapi/paidiverpy/custom_layer/index.html#paidiverpy.custom_layer.CustomLayer.run">(paidiverpy.custom_layer.CustomLayer method)</a>
 </li>
         <li><a href="autoapi/paidiverpy/open_layer/open_layer/index.html#paidiverpy.open_layer.open_layer.OpenLayer.run">(paidiverpy.open_layer.open_layer.OpenLayer method)</a>
 </li>
@@ -1646,6 +1747,10 @@
 </li>
         <li><a href="autoapi/paidiverpy/convert_layer/index.html#paidiverpy.convert_layer.ConvertLayer.step_metadata">(paidiverpy.convert_layer.ConvertLayer attribute)</a>
 </li>
+        <li><a href="autoapi/paidiverpy/custom_layer/custom_layer/index.html#paidiverpy.custom_layer.custom_layer.CustomLayer.step_metadata">(paidiverpy.custom_layer.custom_layer.CustomLayer attribute)</a>
+</li>
+        <li><a href="autoapi/paidiverpy/custom_layer/index.html#paidiverpy.custom_layer.CustomLayer.step_metadata">(paidiverpy.custom_layer.CustomLayer attribute)</a>
+</li>
         <li><a href="autoapi/paidiverpy/images_layer/index.html#paidiverpy.images_layer.ImagesLayer.step_metadata">(paidiverpy.images_layer.ImagesLayer attribute)</a>
 </li>
         <li><a href="autoapi/paidiverpy/open_layer/open_layer/index.html#paidiverpy.open_layer.open_layer.OpenLayer.step_metadata">(paidiverpy.open_layer.open_layer.OpenLayer attribute)</a>
@@ -1672,6 +1777,8 @@
 </li>
         <li><a href="autoapi/paidiverpy/config/config/index.html#paidiverpy.config.config.ConvertConfig.step_name">(paidiverpy.config.config.ConvertConfig attribute)</a>
 </li>
+        <li><a href="autoapi/paidiverpy/config/config/index.html#paidiverpy.config.config.CustomConfig.step_name">(paidiverpy.config.config.CustomConfig attribute)</a>
+</li>
         <li><a href="autoapi/paidiverpy/config/config/index.html#paidiverpy.config.config.GeneralConfig.step_name">(paidiverpy.config.config.GeneralConfig attribute)</a>
 </li>
         <li><a href="autoapi/paidiverpy/config/config/index.html#paidiverpy.config.config.PositionConfig.step_name">(paidiverpy.config.config.PositionConfig attribute)</a>
@@ -1681,6 +1788,10 @@
         <li><a href="autoapi/paidiverpy/convert_layer/convert_layer/index.html#paidiverpy.convert_layer.convert_layer.ConvertLayer.step_name">(paidiverpy.convert_layer.convert_layer.ConvertLayer attribute)</a>
 </li>
         <li><a href="autoapi/paidiverpy/convert_layer/index.html#paidiverpy.convert_layer.ConvertLayer.step_name">(paidiverpy.convert_layer.ConvertLayer attribute)</a>
+</li>
+        <li><a href="autoapi/paidiverpy/custom_layer/custom_layer/index.html#paidiverpy.custom_layer.custom_layer.CustomLayer.step_name">(paidiverpy.custom_layer.custom_layer.CustomLayer attribute)</a>
+</li>
+        <li><a href="autoapi/paidiverpy/custom_layer/index.html#paidiverpy.custom_layer.CustomLayer.step_name">(paidiverpy.custom_layer.CustomLayer attribute)</a>
 </li>
         <li><a href="autoapi/paidiverpy/open_layer/open_layer/index.html#paidiverpy.open_layer.open_layer.OpenLayer.step_name">(paidiverpy.open_layer.open_layer.OpenLayer attribute)</a>
 </li>
@@ -1728,6 +1839,8 @@
       <ul>
         <li><a href="autoapi/paidiverpy/config/config/index.html#paidiverpy.config.config.ConvertConfig.test">(paidiverpy.config.config.ConvertConfig attribute)</a>
 </li>
+        <li><a href="autoapi/paidiverpy/config/config/index.html#paidiverpy.config.config.CustomConfig.test">(paidiverpy.config.config.CustomConfig attribute)</a>
+</li>
         <li><a href="autoapi/paidiverpy/config/config/index.html#paidiverpy.config.config.PositionConfig.test">(paidiverpy.config.config.PositionConfig attribute)</a>
 </li>
         <li><a href="autoapi/paidiverpy/config/config/index.html#paidiverpy.config.config.SamplingConfig.test">(paidiverpy.config.config.SamplingConfig attribute)</a>
@@ -1737,14 +1850,14 @@
 </li>
       <li><a href="autoapi/paidiverpy/convert_layer/convert_layer/index.html#paidiverpy.convert_layer.convert_layer.THIRTY_TWO_BITS">THIRTY_TWO_BITS (in module paidiverpy.convert_layer.convert_layer)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/paidiverpy/config/colour_params/index.html#paidiverpy.config.colour_params.EdgeDetectionParams.threshold">threshold (paidiverpy.config.colour_params.EdgeDetectionParams attribute)</a>
 
       <ul>
         <li><a href="autoapi/paidiverpy/config/resample_params/index.html#paidiverpy.config.resample_params.ResampleOverlappingParams.threshold">(paidiverpy.config.resample_params.ResampleOverlappingParams attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/paidiverpy/config/convert_params/index.html#paidiverpy.config.convert_params.ToParams.to">to (paidiverpy.config.convert_params.ToParams attribute)</a>
 </li>
       <li><a href="autoapi/paidiverpy/config/config/index.html#paidiverpy.config.config.Configuration.to_dict">to_dict() (paidiverpy.config.config.Configuration method)</a>

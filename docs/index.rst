@@ -22,18 +22,6 @@ Paidiverpy package documentation
 Documentation
 -------------
 
-
-**Getting Started**
-
-* :doc:`why`
-* :doc:`install`
-* :doc:`usage`
-* :doc:`package_organisation`
-* :doc:`configuration_file`
-* :doc:`images_metadata`
-* :doc:`example_data`
-* :doc:`Gallery of examples <gallery>`
-
 .. toctree::
     :maxdepth: 2
     :caption: Getting Started
@@ -47,15 +35,6 @@ Documentation
     example_data
     gallery
 
-
-**User Guide**
-
-* :doc:`user-guide/guide1/index`
-* :doc:`user-guide/guide2/index`
-* :doc:`user-guide/guide3/index`
-* :doc:`user-guide/guide4/index`
-* :doc:`performances`
-
 .. toctree::
     :maxdepth: 2
     :caption: User Guide
@@ -65,6 +44,7 @@ Documentation
     user-guide/guide3/index
     user-guide/guide4/index
     performances
+    custom_algorithms
 
 .. toctree::
     :maxdepth: 2

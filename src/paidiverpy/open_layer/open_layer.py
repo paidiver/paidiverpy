@@ -156,7 +156,6 @@ class OpenLayer(Paidiverpy):
         else:
             delayed_image_list = [delayed(self.process_image)(img_path) for _, img_path in enumerate(img_path_list)]
             with dask.config.set(scheduler="threads", num_workers=self.n_jobs):
-                self.logger.info("Processing images using %s cores", self.n_jobs)
                 with ProgressBar():
                     computed_images = compute(*delayed_image_list)
                 image_list = list(computed_images)

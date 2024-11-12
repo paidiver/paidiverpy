@@ -176,6 +176,7 @@
 <li class="toctree-l1"><a class="reference internal" href="user-guide/guide3/index.html">Guide 3</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user-guide/guide4/index.html">Guide 4</a></li>
 <li class="toctree-l1"><a class="reference internal" href="performances.html">Performances</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_algorithms.html">Custom Algorithm Guide</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Help &amp; Reference</span></p>
 <ul class="nav bd-sidenav">
@@ -190,6 +191,7 @@
 <li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/config/colour_params/index.html">paidiverpy.config.colour_params</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/config/config/index.html">paidiverpy.config.config</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/config/convert_params/index.html">paidiverpy.config.convert_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/config/custom_params/index.html">paidiverpy.config.custom_params</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/config/pipeline_params/index.html">paidiverpy.config.pipeline_params</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/config/position_params/index.html">paidiverpy.config.position_params</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/config/resample_params/index.html">paidiverpy.config.resample_params</a></li>
@@ -197,6 +199,11 @@
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/paidiverpy/convert_layer/index.html">paidiverpy.convert_layer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/convert_layer/convert_layer/index.html">paidiverpy.convert_layer.convert_layer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/paidiverpy/custom_layer/index.html">paidiverpy.custom_layer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/custom_layer/base_custom_algorithm/index.html">paidiverpy.custom_layer.base_custom_algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/paidiverpy/custom_layer/custom_layer/index.html">paidiverpy.custom_layer.custom_layer</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3"><a class="reference internal" href="autoapi/paidiverpy/data/index.html">paidiverpy.data</a></li>
@@ -458,17 +465,6 @@
 </div>
 <section id="documentation">
 <h2>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">#</a></h2>
-<p><strong>Getting Started</strong></p>
-<ul class="simple">
-<li><p><a class="reference internal" href="why.html"><span class="doc">Why Paidiverpy?</span></a></p></li>
-<li><p><a class="reference internal" href="install.html"><span class="doc">Installation</span></a></p></li>
-<li><p><a class="reference internal" href="usage.html"><span class="doc">Usage</span></a></p></li>
-<li><p><a class="reference internal" href="package_organisation.html"><span class="doc">Package Organisation</span></a></p></li>
-<li><p><a class="reference internal" href="configuration_file.html"><span class="doc">Configuration File</span></a></p></li>
-<li><p><a class="reference internal" href="images_metadata.html"><span class="doc">Images Metadata</span></a></p></li>
-<li><p><a class="reference internal" href="example_data.html"><span class="doc">Example Data</span></a></p></li>
-<li><p><a class="reference internal" href="gallery.html"><span class="doc">Gallery of examples</span></a></p></li>
-</ul>
 <div class="toctree-wrapper compound">
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul>
@@ -514,14 +510,6 @@
 </li>
 </ul>
 </div>
-<p><strong>User Guide</strong></p>
-<ul class="simple">
-<li><p><a class="reference internal" href="user-guide/guide1/index.html"><span class="doc">Position/size-based processing</span></a></p></li>
-<li><p><a class="reference internal" href="user-guide/guide2/index.html"><span class="doc">Colour/content-based processing</span></a></p></li>
-<li><p><a class="reference internal" href="user-guide/guide3/index.html"><span class="doc">Guide 3</span></a></p></li>
-<li><p><a class="reference internal" href="user-guide/guide4/index.html"><span class="doc">Guide 4</span></a></p></li>
-<li><p><a class="reference internal" href="performances.html"><span class="doc">Performances</span></a></p></li>
-</ul>
 <div class="toctree-wrapper compound">
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">User Guide</span></p>
 <ul>
@@ -542,6 +530,13 @@
 <li class="toctree-l1"><a class="reference internal" href="user-guide/guide3/index.html">Guide 3</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user-guide/guide4/index.html">Guide 4</a></li>
 <li class="toctree-l1"><a class="reference internal" href="performances.html">Performances</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_algorithms.html">Custom Algorithm Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="custom_algorithms.html#creating-a-custom-algorithm">Creating a Custom Algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_algorithms.html#configuration-file">Configuration File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_algorithms.html#real-example">Real Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_algorithms.html#run-in-docker">Run in Docker</a></li>
+</ul>
+</li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">

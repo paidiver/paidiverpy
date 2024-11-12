@@ -170,6 +170,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../user-guide/guide3/index.html">Guide 3</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user-guide/guide4/index.html">Guide 4</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../performances.html">Performances</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../custom_algorithms.html">Custom Algorithm Guide</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Help &amp; Reference</span></p>
 <ul class="nav bd-sidenav">
@@ -184,6 +185,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/paidiverpy/config/colour_params/index.html">paidiverpy.config.colour_params</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/paidiverpy/config/config/index.html">paidiverpy.config.config</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/paidiverpy/config/convert_params/index.html">paidiverpy.config.convert_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/paidiverpy/config/custom_params/index.html">paidiverpy.config.custom_params</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/paidiverpy/config/pipeline_params/index.html">paidiverpy.config.pipeline_params</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/paidiverpy/config/position_params/index.html">paidiverpy.config.position_params</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/paidiverpy/config/resample_params/index.html">paidiverpy.config.resample_params</a></li>
@@ -191,6 +193,11 @@
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/paidiverpy/convert_layer/index.html">paidiverpy.convert_layer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../autoapi/paidiverpy/convert_layer/convert_layer/index.html">paidiverpy.convert_layer.convert_layer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/paidiverpy/custom_layer/index.html">paidiverpy.custom_layer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/paidiverpy/custom_layer/base_custom_algorithm/index.html">paidiverpy.custom_layer.base_custom_algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/paidiverpy/custom_layer/custom_layer/index.html">paidiverpy.custom_layer.custom_layer</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../autoapi/paidiverpy/data/index.html">paidiverpy.data</a></li>
@@ -535,7 +542,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">delayed_images</span> <span class="o">=</span> <span class="p">[</span><span class="n">dask</span><span class="o">.</span><span class="n">delayed</span><span class="p">(</span><span class="n">method</span><span class="p">)(</span><span class="n">img</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">images</span><span class="p">]</span>
         <span class="k">with</span> <span class="n">dask</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">scheduler</span><span class="o">=</span><span class="s2">&quot;threads&quot;</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Processing images using </span><span class="si">%s</span><span class="s2"> cores&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">)</span>
             <span class="k">with</span> <span class="n">ProgressBar</span><span class="p">():</span>
                 <span class="n">delayed_images</span> <span class="o">=</span> <span class="n">compute</span><span class="p">(</span><span class="o">*</span><span class="n">delayed_images</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">da</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">img</span><span class="p">)</span> <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">delayed_images</span><span class="p">]</span></div>
