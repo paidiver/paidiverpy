@@ -1,24 +1,24 @@
 general:
-  sample_data: 'pelagic_csv'
-  output_path: './output'
-  image_type: 'BMP'
+  sample_data: "pelagic_csv"
+  output_path: "./output"
+  image_type: "BMP"
   sampling:
-    - mode: 'percent'
+    - mode: "percent"
       params:
         value: 0.9
   convert:
-    - mode: 'bits'
+    - mode: "bits"
       params:
         output_bits: 8
 
 steps:
-  - color:
-      name: 'deblur'
-      mode: 'deblur'
+  - colour:
+      name: "deblur"
+      mode: "deblur"
       test: False
-      step_name: 'deblur'
+      step_name: "deblur"
       params:
-        method: 'wiener'
-        psf_type: 'gaussian'
+        method: "wiener"
+        psf_type: "gaussian"
         sigma: 1
         angle: 45
