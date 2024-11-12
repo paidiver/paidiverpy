@@ -1,48 +1,65 @@
-""" Open raw image file
+
+"""Color layer module.
+
+This module contains the ColorLayer class for processing the images in the
+color layer.
 """
 
 import logging
+from typing import List
 import cv2
+import dask
+import dask.array as da
 import numpy as np
-from skimage import morphology, measure, restoration
-from skimage import color
-from skimage.filters import scharr, gaussian, unsharp_mask
-from skimage.exposure import equalize_adapthist, adjust_gamma
-from skimage.transform import resize
-from skimage.segmentation import morphological_chan_vese, checkerboard_level_set
+from dask import compute
+from dask.diagnostics import ProgressBar
 from scipy import ndimage
-from skimage.restoration import rolling_ball, wiener
-from tqdm import tqdm
+from skimage import color
+from skimage import measure
+from skimage import morphology
+from skimage import restoration
+from skimage.exposure import adjust_gamma
+from skimage.exposure import equalize_adapthist
+from skimage.filters import gaussian
+from skimage.filters import scharr
+from skimage.filters import unsharp_mask
+from skimage.restoration import rolling_ball
+from skimage.restoration import wiener
+from skimage.segmentation import checkerboard_level_set
+from skimage.segmentation import morphological_chan_vese
+from skimage.transform import resize
 from paidiverpy import Paidiverpy
-from paidiverpy.catalog_parser.catalog_parser import CatalogParser
-from paidiverpy.config import Configuration
-from paidiverpy.image_layer import ImageLayer
+from paidiverpy.config.color_params import COLOR_LAYER_METHODS, ColourAlterationParams
+from paidiverpy.config.color_params import ContrastAdjustmentParams
+from paidiverpy.config.color_params import DeblurParams
+from paidiverpy.config.color_params import EdgeDetectionParams
+from paidiverpy.config.color_params import GaussianBlurParams
+from paidiverpy.config.color_params import GrayScaleParams
+from paidiverpy.config.color_params import IlluminationCorrectionParams
+from paidiverpy.config.color_params import SharpenParams
+from paidiverpy.config.config import Configuration
 from paidiverpy.images_layer import ImagesLayer
-from paidiverpy.convert_layer import ConvertLayer
-from skimage.util import img_as_float
-from paidiverpy.color_layer.params import (
-    COLOR_LAYER_METHODS,
-    DeblurParams,
-    GrayScaleParams,
-    GaussianBlurParams,
-    EdgeDetectionParams,
-    IlluminationCorrectionParams,
-    SharpenParams,
-    ContrastAdjustmentParams,
-    ColourAlterationParams,
-)
+from paidiverpy.metadata_parser import MetadataParser
+from paidiverpy.utils import DynamicConfig
+from paidiverpy.utils import raise_value_error
 
+NUM_CHANNELS_RGB = 3
+NUM_CHANNELS_RGBA = 4
+NUM_IMAGE_DIMS = 2
+DEFAULT_BITS = 8
 
 class ColorLayer(Paidiverpy):
-    """Process the images in the color layer.
+    """ColorLayer class.
+
+    Process the images in the color layer.
 
     Args:
         config_file_path (str): The path to the configuration file.
         input_path (str): The path to the input files.
         output_path (str): The path to the output files.
-        catalog_path (str): The path to the catalog file.
-        catalog_type (str): The type of the catalog file.
-        catalog (CatalogParser): The catalog object.
+        metadata_path (str): The path to the metadata file.
+        metadata_type (str): The type of the metadata file.
+        metadata (MetadataParser): The metadata object.
         config (Configuration): The configuration object.
         logger (logging.Logger): The logger object.
         images (ImagesLayer): The images object.
@@ -51,249 +68,328 @@ class ColorLayer(Paidiverpy):
         parameters (dict): The parameters for the step.
         config_index (int): The index of the configuration.
         raise_error (bool): Whether to raise an error.
-        verbose (bool): Whether to print verbose messages.
+        verbose (int): verbose level (0 = none, 1 = errors/warnings, 2 = info).
+        track_changes (bool): Whether to track changes. Defaults to True.
+        n_jobs (int): The number of jobs to run in parallel.
     """
 
     def __init__(
         self,
-        config_file_path: str = None,
-        input_path: str = None,
-        output_path: str = None,
-        catalog_path: str = None,
-        catalog_type: str = None,
-        catalog: CatalogParser = None,
+        config_file_path: str | None = None,
+        input_path: str | None = None,
+        output_path: str | None = None,
+        metadata_path: str | None = None,
+        metadata_type: str | None = None,
+        metadata: MetadataParser = None,
         config: Configuration = None,
-        logger: logging.Logger = None,
+        logger: logging.Logger | None = None,
         images: ImagesLayer = None,
         paidiverpy: "Paidiverpy" = None,
-        step_name: str = None,
-        parameters: dict = None,
-        config_index: int = None,
+        step_name: str | None = None,
+        parameters: dict | None = None,
+        config_index: int | None = None,
         raise_error: bool = False,
-        verbose: bool = False,
+        verbose: int = 2,
+        track_changes: bool = True,
+        n_jobs: int = 1,
     ):
-
         super().__init__(
             config_file_path=config_file_path,
             input_path=input_path,
             output_path=output_path,
-            catalog_path=catalog_path,
-            catalog_type=catalog_type,
-            catalog=catalog,
+            metadata_path=metadata_path,
+            metadata_type=metadata_type,
+            metadata=metadata,
             config=config,
             logger=logger,
             images=images,
             paidiverpy=paidiverpy,
             raise_error=raise_error,
             verbose=verbose,
+            track_changes=track_changes,
+            n_jobs=n_jobs,
         )
 
         self.step_name = step_name
         if parameters:
             self.config_index = self.config.add_step(config_index, parameters)
-        self.step_metadata = self._calculate_steps_metadata(
-            self.config.steps[self.config_index]
-        )
+        self.step_metadata = self._calculate_steps_metadata(self.config.steps[self.config_index])
 
-    def run(self):
-        """Run the color layer.
+    def run(self, add_new_step: bool = True) -> ImagesLayer | None:
+        """Color layer run method.
+
+        Run the color layer steps on the images based on the configuration
+        file or parameters.
+
+        Args:
+            add_new_step (bool, optional): Whether to add a new step to the images object.
+        Defaults to True.
 
         Raises:
             ValueError: The mode is not defined in the configuration file.
-            ValueError: Unsupported mode.
+
+        Returns:
+            Union[ImagesLayer, None]: The images object with the new step added.
         """
         mode = self.step_metadata.get("mode")
         if not mode:
-            raise ValueError("The mode is not defined in the configuration file.")
+            msg = "The mode is not defined in the configuration file."
+            raise ValueError(msg)
         test = self.step_metadata.get("test")
         params = self.step_metadata.get("params") or {}
-
-        if mode not in COLOR_LAYER_METHODS:
-            raise ValueError(f"Unsupported mode: {mode}")
-
-        params = COLOR_LAYER_METHODS[mode]["params"](**params)
-
-        method_info = COLOR_LAYER_METHODS[mode]
-        method_name = method_info["method"]
-
+        method, params = self._get_method_by_mode(params, COLOR_LAYER_METHODS, mode)
         images = self.images.get_step(step=len(self.images.images) - 1, by_order=True)
-        image_list = []
-        features = None
-
-        for index, img in tqdm(
-            enumerate(images), total=len(images), desc="Processing Images"
-        ):
-            img_data = img.image
-            method = getattr(self, method_name)
-            if method_name == "edge_detection":
-                img_data, features = method(img, params=params)
-            else:
-                img_data = method(img, params=params)
-
-            catalog = self.get_catalog(flag="all").iloc[index].to_dict()
-            if features:
-                catalog.update(features)
-            img = ImageLayer(
-                image=img_data,
-                image_metadata=catalog,
-                step_order=self.images.get_last_step_order(),
-                step_name=self.step_name,
-            )
-            image_list.append(img)
-
+        if self.n_jobs == 1:
+            image_list = self.process_sequentially(images, method, params)
+        else:
+            image_list = self.process_parallel(images, method, params)
         if not test:
-            self.step_name = (
-                f"convert_{self.config_index}" if not self.step_name else self.step_name
-            )
-            self.images.add_step(
-                step=self.step_name, images=image_list, step_metadata=self.step_metadata
-            )
+            self.step_name = f"convert_{self.config_index}" if not self.step_name else self.step_name
+            if add_new_step:
+                self.images.add_step(
+                    step=self.step_name,
+                    images=image_list,
+                    step_metadata=self.step_metadata,
+                    metadata=self.get_metadata(),
+                    track_changes=self.track_changes,
+                )
+                return None
+            self.images.images[-1] = image_list
+            return self.images
+        return None
 
-    def grayscale(
-        self, img: ImageLayer, params: GrayScaleParams = GrayScaleParams()
-    ) -> np.ndarray:
-        """Convert the image to grayscale.
+    def process_sequentially(self, images: list[np.ndarray], method: callable, params: dict) -> list[np.ndarray]:
+        """Process the images sequentially.
+
+        Method to process the images sequentially.
 
         Args:
-            img (ImageLayer): The image to convert.
-            params (GrayScaleParams, optional): Params for method. Defaults to GrayScaleParams().
+            images (List[np.ndarray]): The list of images to process.
+            method (callable): The method to apply to the images.
+            params (dict): The parameters for the method.
 
-        Raises:
-            e: Error converting image to grayscale.
+        Returns:
+            List[np.ndarray]: The list of processed images.
+        """
+        return [method(img, params=params) for img in images]
+
+    def process_parallel(
+        self, images: list[da.core.Array], method: callable, params: DynamicConfig,
+    ) -> list[np.ndarray]:
+        """Process the images in parallel.
+
+        Method to process the images in parallel.
+
+        Args:
+            images (List[da.core.Array]): The list of images to process.
+            method (callable): The method to apply to the images.
+            params (DynamicConfig): The parameters for the method.
+
+        Returns:
+            List[da.core.Array]: The list of processed images.
+        """
+        delayed_images = [dask.delayed(method)(img, params) for img in images]
+        with dask.config.set(scheduler="threads", num_workers=self.n_jobs):
+            self.logger.info("Processing images using %s cores", self.n_jobs)
+            with ProgressBar():
+                delayed_images = compute(*delayed_images)
+        return [da.from_array(img) for img in delayed_images]
+
+    def _apply_grayscale_conversion(self,
+                                    image_data: np.ndarray,
+                                    params: GrayScaleParams) -> np.ndarray:
+        """GrayScale conversion.
+
+        Apply the grayscale conversion method specified by params
+
+        Args:
+            image_data (np.ndarray): The input image.
+            params (GrayScaleParams): Parameters for the grayscale conversion.
 
         Returns:
             np.ndarray: The grayscale image.
         """
-        image_data = img.image
-        try:
-            image_data = cv2.cvtColor(image_data, cv2.COLOR_BGR2GRAY)
-        except Exception as e:
-            self.logger.error(f"Error converting image to grayscale: {e}")
-            if self.raise_error:
-                raise e
-        return image_data
+        if params.method == "average":
+            return np.mean(image_data, axis=-1)
+        if params.method == "luminosity":
+            band1 = 0.2126 * image_data[..., 0]
+            band2 = 0.7152 * image_data[..., 1]
+            band3 = 0.0722 * image_data[..., 2]
+            return band1 + band2 + band3
+        if params.method == "desaturation":
+            return (np.max(image_data, axis=-1) + np.min(image_data, axis=-1)) / 2
+        return cv2.cvtColor(image_data, cv2.COLOR_BGR2GRAY)
 
-    def gaussian_blur(
-        self, img: ImageLayer, params: GaussianBlurParams = GaussianBlurParams()
-    ) -> np.ndarray:
-        """_summary_
+    def grayscale(self, image_data: np.ndarray, params: GrayScaleParams = None) -> np.ndarray:
+        """Convert the image to grayscale.
+
+        Method to convert the image to grayscale.
 
         Args:
-            img (ImageLayer): The image to apply the Gaussian blur.
-            params (GaussianBlurParams, optional): Params for method. Defaults to GaussianBlurParams().
+            image_data (np.ndarray): The input image.
+            params (GrayScaleParams, optional): Parameters for the grayscale conversion.
 
         Raises:
-            e: Error applying Gaussian blur.
+            ValueError: If the input image does not have 3 channels or 4 channels with alpha.
 
         Returns:
-            np.ndarray: The image with Gaussian blur applied.
+            np.ndarray: The grayscale image.
         """
-        image_data = img.image
+        if params is None:
+            params = GrayScaleParams()
+        if (len(image_data.shape) == NUM_IMAGE_DIMS or
+            (image_data.shape[-1] != NUM_CHANNELS_RGB and
+            image_data.shape[-1] != NUM_CHANNELS_RGBA)):
+            self.logger.error("Input image must have 3 or 4 channels in the last dimension.")
+            if self.raise_error:
+                msg = "Input image must have 3 or 4 channels in the last dimension."
+                raise ValueError(msg)
+            return image_data
+        try:
+            if params.keep_alpha and image_data.shape[-1] == NUM_CHANNELS_RGBA:
+                alpha_channel = image_data[..., NUM_CHANNELS_RGBA-1]
+                image_data = image_data[..., :NUM_CHANNELS_RGB]
+            image_data = self._apply_grayscale_conversion(image_data, params)
+
+            if params.invert_colors:
+                image_data = 255 - image_data
+
+            if params.keep_alpha and "alpha_channel" in locals():
+                image_data = np.dstack([image_data, alpha_channel])
+
+        except Exception as e:
+            self.logger.exception("Error converting image to grayscale: %s", e)
+            if self.raise_error:
+                msg = f"Error converting image to grayscale: {e}"
+                raise ValueError(msg) from e
+
+        return image_data
+
+    def gaussian_blur(self,
+                      image_data: np.ndarray,
+                      params: GaussianBlurParams = None) -> np.ndarray:
+        """Gaussian blur.
+
+        Method to apply Gaussian blur to the image.
+
+        Args:
+            image_data (np.ndarray): The image to apply Gaussian blur.
+            params (GaussianBlurParams, optional): the parameters for the method.
+        Defaults to GaussianBlurParams().
+
+        Raises:
+            ValueError: Error applying Gaussian blur.
+
+        Returns:
+            np.ndarray: The image in grayscale.
+        """
+        if params is None:
+            params = GaussianBlurParams()
         try:
             image_data = cv2.GaussianBlur(image_data, (0, 0), params.sigma)
         except Exception as e:
-            self.logger.error(f"Error applying Gaussian blur: {e}")
+            self.logger.exception("Error applying Gaussian blur: %s", e)
             if self.raise_error:
-                raise e
+                msg = f"Error applying Gaussian blur: {e}"
+                raise ValueError(msg) from e
         return image_data
 
-    def sharpen(
-        self, img: ImageLayer, params: SharpenParams = SharpenParams()
-    ) -> np.ndarray:
-        """Apply sharpening to the image.
+    def sharpen(self, image_data: np.ndarray, params: SharpenParams = None) -> np.ndarray:
+        """Sharpening.
+
+        Method to apply sharpening to the image.
 
         Args:
-            img (ImageLayer): The image to apply sharpening.
+            image_data (np.ndarray): The image to apply sharpening.
             params (SharpenParams, optional): Params for method. Defaults to SharpenParams().
 
         Raises:
-            e: Error applying sharpening.
+            ValueError: Error applying sharpening.
 
         Returns:
             np.ndarray: The image with sharpening applied.
         """
-        image_data = img.image
+        if params is None:
+            params = SharpenParams()
         try:
+            bits = image_data.dtype.itemsize * DEFAULT_BITS
             image_data = unsharp_mask(image_data, radius=params.alpha, amount=params.beta)
-            bits = img.image_metadata.get("bit_depth") or 8
-            multipĺy_factor = 255 if bits == 8 else 65535
-            image_data = np.clip(image_data * multipĺy_factor, 0, multipĺy_factor).astype(
-                np.uint8 if bits == 8 else np.uint16)
+            multiply_factor = 255 if bits == DEFAULT_BITS else 65535
+            image_data = np.clip(image_data * multiply_factor, 0, multiply_factor).astype(
+                np.uint8 if bits == DEFAULT_BITS else np.uint16,
+            )
         except Exception as e:
-            self.logger.error(f"Error applying sharpening: {e}")
+            self.logger.exception("Error applying sharpening: %s", e)
             if self.raise_error:
-                raise e
+                msg = f"Error applying sharpening: {e}"
+                raise ValueError(msg) from e
         return image_data
 
     def contrast_adjustment(
         self,
-        img: ImageLayer,
-        params: ContrastAdjustmentParams = ContrastAdjustmentParams(),
+        image_data: np.ndarray,
+        params: ContrastAdjustmentParams = None,
     ) -> np.ndarray:
-        """Apply contrast adjustment to the image.
+        """Contrast adjustment.
+
+        Method to apply contrast adjustment to the image.
 
         Args:
-            img (ImageLayer): The image to apply contrast adjustment.
-            params (ContrastAdjustmentParams, optional): Params for method. Defaults to ContrastAdjustmentParams().
+            image_data (np.ndarray): The image to apply contrast adjustment.
+            params (ContrastAdjustmentParams, optional): Params for method.
+        Defaults to ContrastAdjustmentParams().
 
         Raises:
-            e: Error applying contrast adjustment.
+            ValueError: Error applying contrast adjustment.
 
         Returns:
             np.ndarray: The image with contrast adjustment applied.
         """
-
-        image_data = img.image
+        if params is None:
+            params = ContrastAdjustmentParams()
         try:
             method = params.method
             kernel_size = tuple(params.kernel_size) if params.kernel_size else None
             clip_limit = params.clip_limit
             gamma_value = params.gamma_value
-
+            bits = image_data.dtype.itemsize * DEFAULT_BITS
             if method == "clahe":
-                image_data = equalize_adapthist(
-                    image_data, clip_limit=clip_limit, kernel_size=kernel_size
-                )
+                image_data = equalize_adapthist(image_data, clip_limit=clip_limit, kernel_size=kernel_size)
             elif method == "gamma":
                 image_data = adjust_gamma(image_data, gamma=gamma_value)
-
-            bits = img.image_metadata.get("bit_depth") or 8
-            multipĺy_factor = 255 if bits == 8 else 65535
-            image_data = np.clip(image_data * multipĺy_factor, 0, multipĺy_factor).astype(
-                np.uint8 if bits == 8 else np.uint16)
-            # # normalize into original format
-            # if img.dtype == 'uint8':
-            #     output_bits = 8
-            # elif img.dtype == 'uint16':
-            #     output_bits = 16
-            # else:
-            #     output_bits = 8  # default
-            # img_norm = ConvertLayer.convert_bits(img_adj, output_bits, logger=logger, autoscale=True)
-
+            multiply_factor = 255 if bits == DEFAULT_BITS else 65535
+            image_data = np.clip(image_data * multiply_factor, 0, multiply_factor).astype(
+                np.uint8 if bits == DEFAULT_BITS else np.uint16,
+            )
         except Exception as e:
-            self.logger.error(f"Error applying contrast adjustment: {e}")
+            self.logger.exception("Error applying contrast adjustment: %s", e)
             if self.raise_error:
-                raise e
+                msg = f"Error applying contrast adjustment: {e}"
+                raise ValueError(msg) from e
+
         return image_data
 
-    def illumination_correction(
-        self,
-        img: ImageLayer,
-        params: IlluminationCorrectionParams = IlluminationCorrectionParams(),
+    def illumination_correction(self,
+                                image_data: np.ndarray,
+                                params: IlluminationCorrectionParams = None,
     ) -> np.ndarray:
-        """Apply illumination correction to the image.
+        """Illumination correction.
+
+        Method to apply illumination correction to the image.
 
         Args:
-            img (ImageLayer): The image to apply illumination correction.
-            params (IlluminationCorrectionParams, optional): Params for method. Defaults to IlluminationCorrectionParams().
+            image_data (np.ndarray): The image to apply illumination correction.
+            params (IlluminationCorrectionParams, optional): Params for method.
+        Defaults to IlluminationCorrectionParams().
 
         Raises:
-            e: Error applying illumination correction.
+            ValueError: Error applying illumination correction.
 
         Returns:
             np.ndarray: The image with illumination correction applied.
         """
-        image_data = img.image
+        if params is None:
+            params = IlluminationCorrectionParams()
         try:
             method = params.method
             radius = params.radius
@@ -303,29 +399,33 @@ class ColorLayer(Paidiverpy):
                 image_data = image_data - background
 
         except Exception as e:
-            self.logger.error(f"Error applying contrast adjustment: {e}")
+            self.logger.exception("Error applying contrast adjustment: %s", e)
             if self.raise_error:
-                raise e
+                msg = f"Error applying contrast adjustment: {e}"
+                raise ValueError(msg) from e
         return image_data
 
-    def deblur(
-        self, img: ImageLayer, params: DeblurParams = DeblurParams()
-    ) -> np.ndarray:
-        """Apply deblurring to the image.
+    def deblur(self, image_data: np.ndarray, params: DeblurParams = None) -> np.ndarray:
+        """Deblurring.
+
+        Method to apply deblurring to the image.
 
         Args:
-            img (ImageLayer): The image to apply deblurring.
-            params (DeblurParams, optional): Params for method. Defaults to DeblurParams().
+            image_data (np.ndarray): The image to apply deblurring.
+            params (DeblurParams, optional): Params for method.
+        Defaults to DeblurParams().
 
         Raises:
             ValueError: Unknown PSF type. Please use 'gaussian' or 'motion'.
             ValueError: Unknown method type. Please use 'wiener'.
-            e: Error applying deblurring.
+            NotImplementedError: Unknown method type. Please use 'wiener'.
+            ValueError: Error applying contrast adjustment.
 
         Returns:
             np.ndarray: The image with deblurring applied.
         """
-        image_data = img.image
+        if params is None:
+            params = DeblurParams()
         try:
             method = params.method
             psf_type = params.psf_type
@@ -337,43 +437,43 @@ class ColorLayer(Paidiverpy):
                 elif psf_type == "motion":
                     psf = ColorLayer.motion_psf(size=image_data.shape, length=sigma, angle_xy=angle)
                 else:
-                    raise ValueError(
-                        "Unknown PSF type. Please use 'gaussian' or 'motion'."
-                    )
-
-                image_data = img_as_float(image_data)
+                    msg = "Unknown PSF type. Please use 'gaussian' or 'motion'."
+                    raise_value_error(msg)
+                bits = image_data.dtype.itemsize * DEFAULT_BITS
+                if image_data.shape[-1] == 1:
+                    image_data = np.squeeze(image_data)
                 image_data = wiener(image_data, psf, balance=0.1)
-                image_data = ColorLayer.normalize_img(image_data)
-                bits = img.image_metadata.get("bit_depth") or 8
-                multipĺy_factor = 255 if bits == 8 else 65535
-                image_data = np.clip(image_data * multipĺy_factor, 0, multipĺy_factor).astype(
-                    np.uint8 if bits == 8 else np.uint16)
-            else:
-                raise ValueError("Unknown method type. Please use 'wiener'.")
+                multiply_factor = 255 if bits == DEFAULT_BITS else 65535
+                image_data = np.clip(image_data * multiply_factor, 0, multiply_factor).astype(
+                    np.uint8 if bits == DEFAULT_BITS else np.uint16,
+                )
 
-            # # normalize into original format
-            # if img.dtype == 'uint8':
-            #     output_bits = 8
-            # elif img.dtype == 'uint16':
-            #     output_bits = 16
-            # else:
-            #     output_bits = 8  # default
-            # img_norm = ConvertLayer.convert_bits(de_blurred_float, output_bits, logger=logger, autoscale=True)
+            else:
+                self.logger.error("Unknown method type. Please use 'wiener'.")
+                if self.raise_error:
+                    msg = "Unknown method type. Please use 'wiener'."
+                    raise_value_error(msg)
 
         except Exception as e:
-            self.logger.error(f"Error applying de-blurring: {e}")
+            self.logger.exception("Error applying contrast adjustment: %s", e)
             if self.raise_error:
-                raise e
+                msg = f"Error applying contrast adjustment: {e}"
+                raise_value_error(msg)
         return image_data
 
     def edge_detection(
-        self, img: ImageLayer, params: EdgeDetectionParams = EdgeDetectionParams()
+        self,
+        image_data: np.ndarray,
+        params: EdgeDetectionParams = None,
     ) -> np.ndarray:
-        """Apply edge detection to the image.
+        """Edge detection.
+
+        Method to apply edge detection to the image.
 
         Args:
-            img (ImageLayer): The image to apply edge detection.
-            params (EdgeDetectionParams, optional): Params for method. Defaults to EdgeDetectionParams().
+            image_data (np.ndarray): The image to apply edge detection.
+            params (EdgeDetectionParams, optional): Params for method.
+        Defaults to EdgeDetectionParams().
 
         Raises:
             e: Error applying edge detection.
@@ -381,19 +481,18 @@ class ColorLayer(Paidiverpy):
         Returns:
             np.ndarray: The image with edge detection applied.
         """
-        image_data = img.image
+        if params is None:
+            params = EdgeDetectionParams()
         try:
             if params.method == "sobel":
                 return cv2.Sobel(image_data, cv2.CV_64F, 1, 1, ksize=5), None
 
-            if len(image_data.shape) == 3:
+            if len(image_data.shape) == NUM_CHANNELS_RGB and image_data.shape[-1] == NUM_CHANNELS_RGB:
                 gray_image_data = cv2.cvtColor(image_data, cv2.COLOR_BGR2GRAY)
             else:
                 gray_image_data = image_data
                 image_data = np.dstack((image_data, image_data, image_data))
-            filled_edges = ColorLayer.detect_edges(
-                gray_image_data, params.method, params.blur_radius, params.threshold
-            )
+            filled_edges = ColorLayer.detect_edges(gray_image_data, params.method, params.blur_radius, params.threshold)
             label_image_data = morphology.label(filled_edges, connectivity=2, background=0)
             props = measure.regionprops(label_image_data, gray_image_data)
 
@@ -414,10 +513,7 @@ class ColorLayer(Paidiverpy):
 
                 selected_index = max_area_ind
 
-                if (
-                    params.object_selection != "Full ROI"
-                    and params.object_type != "Aggregate"
-                ):
+                if params.object_selection != "Full ROI" and params.object_type != "Aggregate":
                     bw_image_data = label_image_data == props[selected_index].label
                 else:
                     bw_image_data = label_image_data > 0
@@ -428,12 +524,9 @@ class ColorLayer(Paidiverpy):
                 bw = bw_image_data if np.max(bw_image_data) == 0 else bw_image_data / np.max(bw_image_data)
 
                 features = {}
-                clip_frac = float(
-                    np.sum(bw[:, 1])
-                    + np.sum(bw[:, -2])
-                    + np.sum(bw[1, :])
-                    + np.sum(bw[-2, :])
-                ) / (2 * bw.shape[0] + 2 * bw.shape[1])
+                clip_frac = float(np.sum(bw[:, 1]) + np.sum(bw[:, -2]) + np.sum(bw[1, :]) + np.sum(bw[-2, :])) / (
+                    2 * bw.shape[0] + 2 * bw.shape[1]
+                )
 
                 # Save simple features of the object
                 if params.object_selection != "Full ROI":
@@ -444,15 +537,12 @@ class ColorLayer(Paidiverpy):
                             "minor_axis_length": selected_prop.axis_minor_length,
                             "major_axis_length": selected_prop.axis_major_length,
                             "aspect_ratio": (
-                                (
-                                    selected_prop.axis_minor_length
-                                    / selected_prop.axis_major_length
-                                )
+                                (selected_prop.axis_minor_length / selected_prop.axis_major_length)
                                 if selected_prop.axis_major_length != 0
                                 else 1
                             ),
                             "orientation": selected_prop.orientation,
-                        }
+                        },
                     )
                 else:
                     features.update(
@@ -461,15 +551,12 @@ class ColorLayer(Paidiverpy):
                             "minor_axis_length": min(bw.shape[0], bw.shape[1]),
                             "major_axis_length": max(bw.shape[0], bw.shape[1]),
                             "aspect_ratio": (
-                                (
-                                    props[selected_index].axis_minor_length
-                                    / props[selected_index].axis_major_length
-                                )
+                                (props[selected_index].axis_minor_length / props[selected_index].axis_major_length)
                                 if props[selected_index].axis_major_length != 0
                                 else 1
                             ),
                             "orientation": 0,
-                        }
+                        },
                     )
 
                 # save all features except for those with  pixel data
@@ -493,15 +580,13 @@ class ColorLayer(Paidiverpy):
             features["valid_object"] = valid_object
 
             # sharpness analysis of the image using FFTs
-            features = ColorLayer.sharpness_analysis(
-                gray_image_data, image_data, features, params.estimate_sharpness
-            )
+            features = ColorLayer.sharpness_analysis(gray_image_data, image_data, features, params.estimate_sharpness)
 
             # mask the raw image with smoothed foreground mask
             blurd_bw_image_data = gaussian(bw_image_data, params.blur_radius)
             if np.max(blurd_bw_image_data) > 0:
                 blurd_bw_image_data = blurd_bw_image_data / np.max(blurd_bw_image_data)
-            for ind in range(0, 3):
+            for ind in range(3):
                 image_data[:, :, ind] = image_data[:, :, ind] * blurd_bw_image_data
 
             # normalize the image as a float
@@ -521,19 +606,20 @@ class ColorLayer(Paidiverpy):
                 params.small_float_val,
             )
         except Exception as e:
-            self.logger.error(f"Error applying edge detection: {e}")
+            self.logger.exception("Error applying edge detection: %s", e)
             if self.raise_error:
-                raise e
+                msg = f"Error applying edge detection: {e}"
+                raise ValueError(msg) from e
         return image_data, features
 
     def colour_alteration(
-        self, img: ImageLayer, params: ColourAlterationParams = ColourAlterationParams()
+        self, image_data: np.ndarray, params: ColourAlterationParams = None
     ) -> np.ndarray:
         """Apply colour alteration to the image.
 
         Args:
-            img (ImageLayer): The image to alter colour channel.
-            params (DeblurParams, optional): Params for method. Defaults to ColourAlterationParams().
+            image_data (np.ndarray): The image to alter colour channel.
+            params (ColourAlterationParams, optional): Params for method. Defaults to None.
 
         Raises:
             ValueError: Unknown method type. Please use 'white-balance'.
@@ -543,7 +629,6 @@ class ColorLayer(Paidiverpy):
         Returns:
             np.ndarray: The image with colour alteration applied.
         """
-        image_data = img.image
         try:
             method = params.method
 
@@ -557,21 +642,43 @@ class ColorLayer(Paidiverpy):
         return image_data
 
     @staticmethod
-    def gaussian_psf(size, sigma):
+    def gaussian_psf(size: List[int], sigma: float) -> np.ndarray:
+        """Gaussian point spread function.
+
+        Create a Gaussian point spread function (PSF).
+
+        Args:
+            size (int[]): The size of the PSF.
+            sigma (float): The standard deviation of the PSF.
+
+        Returns:
+            np.ndarray: The Gaussian PSF.
+        """
         if len(size) == 2:
             psf = np.zeros((size[0], size[1]))
             psf[size[0] // 2, size[1] // 2] = 1
         elif len(size) == 3:
             psf = np.zeros((size[0], size[1], size[2]))
             psf[size[0] // 2, size[1] // 2, size[2] // 2] = 1
-        else:
-            raise ValueError("Size must be either an int or a tuple of length 2 or 3")
         psf = gaussian(psf, sigma=sigma)
         psf /= psf.sum()
         return psf
 
     @staticmethod
-    def motion_psf(size, length, angle_xy, angle_z=0):
+    def motion_psf(size: List[float], length: float, angle_xy: float, angle_z: int=0) -> np.ndarray:
+        """Motion point spread function.
+
+        Create a motion point spread function (PSF).
+
+        Args:
+            size (float[]): size of the PSF
+            length (float): length of the PSF
+            angle_xy (float): angle of the PSF
+            angle_z (int, optional): tilt in the z-axis. Defaults to 0.
+
+        Returns:
+            np.ndarray: The motion PSF
+        """
         if len(size) == 2:
             psf = np.zeros((size[0], size[1]))
             center_x = size[0] // 2
@@ -605,7 +712,17 @@ class ColorLayer(Paidiverpy):
         return psf
 
     @staticmethod
-    def white_balance(img):
+    def white_balance(img) -> np.ndarray:
+        """White balance.
+
+        Perform white balancing on the image.
+
+        Args:
+            img (np.ndarray): The image to white balance.
+
+        Returns:
+            np.ndarray: The white balanced image.
+        """
         r, g, b = cv2.split(img)
         avg_r = np.mean(r)
         avg_g = np.mean(g)
@@ -626,26 +743,52 @@ class ColorLayer(Paidiverpy):
         return balanced_img
 
     @staticmethod
-    def normalize_img(img):
+    def normalize_img(img: np.ndarray) -> np.ndarray:
+        """Normalize the image.
+
+        Normalize the image to [0, 1].
+
+        Args:
+            img (np.ndarray): The image to normalize
+
+        Returns:
+            np.ndarray: The normalized image
+        """
         min_val = np.min(img)
         max_val = np.max(img)
 
         # Shift and scale the image to [0, 1]
-        norm_img = (img - min_val) / (max_val - min_val)
+        return (img - min_val) / (max_val - min_val)
 
-        return norm_img
 
     @staticmethod
     def deconvolution(
-        img,
-        bw_img,
-        blurd_bw_img,
-        deconv,
-        deconv_method,
-        deconv_iter,
-        deconv_mask_weight,
-        small_float_val=1e-6,
-    ):
+        img: np.ndarray,
+        bw_img: np.ndarray,
+        blurd_bw_img: np.ndarray,
+        deconv: bool,
+        deconv_method: str,
+        deconv_iter: int,
+        deconv_mask_weight: float,
+        small_float_val: float = 1e-6,
+    ) -> np.ndarray:
+        """Deconvolution.
+
+        Perform deconvolution on the image.
+
+        Args:
+            img (np.ndarray): The image to deconvolve
+            bw_img (np.ndarray): The binary image to use for deconvolution
+            blurd_bw_img (np.ndarray): The blurred binary image to use for deconvolution
+            deconv (bool): Whether to perform deconvolution
+            deconv_method (str): The method to use for deconvolution
+            deconv_iter (int): The number of iterations for deconvolution
+            deconv_mask_weight (float): The weight for the deconvolution mask
+            small_float_val (float, optional): The small float value. Defaults to 1e-6.
+
+        Returns:
+            np.ndarray: The deconvolved image
+        """
         if deconv:
             # Get the intensity image in HSV space for sharpening
             with np.errstate(divide="ignore"):
@@ -676,9 +819,7 @@ class ColorLayer(Paidiverpy):
                 v_img = restoration.richardson_lucy(v_img, psf, deconv_iter)
 
                 v_img = np.clip(v_img, 0, None)
-                v_img = np.uint8(
-                    255 * v_img / np.max(v_img) if np.max(v_img) != 0 else 255 * v_img
-                )
+                v_img = np.uint8(255 * v_img / np.max(v_img) if np.max(v_img) != 0 else 255 * v_img)
 
             # Restore the RGB image from HSV
             v_img[v_img == 0] = small_float_val
@@ -688,11 +829,7 @@ class ColorLayer(Paidiverpy):
             # Restore img to 8-bit
             img_min = np.min(img)
             img_range = np.max(img) - img_min
-            img = (
-                np.zeros(img.shape, dtype=np.uint8)
-                if img_range == 0
-                else np.uint8(255 * (img - img_min) / img_range)
-            )
+            img = np.zeros(img.shape, dtype=np.uint8) if img_range == 0 else np.uint8(255 * (img - img_min) / img_range)
         else:
             # Restore img to 8-bit
             img = np.uint8(255 * img)
@@ -700,81 +837,102 @@ class ColorLayer(Paidiverpy):
         return img
 
     @staticmethod
-    def sharpness_analysis(gray_img, img, features, estimate_sharpness=True):
-        if estimate_sharpness:
-            if features["valid_object"]:
-                pad_size = 6
-                max_dim = np.max(gray_img.shape)
+    def sharpness_analysis(
+        gray_img: np.ndarray,
+        img: np.ndarray,
+        features: dict,
+        estimate_sharpness: bool = True,
+    ) -> dict:
+        """Sharpness analysis.
 
-                # Determine pad size for FFT
-                for s in range(6, 15):
-                    if max_dim <= 2**s:
-                        pad_r = 2**s - gray_img.shape[0]
-                        pad_c = 2**s - gray_img.shape[1]
-                        real_img = np.pad(
-                            gray_img, [(0, pad_r), (0, pad_c)], mode="constant"
-                        )
-                        pad_size = 2**s
-                        break
+        Estimate the sharpness of the image using FFTs.
 
-                # Prefilter the image to remove some of the DC component
-                real_img = real_img.astype("float") - np.mean(img)
+        Args:
+            gray_img (np.ndarray): The grayscale image
+            img (np.ndarray): The image
+            features (dict): The features of the image
+            estimate_sharpness (bool, optional): Whether to estimate sharpness.
+        Defaults to True.
 
-                # Window the image to reduce ringing and energy leakage
-                wind = ColorLayer.make_gaussian(pad_size, pad_size / 2, center=None)
+        Returns:
+            dict: The features of the image
+        """
+        if estimate_sharpness and features["valid_object"]:
+            pad_size = 6
+            max_dim = np.max(gray_img.shape)
 
-                # Estimate blur of the image using the method from Roberts et al. 2011
-                the_fft = np.fft.fft2(real_img * wind)
-                fft_mag = np.abs(the_fft).astype("float")
-                fft_mag = np.fft.fftshift(fft_mag)
-                fft_mag = gaussian(fft_mag, 2)
+            # Determine pad size for FFT
+            for s in range(6, 15):
+                if max_dim <= 2**s:
+                    pad_r = 2**s - gray_img.shape[0]
+                    pad_c = 2**s - gray_img.shape[1]
+                    real_img = np.pad(gray_img, [(0, pad_r), (0, pad_c)], mode="constant")
+                    pad_size = 2**s
+                    break
 
-                # Find all frequencies with energy above 5% of the max in the spectrum
-                mask = fft_mag > 0.02 * np.max(fft_mag)
+            # Prefilter the image to remove some of the DC component
+            real_img = real_img.astype("float") - np.mean(img)
 
-                rr, cc = np.nonzero(mask)
-                rr = (rr.astype("float") - pad_size / 2) * 4 / pad_size
-                cc = (cc.astype("float") - pad_size / 2) * 4 / pad_size
-                features["sharpness"] = 1024 * np.max(np.sqrt(rr**2 + cc**2))
-                return features
+            # Window the image to reduce ringing and energy leakage
+            wind = ColorLayer.make_gaussian(pad_size, pad_size / 2, center=None)
+
+            # Estimate blur of the image using the method from Roberts et al. 2011
+            the_fft = np.fft.fft2(real_img * wind)
+            fft_mag = np.abs(the_fft).astype("float")
+            fft_mag = np.fft.fftshift(fft_mag)
+            fft_mag = gaussian(fft_mag, 2)
+
+            # Find all frequencies with energy above 5% of the max in the spectrum
+            mask = fft_mag > 0.02 * np.max(fft_mag)
+
+            rr, cc = np.nonzero(mask)
+            rr = (rr.astype("float") - pad_size / 2) * 4 / pad_size
+            cc = (cc.astype("float") - pad_size / 2) * 4 / pad_size
+            features["sharpness"] = 1024 * np.max(np.sqrt(rr**2 + cc**2))
+            return features
         features["sharpness"] = 0
         return features
 
     @staticmethod
-    def detect_edges(img, method, blur_radius, threshold):
+    def detect_edges(img: np.ndarray,
+                     method: str,
+                     blur_radius: float,
+                     threshold: tuple) -> np.ndarray:
+        """Detect edges.
+
+        Detect edges in the image.
+
+        Args:
+            img (np.ndarray): The image to detect edges
+            method (str): The method to use for edge detection
+            blur_radius (float): The radius for the blur
+            threshold (tuple): The threshold for edge detection
+
+        Returns:
+            np.ndarray: The filled edges
+        """
         if method == "Scharr":
-            if len(img.shape) == 3:
-                edges_mags = [scharr(img[:, :, i]) for i in range(3)]
+            if len(img.shape) == NUM_CHANNELS_RGB:
+                edges_mags = [scharr(img[:, :, i]) for i in range(NUM_CHANNELS_RGB)]
                 filled_edges = [
-                    ColorLayer.process_edges(edges_mag, threshold[0], blur_radius)
-                    for edges_mag in edges_mags
+                    ColorLayer.process_edges(edges_mag, threshold[0], blur_radius) for edges_mag in edges_mags
                 ]
             else:
                 edges_mag = scharr(img)
-                filled_edges = ColorLayer.process_edges(
-                    edges_mag, threshold[0], blur_radius
-                )
+                filled_edges = ColorLayer.process_edges(edges_mag, threshold[0], blur_radius)
         elif method == "Scharr-with-mean":
-            if len(img.shape) == 3:
+            if len(img.shape) == NUM_CHANNELS_RGB:
                 edges_mags = [scharr(img[:, :, i]) for i in range(3)]
-                filled_edges = [
-                    ColorLayer.process_edges_mean(edges_mag, blur_radius)
-                    for edges_mag in edges_mags
-                ]
+                filled_edges = [ColorLayer.process_edges_mean(edges_mag, blur_radius) for edges_mag in edges_mags]
             else:
                 edges_mag = scharr(img)
                 filled_edges = ColorLayer.process_edges_mean(edges_mag, blur_radius)
         elif method == "Canny":
-            if len(img.shape) == 3:
-                edges = [
-                    cv2.Canny(img[:, :, i], threshold[0], threshold[1])
-                    for i in range(3)
-                ]
+            if len(img.shape) == NUM_CHANNELS_RGB:
+                edges = [cv2.Canny(img[:, :, i], threshold[0], threshold[1]) for i in range(NUM_CHANNELS_RGB)]
                 filled_edges = [
                     morphology.erosion(
-                        ndimage.binary_fill_holes(
-                            morphology.closing(edge, morphology.square(blur_radius))
-                        ),
+                        ndimage.binary_fill_holes(morphology.closing(edge, morphology.square(blur_radius))),
                         morphology.square(blur_radius),
                     )
                     for edge in edges
@@ -783,13 +941,11 @@ class ColorLayer(Paidiverpy):
                 edges = cv2.Canny(img, threshold[0], threshold[1])
                 edges = morphology.closing(edges, morphology.square(blur_radius))
                 filled_edges = ndimage.binary_fill_holes(edges)
-                filled_edges = morphology.erosion(
-                    filled_edges, morphology.square(blur_radius)
-                )
+                filled_edges = morphology.erosion(filled_edges, morphology.square(blur_radius))
         else:
             init_ls = checkerboard_level_set(img.shape[:2], 6)
             ls = morphological_chan_vese(
-                img[:, :, 0] if len(img.shape) == 3 else img,
+                img[:, :, 0] if len(img.shape) == NUM_CHANNELS_RGB else img,
                 num_iter=11,
                 init_level_set=init_ls,
                 smoothing=3,
@@ -798,33 +954,52 @@ class ColorLayer(Paidiverpy):
         return filled_edges
 
     @staticmethod
-    def process_edges(edges_mag, low_threshold, blur_radius):
+    def process_edges(edges_mag: np.ndarray, low_threshold: float, blur_radius: float) -> np.ndarray:
+        """Process the edges.
+
+        Process the edges using the low threshold.
+
+        Args:
+            edges_mag (np.ndarray): The edges magnitude
+            low_threshold (float): The low threshold
+            blur_radius (float): The radius for the blur
+
+        Returns:
+            np.ndarray: The filled edges
+        """
         edges_med = np.median(edges_mag)
         edges_thresh = low_threshold * edges_med
         edges = edges_mag >= edges_thresh
         edges = morphology.closing(edges, morphology.square(blur_radius))
         filled_edges = ndimage.binary_fill_holes(edges)
-        filled_edges = morphology.erosion(filled_edges, morphology.square(blur_radius))
-        return filled_edges
+        return morphology.erosion(filled_edges, morphology.square(blur_radius))
 
     @staticmethod
-    def process_edges_mean(edges_mag, blur_radius):
+    def process_edges_mean(edges_mag: np.ndarray, blur_radius: float) -> np.ndarray:
+        """Process the edges.
 
+        Process the edges using the mean.
+
+        Args:
+            edges_mag (np.ndarray): The edges magnitude
+            blur_radius (float): The radius for the blur
+
+        Returns:
+            np.ndarray: The filled edges
+        """
         edges_mean = np.mean(edges_mag)
         edges_std = np.std(edges_mag)
         edges_thresh = edges_mean + edges_std
         edges = edges_mag > edges_thresh
         edges = morphology.closing(edges, morphology.square(blur_radius))
         filled_edges = ndimage.binary_fill_holes(edges)
-        filled_edges = morphology.erosion(filled_edges, morphology.square(blur_radius))
-        return filled_edges
+        return morphology.erosion(filled_edges, morphology.square(blur_radius))
 
     @staticmethod
-    def make_gaussian(size, fwhm=3, center=None) -> np.ndarray:
+    def make_gaussian(size: int, fwhm: int = 3, center: tuple | None = None) -> np.ndarray:
         """Make a square gaussian kernel.
-        size is the length of a side of the square
-        fwhm is full-width-half-maximum, which
-        can be thought of as an effective radius.
+
+        Method to make a square gaussian kernel.
 
         Args:
             size (int): The size of the square.
@@ -834,7 +1009,6 @@ class ColorLayer(Paidiverpy):
         Returns:
             np.ndarray: The square gaussian kernel.
         """
-
         x = np.arange(0, size, 1, float)
         y = x[:, np.newaxis]
 
@@ -845,6 +1019,4 @@ class ColorLayer(Paidiverpy):
             y0 = center[1]
 
         output = np.exp(-4 * np.log(2) * ((x - x0) ** 2 + (y - y0) ** 2) / fwhm**2)
-        output = output / np.sum(output)
-
-        return output
+        return output / np.sum(output)
