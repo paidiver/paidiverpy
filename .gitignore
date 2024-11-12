@@ -5,6 +5,8 @@ notebooks/
 *output/*
 output/
 examples/examples_notebooks/output/*
+examples/examples_notebooks/*.yaml
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -14,6 +16,7 @@ __pycache__/
 .Python
 build/
 _build/
+docs/_build/
 develop-eggs/
 dist/
 downloads/

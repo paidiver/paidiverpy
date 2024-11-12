@@ -211,6 +211,31 @@ Notebook Examples
 
                     :fas:`file-arrow-down` Download notebook
 
+    .. grid-item-card:: Add a custom algorithm to the pipeline
+        :img-top: _static/nb_examples_9.png
+
+        |mode_expert|
+        ^^^
+        A notebook to show how to add a custom algorithm to the pipeline
+        +++
+        .. grid:: 2 2 2 2
+
+            .. grid-item::
+
+                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/develop/examples/example_notebooks/pipeline_custom_algorithm.ipynb
+                    :color: primary
+                    :outline:
+
+                    :fas:`eye` Online viewer
+
+            .. grid-item::
+
+                .. button-link:: https://github.com/paidiver/paidiverpy/blob/develop/examples/example_notebooks/pipeline_custom_algorithm.ipynb
+                    :color: primary
+                    :outline:
+
+                    :fas:`file-arrow-down` Download notebook
+
 
 .. dropdown:: Notebook tags Legend
     :open:
