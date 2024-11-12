@@ -8,9 +8,10 @@ from jsonschema import validate
 from paidiverpy import data
 from paidiverpy.config.colour_params import COLOUR_LAYER_METHODS
 from paidiverpy.config.convert_params import CONVERT_LAYER_METHODS
+from paidiverpy.config.custom_params import CustomParams
 from paidiverpy.config.position_params import POSITION_LAYER_METHODS
 from paidiverpy.config.resample_params import RESAMPLE_LAYER_METHODS
-from paidiverpy.utils import DynamicConfig
+from paidiverpy.utils import DynamicConfig, check_and_install_dependencies
 
 
 class GeneralConfig(DynamicConfig):
@@ -129,12 +130,29 @@ class SamplingConfig(DynamicConfig):
             self.params = RESAMPLE_LAYER_METHODS[self.mode]["params"](**params)
 
 
+class CustomConfig(DynamicConfig):
+    """Sampling configuration class."""
+
+    def __init__(self, **kwargs: dict):
+        self.name = kwargs.get("name", "custom")
+        self.step_name = kwargs.get("step_name", "custom")
+        self.file_path = kwargs.get("file_path", None)
+        self.class_name = kwargs.get("class_name", None)
+        if not self.file_path or not self.class_name:
+            msg = "The file_path and the class_na,e is not defined in the configuration file."
+            raise ValueError(msg)
+        self.test = kwargs.get("test", False)
+        params = kwargs.get("params", None)
+        if params:
+            self.params = CustomParams(**params)
+
 config_class_mapping = {
     "general": GeneralConfig,
     "position": PositionConfig,
     "sampling": SamplingConfig,
     "colour": ColourConfig,
     "convert": ConvertConfig,
+    "custom": CustomConfig,
 }
 
 
@@ -259,6 +277,9 @@ class Configuration:
             for step_order, step in enumerate(config_data["steps"]):
                 for step_name, step_config in step.items():
                     if step_name in config_class_mapping:
+                        if step_name == "custom":
+                            check_and_install_dependencies(step_config.get("dependencies"),
+                                                           step_config.get("dependencies_path"))
                         name = step_config.get("name")
                         if not name:
                             step_config["name"] = f"{step_name}_{step_order + 1}"

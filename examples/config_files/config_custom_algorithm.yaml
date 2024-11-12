@@ -12,13 +12,15 @@ general:
         output_bits: 8
 
 steps:
-  - color:
-      name: "color_correction"
+  - colour:
+      name: "colour_correction"
       mode: "grayscale"
 
   - custom:
-      name: "my_custom_algorithm"
-      module: "my_custom_module" # Path to the user's module
+      name: "min_max_data"
+      file_path: "/mnt/noc/code/paidiver/paidiverpy/examples/custom_algorithms/custom_algorithm_example.py"
+      class_name: "MyMethod"
+      dependencies:
+        - "scikit-learn"
       params:
-        some_param: 10
-        another_param: 0.5
+        feature_range: (0, 1)
