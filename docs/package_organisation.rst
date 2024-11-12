@@ -14,13 +14,13 @@ Core Classes
 
 - **OpenLayer**: A subclass dedicated to handling the opening and initial loading of images. This layer is responsible for reading images from specified input paths and preparing them for subsequent processing steps. It supports various image formats, ensuring compatibility with the input data.
 
-- **ConvertLayer**: This layer focuses on image format conversion and bit-depth adjustments. Users can apply various conversion techniques, such as changing color spaces or altering image bit depth, to prepare images for specific analytical tasks.
+- **ConvertLayer**: This layer focuses on image format conversion and bit-depth adjustments. Users can apply various conversion techniques, such as changing colour spaces or altering image bit depth, to prepare images for specific analytical tasks.
 
 - **PositionLayer**: Handles spatial information and metadata associated with images. This layer allows users to apply transformations based on the geographic coordinates or other spatial parameters, making it suitable for tasks that require spatial awareness.
 
 - **ResampleLayer**: Responsible for resampling images to different resolutions or formats. This layer ensures that images can be resized or interpolated as needed, providing the necessary flexibility for different analysis scenarios.
 
-- **ColorLayer**: This layer applies color manipulation techniques to images, such as color correction, filtering, and enhancement. It offers a range of methods to adjust the visual properties of images, allowing users to improve their quality for better analysis.
+- **ColourLayer**: This layer applies colour manipulation techniques to images, such as colour correction, filtering, and enhancement. It offers a range of methods to adjust the visual properties of images, allowing users to improve their quality for better analysis.
 
 Supporting Classes
 ------------------
