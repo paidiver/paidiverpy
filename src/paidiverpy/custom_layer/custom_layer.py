@@ -6,7 +6,7 @@ color layer.
 """
 
 import logging
-import importlib
+import importlib.util
 import dask
 import dask.array as da
 import numpy as np
@@ -29,10 +29,10 @@ from skimage.segmentation import morphological_chan_vese
 from skimage.transform import resize
 from paidiverpy import Paidiverpy
 from paidiverpy.config.config import Configuration
+from paidiverpy.config.custom_params import CustomParams
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
-from paidiverpy.utils import DynamicConfig
-from paidiverpy.utils import raise_value_error
+from paidiverpy.utils import DynamicConfig, check_and_install_dependencies, is_running_in_docker
 
 NUM_CHANNELS_RGB = 3
 NUM_CHANNELS_RGBA = 4
@@ -116,24 +116,28 @@ class CustomLayer(Paidiverpy):
             add_new_step (bool, optional): Whether to add a new step to the images object.
         Defaults to True.
 
-        Raises:
-            ValueError: The mode is not defined in the configuration file.
-
         Returns:
             Union[ImagesLayer, None]: The images object with the new step added.
         """
         algorithm_name = self.step_metadata.get('name')
-        module_name = self.step_metadata.get('module')
+        file_path = self.step_metadata.get('file_path')
+        is_docker = is_running_in_docker()
+        if is_docker:
+            file_name = file_path.split("/")[-1]
+            file_path = "/app/custom_algorithms/" + file_name
+        class_name = self.step_metadata.get('class_name')
+        check_and_install_dependencies(self.step_metadata.get('dependencies'), self.step_metadata.get('dependencies_path'))
         test = self.step_metadata.get("test")
         params = self.step_metadata.get("params") or {}
-        method = self.load_custom_algorithm(module_name, algorithm_name)
+        params = CustomParams(**params)
+        method = self.load_custom_algorithm(file_path, class_name, algorithm_name)
         images = self.images.get_step(step=len(self.images.images) - 1, by_order=True)
         if self.n_jobs == 1:
             image_list = self.process_sequentially(images, method, params)
         else:
             image_list = self.process_parallel(images, method, params)
         if not test:
-            self.step_name = f"custom_{self.config_index}" if not self.step_name else self.step_name
+            self.step_name = algorithm_name if not self.step_name else self.step_name
             if add_new_step:
                 self.images.add_step(
                     step=self.step_name,
@@ -179,21 +183,28 @@ class CustomLayer(Paidiverpy):
         """
         delayed_images = [dask.delayed(lambda img: method(img, params=params).process())(img) for img in images]
         with dask.config.set(scheduler="threads", num_workers=self.n_jobs):
-            self.logger.info("Processing images using %s cores", self.n_jobs)
             with ProgressBar():
                 delayed_images = compute(*delayed_images)
         return [da.from_array(img) for img in delayed_images]
 
-    def load_custom_algorithm(self, module_name: str, class_name: str) -> callable:
+    def load_custom_algorithm(self,
+                              file_path: str,
+                              class_name: str,
+                              algorithm_name: str) -> callable:
         """ Load a custom algorithm class.
 
         Args:
-            module_name (str): The module name.
+            file_path (str): The file path of the custom algorithm.
             class_name (str): The class name.
+            algorithm_name (str): The algorithm name.
 
         Returns:
             class: The custom algorithm class.
         """
-        module = importlib.import_module(module_name)
+
+        spec = importlib.util.spec_from_file_location(algorithm_name, file_path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
         algorithm_class = getattr(module, class_name)
         return algorithm_class

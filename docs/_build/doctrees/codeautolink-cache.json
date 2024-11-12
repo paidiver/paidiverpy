@@ -1,5 +1,4 @@
 {
-  "configuration_file": [],
   "contributing": [],
   "example_data": [
     {
@@ -54,24 +53,30 @@
   "images_metadata": [],
   "install": [],
   "performances": [],
-  "usage": [],
-  "user-guide/guide1/index": [],
-  "user-guide/guide2/index": [],
   "user-guide/guide3/index": [],
   "user-guide/guide4/index": [],
   "why": [],
+  "configuration_file": [],
+  "package_organisation": [],
+  "usage": [],
+  "user-guide/guide1/index": [],
+  "user-guide/guide2/index": [],
   "autoapi/index": [],
   "autoapi/paidiverpy/colour_layer/colour_layer/index": [],
   "autoapi/paidiverpy/colour_layer/index": [],
   "autoapi/paidiverpy/config/colour_params/index": [],
   "autoapi/paidiverpy/config/config/index": [],
   "autoapi/paidiverpy/config/convert_params/index": [],
+  "autoapi/paidiverpy/config/custom_params/index": [],
   "autoapi/paidiverpy/config/index": [],
   "autoapi/paidiverpy/config/pipeline_params/index": [],
   "autoapi/paidiverpy/config/position_params/index": [],
   "autoapi/paidiverpy/config/resample_params/index": [],
   "autoapi/paidiverpy/convert_layer/convert_layer/index": [],
   "autoapi/paidiverpy/convert_layer/index": [],
+  "autoapi/paidiverpy/custom_layer/base_custom_algorithm/index": [],
+  "autoapi/paidiverpy/custom_layer/custom_layer/index": [],
+  "autoapi/paidiverpy/custom_layer/index": [],
   "autoapi/paidiverpy/data/index": [],
   "autoapi/paidiverpy/exceptions/index": [],
   "autoapi/paidiverpy/images_layer/index": [],
@@ -88,6 +93,59 @@
   "autoapi/paidiverpy/resample_layer/index": [],
   "autoapi/paidiverpy/resample_layer/resample_layer/index": [],
   "autoapi/paidiverpy/utils/index": [],
-  "index": [],
-  "package_organisation": []
+  "custom_algorithms": [
+    {
+      "source": "from paidiverpy.custom_layer.base_custom_algorithm import BaseCustomAlgorithm\n\nclass MyMethod(BaseCustomAlgorithm):\n    def process(self):\n        return self.image_data * self.params.some_param",
+      "names": [
+        {
+          "import_components": [
+            "paidiverpy",
+            "custom_layer",
+            "base_custom_algorithm"
+          ],
+          "code_str": "paidiverpy.custom_layer.base_custom_algorithm",
+          "lineno": 1,
+          "end_lineno": 1,
+          "context": "import_from",
+          "resolved_location": "paidiverpy.custom_layer.base_custom_algorithm"
+        },
+        {
+          "import_components": [
+            "paidiverpy",
+            "custom_layer",
+            "base_custom_algorithm",
+            "BaseCustomAlgorithm"
+          ],
+          "code_str": "BaseCustomAlgorithm",
+          "lineno": 1,
+          "end_lineno": 1,
+          "context": "import_target",
+          "resolved_location": "paidiverpy.custom_layer.base_custom_algorithm.BaseCustomAlgorithm"
+        },
+        {
+          "import_components": [
+            "paidiverpy",
+            "custom_layer",
+            "base_custom_algorithm",
+            "BaseCustomAlgorithm"
+          ],
+          "code_str": "BaseCustomAlgorithm",
+          "lineno": 3,
+          "end_lineno": 3,
+          "context": "none",
+          "resolved_location": "paidiverpy.custom_layer.base_custom_algorithm.BaseCustomAlgorithm"
+        }
+      ],
+      "example": {
+        "document": "custom_algorithms",
+        "ref_id": "creating-a-custom-algorithm",
+        "headings": [
+          "Custom Algorithm Guide",
+          "Creating a Custom Algorithm"
+        ]
+      },
+      "doc_lineno": 15
+    }
+  ],
+  "index": []
 }
