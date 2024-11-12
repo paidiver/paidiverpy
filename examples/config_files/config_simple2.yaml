@@ -1,17 +1,17 @@
 general:
-  sample_data: 'benthic_csv'
-  output_path: './output'
-  rename: 'datetime'
+  sample_data: "benthic_csv"
+  output_path: "./output"
+  rename: "datetime"
   sampling:
-    - mode: 'percent'
+    - mode: "percent"
       params:
         value: 0.1
   convert:
-    - mode: 'bits'
+    - mode: "bits"
       params:
         output_bits: 8
 
 steps:
-  - color:
-      name: 'color_correction'
-      mode: 'grayscale'
+  - colour:
+      name: "colour_correction"
+      mode: "grayscale"
