@@ -1,0 +1,24 @@
+general:
+  sample_data: "benthic_csv"
+  output_path: "./output"
+  rename: "datetime"
+  sampling:
+    - mode: "percent"
+      params:
+        value: 0.1
+  convert:
+    - mode: "bits"
+      params:
+        output_bits: 8
+
+steps:
+  - color:
+      name: "color_correction"
+      mode: "grayscale"
+
+  - custom:
+      name: "my_custom_algorithm"
+      module: "my_custom_module" # Path to the user's module
+      params:
+        some_param: 10
+        another_param: 0.5
