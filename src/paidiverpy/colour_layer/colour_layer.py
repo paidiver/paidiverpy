@@ -514,7 +514,7 @@ class ColourLayer(Paidiverpy):
 
                 selected_index = max_area_ind
 
-                if params.object_selection != "Full ROI" and params.object_type != "Aggregate":
+                if params.object_selection != "full_ROI" and params.object_type != "aggregate":
                     bw_image_data = label_image_data == props[selected_index].label
                 else:
                     bw_image_data = label_image_data > 0
@@ -530,7 +530,7 @@ class ColourLayer(Paidiverpy):
                 )
 
                 # Save simple features of the object
-                if params.object_selection != "Full ROI":
+                if params.object_selection != "full_ROI":
                     selected_prop = props[selected_index]
                     features.update(
                         {
@@ -626,7 +626,7 @@ class ColourLayer(Paidiverpy):
             params (ColourAlterationParams, optional): Params for method. Defaults to None.
 
         Raises:
-            ValueError: Unknown method type. Please use 'white-balance'.
+            ValueError: Unknown method type. Please use 'white_balance'.
             ValueError: Image is gray-scale'.
             e: Error applying colour alteration.
 
@@ -636,7 +636,7 @@ class ColourLayer(Paidiverpy):
         try:
             method = params.method
 
-            if method == "white-balance":
+            if method == "white_balance":
                 image_data = ColourLayer.white_balance(image_data)
 
         except Exception as e:
@@ -694,25 +694,24 @@ class ColourLayer(Paidiverpy):
                 if 0 <= x < size[0] and 0 <= y < size[1]:
                     psf[x, y] = 1
         elif len(size) == 3:
-            # Handle 3D case
             psf = np.zeros((size[0], size[1], size[2]))
             center_x = size[0] // 2
             center_y = size[1] // 2
             center_z = size[2] // 2
-            angle_xy_rad = np.deg2rad(angle_xy)  # Rotation in the xy-plane
-            angle_z_rad = np.deg2rad(angle_z)    # Tilt in the z-axis
+            angle_xy_rad = np.deg2rad(angle_xy)
+            angle_z_rad = np.deg2rad(angle_z)
 
             for i in range(length):
                 x = int(center_x + i * np.cos(angle_xy_rad) * np.cos(angle_z_rad))
                 y = int(center_y + i * np.sin(angle_xy_rad) * np.cos(angle_z_rad))
-                z = int(center_z + i * np.sin(angle_z_rad))  # Motion along z-axis
+                z = int(center_z + i * np.sin(angle_z_rad))
                 if 0 <= x < size[0] and 0 <= y < size[1] and 0 <= z < size[2]:
                     psf[x, y, z] = 1
 
         else:
             raise ValueError("Size must be either an int or a tuple of length 2 or 3")
 
-        psf /= psf.sum()  # Normalize PSF
+        psf /= psf.sum()
         return psf
 
     @staticmethod
@@ -733,7 +732,6 @@ class ColourLayer(Paidiverpy):
         avg_b = np.mean(b)
         avg_gray = (avg_r + avg_g + avg_b) / 3
 
-        # Scale each channel based on the average values
         r_scale = avg_gray / avg_r
         g_scale = avg_gray / avg_g
         b_scale = avg_gray / avg_b
@@ -761,7 +759,6 @@ class ColourLayer(Paidiverpy):
         min_val = np.min(img)
         max_val = np.max(img)
 
-        # Shift and scale the image to [0, 1]
         return (img - min_val) / (max_val - min_val)
 
 
@@ -800,7 +797,7 @@ class ColourLayer(Paidiverpy):
             v_img = hsv_img[:, :, 2] * blurd_bw_img
 
             # Unsharp mask before masking with binary image
-            if deconv_method.lower() == "um":
+            if deconv_method == "UM":
                 old_mean = np.mean(v_img)
                 blurd = gaussian(v_img, 1.0)
                 hpfilt = v_img - blurd * deconv_mask_weight
@@ -818,7 +815,7 @@ class ColourLayer(Paidiverpy):
             v_img[v_img == 0] = small_float_val
 
             # Richardson-Lucy deconvolution
-            if deconv_method.lower() == "lr":
+            if deconv_method == "LR":
                 psf = ColourLayer.make_gaussian(5, 3, center=None)
                 v_img = restoration.richardson_lucy(v_img, psf, deconv_iter)
 
@@ -915,7 +912,7 @@ class ColourLayer(Paidiverpy):
         Returns:
             np.ndarray: The filled edges
         """
-        if method == "Scharr":
+        if method == "scharr":
             if len(img.shape) == NUM_CHANNELS_RGB:
                 edges_mags = [scharr(img[:, :, i]) for i in range(NUM_CHANNELS_RGB)]
                 filled_edges = [
@@ -924,14 +921,14 @@ class ColourLayer(Paidiverpy):
             else:
                 edges_mag = scharr(img)
                 filled_edges = ColourLayer.process_edges(edges_mag, threshold[0], blur_radius)
-        elif method == "Scharr-with-mean":
+        elif method == "scharr_with_mean":
             if len(img.shape) == NUM_CHANNELS_RGB:
                 edges_mags = [scharr(img[:, :, i]) for i in range(3)]
                 filled_edges = [ColourLayer.process_edges_mean(edges_mag, blur_radius) for edges_mag in edges_mags]
             else:
                 edges_mag = scharr(img)
                 filled_edges = ColourLayer.process_edges_mean(edges_mag, blur_radius)
-        elif method == "Canny":
+        elif method == "canny":
             if len(img.shape) == NUM_CHANNELS_RGB:
                 edges = [cv2.Canny(img[:, :, i], threshold[0], threshold[1]) for i in range(NUM_CHANNELS_RGB)]
                 filled_edges = [
