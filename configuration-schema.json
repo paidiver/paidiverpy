@@ -33,7 +33,7 @@
           "type": ["number", "null"]
         },
         "rename": {
-          "type": "string"
+          "type": ["string", "null"]
         },
         "sampling": {
           "type": ["array", "null"],
@@ -641,7 +641,7 @@
         "properties": {
           "method": {
             "type": "string",
-            "enum": ["white-balance"]
+            "enum": ["white_balance"]
           }
         },
         "required": ["method"]
@@ -660,7 +660,7 @@
         "properties": {
           "method": {
             "type": "string",
-            "enum": ["sobel", "scharr", "scharr-with-mean", "canny"]
+            "enum": ["sobel", "scharr", "scharr_with_mean", "canny"]
           },
           "blur_radius": {
             "type": "number"
@@ -673,11 +673,11 @@
           },
           "object_type": {
             "type": "string",
-            "enum": ["Aggregate", "isolated"]
+            "enum": ["aggregate", "isolated"]
           },
           "object_selection": {
             "type": "string",
-            "enum": ["Full ROI", "Largest Area"]
+            "enum": ["full_ROI", "largest_area"]
           },
           "estimate_sharpness": {
             "type": "boolean"
