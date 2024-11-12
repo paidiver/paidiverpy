@@ -24,40 +24,25 @@
           "type": "string"
         },
         "append_data_to_metadata": {
-          "type": [
-            "string",
-            "boolean"
-          ]
+          "type": ["string", "boolean"]
         },
         "output_path": {
           "type": "string"
         },
         "n_jobs": {
-          "type": [
-            "number",
-            "null"
-          ]
+          "type": ["number", "null"]
         },
         "rename": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "sampling": {
-          "type": [
-            "array",
-            "null"
-          ],
+          "type": ["array", "null"],
           "items": {
             "$ref": "#/definitions/sampling"
           }
         },
         "convert": {
-          "type": [
-            "array",
-            "null"
-          ],
+          "type": ["array", "null"],
           "items": {
             "$ref": "#/definitions/convert"
           }
@@ -65,41 +50,29 @@
       },
       "anyOf": [
         {
-          "required": [
-            "input_path",
-            "output_path"
-          ],
+          "required": ["input_path", "output_path"],
           "not": {
-            "required": [
-              "sample_data"
-            ]
+            "required": ["sample_data"]
           }
         },
         {
-          "required": [
-            "sample_data"
-          ]
+          "required": ["sample_data"]
         }
       ]
     },
     "steps": {
-      "type": [
-        "array",
-        "null"
-      ],
+      "type": ["array", "null"],
       "items": {
         "type": "object",
         "oneOf": [
           {
             "type": "object",
             "properties": {
-              "color": {
-                "$ref": "#/definitions/color"
+              "colour": {
+                "$ref": "#/definitions/colour"
               }
             },
-            "required": [
-              "color"
-            ]
+            "required": ["colour"]
           },
           {
             "type": "object",
@@ -108,9 +81,7 @@
                 "$ref": "#/definitions/sampling"
               }
             },
-            "required": [
-              "sampling"
-            ]
+            "required": ["sampling"]
           },
           {
             "type": "object",
@@ -119,9 +90,7 @@
                 "$ref": "#/definitions/convert"
               }
             },
-            "required": [
-              "convert"
-            ]
+            "required": ["convert"]
           },
           {
             "type": "object",
@@ -130,17 +99,13 @@
                 "$ref": "#/definitions/position"
               }
             },
-            "required": [
-              "position"
-            ]
+            "required": ["position"]
           }
         ]
       }
     }
   },
-  "required": [
-    "general"
-  ],
+  "required": ["general"],
   "definitions": {
     "position": {
       "type": "object",
@@ -161,9 +126,7 @@
           "type": "object"
         }
       },
-      "required": [
-        "mode"
-      ],
+      "required": ["mode"],
       "if": {
         "properties": {
           "mode": {
@@ -190,14 +153,7 @@
         },
         "mode": {
           "type": "string",
-          "enum": [
-            "bits",
-            "to",
-            "bayer_pattern",
-            "normalize",
-            "resize",
-            "crop"
-          ]
+          "enum": ["bits", "to", "bayer_pattern", "normalize", "resize", "crop"]
         },
         "test": {
           "type": "boolean"
@@ -206,9 +162,7 @@
           "type": "object"
         }
       },
-      "required": [
-        "mode"
-      ],
+      "required": ["mode"],
       "if": {
         "properties": {
           "mode": {
@@ -304,7 +258,7 @@
         }
       }
     },
-    "color": {
+    "colour": {
       "type": "object",
       "properties": {
         "name": {
@@ -322,7 +276,8 @@
             "sharpen",
             "contrast",
             "illumination_correction",
-            "deblur"
+            "deblur",
+            "colour_alteration"
           ]
         },
         "test": {
@@ -332,9 +287,7 @@
           "type": "object"
         }
       },
-      "required": [
-        "mode"
-      ],
+      "required": ["mode"],
       "if": {
         "properties": {
           "mode": {
@@ -345,7 +298,7 @@
       "then": {
         "properties": {
           "params": {
-            "$ref": "#/definitions/color_params/grayscale"
+            "$ref": "#/definitions/colour_params/grayscale"
           }
         }
       },
@@ -360,7 +313,7 @@
         "then": {
           "properties": {
             "params": {
-              "$ref": "#/definitions/color_params/gaussian_blur"
+              "$ref": "#/definitions/colour_params/gaussian_blur"
             }
           }
         },
@@ -375,7 +328,7 @@
           "then": {
             "properties": {
               "params": {
-                "$ref": "#/definitions/color_params/edge_detection"
+                "$ref": "#/definitions/colour_params/edge_detection"
               }
             }
           },
@@ -390,7 +343,7 @@
             "then": {
               "properties": {
                 "params": {
-                  "$ref": "#/definitions/color_params/sharpen"
+                  "$ref": "#/definitions/colour_params/sharpen"
                 }
               }
             },
@@ -405,7 +358,7 @@
               "then": {
                 "properties": {
                   "params": {
-                    "$ref": "#/definitions/color_params/contrast"
+                    "$ref": "#/definitions/colour_params/contrast"
                   }
                 }
               },
@@ -420,7 +373,7 @@
                 "then": {
                   "properties": {
                     "params": {
-                      "$ref": "#/definitions/color_params/illumination_correction"
+                      "$ref": "#/definitions/colour_params/illumination_correction"
                     }
                   }
                 },
@@ -435,7 +388,23 @@
                   "then": {
                     "properties": {
                       "params": {
-                        "$ref": "#/definitions/color_params/deblur"
+                        "$ref": "#/definitions/colour_params/deblur"
+                      }
+                    }
+                  },
+                  "else": {
+                    "if": {
+                      "properties": {
+                        "mode": {
+                          "const": "colour_alteration"
+                        }
+                      }
+                    },
+                    "then": {
+                      "properties": {
+                        "params": {
+                          "$ref": "#/definitions/colour_params/colour_alteration"
+                        }
                       }
                     }
                   }
@@ -476,9 +445,7 @@
           "type": "object"
         }
       },
-      "required": [
-        "mode"
-      ],
+      "required": ["mode"],
       "if": {
         "properties": {
           "mode": {
@@ -630,12 +597,10 @@
             "type": "string"
           }
         },
-        "required": [
-          "placeholder"
-        ]
+        "required": ["placeholder"]
       }
     },
-    "color_params": {
+    "colour_params": {
       "grayscale": {
         "type": "object",
         "properties": {
@@ -644,14 +609,9 @@
           },
           "method": {
             "type": "string",
-            "enum": [
-              "opencv",
-              "average",
-              "luminosity",
-              "desaturation"
-            ]
+            "enum": ["opencv", "average", "luminosity", "desaturation"]
           },
-          "invert_colors": {
+          "invert_colours": {
             "type": "boolean"
           }
         }
@@ -661,16 +621,11 @@
         "properties": {
           "method": {
             "type": "string",
-            "enum": [
-              "wiener"
-            ]
+            "enum": ["wiener"]
           },
           "psf_type": {
             "type": "string",
-            "enum": [
-              "gaussian",
-              "motion"
-            ]
+            "enum": ["gaussian", "motion"]
           },
           "sigma": {
             "type": "number"
@@ -679,9 +634,17 @@
             "type": "integer"
           }
         },
-        "required": [
-          "method"
-        ]
+        "required": ["method"]
+      },
+      "colour_alteration": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": ["white-balance"]
+          }
+        },
+        "required": ["method"]
       },
       "gaussian_blur": {
         "type": "object",
@@ -690,41 +653,31 @@
             "type": "number"
           }
         },
-        "required": [
-          "sigma"
-        ]
+        "required": ["sigma"]
       },
       "edge_detection": {
         "type": "object",
         "properties": {
           "method": {
             "type": "string",
-            "enum": [
-              "sobel",
-              "Scharr",
-              "Scharr-with-mean",
-              "Canny"
-            ]
+            "enum": ["sobel", "scharr", "scharr-with-mean", "canny"]
           },
           "blur_radius": {
             "type": "number"
           },
           "threshold": {
-            "type": "number"
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
           },
           "object_type": {
             "type": "string",
-            "enum": [
-              "Aggregate",
-              "other_method"
-            ]
+            "enum": ["Aggregate", "isolated"]
           },
           "object_selection": {
             "type": "string",
-            "enum": [
-              "Full ROI",
-              "other_method"
-            ]
+            "enum": ["Full ROI", "Largest Area"]
           },
           "estimate_sharpness": {
             "type": "boolean"
@@ -734,10 +687,7 @@
           },
           "deconv_method": {
             "type": "string",
-            "enum": [
-              "um",
-              "lr"
-            ]
+            "enum": ["UM", "LR"]
           },
           "deconv_iter": {
             "type": "integer"
@@ -749,11 +699,7 @@
             "type": "number"
           }
         },
-        "required": [
-          "method",
-          "blur_radius",
-          "threshold"
-        ]
+        "required": ["method", "blur_radius", "threshold"]
       },
       "sharpen": {
         "type": "object",
@@ -765,26 +711,17 @@
             "type": "number"
           }
         },
-        "required": [
-          "alpha",
-          "beta"
-        ]
+        "required": ["alpha", "beta"]
       },
       "contrast": {
         "type": "object",
         "properties": {
           "method": {
             "type": "string",
-            "enum": [
-              "clahe",
-              "gamma"
-            ]
+            "enum": ["clahe", "gamma"]
           },
           "kernel_size": {
-            "type": [
-              "integer",
-              "null"
-            ]
+            "type": ["integer", "null"]
           },
           "clip_limit": {
             "type": "number"
@@ -793,30 +730,20 @@
             "type": "number"
           }
         },
-        "required": [
-          "method",
-          "clip_limit",
-          "gamma_value"
-        ]
+        "required": ["method", "clip_limit", "gamma_value"]
       },
       "illumination_correction": {
         "type": "object",
         "properties": {
           "method": {
             "type": "string",
-            "enum": [
-              "rolling",
-              "other_method"
-            ]
+            "enum": ["rolling", "other_method"]
           },
           "radius": {
             "type": "integer"
           }
         },
-        "required": [
-          "method",
-          "radius"
-        ]
+        "required": ["method", "radius"]
       }
     },
     "convert_params": {
@@ -825,52 +752,34 @@
         "properties": {
           "output_bits": {
             "type": "integer",
-            "enum": [
-              8,
-              16,
-              32
-            ]
+            "enum": [8, 16, 32]
           }
         },
-        "required": [
-          "output_bits"
-        ]
+        "required": ["output_bits"]
       },
       "to_params": {
         "type": "object",
         "properties": {
           "to": {
             "type": "string",
-            "enum": [
-              "RGB",
-              "gray"
-            ]
+            "enum": ["RGB", "gray"]
           },
           "channel_selector": {
             "type": "integer",
             "minimum": 0
           }
         },
-        "required": [
-          "to"
-        ]
+        "required": ["to"]
       },
       "bayer_pattern_params": {
         "type": "object",
         "properties": {
           "bayer_pattern": {
             "type": "string",
-            "enum": [
-              "RG",
-              "BG",
-              "GR",
-              "GB"
-            ]
+            "enum": ["RG", "BG", "GR", "GB"]
           }
         },
-        "required": [
-          "bayer_pattern"
-        ]
+        "required": ["bayer_pattern"]
       },
       "normalize_params": {
         "type": "object",
@@ -882,10 +791,7 @@
             "type": "number"
           }
         },
-        "required": [
-          "min",
-          "max"
-        ]
+        "required": ["min", "max"]
       },
       "resize_params": {
         "type": "object",
@@ -899,10 +805,7 @@
             "minimum": 1
           }
         },
-        "required": [
-          "min",
-          "max"
-        ]
+        "required": ["min", "max"]
       },
       "crop_params": {
         "type": "object",
@@ -924,10 +827,7 @@
             "maxItems": 2
           }
         },
-        "required": [
-          "x",
-          "y"
-        ]
+        "required": ["x", "y"]
       }
     },
     "sampling_params": {
@@ -947,19 +847,14 @@
         "properties": {
           "by": {
             "type": "string",
-            "enum": [
-              "lower",
-              "upper"
-            ],
+            "enum": ["lower", "upper"],
             "default": "lower"
           },
           "value": {
             "type": "number"
           }
         },
-        "required": [
-          "value"
-        ]
+        "required": ["value"]
       },
       "altitude_params": {
         "type": "object",
@@ -968,9 +863,7 @@
             "type": "number"
           }
         },
-        "required": [
-          "value"
-        ]
+        "required": ["value"]
       },
       "pitch_roll_params": {
         "type": "object",
@@ -982,10 +875,7 @@
             "type": "number"
           }
         },
-        "required": [
-          "pitch",
-          "roll"
-        ]
+        "required": ["pitch", "roll"]
       },
       "overlapping_params": {
         "type": "object",
@@ -1006,10 +896,7 @@
             "default": 1.12
           }
         },
-        "required": [
-          "omega",
-          "theta"
-        ]
+        "required": ["omega", "theta"]
       },
       "fixed_params": {
         "type": "object",
@@ -1019,9 +906,7 @@
             "default": 10
           }
         },
-        "required": [
-          "value"
-        ]
+        "required": ["value"]
       },
       "percent_params": {
         "type": "object",
@@ -1032,9 +917,7 @@
             "maximum": 1
           }
         },
-        "required": [
-          "value"
-        ]
+        "required": ["value"]
       },
       "region_params": {
         "type": "object",
@@ -1053,19 +936,13 @@
         },
         "anyOf": [
           {
-            "required": [
-              "file"
-            ],
+            "required": ["file"],
             "not": {
-              "required": [
-                "limits"
-              ]
+              "required": ["limits"]
             }
           },
           {
-            "required": [
-              "limits"
-            ]
+            "required": ["limits"]
           }
         ]
       },
@@ -1083,10 +960,7 @@
             "maximum": 1
           }
         },
-        "required": [
-          "min",
-          "max"
-        ]
+        "required": ["min", "max"]
       }
     }
   }
