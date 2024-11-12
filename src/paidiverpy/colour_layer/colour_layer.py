@@ -611,7 +611,10 @@ class ColourLayer(Paidiverpy):
             if self.raise_error:
                 msg = f"Error applying edge detection: {e}"
                 raise ValueError(msg) from e
-        return image_data, features
+        results = self.step_metadata.get("results", [])
+        results.append(features)
+        self.step_metadata["results"] = results
+        return image_data
 
     def colour_alteration(
         self, image_data: np.ndarray, params: ColourAlterationParams = None
@@ -1021,3 +1024,5 @@ class ColourLayer(Paidiverpy):
 
         output = np.exp(-4 * np.log(2) * ((x - x0) ** 2 + (y - y0) ** 2) / fwhm**2)
         return output / np.sum(output)
+
+ColorLayer = (ColourLayer)

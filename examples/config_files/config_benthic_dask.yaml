@@ -33,6 +33,14 @@ steps:
         threshold: 0.5
 
   - colour:
+      name: "colour_alteration"
+      mode: "colour_alteration"
+      params:
+        method:
+          "white-balance" # choose 'white-balance' to adjust the white balance to a warmer temperature
+          # to restore reds and yellow channels.
+
+  - colour:
       name: "gaussian_blur"
       mode: "gaussian_blur"
       params:

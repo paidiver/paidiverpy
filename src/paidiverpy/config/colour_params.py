@@ -78,9 +78,8 @@ class DeblurParams(DynamicConfig):
 
 
 @dataclass
-class ColourAlterationParams:
+class ColourAlterationParams(DynamicConfig):
     """This class contains the parameters for the colour alteration"""
-
     method: str = "white-balance"
 
 
