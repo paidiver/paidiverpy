@@ -100,6 +100,15 @@
               }
             },
             "required": ["position"]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "position": {
+                "$ref": "#/definitions/custom"
+              }
+            },
+            "required": ["custom"]
           }
         ]
       }
@@ -257,6 +266,39 @@
           }
         }
       }
+    },
+    "custom": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "step_name": {
+          "type": "string"
+        },
+        "file_path": {
+          "type": "string"
+        },
+        "class_name": {
+          "type": "string"
+        },
+        "test": {
+          "type": "boolean"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dependencies_path": {
+          "type": "string"
+        },
+        "params": {
+          "type": "object"
+        }
+      },
+      "required": ["file_path", "class_name"]
     },
     "colour": {
       "type": "object",
