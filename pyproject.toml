@@ -32,6 +32,11 @@ dependencies = [
   "geopandas>=1.0.1",
   "panel>=1.4.5",
   "dask-image==2024.5.3",
+  "dask>=2024.9.0",
+  "distributed>=2024.9.0",
+  "jsonschema>=4.23.0",
+  "matplotlib>=3.5.0",
+  "ipython>=8.26.0"
   ]
 license = {file = "LICENSE"}
 version = "0.1.0"
@@ -54,8 +59,17 @@ dev = [
 docs = [
     "sphinx",
     "sphinx_rtd_theme",
+    "sphinx__theme",
     "sphinx-autoapi",
+    "sphinx-copybutton",
+    "sphinx-book-theme",
     "myst_parser",
+    "nbsphinx",
+    "numpydoc",
+    "sphinx-last-updated-by-git",
+    "sphinx-codeautolink",
+    "sphinx_design",
+    "pickleshare"
 ]
 publishing = [
     "build",
@@ -125,6 +139,9 @@ ignore = [
     "D104", # Missing public package docstring
     "D105", # Missing docstring in magic method
     "D107", # Missing docstring in `__init__`
+    "TRY401", # No exception type(s) specified in `except`
+    "S324", # Probable use of insecure hash functions in `hashlib`
+    "TRY400"
 ]
 pydocstyle.convention = "google"
 

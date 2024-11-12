@@ -1,60 +1,90 @@
-""" Open raw image file
+"""ResampleLayer class.
+
+Resample the images based on the configuration file.
 """
 
+import logging
+import geopandas as gpd
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from geopy.distance import geodesic
 from shapely.geometry import Polygon
-import geopandas as gpd
-import matplotlib.pyplot as plt
 from paidiverpy import Paidiverpy
-from paidiverpy.resample_layer.params import (
-    RESAMPLE_LAYER_METHODS,
-    ResampleDatetimeParams,
-    ResampleDepthParams,
-    ResampleAltitudeParams,
-    ResamplePitchRollParams,
-    ResampleOverlappingParams,
-    ResampleFixedParams,
-    ResamplePercentParams,
-    ResampleRegionParams,
-    ResampleObscureParams,
-)
+from paidiverpy.config.config import Configuration
+from paidiverpy.config.resample_params import RESAMPLE_LAYER_METHODS
+from paidiverpy.config.resample_params import ResampleAltitudeParams
+from paidiverpy.config.resample_params import ResampleDatetimeParams
+from paidiverpy.config.resample_params import ResampleDepthParams
+from paidiverpy.config.resample_params import ResampleFixedParams
+from paidiverpy.config.resample_params import ResampleObscureParams
+from paidiverpy.config.resample_params import ResampleOverlappingParams
+from paidiverpy.config.resample_params import ResamplePercentParams
+from paidiverpy.config.resample_params import ResamplePitchRollParams
+from paidiverpy.config.resample_params import ResampleRegionParams
+from paidiverpy.images_layer import ImagesLayer
+from paidiverpy.metadata_parser import MetadataParser
+from paidiverpy.utils import raise_value_error
 
 
 class ResampleLayer(Paidiverpy):
+    """Process the images in the resample layer.
+
+    Args:
+        config_file_path (str): The path to the configuration file.
+        input_path (str): The path to the input files.
+        output_path (str): The path to the output files.
+        metadata_path (str): The path to the metadata file.
+        metadata_type (str): The type of the metadata file.
+        metadata (MetadataParser): The metadata object.
+        config (Configuration): The configuration object.
+        logger (logging.Logger): The logger object.
+        images (ImagesLayer): The images object.
+        paidiverpy (Paidiverpy): The paidiverpy object.
+        step_name (str): The name of the step.
+        parameters (dict): The parameters for the step.
+        config_index (int): The index of the configuration.
+        raise_error (bool): Whether to raise an error.
+        verbose (int): verbose level (0 = none, 1 = errors/warnings, 2 = info).
+        track_changes (bool): Whether to track the changes. Defaults to True.
+        n_jobs (int): The number of jobs to run in parallel.
+    """
+
     def __init__(
         self,
-        config_file_path=None,
-        input_path=None,
-        output_path=None,
-        catalog_path=None,
-        catalog_type=None,
-        catalog=None,
-        config=None,
-        logger=None,
-        images=None,
-        paidiverpy=None,
-        step_name=None,
-        parameters=None,
-        config_index=None,
-        raise_error=False,
-        verbose=True,
+        config_file_path: str | None = None,
+        input_path: str | None = None,
+        output_path: str | None = None,
+        metadata_path: str | None = None,
+        metadata_type: str | None = None,
+        metadata: MetadataParser = None,
+        config: Configuration = None,
+        logger: logging.Logger | None = None,
+        images: ImagesLayer = None,
+        paidiverpy: "Paidiverpy" = None,
+        step_name: str | None = None,
+        parameters: dict | None = None,
+        config_index: int | None = None,
+        raise_error: bool = False,
+        verbose: int = 2,
+        track_changes: bool = True,
+        n_jobs: int = 1,
     ):
-
         super().__init__(
             config_file_path=config_file_path,
             input_path=input_path,
             output_path=output_path,
-            catalog_path=catalog_path,
-            catalog_type=catalog_type,
-            catalog=catalog,
+            metadata_path=metadata_path,
+            metadata_type=metadata_type,
+            metadata=metadata,
             config=config,
             logger=logger,
             images=images,
             paidiverpy=paidiverpy,
             raise_error=raise_error,
             verbose=verbose,
+            track_changes=track_changes,
+            n_jobs=n_jobs,
         )
         self.config_index = config_index
         self.step_name = step_name or "sampling"
@@ -63,180 +93,277 @@ class ResampleLayer(Paidiverpy):
                 parameters["step_name"] = self.step_name
             self.config_index = self.config.add_step(config_index, parameters)
         self.step_order = len(self.images.steps)
-        self.step_metadata = self._calculate_steps_metadata(
-            self.config.steps[self.config_index]
-        )
+        self.step_metadata = self._calculate_steps_metadata(self.config.steps[self.config_index])
 
-    def run(self):
+    def run(self) -> None:
+        """Run the resample layer steps on the images based on the configuration.
+
+        Run the resample layer steps on the images based on the configuration.
+
+        Raises:
+            ValueError: The mode is not defined in the configuration file.
+        """
         mode = self.step_metadata.get("mode")
         if not mode:
-            raise ValueError("The mode is not defined in the configuration file.")
+            msg = "The mode is not defined in the configuration file."
+            raise ValueError(msg)
         test = self.step_metadata.get("test")
         params = self.step_metadata.get("params") or {}
-
-        if mode not in RESAMPLE_LAYER_METHODS:
-            raise ValueError(f"Unsupported mode: {mode}")
-
-        method_info = RESAMPLE_LAYER_METHODS[mode]
-        params = method_info["params"](**params)
-        method_name = method_info["method"]
-        method = getattr(self, method_name)
-        catalog = method(self.step_order, test=test, params=params)
+        method, params = self._get_method_by_mode(params, RESAMPLE_LAYER_METHODS, mode)
+        try:
+            metadata = method(self.step_order, test=test, params=params)
+        except Exception as e:  # noqa: BLE001
+            self.logger.error("Error in resample layer: %s", e)
+            if self.raise_error:
+                raise_value_error("Resample layer step failed.")
+            self.logger.error("Resample layer step will be skipped.")
+            metadata = self.get_metadata(flag="all")
         if self.step_order == 0:
-            return catalog
+            return metadata
         if not test:
-            new_catalog = self.get_catalog(flag="all")
-            new_catalog.loc[new_catalog.index.isin(catalog.index), "flag"] = (
-                catalog.flag
-            )
-            self.set_catalog(new_catalog)
+            new_metadata = self.get_metadata(flag="all")
+            new_metadata.loc[new_metadata.index.isin(metadata.index), "flag"] = metadata.flag
+            self.set_metadata(new_metadata)
             self.step_name = f"trim_{mode}" if not self.step_name else self.step_name
-            self.images.add_step(f"trim_{mode}", catalog=self.get_catalog())
+            self.images.add_step(
+                step=self.step_name,
+                step_metadata=self.step_metadata,
+                metadata=self.get_metadata(),
+                update_metadata=True,
+                track_changes=self.track_changes,
+            )
+            return None
+        return None
 
     def _by_percent(
         self,
-        step_order=None,
-        test=False,
-        params: ResamplePercentParams = ResamplePercentParams(),
-    ):
-        catalog = self.get_catalog().sample(frac=1, random_state=np.random.seed())
-        new_catalog = catalog.sample(frac=params.value)
+        step_order: int | None = None,
+        test: bool = False,
+        params: ResamplePercentParams = None,
+    ) -> pd.DataFrame:
+        """Resample the metadata by a percentage.
+
+        Args:
+            step_order (int, optional): The order of the step. Defaults to None.
+            test (bool, optional): Whether to test the step. Defaults to False.
+            params (ResamplePercentParams, optional): The parameters for the resample.
+        Defaults to ResamplePercentParams().
+
+        Returns:
+            pd.DataFrame: Metadata with the photos to be removed flagged.
+        """
+        if params is None:
+            params = ResamplePercentParams()
+        metadata = self.get_metadata().sample(frac=1, random_state=np.random.default_rng())
+        new_metadata = metadata.sample(frac=params.value)
         if step_order == 0:
-            return new_catalog
+            return new_metadata
         if test:
-            self.plot_trimmed_photos(new_catalog)
+            self.plot_trimmed_photos(new_metadata)
             return None
-        catalog.loc[~catalog.index.isin(new_catalog.index), "flag"] = step_order
-        return catalog
+        metadata.loc[~metadata.index.isin(new_metadata.index), "flag"] = step_order
+        return metadata
 
     def _by_fixed_number(
         self,
-        step_order=None,
-        test=False,
-        params: ResampleFixedParams = ResampleFixedParams(),
-    ):
-        catalog = self.get_catalog().sample(frac=1, random_state=np.random.seed())
-        if params.value > len(self.get_catalog()):
-            self.logger.info(
-                "Number of photos to be removed is greater than the number of photos in the catalog."
-            )
+        step_order: int | None = None,
+        test: bool = False,
+        params: ResampleFixedParams = None,
+    ) -> pd.DataFrame:
+        """Resample the metadata by a fixed number of photos.
+
+        Args:
+            step_order (int, optional): The order of the step. Defaults to None.
+            test (bool, optional): Whether to test the step. Defaults to False.
+            params (ResampleFixedParams, optional): The parameters for the resample.
+        Defaults to ResampleFixedParams().
+
+        Returns:
+            pd.DataFrame: Metadata with the photos to be removed flagged.
+        """
+        if params is None:
+            params = ResampleFixedParams()
+        metadata = self.get_metadata().sample(frac=1, random_state=np.random.default_rng())
+        if params.value > len(self.get_metadata()):
+            self.logger.info("Number of photos to be removed is greater than the number of photos in the metadata.")
             self.logger.info("No photos will be removed.")
-            return self.get_catalog()
-        new_catalog = catalog.sample(n=params.value)
+            return self.get_metadata()
+        new_metadata = metadata.sample(n=params.value)
         if step_order == 0:
-            return new_catalog
+            return new_metadata
         if test:
-            self.plot_trimmed_photos(new_catalog)
+            self.plot_trimmed_photos(new_metadata)
             return None
-        catalog.loc[~catalog.index.isin(new_catalog.index), "flag"] = step_order
-        return catalog
+        metadata.loc[~metadata.index.isin(new_metadata.index), "flag"] = step_order
+        return metadata
 
     def _by_datetime(
         self,
-        step_order=None,
-        test=False,
-        params: ResampleDatetimeParams = ResampleDatetimeParams(),
-    ):
-        catalog = self.get_catalog()
+        step_order: int | None = None,
+        test: bool = False,
+        params: ResampleDatetimeParams = None,
+    ) -> pd.DataFrame:
+        """Resample the metadata by datetime.
+
+        Args:
+            step_order (int, optional): The order of the step. Defaults to None.
+            test (bool, optional): Whether to test the step. Defaults to False.
+            params (ResampleDatetimeParams, optional): The parameters for the resample.
+        Defaults to ResampleDatetimeParams().
+
+        Raises:
+            ValueError: Start date cannot be greater than end date.
+
+        Returns:
+            pd.DataFrame: Metadata with the photos to be removed flagged.
+        """
+        if params is None:
+            params = ResampleDatetimeParams()
+        metadata = self.get_metadata()
         start_date = params.min
         end_date = params.max
         if not start_date and not end_date:
-            return catalog
-        if start_date is None:
-            start_date = catalog["datetime"].min()
-        else:
-            start_date = pd.to_datetime(start_date)
-        if end_date is None:
-            end_date = catalog["datetime"].max()
-        else:
-            end_date = pd.to_datetime(end_date)
+            return metadata
+        start_date = metadata["image-datetime"].min() if start_date is None else pd.to_datetime(start_date)
+        end_date = metadata["image-datetime"].max() if end_date is None else pd.to_datetime(end_date)
         if start_date > end_date:
-            raise ValueError("Start date cannot be greater than end date")
+            msg = "Start date cannot be greater than end date"
+            raise ValueError(msg)
         if step_order == 0:
-            return catalog.loc[
-                (catalog["datetime"] >= start_date) & (catalog["datetime"] <= end_date)
-            ]
-        catalog.loc[
-            (catalog["datetime"] < start_date) | (catalog["datetime"] > end_date),
+            return metadata.loc[(metadata["image-datetime"] >= start_date) & (metadata["image-datetime"] <= end_date)]
+        metadata.loc[
+            (metadata["image-datetime"] < start_date) | (metadata["image-datetime"] > end_date),
             "flag",
         ] = step_order
         self.logger.info(
             "Number of photos to be removed: %s",
-            catalog.flag[catalog.flag == step_order].count(),
+            metadata.flag[metadata.flag == step_order].count(),
         )
         if test:
-            self.plot_trimmed_photos(catalog[catalog.flag == 0])
+            self.plot_trimmed_photos(metadata[metadata.flag == 0])
             return None
-        return catalog
+        return metadata
 
     def _by_depth(
         self,
-        step_order=None,
-        test=False,
-        params: ResampleDepthParams = ResampleDepthParams(),
-    ):
-        catalog = self.get_catalog()
-        catalog.loc[:, "depth_m"] = catalog["depth_m"].abs()
+        step_order: int | None = None,
+        test: bool = False,
+        params: ResampleDepthParams = None,
+    ) -> pd.DataFrame:
+        """Resample the metadata by depth.
+
+        Args:
+            step_order (int, optional): The order of the step. Defaults to None.
+            test (bool, optional): Whether to test the step. Defaults to False.
+            params (ResampleDepthParams, optional): The parameters for the resample.
+        Defaults to ResampleDepthParams().
+
+        Returns:
+            pd.DataFrame: Metadata with the photos to be removed flagged.
+        """
+        if params is None:
+            params = ResampleDepthParams()
+        metadata = self.get_metadata()
+        metadata.loc[:, "depth_m"] = metadata["depth_m"].abs()
         if params.by == "lower":
-            catalog.loc[catalog["depth_m"] < params.value, "flag"] = step_order
+            metadata.loc[metadata["depth_m"] < params.value, "flag"] = step_order
         else:
-            catalog.loc[catalog["depth_m"] > params.value, "flag"] = step_order
+            metadata.loc[metadata["depth_m"] > params.value, "flag"] = step_order
         self.logger.info(
             "Number of photos to be removed: %s",
-            catalog.flag[catalog.flag == step_order].count(),
+            metadata.flag[metadata.flag == step_order].count(),
         )
         if test:
-            self.plot_trimmed_photos(catalog[catalog.flag == 0])
+            self.plot_trimmed_photos(metadata[metadata.flag == 0])
             return None
-        return catalog
+        return metadata
 
     def _by_altitude(
         self,
-        step_order=None,
-        test=False,
-        params: ResampleAltitudeParams = ResampleAltitudeParams(),
-    ):
-        catalog = self.get_catalog()
-        catalog.loc[:, "altitude_m"] = catalog["altitude_m"].abs()
-        catalog.loc[catalog["altitude_m"] > params.value, "flag"] = step_order
+        step_order: int | None = None,
+        test: bool = False,
+        params: ResampleAltitudeParams = None,
+    ) -> pd.DataFrame:
+        """Resample the metadata by altitude.
+
+        Args:
+            step_order (int, optional): The order of the step. Defaults to None.
+            test (bool, optional): Whether to test the step. Defaults to False.
+            params (ResampleAltitudeParams, optional): The parameters for the resample.
+        Defaults to ResampleAltitudeParams().
+
+        Returns:
+            pd.DataFrame: Metadata with the photos to be removed flagged.
+        """
+        if params is None:
+            params = ResampleAltitudeParams()
+        metadata = self.get_metadata()
+        metadata.loc[:, "altitude_m"] = metadata["altitude_m"].abs()
+        metadata.loc[metadata["altitude_m"] > params.value, "flag"] = step_order
         self.logger.info(
             "Number of photos to be removed: %s",
-            catalog.flag[catalog.flag == step_order].count(),
+            metadata.flag[metadata.flag == step_order].count(),
         )
         if test:
-            self.plot_trimmed_photos(catalog[catalog.flag == 0])
+            self.plot_trimmed_photos(metadata[metadata.flag == 0])
             return None
-        return catalog
+        return metadata
 
     def _by_pitch_roll(
         self,
-        step_order=None,
-        test=False,
-        params: ResamplePitchRollParams = ResamplePitchRollParams(),
-    ):
-        catalog = self.get_catalog()
-        catalog.loc[:, "pitch_deg"] = catalog["pitch_deg"].abs()
-        catalog.loc[:, "roll_deg"] = catalog["roll_deg"].abs()
-        catalog.loc[
-            (catalog["pitch_deg"] > params.pitch) & (catalog["roll_deg"] > params.roll),
+        step_order: int | None = None,
+        test: bool = False,
+        params: ResamplePitchRollParams = None,
+    ) -> pd.DataFrame:
+        """Resample the metadata by pitch and roll.
+
+        Args:
+            step_order (int, optional): The order of the step. Defaults to None.
+            test (bool, optional): Whether to test the step. Defaults to False.
+            params (ResamplePitchRollParams, optional): The parameters for the resample.
+        Defaults to ResamplePitchRollParams().
+
+        Returns:
+            pd.DataFrame: Metadata with the photos to be removed flagged.
+        """
+        if params is None:
+            params = ResamplePitchRollParams()
+        metadata = self.get_metadata()
+        metadata.loc[:, "pitch_deg"] = metadata["pitch_deg"].abs()
+        metadata.loc[:, "roll_deg"] = metadata["roll_deg"].abs()
+        metadata.loc[
+            (metadata["pitch_deg"] > params.pitch) & (metadata["roll_deg"] > params.roll),
             "flag",
         ] = step_order
         self.logger.info(
             "Number of photos to be removed: %s",
-            catalog.flag[catalog.flag == step_order].count(),
+            metadata.flag[metadata.flag == step_order].count(),
         )
         if test:
-            self.plot_trimmed_photos(catalog[catalog.flag == 0])
+            self.plot_trimmed_photos(metadata[metadata.flag == 0])
             return None
-        return catalog
+        return metadata
 
     def _by_region(
         self,
-        step_order=None,
-        test=False,
-        params: ResampleRegionParams = ResampleRegionParams(),
-    ):
-        catalog = self.get_catalog()
+        step_order: int | None = None,
+        test: bool = False,
+        params: ResampleRegionParams = None,
+    ) -> pd.DataFrame:
+        """Resample the metadata by region.
+
+        Args:
+            step_order (int, optional): The order of the step. Defaults to None.
+            test (bool, optional): Whether to test the step. Defaults to False.
+            params (ResampleRegionParams, optional): The parameters for the resample.
+        Defaults to ResampleRegionParams().
+
+        Returns:
+            pd.DataFrame: _description_
+        """
+        if params is None:
+            params = ResampleRegionParams()
+        metadata = self.get_metadata()
         if params.file:
             polygons = gpd.read_file(params.file)
         else:
@@ -249,90 +376,110 @@ class ResampleLayer(Paidiverpy):
                             (min_lon, max_lat),
                             (max_lon, max_lat),
                             (max_lon, min_lat),
-                        ]
-                    )
-                ]
+                        ],
+                    ),
+                ],
             )
 
-        def point_in_any_polygon(point):
+        def _point_in_any_polygon(point: tuple) -> bool:
             return any(polygon.contains(point) for polygon in polygons.geometry)
 
-        catalog["flag"] = catalog.apply(
-            lambda x: x["flag"] if point_in_any_polygon(x["point"]) else step_order,
+        metadata["flag"] = metadata.apply(
+            lambda x: x["flag"] if _point_in_any_polygon(x["point"]) else step_order,
             axis=1,
         )
         self.logger.info(
             "Number of photos to be removed: %s",
-            catalog.flag[catalog.flag == step_order].count(),
+            metadata.flag[metadata.flag == step_order].count(),
         )
         if test:
-            self.plot_trimmed_photos(catalog[catalog.flag == 0])
+            self.plot_trimmed_photos(metadata[metadata.flag == 0])
             return None
-        return catalog
+        return metadata
 
     def _by_obscure_photos(
         self,
-        step_order=None,
-        test=False,
-        params: ResampleObscureParams = ResampleObscureParams(),
-    ):
-        catalog = self.get_catalog()
+        step_order: int | None = None,
+        test: bool = False,
+        params: ResampleObscureParams = None,
+    ) -> pd.DataFrame:
+        """Resample the metadata by obscure photos.
+
+        Args:
+            step_order (int, optional): The order of the step. Defaults to None.
+            test (bool, optional): Whether to test the step. Defaults to False.
+            params (ResampleObscureParams, optional): The parameters for the resample.
+        Defaults to ResampleObscureParams().
+
+        Returns:
+            pd.DataFrame: Metadata with the photos to be removed flagged.
+        """
+        if params is None:
+            params = ResampleObscureParams()
+        metadata = self.get_metadata()
         images = self.images.get_step(step=self.config_index, by_order=True)
-        brightnesss = []
-        for index, img in enumerate(images):
-            img_data = img.image
-            brightness = np.mean(img_data) / 255
-            if brightness < params.min or brightness > params.max:
-                catalog.loc[index, "flag"] = step_order
-            brightnesss.append(brightness)
+
+        def _compute_mean(image_chunk: np.ndarray) -> np.ndarray:
+            return np.mean(image_chunk, axis=(1, 2)) / 255
+
+        brightness = _compute_mean(images) if self.n_jobs == 1 else images.map_blocks(_compute_mean, dtype=float)
+
+        metadata.loc[brightness < params.min, "flag"] = step_order
+        metadata.loc[brightness > params.max, "flag"] = step_order
         self.logger.info(
             "Number of photos to be removed: %s",
-            catalog.flag[catalog.flag == step_order].count(),
+            metadata.flag[metadata.flag == step_order].count(),
         )
         if test:
-            self.plot_trimmed_photos(catalog[catalog.flag == 0])
-            plt.hist(brightnesss, bins=30, edgecolor="black")
+            self.plot_trimmed_photos(metadata[metadata.flag == 0])
+            plt.hist(brightness, bins=30, edgecolor="black")
             plt.xlabel("Mean RGB Brightness")
             plt.ylabel("Frequency")
             plt.title("Distribution of Image Brightness")
             plt.show()
             return None
-        return catalog
+        return metadata
 
     def _by_overlapping(
         self,
-        step_order=None,
-        test=False,
-        params: ResampleOverlappingParams = ResampleOverlappingParams(),
-    ):
-        catalog = self.get_catalog()
-        catalog.loc[:, "pitch_deg"] = catalog["pitch_deg"].abs()
-        catalog.loc[:, "roll_deg"] = catalog["roll_deg"].abs()
+        step_order: int | None = None,
+        test: bool = False,
+        params: ResampleOverlappingParams = None,
+    ) -> pd.DataFrame:
+        """Resample the metadata by overlapping photos.
+
+        Args:
+            step_order (int, optional): The order of the step. Defaults to None.
+            test (bool, optional): Whether to test the step. Defaults to False.
+            params (ResampleOverlappingParams, optional): The parameters for the resample.
+        Defaults to ResampleOverlappingParams().
+
+        Returns:
+            pd.DataFrame: Metadata with the photos to be removed flagged.
+        """
+        if params is None:
+            params = ResampleOverlappingParams()
+        metadata = self.get_metadata()
+
+        metadata.loc[:, "pitch_deg"] = metadata["pitch_deg"].abs()
+        metadata.loc[:, "roll_deg"] = metadata["roll_deg"].abs()
 
         theta = params.theta
         omega = params.omega
         overlap_threshold = params.threshold
+        camera_distance = params.camera_distance
 
-        # TODO change de 1.12 to a parameter (distance between camera and the altimeter)
-        catalog["approx_vertdim_m"] = (
-            2 * (catalog["altitude_m"] + 1.12) * np.tan(np.radians(theta / 2))
-        )
-        catalog["approx_horizdim_m"] = (
-            2 * (catalog["altitude_m"] + 1.12) * np.tan(np.radians(omega / 2))
-        )
-        catalog["approx_area_m2"] = (
+        metadata["approx_vertdim_m"] = 2 * (metadata["altitude_m"] + camera_distance) * np.tan(np.radians(theta / 2))
+        metadata["approx_horizdim_m"] = 2 * (metadata["altitude_m"] + camera_distance) * np.tan(np.radians(omega / 2))
+        metadata["approx_area_m2"] = (
             4
-            * ((catalog["altitude_m"] + 1.12) ** 2)
+            * ((metadata["altitude_m"] + camera_distance) ** 2)
             * np.tan(np.radians(theta / 2))
             * np.tan(np.radians(omega / 2))
         )
-        catalog["headingoffset_rad"] = np.arctan(
-            catalog["approx_horizdim_m"] / catalog["approx_vertdim_m"]
-        )
-        catalog["cornerdist_m"] = (
-            0.5 * catalog["approx_horizdim_m"] / np.sin(catalog["headingoffset_rad"])
-        )
-        catalog["longpos_deg"] = catalog["lon"] + 360
+        metadata["headingoffset_rad"] = np.arctan(metadata["approx_horizdim_m"] / metadata["approx_vertdim_m"])
+        metadata["cornerdist_m"] = 0.5 * metadata["approx_horizdim_m"] / np.sin(metadata["headingoffset_rad"])
+        metadata["longpos_deg"] = metadata["image-longitude"] + 360
 
         corner_columns = [
             "TRcornerlong",
@@ -344,12 +491,11 @@ class ResampleLayer(Paidiverpy):
             "BRcornerlong",
             "BRcornerlat",
         ]
-        catalog[corner_columns] = 0.0
-        # Iterate over each photo to calculate corner coordinates
-        for i, row in catalog.iterrows():
+        metadata[corner_columns] = 0.0
+        for i, row in metadata.iterrows():
             lat, lon, heading_deg, headingoffset_rad, cornerdist_m = row[
                 [
-                    "lat",
+                    "image-latitude",
                     "longpos_deg",
                     "heading_deg",
                     "headingoffset_rad",
@@ -357,53 +503,44 @@ class ResampleLayer(Paidiverpy):
                 ]
             ]
 
-            catalog.loc[i, "TRcornerlong"], catalog.loc[i, "TRcornerlat"] = (
-                ResampleLayer.calculate_corner(
-                    lat, lon, heading_deg, headingoffset_rad, cornerdist_m, 0
-                )
+            metadata.loc[i, "TRcornerlong"], metadata.loc[i, "TRcornerlat"] = ResampleLayer.calculate_corner(
+                lat, lon, heading_deg, headingoffset_rad, cornerdist_m, 0,
             )
-            catalog.loc[i, "TLcornerlong"], catalog.loc[i, "TLcornerlat"] = (
-                ResampleLayer.calculate_corner(
-                    lat,
-                    lon,
-                    heading_deg,
-                    headingoffset_rad,
-                    cornerdist_m,
-                    -2 * headingoffset_rad * 180 / np.pi,
-                )
+            metadata.loc[i, "TLcornerlong"], metadata.loc[i, "TLcornerlat"] = ResampleLayer.calculate_corner(
+                lat,
+                lon,
+                heading_deg,
+                headingoffset_rad,
+                cornerdist_m,
+                -2 * headingoffset_rad * 180 / np.pi,
             )
-            catalog.loc[i, "BLcornerlong"], catalog.loc[i, "BLcornerlat"] = (
-                ResampleLayer.calculate_corner(
-                    lat, lon, heading_deg, headingoffset_rad, cornerdist_m, 180
-                )
+            metadata.loc[i, "BLcornerlong"], metadata.loc[i, "BLcornerlat"] = ResampleLayer.calculate_corner(
+                lat, lon, heading_deg, headingoffset_rad, cornerdist_m, 180,
             )
-            catalog.loc[i, "BRcornerlong"], catalog.loc[i, "BRcornerlat"] = (
-                ResampleLayer.calculate_corner(
-                    lat,
-                    lon,
-                    heading_deg,
-                    headingoffset_rad,
-                    cornerdist_m,
-                    180 - 2 * headingoffset_rad * 180 / np.pi,
-                )
+            metadata.loc[i, "BRcornerlong"], metadata.loc[i, "BRcornerlat"] = ResampleLayer.calculate_corner(
+                lat,
+                lon,
+                heading_deg,
+                headingoffset_rad,
+                cornerdist_m,
+                180 - 2 * headingoffset_rad * 180 / np.pi,
             )
 
-        # Calculate the coordinates for the first photo
         n = pd.DataFrame(
             {
                 "long_deg": [
-                    catalog["TLcornerlong"].iloc[0],
-                    catalog["TRcornerlong"].iloc[0],
-                    catalog["BRcornerlong"].iloc[0],
-                    catalog["BLcornerlong"].iloc[0],
+                    metadata["TLcornerlong"].iloc[0],
+                    metadata["TRcornerlong"].iloc[0],
+                    metadata["BRcornerlong"].iloc[0],
+                    metadata["BLcornerlong"].iloc[0],
                 ],
                 "lat_deg": [
-                    catalog["TLcornerlat"].iloc[0],
-                    catalog["TRcornerlat"].iloc[0],
-                    catalog["BRcornerlat"].iloc[0],
-                    catalog["BLcornerlat"].iloc[0],
+                    metadata["TLcornerlat"].iloc[0],
+                    metadata["TRcornerlat"].iloc[0],
+                    metadata["BRcornerlat"].iloc[0],
+                    metadata["BLcornerlat"].iloc[0],
                 ],
-            }
+            },
         )
 
         chn = np.append(
@@ -413,26 +550,25 @@ class ResampleLayer(Paidiverpy):
         )
         coordsn = pd.DataFrame(chn, columns=["long_deg", "lat_deg"])
 
-        # Find overlaps
-        catalog["overlap"] = 0
-        catalog["polygon_m"] = Polygon(coordsn.values)
-
-        for i in range(1, len(catalog)):
+        metadata["overlap"] = 0
+        metadata["polygon_m"] = Polygon(coordsn.values)
+        # for i in range(1, len(metadata)):
+        for i in metadata.index[1:]:
             m = pd.DataFrame(
                 {
                     "long_deg": [
-                        catalog["TLcornerlong"].iloc[i],
-                        catalog["TRcornerlong"].iloc[i],
-                        catalog["BRcornerlong"].iloc[i],
-                        catalog["BLcornerlong"].iloc[i],
+                        metadata["TLcornerlong"].loc[i],
+                        metadata["TRcornerlong"].loc[i],
+                        metadata["BRcornerlong"].loc[i],
+                        metadata["BLcornerlong"].loc[i],
                     ],
                     "lat_deg": [
-                        catalog["TLcornerlat"].iloc[i],
-                        catalog["TRcornerlat"].iloc[i],
-                        catalog["BRcornerlat"].iloc[i],
-                        catalog["BLcornerlat"].iloc[i],
+                        metadata["TLcornerlat"].loc[i],
+                        metadata["TRcornerlat"].loc[i],
+                        metadata["BRcornerlat"].loc[i],
+                        metadata["BLcornerlat"].loc[i],
                     ],
-                }
+                },
             )
 
             chm = np.append(
@@ -444,53 +580,67 @@ class ResampleLayer(Paidiverpy):
 
             polygon_n = Polygon(coordsn.values)
             polygon_m = Polygon(coordsm.values)
-            catalog.loc[i, "polygon_m"] = polygon_m
+            metadata.loc[i, "polygon_m"] = polygon_m
             if polygon_n.intersects(polygon_m):
                 if overlap_threshold is None:
-                    catalog.loc[i, "overlap"] = 1
+                    metadata.loc[i, "overlap"] = 1
                 else:
                     overlap_area = polygon_n.intersection(polygon_m).area
                     overlap_percentage_n = overlap_area / polygon_n.area
                     overlap_percentage_m = overlap_area / polygon_m.area
-                    if (
-                        overlap_percentage_n > overlap_threshold
-                        or overlap_percentage_m > overlap_threshold
-                    ):
-                        catalog.loc[i, "overlap"] = 1
+                    if overlap_percentage_n > overlap_threshold or overlap_percentage_m > overlap_threshold:
+                        metadata.loc[i, "overlap"] = 1
                     else:
                         coordsn = coordsm
+                        metadata.loc[i, "overlap"] = 0
             else:
                 coordsn = coordsm
-        self.logger.info(
-            "Number of photos to be removed: %s", int(catalog["overlap"].sum())
-        )
-        new_catalog = self.get_catalog()
-
-        new_catalog.loc[catalog["overlap"] == 1, "flag"] = step_order
+                metadata.loc[i, "overlap"] = 0
+        self.logger.info("Number of photos to be removed: %s", int(metadata["overlap"].sum()))
+        new_metadata = self.get_metadata()
+        new_metadata.loc[metadata["overlap"] == 1, "flag"] = step_order
         if test:
-            ResampleLayer.plot_polygons(catalog)
-            self.plot_trimmed_photos(new_catalog[new_catalog.flag == 0])
+            ResampleLayer.plot_polygons(metadata)
+            self.plot_trimmed_photos(new_metadata[new_metadata.flag == 0])
             return None
-        return new_catalog
+        return new_metadata
 
     @staticmethod
-    def plot_polygons(catalog):
-        gdf = gpd.GeoDataFrame(catalog, geometry="polygon_m")
+    def plot_polygons(metadata: pd.DataFrame) -> None:
+        """Plot the polygons.
+
+        Args:
+            metadata (pd.DataFrame): The metadata with the polygons.
+        """
+        gdf = gpd.GeoDataFrame(metadata, geometry="polygon_m")
         _, ax = plt.subplots(figsize=(15, 15))
 
-        gdf[gdf.overlap == 0].plot(
-            ax=ax, facecolor="none", edgecolor="black", label="No Overlap"
-        )
-        gdf[gdf.overlap == 1].plot(
-            ax=ax, facecolor="none", edgecolor="red", label="Overlap"
-        )
-        plt.savefig("overlap.png")
+        gdf[gdf.overlap == 0].plot(ax=ax, facecolor="none", edgecolor="black", label="No Overlap")
+        gdf[gdf.overlap == 1].plot(ax=ax, facecolor="none", edgecolor="red", label="Overlap")
         plt.show()
 
     @staticmethod
     def calculate_corner(
-        lat, lon, heading_deg, headingoffset_rad, cornerdist_m, angle_offset
-    ):
+        lat: float,
+        lon: float,
+        heading_deg: float,
+        headingoffset_rad: float,
+        cornerdist_m: float,
+        angle_offset: float,
+    ) -> tuple:
+        """Calculate the corner coordinates.
+
+        Args:
+            lat (float): The latitude.
+            lon (float): The longitude.
+            heading_deg (float): The heading in degrees.
+            headingoffset_rad (float): The heading offset in radians.
+            cornerdist_m (float): The corner distance in meters.
+            angle_offset (float): The angle offset.
+
+        Returns:
+            tuple: The corner coordinates.
+        """
         angle = (headingoffset_rad * 180 / np.pi) + heading_deg + angle_offset
         destination = geodesic(meters=cornerdist_m).destination((lat, lon), angle)
         return destination.longitude, destination.latitude
