@@ -166,7 +166,6 @@ class ConvertLayer(Paidiverpy):
         """
         delayed_images = [dask.delayed(method)(img, params) for img in images]
         with dask.config.set(scheduler="threads", num_workers=self.n_jobs):
-            self.logger.info("Processing images using %s cores", self.n_jobs)
             with ProgressBar():
                 delayed_images = compute(*delayed_images)
         return [da.from_array(img) for img in delayed_images]

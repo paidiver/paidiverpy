@@ -5,6 +5,9 @@ import multiprocessing
 import os
 import sys
 from pathlib import Path
+from importlib.metadata import PackageNotFoundError, version
+import subprocess
+from typing import List, Union
 
 
 def initialise_logging(verbose: int = 2) -> logging.Logger:
@@ -101,3 +104,33 @@ class DynamicConfig:
                 result[key] = value
         return result
 
+
+def check_and_install_dependencies(dependencies: Union[List[str], None],
+                                   dependencies_path: Union[str, None]) -> None:
+    """Check and install dependencies.
+
+    Args:
+        dependencies (Union[List[str], None]): The dependencies to check and install.
+        dependencies_path (str, None): The path to the dependencies file.
+
+    Raises:
+        PackageNotFoundError: If the package is not found.
+
+    """
+    list_of_dependencies = []
+    if dependencies:
+        list_of_dependencies = dependencies
+    if dependencies_path:
+        is_docker = is_running_in_docker()
+        if is_docker:
+            dependencies_filename = dependencies_path.split("/")[-1]
+            dependencies_path = "/app/custom_algorithms/" + dependencies_filename
+        with open(dependencies_path, "r") as file:
+            list_of_dependencies += file.readlines()
+    for package in list_of_dependencies:
+        try:
+            package_name = package.split("==")[0]
+            version(package_name)
+        except PackageNotFoundError:
+            print(f"Installing missing package: {package}")
+            subprocess.check_call([sys.executable, "-m", "pip", "install", package])
