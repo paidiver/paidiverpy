@@ -143,7 +143,7 @@ class ColorLayer(Paidiverpy):
         else:
             image_list = self.process_parallel(images, method, params)
         if not test:
-            self.step_name = f"convert_{self.config_index}" if not self.step_name else self.step_name
+            self.step_name = f"color_{self.config_index}" if not self.step_name else self.step_name
             if add_new_step:
                 self.images.add_step(
                     step=self.step_name,
