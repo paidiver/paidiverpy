@@ -1,42 +1,42 @@
 general:
-  input_path: '/input/data/path/'
-  output_path: '/output/data/path/'
-  metadata_path: '/metadata/path/metadata.json'
-  metadata_type: 'IFDO'
-  image_type: 'JPG'
+  input_path: "/input/data/path/"
+  output_path: "/output/data/path/"
+  metadata_path: "/metadata/path/metadata.json"
+  metadata_type: "IFDO"
+  image_type: "JPG"
   sampling:
-    - mode: 'percent'
+    - mode: "percent"
       params:
         value: 0.1
   convert:
-    - mode: 'bits'
+    - mode: "bits"
       params:
         output_bits: 8
-    - mode: 'to'
+    - mode: "to"
       params:
-        to: 'gray'
+        to: "gray"
 
 steps:
-  - color:
-      name: 'color_correction'
-      mode: 'grayscale'
+  - colour:
+      name: "colour_correction"
+      mode: "grayscale"
 
   - sampling:
-      name: 'datetime'
-      mode: 'datetime'
+      name: "datetime"
+      mode: "datetime"
       params:
-        min: '2016-05-11 04:14:00'
-        max: '2016-05-11 09:27:00'
+        min: "2016-05-11 04:14:00"
+        max: "2016-05-11 09:27:00"
 
-  - color:
-      name: 'color_correction'
-      mode: 'gaussian_blur'
+  - colour:
+      name: "colour_correction"
+      mode: "gaussian_blur"
       params:
         sigma: 1.0
 
-  - color:
-      name: 'sharpen'
-      mode: 'sharpen'
+  - colour:
+      name: "sharpen"
+      mode: "sharpen"
       params:
         alpha: 1.5
         beta: -0.5

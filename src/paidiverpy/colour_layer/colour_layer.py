@@ -1,8 +1,8 @@
 
-"""Color layer module.
+"""Colour layer module.
 
-This module contains the ColorLayer class for processing the images in the
-color layer.
+This module contains the ColourLayer class for processing the images in the
+colour layer.
 """
 
 import logging
@@ -29,14 +29,15 @@ from skimage.segmentation import checkerboard_level_set
 from skimage.segmentation import morphological_chan_vese
 from skimage.transform import resize
 from paidiverpy import Paidiverpy
-from paidiverpy.config.color_params import COLOR_LAYER_METHODS, ColourAlterationParams
-from paidiverpy.config.color_params import ContrastAdjustmentParams
-from paidiverpy.config.color_params import DeblurParams
-from paidiverpy.config.color_params import EdgeDetectionParams
-from paidiverpy.config.color_params import GaussianBlurParams
-from paidiverpy.config.color_params import GrayScaleParams
-from paidiverpy.config.color_params import IlluminationCorrectionParams
-from paidiverpy.config.color_params import SharpenParams
+from paidiverpy.config.colour_params import COLOUR_LAYER_METHODS
+from paidiverpy.config.colour_params import ColourAlterationParams
+from paidiverpy.config.colour_params import ContrastAdjustmentParams
+from paidiverpy.config.colour_params import DeblurParams
+from paidiverpy.config.colour_params import EdgeDetectionParams
+from paidiverpy.config.colour_params import GaussianBlurParams
+from paidiverpy.config.colour_params import GrayScaleParams
+from paidiverpy.config.colour_params import IlluminationCorrectionParams
+from paidiverpy.config.colour_params import SharpenParams
 from paidiverpy.config.config import Configuration
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
@@ -48,10 +49,10 @@ NUM_CHANNELS_RGBA = 4
 NUM_IMAGE_DIMS = 2
 DEFAULT_BITS = 8
 
-class ColorLayer(Paidiverpy):
-    """ColorLayer class.
+class ColourLayer(Paidiverpy):
+    """ColourLayer class.
 
-    Process the images in the color layer.
+    Process the images in the colour layer.
 
     Args:
         config_file_path (str): The path to the configuration file.
@@ -116,9 +117,9 @@ class ColorLayer(Paidiverpy):
         self.step_metadata = self._calculate_steps_metadata(self.config.steps[self.config_index])
 
     def run(self, add_new_step: bool = True) -> ImagesLayer | None:
-        """Color layer run method.
+        """Colour layer run method.
 
-        Run the color layer steps on the images based on the configuration
+        Run the colour layer steps on the images based on the configuration
         file or parameters.
 
         Args:
@@ -137,7 +138,7 @@ class ColorLayer(Paidiverpy):
             raise ValueError(msg)
         test = self.step_metadata.get("test")
         params = self.step_metadata.get("params") or {}
-        method, params = self._get_method_by_mode(params, COLOR_LAYER_METHODS, mode)
+        method, params = self._get_method_by_mode(params, COLOUR_LAYER_METHODS, mode)
         images = self.images.get_step(step=len(self.images.images) - 1, by_order=True)
         if self.n_jobs == 1:
             image_list = self.process_sequentially(images, method, params)
@@ -251,7 +252,7 @@ class ColorLayer(Paidiverpy):
                 image_data = image_data[..., :NUM_CHANNELS_RGB]
             image_data = self._apply_grayscale_conversion(image_data, params)
 
-            if params.invert_colors:
+            if params.invert_colours:
                 image_data = 255 - image_data
 
             if params.keep_alpha and "alpha_channel" in locals():
@@ -433,9 +434,9 @@ class ColorLayer(Paidiverpy):
             angle = params.angle
             if method == "wiener":
                 if psf_type == "gaussian":
-                    psf = ColorLayer.gaussian_psf(size=image_data.shape, sigma=sigma)
+                    psf = ColourLayer.gaussian_psf(size=image_data.shape, sigma=sigma)
                 elif psf_type == "motion":
-                    psf = ColorLayer.motion_psf(size=image_data.shape, length=sigma, angle_xy=angle)
+                    psf = ColourLayer.motion_psf(size=image_data.shape, length=sigma, angle_xy=angle)
                 else:
                     msg = "Unknown PSF type. Please use 'gaussian' or 'motion'."
                     raise_value_error(msg)
@@ -492,7 +493,7 @@ class ColorLayer(Paidiverpy):
             else:
                 gray_image_data = image_data
                 image_data = np.dstack((image_data, image_data, image_data))
-            filled_edges = ColorLayer.detect_edges(gray_image_data, params.method, params.blur_radius, params.threshold)
+            filled_edges = ColourLayer.detect_edges(gray_image_data, params.method, params.blur_radius, params.threshold)
             label_image_data = morphology.label(filled_edges, connectivity=2, background=0)
             props = measure.regionprops(label_image_data, gray_image_data)
 
@@ -580,7 +581,7 @@ class ColorLayer(Paidiverpy):
             features["valid_object"] = valid_object
 
             # sharpness analysis of the image using FFTs
-            features = ColorLayer.sharpness_analysis(gray_image_data, image_data, features, params.estimate_sharpness)
+            features = ColourLayer.sharpness_analysis(gray_image_data, image_data, features, params.estimate_sharpness)
 
             # mask the raw image with smoothed foreground mask
             blurd_bw_image_data = gaussian(bw_image_data, params.blur_radius)
@@ -595,7 +596,7 @@ class ColorLayer(Paidiverpy):
             else:
                 image_data = np.float32(image_data) / np.max(image_data)
 
-            image_data = ColorLayer.deconvolution(
+            image_data = ColourLayer.deconvolution(
                 image_data,
                 bw_image_data,
                 blurd_bw_image_data,
@@ -633,7 +634,7 @@ class ColorLayer(Paidiverpy):
             method = params.method
 
             if method == "white-balance":
-                image_data = ColorLayer.white_balance(image_data)
+                image_data = ColourLayer.white_balance(image_data)
 
         except Exception as e:
             self.logger.error(f"Error applying colour alteration: {e}")
@@ -648,7 +649,7 @@ class ColorLayer(Paidiverpy):
         Create a Gaussian point spread function (PSF).
 
         Args:
-            size (int[]): The size of the PSF.
+            size (List[int]): The size of the PSF.
             sigma (float): The standard deviation of the PSF.
 
         Returns:
@@ -815,7 +816,7 @@ class ColorLayer(Paidiverpy):
 
             # Richardson-Lucy deconvolution
             if deconv_method.lower() == "lr":
-                psf = ColorLayer.make_gaussian(5, 3, center=None)
+                psf = ColourLayer.make_gaussian(5, 3, center=None)
                 v_img = restoration.richardson_lucy(v_img, psf, deconv_iter)
 
                 v_img = np.clip(v_img, 0, None)
@@ -874,7 +875,7 @@ class ColorLayer(Paidiverpy):
             real_img = real_img.astype("float") - np.mean(img)
 
             # Window the image to reduce ringing and energy leakage
-            wind = ColorLayer.make_gaussian(pad_size, pad_size / 2, center=None)
+            wind = ColourLayer.make_gaussian(pad_size, pad_size / 2, center=None)
 
             # Estimate blur of the image using the method from Roberts et al. 2011
             the_fft = np.fft.fft2(real_img * wind)
@@ -915,18 +916,18 @@ class ColorLayer(Paidiverpy):
             if len(img.shape) == NUM_CHANNELS_RGB:
                 edges_mags = [scharr(img[:, :, i]) for i in range(NUM_CHANNELS_RGB)]
                 filled_edges = [
-                    ColorLayer.process_edges(edges_mag, threshold[0], blur_radius) for edges_mag in edges_mags
+                    ColourLayer.process_edges(edges_mag, threshold[0], blur_radius) for edges_mag in edges_mags
                 ]
             else:
                 edges_mag = scharr(img)
-                filled_edges = ColorLayer.process_edges(edges_mag, threshold[0], blur_radius)
+                filled_edges = ColourLayer.process_edges(edges_mag, threshold[0], blur_radius)
         elif method == "Scharr-with-mean":
             if len(img.shape) == NUM_CHANNELS_RGB:
                 edges_mags = [scharr(img[:, :, i]) for i in range(3)]
-                filled_edges = [ColorLayer.process_edges_mean(edges_mag, blur_radius) for edges_mag in edges_mags]
+                filled_edges = [ColourLayer.process_edges_mean(edges_mag, blur_radius) for edges_mag in edges_mags]
             else:
                 edges_mag = scharr(img)
-                filled_edges = ColorLayer.process_edges_mean(edges_mag, blur_radius)
+                filled_edges = ColourLayer.process_edges_mean(edges_mag, blur_radius)
         elif method == "Canny":
             if len(img.shape) == NUM_CHANNELS_RGB:
                 edges = [cv2.Canny(img[:, :, i], threshold[0], threshold[1]) for i in range(NUM_CHANNELS_RGB)]
