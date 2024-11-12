@@ -35,7 +35,7 @@ class EdgeDetectionParams(DynamicConfig):
     object_selection: str = "largest"
     estimate_sharpness: bool = False
     deconv: bool = False
-    deconv_method: str = "richardson_lucy"
+    deconv_method: str = "LR"
     deconv_iter: int = 10
     deconv_mask_weight: float = 0.03
     small_float_val: float = 1e-6
@@ -80,7 +80,7 @@ class DeblurParams(DynamicConfig):
 @dataclass
 class ColourAlterationParams(DynamicConfig):
     """This class contains the parameters for the colour alteration"""
-    method: str = "white-balance"
+    method: str = "white_balance"
 
 
 COLOUR_LAYER_METHODS = {
