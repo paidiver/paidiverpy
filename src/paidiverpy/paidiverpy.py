@@ -2,9 +2,13 @@
 
 import logging
 from pathlib import Path
+from typing import Dict, Union
 import matplotlib.pyplot as plt
 import pandas as pd
+import dask.array as da
+import numpy as np
 from paidiverpy.config.config import Configuration
+from paidiverpy.config.config_params import ConfigParams
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.utils import DynamicConfig
@@ -16,101 +20,177 @@ class Paidiverpy:
     """Main class for the paidiverpy package.
 
     Args:
-        config_file_path (str): The path to the configuration file.
-        input_path (str): The path to the input files.
-        output_path (str): The path to the output files.
-        metadata_path (str): The path to the metadata file.
-        metadata_type (str): The type of the metadata file.
-        metadata (MetadataParser): The metadata object.
-        config (Configuration): The configuration object.
-        logger (logging.Logger): The logger object.
-        images (ImagesLayer): The images object.
-        paidiverpy (Paidiverpy): The paidiverpy object.
-        raise_error (bool): Whether to raise an error.
-        verbose (int): verbose level (0 = none, 1 = errors/warnings, 2 = info).
-        track_changes (bool): Whether to track changes. Defaults to True.
-        n_jobs (int): The number of n_jobs.
+        config_params (Union[Dict, ConfigParams], optional): The configuration parameters.
+            It can contain the following keys / attributes:
+            - input_path (str): The path to the input files.
+            - output_path (str): The path to the output files.
+            - metadata_path (str): The path to the metadata file.
+            - metadata_type (str): The type of the metadata file.
+            - track_changes (bool): Whether to track changes.
+            - n_jobs (int): The number of n_jobs.
+        config_file_path (str, optional): The path to the configuration file.
+        config (Configuration, optional): The configuration object.
+        metadata (MetadataParser, optional): The metadata object.
+        images (ImagesLayer, optional): The images object.
+        paidiverpy (Paidiverpy, optional): The paidiverpy object.
+        logger (logging.Logger, optional): The logger object.
+        raise_error (bool, optional): Whether to raise an error.
+        verbose (int, optional): verbose level (0 = none, 1 = errors/warnings, 2 = info).
     """
 
     def __init__(
         self,
+        config_params: Union[Dict, ConfigParams] = None,
         config_file_path: str | None = None,
-        input_path: str | None = None,
-        output_path: str | None = None,
-        metadata_path: str | None = None,
-        metadata_type: str | None = None,
-        metadata: MetadataParser = None,
         config: Configuration = None,
-        logger: logging.Logger | None = None,
+        metadata: MetadataParser = None,
         images: ImagesLayer = None,
         paidiverpy: "Paidiverpy" = None,
+        logger: logging.Logger | None = None,
         raise_error: bool = False,
         verbose: int = 2,
-        track_changes: bool = True,
-        n_jobs: int = 1,
     ):
         if paidiverpy:
-            self.logger = paidiverpy.logger
-            self.images = paidiverpy.images
-            self.config = paidiverpy.config
-            self.metadata = paidiverpy.metadata
-            self.verbose = paidiverpy.verbose
-            self.raise_error = paidiverpy.raise_error
-            self.n_jobs = paidiverpy.n_jobs
-            self.track_changes = paidiverpy.track_changes
+            self._set_variables_from_paidiverpy(paidiverpy)
         else:
-            self.verbose = verbose
-            self.logger = logger or initialise_logging(verbose=self.verbose)
-            self.config = config or self._initialize_config(
+            if isinstance(config_params, dict):
+                self.config_params = ConfigParams(config_params)
+            else:
+                self.config_params = config_params
+            self.config = config or self._initialise_config(
                 config_file_path,
-                input_path,
-                output_path,
-                metadata_path,
-                metadata_type,
+                self.config_params
             )
             self.metadata = metadata or self._initialize_metadata()
             self.images = images or ImagesLayer(
                 output_path=self.config.general.output_path,
             )
-
-            self.raise_error = raise_error
-            if not self.config.general.n_jobs:
-                self.config.general.n_jobs = n_jobs
             self.n_jobs = get_n_jobs(self.config.general.n_jobs)
-            self.track_changes = track_changes
+            self.track_changes = self.config.general.track_changes
+            self.raise_error = raise_error
+            self.verbose = verbose
+            self.logger = logger or initialise_logging(verbose=self.verbose)
+        self.layer_methods = None
 
-    def _initialize_config(
+
+    def run(self, add_new_step: bool = True) -> ImagesLayer | None:
+        """ Run the paidiverpy pipeline.
+
+        Args:
+            add_new_step (bool, optional): Whether to add a new step. Defaults to True.
+
+        Returns:
+            ImagesLayer | None: The images object.
+        """
+        mode = self.step_metadata.get("mode")
+        if not mode:
+            msg = "The mode is not defined in the configuration file."
+            raise ValueError(msg)
+        test = self.step_metadata.get("test")
+        params = self.step_metadata.get("params") or {}
+        method, params = self._get_method_by_mode(params, self.layer_methods, mode)
+        images = self.images.get_step(step=len(self.images.images) - 1, by_order=True)
+        if self.n_jobs == 1:
+            image_list = self.process_sequentially(images, method, params)
+        else:
+            image_list = self.process_parallel(images, method, params)
+        if not test:
+            self.step_name = f"color_{self.config_index}" if not self.step_name else self.step_name
+            if add_new_step:
+                self.images.add_step(
+                    step=self.step_name,
+                    images=image_list,
+                    step_metadata=self.step_metadata,
+                    metadata=self.get_metadata(),
+                    track_changes=self.track_changes,
+                )
+                return None
+            self.images.images[-1] = image_list
+            return self.images
+        return None
+
+
+    def process_sequentially(self, images: list[np.ndarray], method: callable, params: dict) -> list[np.ndarray]:
+        """Process the images sequentially.
+
+        Method to process the images sequentially.
+
+        Args:
+            images (List[np.ndarray]): The list of images to process.
+            method (callable): The method to apply to the images.
+            params (dict): The parameters for the method.
+
+        Returns:
+            List[np.ndarray]: The list of processed images.
+        """
+        return [method(img, params=params) for img in images]
+
+    def process_parallel(
+        self, images: list[da.core.Array], method: callable, params: DynamicConfig,
+    ) -> list[np.ndarray]:
+        """Process the images in parallel.
+
+        Method to process the images in parallel.
+
+        Args:
+            images (List[da.core.Array]): The list of images to process.
+            method (callable): The method to apply to the images.
+            params (DynamicConfig): The parameters for the method.
+
+        Returns:
+            List[da.core.Array]: The list of processed images.
+        """
+        delayed_images = [dask.delayed(method)(img, params) for img in images]
+        with dask.config.set(scheduler="threads", num_workers=self.n_jobs):
+            with ProgressBar():
+                delayed_images = compute(*delayed_images)
+        return [da.from_array(img) for img in delayed_images]
+
+
+    def _set_variables_from_paidiverpy(self, paidiverpy: "Paidiverpy") -> None:
+        """ Set the variables from the paidiverpy object.
+
+        Args:
+            paidiverpy (Paidiverpy): The paidiverpy object.
+        """
+        self.logger = paidiverpy.logger
+        self.images = paidiverpy.images
+        self.config = paidiverpy.config
+        self.metadata = paidiverpy.metadata
+        self.verbose = paidiverpy.verbose
+        self.raise_error = paidiverpy.raise_error
+        self.n_jobs = paidiverpy.n_jobs
+        self.track_changes = paidiverpy.track_changes
+
+    def _initialise_config(
         self,
         config_file_path: str,
-        input_path: str,
-        output_path: str,
-        metadata_path: str,
-        metadata_type: str,
+        config_params: ConfigParams,
     ) -> Configuration:
         """Initialize the configuration object.
 
         Args:
             config_file_path (str): Configuration file path.
-            input_path (str): input path.
-            output_path (str): output path.
-            metadata_path (str): metadata path.
-            metadata_type (str): metadata type.
+            config_params (ConfigParams): Configuration parameters.
 
         Returns:
             Configuration: The configuration object.
         """
-        general_config = {}
-        if input_path:
-            general_config["input_path"] = input_path
-        if output_path:
-            general_config["output_path"] = output_path
-        if metadata_path:
-            general_config["metadata_path"] = metadata_path
-        if metadata_type:
-            general_config["metadata_type"] = metadata_type
-
         if config_file_path:
             return Configuration(config_file_path)
+        general_config = {}
+        if config_params.input_path:
+            general_config["input_path"] = config_params.input_path
+        if config_params.output_path:
+            general_config["output_path"] = config_params.output_path
+        if config_params.metadata_path:
+            general_config["metadata_path"] = config_params.metadata_path
+        if config_params.metadata_type:
+            general_config["metadata_type"] = config_params.metadata_type
+        if config_params.track_changes:
+            general_config["track_changes"] = config_params.track_changes
+        if config_params.n_jobs:
+            general_config["n_jobs"] = config_params.n_jobs
         config = Configuration()
         config.add_config("general", general_config)
         return config

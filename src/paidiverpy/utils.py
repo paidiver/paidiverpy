@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 from importlib.metadata import PackageNotFoundError, version
 import subprocess
-from typing import List, Union
+from typing import Dict, List, Optional, Union
 
 
 def initialise_logging(verbose: int = 2) -> logging.Logger:
