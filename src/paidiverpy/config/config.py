@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+from typing import Dict, Optional
 import jsonschema
 import yaml
 from jsonschema import validate
@@ -15,7 +16,12 @@ from paidiverpy.utils import DynamicConfig, check_and_install_dependencies
 
 
 class GeneralConfig(DynamicConfig):
-    """General configuration class."""
+    """General configuration class.
+
+    This class is used to define the general configuration from the configuration file
+        or from the input from the user.
+
+    """
 
     def __init__(self, **kwargs: dict):
         self.name = kwargs.get("name", "raw")
