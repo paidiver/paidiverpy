@@ -3,8 +3,10 @@
 import gc
 import json
 import logging
+from typing import Dict, Union
 from paidiverpy import Paidiverpy
 from paidiverpy.config.config import Configuration
+from paidiverpy.config.config_params import ConfigParams
 from paidiverpy.config.pipeline_params import STEPS_CLASS_TYPES
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.open_layer import OpenLayer
@@ -17,54 +19,46 @@ class Pipeline(Paidiverpy):
     """Pipeline builder class for image preprocessing.
 
     Args:
+        config_params (Union[Dict, ConfigParams], optional): The configuration parameters.
+            It can contain the following keys / attributes:
+            - input_path (str): The path to the input files.
+            - output_path (str): The path to the output files.
+            - metadata_path (str): The path to the metadata file.
+            - metadata_type (str): The type of the metadata file.
+            - track_changes (bool): Whether to track changes.
+            - n_jobs (int): The number of n_jobs.
         config_file_path (str): The path to the configuration file.
-        input_path (str): The path to the input files.
-        output_path (str): The path to the output files.
-        metadata_path (str): The path to the metadata file.
-        metadata_type (str): The type of the metadata file.
-        metadata (MetadataParser): The metadata object.
         config (Configuration): The configuration object.
+        metadata (MetadataParser): The metadata object.
+        steps (list[tuple], optional): The steps of the pipeline.
+        track_changes (bool): Whether to track changes. Defaults to None, which means
+            it will be set to the value of the configuration file.
         logger (logging.Logger): The logger object.
-        images (ImagesLayer): The images object.
-        paidiverpy (Paidiverpy): The paidiverpy object.
-        step_name (str): The name of the step.
-        parameters (dict): The parameters for the step.
-        config_index (int): The index of the configuration.
         raise_error (bool): Whether to raise an error.
         verbose (int): verbose level (0 = none, 1 = errors/warnings, 2 = info).
-        track_changes (bool): Whether to track changes. Defaults to True.
-        n_jobs (int): The number of jobs to run in parallel.
     """
 
     def __init__(
         self,
+        config_params: Union[Dict, ConfigParams] = None,
         config_file_path: str | None = None,
-        steps: list[tuple] | None = None,
-        input_path: str | None = None,
-        output_path: str | None = None,
-        metadata_path: str | None = None,
-        metadata_type: str | None = None,
-        metadata: MetadataParser = None,
         config: Configuration = None,
+        metadata: MetadataParser = None,
+        steps: list[tuple] | None = None,
+        track_changes: bool = None,
         logger: logging.Logger | None = None,
         raise_error: bool = False,
-        verbose: int = 2,
-        track_changes: bool = True,
-        n_jobs: int = 1,
+        verbose: int = 2
     ):
         super().__init__(
+            config_params=config_params,
             config_file_path=config_file_path,
-            input_path=input_path,
-            output_path=output_path,
-            metadata_path=metadata_path,
-            metadata_type=metadata_type,
             metadata=metadata,
             config=config,
+            track_changes=track_changes,
             logger=logger,
             raise_error=raise_error,
             verbose=verbose,
-            track_changes=track_changes,
-            n_jobs=n_jobs,
         )
 
         if steps is None:
@@ -127,23 +121,16 @@ class Pipeline(Paidiverpy):
                 step_params["name"] = step_name
                 if step_name == "raw":
                     step_instance = step_class(
+                        paidiverpy=self,
                         step_name=step_name,
-                        config=self.config,
-                        metadata=self.metadata,
                         parameters=step_params,
-                        track_changes=self.track_changes,
-                        n_jobs=self.n_jobs,
                     )
                 else:
                     step_instance = step_class(
-                        config=self.config,
-                        metadata=self.metadata,
-                        images=self.images,
+                        paidiverpy=self,
                         step_name=step_name,
                         parameters=step_params,
                         config_index=index - 1,
-                        track_changes=self.track_changes,
-                        n_jobs=self.n_jobs,
                     )
                 step_instance.run()
                 if not step_params.get("test", False):
