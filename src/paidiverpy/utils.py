@@ -9,6 +9,38 @@ from importlib.metadata import PackageNotFoundError, version
 import subprocess
 from typing import List, Union
 
+NUM_CHANNELS_RGB = 3
+NUM_CHANNELS_RGBA = 4
+NUM_IMAGE_DIMS = 2
+DEFAULT_BITS = 8
+EIGHT_BITS = 8
+SIXTEEN_BITS = 16
+THIRTY_TWO_BITS = 32
+
+class ColorFormatter(logging.Formatter):
+    """Custom formatter to add colors to log messages."""
+
+    COLORS = {
+        'DEBUG': '\033[94m',    # Blue
+        'INFO': '\033[92m',     # Green
+        'WARNING': '\033[93m',  # Yellow
+        'ERROR': '\033[91m',    # Red
+        'CRITICAL': '\033[95m', # Magenta
+    }
+    RESET = '\033[0m'
+
+    def format(self, record: logging.LogRecord) -> str:
+        """Format the log message with color.
+
+        Args:
+            record (logging.LogRecord): The log record.
+
+        Returns:
+            str: The formatted log message.
+        """
+        color = self.COLORS.get(record.levelname, self.RESET)
+        message = super().format(record)
+        return f"{color}{message}{self.RESET}"
 
 def initialise_logging(verbose: int = 2) -> logging.Logger:
     """Initialise logging configuration.
@@ -26,14 +58,21 @@ def initialise_logging(verbose: int = 2) -> logging.Logger:
     else:
         logging_level = logging.INFO
 
-    logging.basicConfig(
-        stream=sys.stdout,
-        format=("☁ paidiverpy ☁  | %(levelname)10s | %(asctime)s | %(message)s"),
-        level=logging_level,
+
+    # Prepare the logging configuration arguments
+    handler = logging.StreamHandler(sys.stdout)
+    formatter = ColorFormatter(
+        "☁ paidiverpy ☁  | %(levelname)10s | %(asctime)s | %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
-    return logging.getLogger(__name__)
+    handler.setFormatter(formatter)
 
+    logging.basicConfig(
+        handlers=[handler],
+        level=logging_level,
+    )
+
+    return logging.getLogger(__name__)
 
 def get_n_jobs(n_jobs: int) -> int:
     """Determine the number of jobs based on n_jobs parameter.

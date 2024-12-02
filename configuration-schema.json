@@ -32,6 +32,9 @@
         "n_jobs": {
           "type": ["number", "null"]
         },
+        "track_changes": {
+          "type": ["boolean", "null"]
+        },
         "rename": {
           "type": ["string", "null"]
         },
