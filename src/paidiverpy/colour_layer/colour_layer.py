@@ -8,11 +8,8 @@ colour layer.
 import logging
 from typing import Dict, List, Union
 import cv2
-import dask
-import dask.array as da
 import numpy as np
 from dask import compute
-from dask.diagnostics import ProgressBar
 from scipy import ndimage
 from skimage import color
 from skimage import measure
@@ -40,15 +37,9 @@ from paidiverpy.config.colour_params import IlluminationCorrectionParams
 from paidiverpy.config.colour_params import SharpenParams
 from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
-from paidiverpy.images_layer import ImagesLayer
+from paidiverpy.images_layer import NUM_CHANNELS_RGBA, ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
-from paidiverpy.utils import DynamicConfig
-from paidiverpy.utils import raise_value_error
-
-NUM_CHANNELS_RGB = 3
-NUM_CHANNELS_RGBA = 4
-NUM_IMAGE_DIMS = 2
-DEFAULT_BITS = 8
+from paidiverpy.utils import DEFAULT_BITS, NUM_CHANNELS_RGB, NUM_IMAGE_DIMS, raise_value_error
 
 class ColourLayer(Paidiverpy):
     """ColourLayer class.
