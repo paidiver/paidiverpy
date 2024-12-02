@@ -3,6 +3,8 @@
 import logging
 from pathlib import Path
 from typing import Dict, Union
+import dask
+from dask.diagnostics import ProgressBar
 import matplotlib.pyplot as plt
 import pandas as pd
 import dask.array as da
@@ -33,6 +35,8 @@ class Paidiverpy:
         metadata (MetadataParser, optional): The metadata object.
         images (ImagesLayer, optional): The images object.
         paidiverpy (Paidiverpy, optional): The paidiverpy object.
+        track_changes (bool): Whether to track changes. Defaults to None, which means
+            it will be set to the value of the configuration file.
         logger (logging.Logger, optional): The logger object.
         raise_error (bool, optional): Whether to raise an error.
         verbose (int, optional): verbose level (0 = none, 1 = errors/warnings, 2 = info).
@@ -46,20 +50,21 @@ class Paidiverpy:
         metadata: MetadataParser = None,
         images: ImagesLayer = None,
         paidiverpy: "Paidiverpy" = None,
+        track_changes: bool = None,
         logger: logging.Logger | None = None,
         raise_error: bool = False,
         verbose: int = 2,
     ):
+
         if paidiverpy:
             self._set_variables_from_paidiverpy(paidiverpy)
         else:
-            if isinstance(config_params, dict):
-                self.config_params = ConfigParams(config_params)
-            else:
-                self.config_params = config_params
+            self.raise_error = raise_error
+            self.verbose = verbose
+            self.logger = logger or initialise_logging(verbose=self.verbose)
             self.config = config or self._initialise_config(
                 config_file_path,
-                self.config_params
+                config_params
             )
             self.metadata = metadata or self._initialize_metadata()
             self.images = images or ImagesLayer(
@@ -67,9 +72,8 @@ class Paidiverpy:
             )
             self.n_jobs = get_n_jobs(self.config.general.n_jobs)
             self.track_changes = self.config.general.track_changes
-            self.raise_error = raise_error
-            self.verbose = verbose
-            self.logger = logger or initialise_logging(verbose=self.verbose)
+        if track_changes is not None:
+            self.track_changes = track_changes
         self.layer_methods = None
 
 
@@ -143,7 +147,7 @@ class Paidiverpy:
         delayed_images = [dask.delayed(method)(img, params) for img in images]
         with dask.config.set(scheduler="threads", num_workers=self.n_jobs):
             with ProgressBar():
-                delayed_images = compute(*delayed_images)
+                delayed_images = dask.compute(*delayed_images)
         return [da.from_array(img) for img in delayed_images]
 
 
@@ -165,13 +169,13 @@ class Paidiverpy:
     def _initialise_config(
         self,
         config_file_path: str,
-        config_params: ConfigParams,
+        config_params: Union[ConfigParams, dict],
     ) -> Configuration:
         """Initialize the configuration object.
 
         Args:
             config_file_path (str): Configuration file path.
-            config_params (ConfigParams): Configuration parameters.
+            config_params (Union[ConfigParams, dict]): Configuration parameters.
 
         Returns:
             Configuration: The configuration object.
@@ -179,6 +183,10 @@ class Paidiverpy:
         if config_file_path:
             return Configuration(config_file_path)
         general_config = {}
+        if isinstance(config_params, dict):
+            config_params = ConfigParams(config_params)
+        else:
+            config_params = config_params
         if config_params.input_path:
             general_config["input_path"] = config_params.input_path
         if config_params.output_path:

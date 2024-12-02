@@ -3,6 +3,7 @@
 import copy
 import gc
 import logging
+from typing import Dict, Union
 import uuid
 import cv2
 import dask
@@ -17,6 +18,7 @@ from PIL.ExifTags import TAGS
 from tqdm import tqdm
 from paidiverpy import Paidiverpy
 from paidiverpy.config.config import Configuration
+from paidiverpy.config.config_params import ConfigParams
 from paidiverpy.convert_layer import ConvertLayer
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
@@ -28,58 +30,50 @@ class OpenLayer(Paidiverpy):
     """Open raw image file.
 
     Args:
+        config_params (Union[Dict, ConfigParams], optional): The configuration parameters.
+            It can contain the following keys / attributes:
+            - input_path (str): The path to the input files.
+            - output_path (str): The path to the output files.
+            - metadata_path (str): The path to the metadata file.
+            - metadata_type (str): The type of the metadata file.
+            - track_changes (bool): Whether to track changes.
+            - n_jobs (int): The number of n_jobs.
         config_file_path (str): The path to the configuration file.
-        input_path (str): The path to the input files.
-        output_path (str): The path to the output files.
-        metadata_path (str): The path to the metadata file.
-        metadata_type (str): The type of the metadata file.
-        metadata (MetadataParser): The metadata object.
         config (Configuration): The configuration object.
-        logger (logging.Logger): The logger object.
+        metadata (MetadataParser): The metadata object.
         images (ImagesLayer): The images object.
         paidiverpy (Paidiverpy): The paidiverpy object.
         step_name (str): The name of the step.
         parameters (dict): The parameters for the step.
+        logger (logging.Logger): The logger object.
         raise_error (bool): Whether to raise an error.
         verbose (int): verbose level (0 = none, 1 = errors/warnings, 2 = info).
-        track_changes (bool): Whether to track changes. Defaults to True.
-        n_jobs (int): The number of jobs to run in parallel.
     """
 
     def __init__(
         self,
+        config_params: Union[Dict, ConfigParams] = None,
         config_file_path: str | None=None,
-        input_path: str | None=None,
-        output_path: str | None=None,
-        metadata_path: str | None=None,
-        metadata_type: str | None=None,
-        metadata: MetadataParser = None,
         config: Configuration = None,
-        logger: logging.Logger | None = None,
+        metadata: MetadataParser = None,
         images: ImagesLayer = None,
         paidiverpy: "Paidiverpy" = None,
         step_name: str = "raw",
         parameters: dict | None = None,
+        logger: logging.Logger | None = None,
         raise_error: bool = False,
         verbose: int = 2,
-        track_changes: bool = True,
-        n_jobs: int = 1,
     ):
         super().__init__(
+            config_params=config_params,
             config_file_path=config_file_path,
-            input_path=input_path,
-            output_path=output_path,
-            metadata_path=metadata_path,
-            metadata_type=metadata_type,
             metadata=metadata,
             config=config,
-            logger=logger,
             images=images,
             paidiverpy=paidiverpy,
+            logger=logger,
             raise_error=raise_error,
             verbose=verbose,
-            track_changes=track_changes,
-            n_jobs=n_jobs,
         )
 
         self.step_name = step_name

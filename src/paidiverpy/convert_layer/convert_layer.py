@@ -7,12 +7,8 @@ parameters.
 import logging
 from typing import Dict, Union
 import cv2
-import dask
-import dask.array as da
-import dask.delayed
 import numpy as np
 from dask import compute
-from dask.diagnostics import ProgressBar
 from paidiverpy import Paidiverpy
 from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
@@ -25,12 +21,7 @@ from paidiverpy.config.convert_params import ResizeParams
 from paidiverpy.config.convert_params import ToParams
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
-from paidiverpy.utils import DynamicConfig
-from paidiverpy.utils import raise_value_error
-
-EIGHT_BITS = 8
-SIXTEEN_BITS = 16
-THIRTY_TWO_BITS = 32
+from paidiverpy.utils import EIGHT_BITS, SIXTEEN_BITS, THIRTY_TWO_BITS, raise_value_error
 
 class ConvertLayer(Paidiverpy):
     """Process the images in the convert layer.
