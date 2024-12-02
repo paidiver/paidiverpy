@@ -13,10 +13,6 @@ general:
         output_bits: 8
 
 steps:
-  - colour:
-      name: "grayscale"
-      mode: "grayscale"
-
   - sampling:
       name: "datetime"
       mode: "datetime"

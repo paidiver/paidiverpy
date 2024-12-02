@@ -46,7 +46,8 @@ def initialise_logging(verbose: int = 2) -> logging.Logger:
     """Initialise logging configuration.
 
     Args:
-        verbose (int): Verbose level (0 = none, 1 = errors/warnings, 2 = info).
+        verbose (int): Verbose level (0 = none, 1 = errors/warnings, 2 = info,
+            3 = debug). Defaults to 2.
 
     Returns:
         logging.Logger: The logger object.
@@ -55,8 +56,10 @@ def initialise_logging(verbose: int = 2) -> logging.Logger:
         logging_level = logging.CRITICAL
     elif verbose == 1:
         logging_level = logging.WARNING
-    else:
+    elif verbose == 2:
         logging_level = logging.INFO
+    else:
+        logging_level = logging.DEBUG
 
 
     # Prepare the logging configuration arguments
