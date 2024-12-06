@@ -15,6 +15,8 @@ from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.utils import DynamicConfig
 from paidiverpy.utils import get_n_jobs
+from paidiverpy.utils.parallellisation import get_client
+
 from paidiverpy.utils import initialise_logging
 
 
@@ -70,8 +72,8 @@ class Paidiverpy:
             self.images = images or ImagesLayer(
                 output_path=self.config.general.output_path,
             )
-            self.n_jobs = get_n_jobs(self.config.general.n_jobs)
             self.client = get_client(self.config.general.client)
+            self.n_jobs = get_n_jobs(self.config.general.n_jobs)
             self.track_changes = self.config.general.track_changes
         if track_changes is not None:
             self.track_changes = track_changes
@@ -152,11 +154,11 @@ class Paidiverpy:
                     delayed_images = dask.compute(*delayed_images)
                 return [da.from_array(img) for img in delayed_images]
         else:
-            dask.config.set(scheduler="threads", num_workers=self.n_jobs)
             delayed_images = [dask.delayed(method)(img, params) for img in images]
-            with ProgressBar():
-                delayed_images = dask.compute(*delayed_images)
-        return [da.from_array(img) for img in delayed_images]
+            with dask.config.set(scheduler="threads", num_workers=self.n_jobs):
+                with ProgressBar():
+                    delayed_images = dask.compute(*delayed_images)
+            return [da.from_array(img) for img in delayed_images]
 
 
     def _set_variables_from_paidiverpy(self, paidiverpy: "Paidiverpy") -> None:
