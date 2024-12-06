@@ -56,21 +56,6 @@ def parse_dask_job(job: dict) -> Client:
         )
     return client
 
-def parse_threaded_job(job: dict) -> ThreadPoolExecutor:
-    """Parse the threaded job configuration.
-
-    Args:
-        job (dict): Job configuration.
-
-    Returns:
-        concurrent.futures.ThreadPoolExecutor: Thread pool executor.
-    """
-    client = ThreadPoolExecutor(job.get("job_cluster_kwargs"))
-    logging.info(
-        "Created ThreadPoolExecutor with max_workers: %s", client._max_workers
-        )
-    return client
-
 def get_client(config_client: dict) -> Client:
     """Parse the client configuration.
 
@@ -87,8 +72,6 @@ def get_client(config_client: dict) -> Client:
         client = parse_dask_job(config_client)
     if cluster_type == "dask":
         client = parse_dask_job(config_client)
-    if cluster_type == "threaded":
-        client = parse_threaded_job(config_client)
     else:
         raise ValueError(f"Job type {cluster_type} not supported.")
     return client

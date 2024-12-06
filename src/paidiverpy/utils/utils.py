@@ -1,7 +1,6 @@
 """Module for utility functions."""
 
 import logging
-import multiprocessing
 import os
 import sys
 from pathlib import Path
@@ -77,21 +76,6 @@ def initialise_logging(verbose: int = 2) -> logging.Logger:
 
     return logging.getLogger(__name__)
 
-def get_n_jobs(n_jobs: int) -> int:
-    """Determine the number of jobs based on n_jobs parameter.
-
-    Args:
-        n_jobs (int): The number of n_jobs.
-
-    Returns:
-        int: The number of jobs to use.
-    """
-    if n_jobs == -1:
-        return multiprocessing.cpu_count()
-    if n_jobs > 1:
-        return min(n_jobs, multiprocessing.cpu_count())
-    return 1
-
 
 def raise_value_error(message: str) -> None:
     """Raise a ValueError with the given message.
@@ -145,7 +129,6 @@ class DynamicConfig:
             else:
                 result[key] = value
         return result
-
 
 def check_and_install_dependencies(dependencies: Union[List[str], None],
                                    dependencies_path: Union[str, None]) -> None:
