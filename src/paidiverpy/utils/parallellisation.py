@@ -65,9 +65,9 @@ def get_client(config_client: dict) -> Client:
     Returns:
         dask.distributed.Client: Dask client.
     """
-    cluster_type = config_client.get("cluster_type", None)
-    if client is None:
+    if config_client is None:
         return None
+    cluster_type = config_client.get("cluster_type", None)
     if cluster_type == "slurm":
         client = parse_dask_job(config_client)
     if cluster_type == "dask":

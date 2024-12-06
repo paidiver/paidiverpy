@@ -52,7 +52,7 @@
               ]
             },
             "params": {
-              "type": "object"
+              "type": ["object", "null"]
             }
           },
           "required": [
@@ -214,17 +214,17 @@
       "dask_params": {
         "type": "object",
         "properties": {
-          "scheduler_address": {
-            "type": "string"
-          },
           "n_workers": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 1
           },
           "threads_per_worker": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 1
           },
           "memory_limit": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^[0-9]+(KB|MB|GB|TB)$"
           }
         }
       },
