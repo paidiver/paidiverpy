@@ -14,7 +14,7 @@ from paidiverpy.config.config_params import ConfigParams
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.utils import DynamicConfig
-from paidiverpy.utils import get_n_jobs
+from paidiverpy.utils.parallellisation import get_n_jobs
 from paidiverpy.utils.parallellisation import get_client
 
 from paidiverpy.utils import initialise_logging
