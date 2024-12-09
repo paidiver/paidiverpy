@@ -4,14 +4,6 @@
 from pathlib import Path
 import unittest
 
-from unittest.mock import patch
-from datetime import datetime
-import os
-import glob
-from paidiverpy.colour_layer.colour_layer import ColourLayer
-from paidiverpy.convert_layer.convert_layer import ConvertLayer
-from paidiverpy.custom_layer.custom_layer import CustomLayer
-from paidiverpy.position_layer.position_layer import PositionLayer
 import pandas as pd
 from tests.base_test_class import BaseTestClass
 from paidiverpy import Paidiverpy
@@ -29,7 +21,7 @@ class TestConfigMetadataClass(BaseTestClass):
     def test_config_class(self):
         """Test the Config class."""
 
-        config = Configuration(config_file_path="tests/config_files/config_simple.yaml")
+        config = Configuration(config_file_path="examples/config_files/config_simple.yaml")
         config_dict = config.to_dict()
         self.assertTrue(isinstance(config_dict, dict))
 
@@ -38,17 +30,22 @@ class TestConfigMetadataClass(BaseTestClass):
 
         classes = [Paidiverpy, OpenLayer]
         for class_name in classes:
-            paidiver = class_name(config_file_path="tests/config_files/config_simple.yaml")
+            paidiver = class_name(config_file_path="examples/config_files/config_simple.yaml")
             self.check_config(paidiver)
 
     def test_parsing_metadata(self):
         """Test the parsing of the configuration file."""
 
-        config = Configuration(config_file_path="tests/config_files/config_simple.yaml")
+        config = Configuration(config_file_path="examples/config_files/config_simple.yaml")
         metadata = MetadataParser(config=config)
         self.assertTrue(isinstance(metadata, MetadataParser))
 
-    def check_config(self, paidiver):
+    def check_config(self, paidiver: Paidiverpy):
+        """Check the configuration file.
+
+        Args:
+            paidiver (Paidiverpy): The paidiver object.
+        """
         self.assertTrue(isinstance(paidiver.config, Configuration))
         general = paidiver.config.general
         self.assertEqual(general.input_path, (Path.home() / ".paidiverpy_cache/benthic_csv/images").absolute())

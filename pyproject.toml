@@ -99,7 +99,7 @@ namespaces = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--cov=src/paidiverpy --cov-report=term --cov-report=html"
+addopts = "--cov=src/paidiverpy --cov-report=term --cov-report=html -vv"
 
 [tool.coverage.run]
 branch = true

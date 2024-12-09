@@ -429,7 +429,7 @@ class ResampleLayer(Paidiverpy):
             plt.xlabel("Mean RGB Brightness")
             plt.ylabel("Frequency")
             plt.title("Distribution of Image Brightness")
-            plt.show()
+            plt.show(block=False)
             return None
         return metadata
 
@@ -610,7 +610,7 @@ class ResampleLayer(Paidiverpy):
 
         gdf[gdf.overlap == 0].plot(ax=ax, facecolor="none", edgecolor="black", label="No Overlap")
         gdf[gdf.overlap == 1].plot(ax=ax, facecolor="none", edgecolor="red", label="Overlap")
-        plt.show()
+        plt.show(block=False)
 
     @staticmethod
     def calculate_corner(
