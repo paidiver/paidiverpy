@@ -9,7 +9,7 @@ import logging
 from typing import Dict, List, Union
 import cv2
 import numpy as np
-from dask import compute
+import dask.array as da
 from scipy import ndimage
 from skimage import color
 from skimage import measure
@@ -538,16 +538,16 @@ class ColourLayer(Paidiverpy):
         Returns:
             np.ndarray: The image with colour alteration applied.
         """
-        try:
-            method = params.method
+        # try:
+        method = params.method
 
-            if method == "white_balance":
-                image_data = ColourLayer.white_balance(image_data)
+        if method == "white_balance":
+            image_data = ColourLayer.white_balance(image_data)
 
-        except Exception as e:
-            self.logger.error(f"Error applying colour alteration: {e}")
-            if self.raise_error:
-                raise e
+        # except Exception as e:
+        #     self.logger.error(f"Error applying colour alteration: {e}")
+        #     if self.raise_error:
+        #         raise e
         return image_data
 
     @staticmethod
@@ -631,7 +631,7 @@ class ColourLayer(Paidiverpy):
         Returns:
             np.ndarray: The white balanced image.
         """
-        r, g, b = cv2.split(img)
+        r, g, b = cv2.split(img[:,:,:3])
         avg_r = np.mean(r)
         avg_g = np.mean(g)
         avg_b = np.mean(b)
@@ -645,7 +645,10 @@ class ColourLayer(Paidiverpy):
         g = cv2.convertScaleAbs(g * g_scale)
         b = cv2.convertScaleAbs(b * b_scale)
 
-        balanced_img = cv2.merge([r, g, b])
+        if img.shape[-1] == 4:
+            balanced_img = cv2.merge([r, g, b, img[..., 3]])
+        else:
+            balanced_img = cv2.merge([r, g, b])
 
         return balanced_img
 

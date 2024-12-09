@@ -45,6 +45,7 @@ class GeneralConfig(DynamicConfig):
             self.output_path = output_path
 
         self.n_jobs = kwargs.get("n_jobs", 1)
+        self.client = kwargs.get("client", None)
         self.track_changes = kwargs.get("track_changes", True)
         self.rename = kwargs.get("rename", None)
         samplings = kwargs.get("sampling", None)

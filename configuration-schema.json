@@ -24,28 +24,97 @@
           "type": "string"
         },
         "append_data_to_metadata": {
-          "type": ["string", "boolean"]
+          "type": [
+            "string",
+            "boolean"
+          ]
         },
         "output_path": {
           "type": "string"
         },
         "n_jobs": {
-          "type": ["number", "null"]
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "client": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "cluster_type": {
+              "type": "string",
+              "enum": [
+                "dask",
+                "slurm"
+              ]
+            },
+            "params": {
+              "type": ["object", "null"]
+            }
+          },
+          "required": [
+            "cluster_type"
+          ],
+          "if": {
+            "properties": {
+              "cluster_type": {
+                "const": "dask"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "$ref": "#/definitions/client_params/dask_params"
+              }
+            }
+          },
+          "else": {
+            "if": {
+              "properties": {
+                "cluster_type": {
+                  "const": "slurm"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "params": {
+                  "$ref": "#/definitions/client_params/slurm_params"
+                }
+              }
+            }
+          }
         },
         "track_changes": {
-          "type": ["boolean", "null"]
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "rename": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "sampling": {
-          "type": ["array", "null"],
+          "type": [
+            "array",
+            "null"
+          ],
           "items": {
             "$ref": "#/definitions/sampling"
           }
         },
         "convert": {
-          "type": ["array", "null"],
+          "type": [
+            "array",
+            "null"
+          ],
           "items": {
             "$ref": "#/definitions/convert"
           }
@@ -53,18 +122,28 @@
       },
       "anyOf": [
         {
-          "required": ["input_path", "output_path"],
+          "required": [
+            "input_path",
+            "output_path"
+          ],
           "not": {
-            "required": ["sample_data"]
+            "required": [
+              "sample_data"
+            ]
           }
         },
         {
-          "required": ["sample_data"]
+          "required": [
+            "sample_data"
+          ]
         }
       ]
     },
     "steps": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "items": {
         "type": "object",
         "oneOf": [
@@ -75,7 +154,9 @@
                 "$ref": "#/definitions/colour"
               }
             },
-            "required": ["colour"]
+            "required": [
+              "colour"
+            ]
           },
           {
             "type": "object",
@@ -84,7 +165,9 @@
                 "$ref": "#/definitions/sampling"
               }
             },
-            "required": ["sampling"]
+            "required": [
+              "sampling"
+            ]
           },
           {
             "type": "object",
@@ -93,7 +176,9 @@
                 "$ref": "#/definitions/convert"
               }
             },
-            "required": ["convert"]
+            "required": [
+              "convert"
+            ]
           },
           {
             "type": "object",
@@ -102,7 +187,9 @@
                 "$ref": "#/definitions/position"
               }
             },
-            "required": ["position"]
+            "required": [
+              "position"
+            ]
           },
           {
             "type": "object",
@@ -111,14 +198,71 @@
                 "$ref": "#/definitions/custom"
               }
             },
-            "required": ["custom"]
+            "required": [
+              "custom"
+            ]
           }
         ]
       }
     }
   },
-  "required": ["general"],
+  "required": [
+    "general"
+  ],
   "definitions": {
+    "client_params": {
+      "dask_params": {
+        "type": "object",
+        "properties": {
+          "n_workers": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "threads_per_worker": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "memory_limit": {
+            "type": "string",
+            "pattern": "^[0-9]+(KB|MB|GB|TB)$"
+          }
+        }
+      },
+      "slurm_params": {
+        "type": "object",
+        "properties": {
+          "queue": {
+            "type": "string"
+          },
+          "cores": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "processes": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "memory": {
+            "type": "string",
+            "pattern": "^[0-9]+(KB|MB|GB|TB)$"
+          },
+          "scale": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "walltime": {
+            "type": "string",
+            "pattern": "^([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$"
+          },
+          "job_extra_directives": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
     "position": {
       "type": "object",
       "properties": {
@@ -138,7 +282,9 @@
           "type": "object"
         }
       },
-      "required": ["mode"],
+      "required": [
+        "mode"
+      ],
       "if": {
         "properties": {
           "mode": {
@@ -165,7 +311,14 @@
         },
         "mode": {
           "type": "string",
-          "enum": ["bits", "to", "bayer_pattern", "normalize", "resize", "crop"]
+          "enum": [
+            "bits",
+            "to",
+            "bayer_pattern",
+            "normalize",
+            "resize",
+            "crop"
+          ]
         },
         "test": {
           "type": "boolean"
@@ -174,7 +327,9 @@
           "type": "object"
         }
       },
-      "required": ["mode"],
+      "required": [
+        "mode"
+      ],
       "if": {
         "properties": {
           "mode": {
@@ -301,7 +456,10 @@
           "type": "object"
         }
       },
-      "required": ["file_path", "class_name"]
+      "required": [
+        "file_path",
+        "class_name"
+      ]
     },
     "colour": {
       "type": "object",
@@ -332,7 +490,9 @@
           "type": "object"
         }
       },
-      "required": ["mode"],
+      "required": [
+        "mode"
+      ],
       "if": {
         "properties": {
           "mode": {
@@ -490,7 +650,9 @@
           "type": "object"
         }
       },
-      "required": ["mode"],
+      "required": [
+        "mode"
+      ],
       "if": {
         "properties": {
           "mode": {
@@ -642,7 +804,9 @@
             "type": "string"
           }
         },
-        "required": ["placeholder"]
+        "required": [
+          "placeholder"
+        ]
       }
     },
     "colour_params": {
@@ -654,7 +818,12 @@
           },
           "method": {
             "type": "string",
-            "enum": ["opencv", "average", "luminosity", "desaturation"]
+            "enum": [
+              "opencv",
+              "average",
+              "luminosity",
+              "desaturation"
+            ]
           },
           "invert_colours": {
             "type": "boolean"
@@ -666,11 +835,16 @@
         "properties": {
           "method": {
             "type": "string",
-            "enum": ["wiener"]
+            "enum": [
+              "wiener"
+            ]
           },
           "psf_type": {
             "type": "string",
-            "enum": ["gaussian", "motion"]
+            "enum": [
+              "gaussian",
+              "motion"
+            ]
           },
           "sigma": {
             "type": "number"
@@ -679,17 +853,23 @@
             "type": "integer"
           }
         },
-        "required": ["method"]
+        "required": [
+          "method"
+        ]
       },
       "colour_alteration": {
         "type": "object",
         "properties": {
           "method": {
             "type": "string",
-            "enum": ["white_balance"]
+            "enum": [
+              "white_balance"
+            ]
           }
         },
-        "required": ["method"]
+        "required": [
+          "method"
+        ]
       },
       "gaussian_blur": {
         "type": "object",
@@ -698,14 +878,21 @@
             "type": "number"
           }
         },
-        "required": ["sigma"]
+        "required": [
+          "sigma"
+        ]
       },
       "edge_detection": {
         "type": "object",
         "properties": {
           "method": {
             "type": "string",
-            "enum": ["sobel", "scharr", "scharr_with_mean", "canny"]
+            "enum": [
+              "sobel",
+              "scharr",
+              "scharr_with_mean",
+              "canny"
+            ]
           },
           "blur_radius": {
             "type": "number"
@@ -718,11 +905,17 @@
           },
           "object_type": {
             "type": "string",
-            "enum": ["aggregate", "isolated"]
+            "enum": [
+              "aggregate",
+              "isolated"
+            ]
           },
           "object_selection": {
             "type": "string",
-            "enum": ["full_ROI", "largest_area"]
+            "enum": [
+              "full_ROI",
+              "largest_area"
+            ]
           },
           "estimate_sharpness": {
             "type": "boolean"
@@ -732,7 +925,10 @@
           },
           "deconv_method": {
             "type": "string",
-            "enum": ["UM", "LR"]
+            "enum": [
+              "UM",
+              "LR"
+            ]
           },
           "deconv_iter": {
             "type": "integer"
@@ -744,7 +940,11 @@
             "type": "number"
           }
         },
-        "required": ["method", "blur_radius", "threshold"]
+        "required": [
+          "method",
+          "blur_radius",
+          "threshold"
+        ]
       },
       "sharpen": {
         "type": "object",
@@ -756,17 +956,26 @@
             "type": "number"
           }
         },
-        "required": ["alpha", "beta"]
+        "required": [
+          "alpha",
+          "beta"
+        ]
       },
       "contrast": {
         "type": "object",
         "properties": {
           "method": {
             "type": "string",
-            "enum": ["clahe", "gamma"]
+            "enum": [
+              "clahe",
+              "gamma"
+            ]
           },
           "kernel_size": {
-            "type": ["integer", "null"]
+            "type": [
+              "integer",
+              "null"
+            ]
           },
           "clip_limit": {
             "type": "number"
@@ -775,20 +984,30 @@
             "type": "number"
           }
         },
-        "required": ["method", "clip_limit", "gamma_value"]
+        "required": [
+          "method",
+          "clip_limit",
+          "gamma_value"
+        ]
       },
       "illumination_correction": {
         "type": "object",
         "properties": {
           "method": {
             "type": "string",
-            "enum": ["rolling", "other_method"]
+            "enum": [
+              "rolling",
+              "other_method"
+            ]
           },
           "radius": {
             "type": "integer"
           }
         },
-        "required": ["method", "radius"]
+        "required": [
+          "method",
+          "radius"
+        ]
       }
     },
     "convert_params": {
@@ -797,34 +1016,52 @@
         "properties": {
           "output_bits": {
             "type": "integer",
-            "enum": [8, 16, 32]
+            "enum": [
+              8,
+              16,
+              32
+            ]
           }
         },
-        "required": ["output_bits"]
+        "required": [
+          "output_bits"
+        ]
       },
       "to_params": {
         "type": "object",
         "properties": {
           "to": {
             "type": "string",
-            "enum": ["RGB", "gray"]
+            "enum": [
+              "RGB",
+              "gray"
+            ]
           },
           "channel_selector": {
             "type": "integer",
             "minimum": 0
           }
         },
-        "required": ["to"]
+        "required": [
+          "to"
+        ]
       },
       "bayer_pattern_params": {
         "type": "object",
         "properties": {
           "bayer_pattern": {
             "type": "string",
-            "enum": ["RG", "BG", "GR", "GB"]
+            "enum": [
+              "RG",
+              "BG",
+              "GR",
+              "GB"
+            ]
           }
         },
-        "required": ["bayer_pattern"]
+        "required": [
+          "bayer_pattern"
+        ]
       },
       "normalize_params": {
         "type": "object",
@@ -836,7 +1073,10 @@
             "type": "number"
           }
         },
-        "required": ["min", "max"]
+        "required": [
+          "min",
+          "max"
+        ]
       },
       "resize_params": {
         "type": "object",
@@ -850,7 +1090,10 @@
             "minimum": 1
           }
         },
-        "required": ["min", "max"]
+        "required": [
+          "min",
+          "max"
+        ]
       },
       "crop_params": {
         "type": "object",
@@ -872,7 +1115,10 @@
             "maxItems": 2
           }
         },
-        "required": ["x", "y"]
+        "required": [
+          "x",
+          "y"
+        ]
       }
     },
     "sampling_params": {
@@ -892,14 +1138,19 @@
         "properties": {
           "by": {
             "type": "string",
-            "enum": ["lower", "upper"],
+            "enum": [
+              "lower",
+              "upper"
+            ],
             "default": "lower"
           },
           "value": {
             "type": "number"
           }
         },
-        "required": ["value"]
+        "required": [
+          "value"
+        ]
       },
       "altitude_params": {
         "type": "object",
@@ -908,7 +1159,9 @@
             "type": "number"
           }
         },
-        "required": ["value"]
+        "required": [
+          "value"
+        ]
       },
       "pitch_roll_params": {
         "type": "object",
@@ -920,7 +1173,10 @@
             "type": "number"
           }
         },
-        "required": ["pitch", "roll"]
+        "required": [
+          "pitch",
+          "roll"
+        ]
       },
       "overlapping_params": {
         "type": "object",
@@ -941,7 +1197,10 @@
             "default": 1.12
           }
         },
-        "required": ["omega", "theta"]
+        "required": [
+          "omega",
+          "theta"
+        ]
       },
       "fixed_params": {
         "type": "object",
@@ -951,7 +1210,9 @@
             "default": 10
           }
         },
-        "required": ["value"]
+        "required": [
+          "value"
+        ]
       },
       "percent_params": {
         "type": "object",
@@ -962,7 +1223,9 @@
             "maximum": 1
           }
         },
-        "required": ["value"]
+        "required": [
+          "value"
+        ]
       },
       "region_params": {
         "type": "object",
@@ -981,13 +1244,19 @@
         },
         "anyOf": [
           {
-            "required": ["file"],
+            "required": [
+              "file"
+            ],
             "not": {
-              "required": ["limits"]
+              "required": [
+                "limits"
+              ]
             }
           },
           {
-            "required": ["limits"]
+            "required": [
+              "limits"
+            ]
           }
         ]
       },
@@ -1005,7 +1274,10 @@
             "maximum": 1
           }
         },
-        "required": ["min", "max"]
+        "required": [
+          "min",
+          "max"
+        ]
       }
     }
   }
