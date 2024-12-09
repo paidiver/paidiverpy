@@ -188,6 +188,23 @@ class ImagesLayer:
                 cmap = None
             plt.imsave(str(img_path), saved_image, cmap=cmap)
 
+
+    def remove(self, output_path: str | None = None) -> None:
+        """Remove the images from the output path.
+
+        Args:
+            output_path (str, optional): The output path to save the images. Defaults to None.
+        """
+        is_docker = is_running_in_docker()
+        if is_docker:
+            output_path = Path("/app/output/")
+        if not output_path:
+            output_path = self.output_path
+        if output_path.exists():
+            for file in output_path.iterdir():
+                file.unlink()
+
+
     def __repr__(self) -> str:
         """Return the string representation of the object.
 

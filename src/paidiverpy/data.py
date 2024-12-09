@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import os
 import zipfile
 from pathlib import Path
 import requests
@@ -75,6 +76,7 @@ def download_file(url: str, dataset_name: str, cache_dir: Path = CACHE_DIR) -> P
     zip_path = cache_dir / f"{file_hash}.zip"
 
     if not zip_path.exists():
+        cache_dir.mkdir(parents=True, exist_ok=True)
         logger.info("Downloading %s files...", dataset_name)
         response = requests.get(url, stream=True, timeout=30)
         response.raise_for_status()
