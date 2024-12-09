@@ -1,22 +1,22 @@
 general:
   sample_data: "benthic_csv"
   output_path: "./output"
-  # client:
-  #   cluster_type: "dask"
-  #   params:
-  #     n_workers: 1
-  #     threads_per_worker: 4
-  #     memory_limit: "4GB"
   client:
-    cluster_type: "slurm"
+    cluster_type: "dask"
     params:
-      queue: "par-single"
-      cores: 16
-      processes: 1
-      memory: "64GB"
-      scale: 2
-      walltime: "12:00:00"
-      job_extra_directives: ["--output=slurm-%j.out","--error=slurm-%j.err"],
+      n_workers: 1
+      threads_per_worker: 4
+      memory_limit: "4GB"
+  # client:
+  #   cluster_type: "slurm"
+  #   params:
+  #     queue: "par-single"
+  #     cores: 16
+  #     processes: 1
+  #     memory: "64GB"
+  #     scale: 2
+  #     walltime: "12:00:00"
+  #     job_extra_directives: ["--output=slurm-%j.out","--error=slurm-%j.err"],
   image_type: "JPG"
   track_changes: False
   sampling:
