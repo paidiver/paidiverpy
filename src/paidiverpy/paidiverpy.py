@@ -175,6 +175,7 @@ class Paidiverpy:
         self.raise_error = paidiverpy.raise_error
         self.n_jobs = paidiverpy.n_jobs
         self.track_changes = paidiverpy.track_changes
+        self.client = paidiverpy.client
 
     def _initialise_config(
         self,
