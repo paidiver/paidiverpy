@@ -6,13 +6,6 @@ import shutil
 import unittest
 
 import logging
-import os
-import subprocess
-import zipfile
-from dotenv import load_dotenv
-
-load_dotenv(override=True)
-
 
 class BaseTestClass(unittest.TestCase):
     """Base test class for the paidiverpy package"""
