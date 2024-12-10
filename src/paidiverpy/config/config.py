@@ -2,7 +2,8 @@
 
 import json
 from pathlib import Path
-from typing import Dict, Optional
+from importlib.resources import files
+
 import jsonschema
 import yaml
 from jsonschema import validate
@@ -218,14 +219,14 @@ class Configuration:
         self._load_steps(config_data)
 
     def _validate_config(self, config: dict) -> None:
-        try:
-            schema_file_path = Path(__file__).resolve().parent.parent.parent.parent / "configuration-schema.json"
-            with schema_file_path.open("r", encoding="utf-8") as schema_file:
-                schema = json.load(schema_file)
-        except FileNotFoundError:
-            schema_file_path = Path("/app/configuration-schema.json")
-            with schema_file_path.open("r", encoding="utf-8") as schema_file:
-                schema = json.load(schema_file)
+        # try:
+        schema_file_path = files("paidiverpy").joinpath("configuration-schema.json")
+        with schema_file_path.open("r", encoding="utf-8") as schema_file:
+            schema = json.load(schema_file)
+        # except FileNotFoundError:
+        #     schema_file_path = Path("/app/configuration-schema.json")
+        #     with schema_file_path.open("r", encoding="utf-8") as schema_file:
+        #         schema = json.load(schema_file)
         validate(instance=config, schema=schema)
 
     def _validate_general_config(self, config_data: dict) -> GeneralConfig:
