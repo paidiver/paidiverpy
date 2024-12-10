@@ -17,11 +17,15 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Initialize Conda
+        run: |
+          conda init bash  # Initialize Conda for bash shell
+
       - name: Create conda environment
         run: |
           conda env create -f environment.yml
-          conda init
-          conda activate Paidiverpy
+          source ~/.bashrc  # Source the bashrc file to apply conda init changes
+          conda activate Paidiverpy  # Activate the environment
 
       - name: Test with pytest
         run: |
