@@ -24,10 +24,11 @@ jobs:
       - name: Create conda environment
         run: |
           conda env create -f environment.yml
-          source ~/.bashrc  # Source the bashrc file to apply conda init changes
-          conda activate Paidiverpy  # Activate the environment
-          conda install -c conda-forge pytest pytest-cov
+          source ~/.bashrc
+          conda activate Paidiverpy
+          pip install .
+          pip install ".[test]"
 
       - name: Test with pytest
         run: |
-          conda run -n Paidiverpy pytest tests/  # Run pytest in the Paidiverpy environment
+          conda run -n Paidiverpy pytest tests/
