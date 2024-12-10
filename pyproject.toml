@@ -97,6 +97,9 @@ include = ["*"]
 exclude = ["*__pycache__*"]
 namespaces = true
 
+[tool.setuptools.package-data]
+paidiverpy = ["configuration-schema.json"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "--cov=src/paidiverpy  --cov-report xml:coverage.xml -vv"
