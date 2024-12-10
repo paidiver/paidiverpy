@@ -32,3 +32,8 @@ jobs:
       - name: Test with pytest
         run: |
           conda run -n Paidiverpy pytest tests/
+
+      - name: Set environment variable to None and run tests
+        run: |
+          export IS_DOCKER=
+          conda run -n Paidiverpy pytest tests/  # Run pytest in the Paidiverpy environment
