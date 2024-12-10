@@ -70,7 +70,6 @@ class TestPipelineInteraction(BaseTestClass):
         images = pipeline.images.images
         self.assertTrue(isinstance(images[0][0], np.ndarray))
         self.assertEqual(len(images), 4)
-        # remove exported file
         config_output_path = Path("./new_config_pelagic.yaml")
         output_files = glob.glob(str(config_output_path.absolute()))
         self.assertTrue(len(output_files) == 1)

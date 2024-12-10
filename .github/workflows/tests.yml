@@ -3,7 +3,7 @@ name: Run tests
 on: pull_request
 
 jobs:
-  generate-test-contents:
+  run-tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -11,13 +11,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }} for running python script.
-        uses: actions/setup-python@v4
+
+      - name: Set up Miniconda
+        uses: conda-inc/github-action@v2
         with:
           python-version: ${{ matrix.python-version }}
+
+      - name: Create conda environment
+        run: |
+          conda env create -f environment.yml
+          conda activate Paidiverpy
+
       - name: Test with pytest
         run: |
-          python -m pip install --upgrade pip
-          pip install .
-          pip install ".[test]"
           pytest tests/
