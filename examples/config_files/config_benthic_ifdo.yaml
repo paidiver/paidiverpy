@@ -3,9 +3,9 @@ general:
   output_path: "./output"
   n_jobs: 8
   sampling:
-    - mode: "percent"
+    - mode: "fixed"
       params:
-        value: 0.2
+        value: 5
   convert:
     - mode: "bits"
       params:

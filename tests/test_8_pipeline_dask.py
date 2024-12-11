@@ -9,6 +9,7 @@ from paidiverpy.config.config import Configuration, GeneralConfig
 from paidiverpy.pipeline import Pipeline
 from tests.base_test_class import BaseTestClass
 
+import warnings
 
 class TestPipelineDask(BaseTestClass):
     """Tests for Pipeline with Parallel Processing using dask.

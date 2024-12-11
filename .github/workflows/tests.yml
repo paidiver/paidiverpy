@@ -19,7 +19,7 @@ jobs:
 
       - name: Initialize Conda
         run: |
-          conda init bash  # Initialize Conda for bash shell
+          conda init bash
 
       - name: Create conda environment
         run: |
@@ -33,7 +33,6 @@ jobs:
         run: |
           conda run -n Paidiverpy pytest tests/
 
-      - name: Set environment variable to None and run tests
+      - name: Run tests
         run: |
-          export IS_DOCKER=
-          conda run -n Paidiverpy pytest tests/  # Run pytest in the Paidiverpy environment
+          conda run -n Paidiverpy pytest tests/
