@@ -32,7 +32,3 @@ jobs:
       - name: Test with pytest
         run: |
           conda run -n Paidiverpy pytest tests/
-
-      - name: Run tests
-        run: |
-          conda run -n Paidiverpy pytest tests/
