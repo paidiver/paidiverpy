@@ -147,6 +147,7 @@ class Paidiverpy:
         Returns:
             List[da.core.Array]: The list of processed images.
         """
+        self.logger.info("Processing in parallel", self.client)
         if self.client:
             with self.client:
                 delayed_images = [dask.delayed(method)(img, params) for img in images]
@@ -322,6 +323,16 @@ class Paidiverpy:
         )
         self.logger.info("Images are saved to: %s", output_path)
 
+
+    def remove_images(self) -> None:
+        """Remove output images from the output path."""
+
+        output_path = self.config.general.output_path
+        self.logger.info("Removing images from the output path: %s", output_path)
+        self.images.remove(output_path)
+
+
+
     def plot_trimmed_photos(self, new_metadata: pd.DataFrame) -> None:
         """Plot the trimmed photos.
 
@@ -342,7 +353,7 @@ class Paidiverpy:
         plt.plot(metadata["image-longitude"], metadata["image-latitude"], ".k")
         plt.plot(new_metadata["image-longitude"], new_metadata["image-latitude"], "or")
         plt.legend(["Original", "After Trim"])
-        plt.show()
+        plt.show(block=False)
 
     def clear_steps(self, value: int | str, by_order: bool = True) -> None:
         """Clear steps from the images and metadata.

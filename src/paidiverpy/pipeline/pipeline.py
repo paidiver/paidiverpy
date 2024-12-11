@@ -100,7 +100,10 @@ class Pipeline(Paidiverpy):
                     "Step %s does not exist. Run the pipeline from the beginning",
                     from_step,
                 )
-        self.logger.info("Processing images using %s cores", self.n_jobs)
+        if not self.client:
+            self.logger.info("Processing images using %s cores", self.n_jobs)
+        else:
+            self.logger.info("Processing images using Dask client using the following dashboard link: %s", self.client.dashboard_link)
         for index, step in enumerate(self.steps):
             if index > self.runned_steps:
                 if len(step) == STEP_WITHOUT_PARAMS:
