@@ -5,6 +5,7 @@ This module contains the ColorLayer class for processing the images in the
 color layer.
 """
 
+from importlib.resources import files
 import logging
 import importlib.util
 from typing import Dict, Union
@@ -104,6 +105,8 @@ class CustomLayer(Paidiverpy):
         if is_docker:
             file_name = file_path.split("/")[-1]
             file_path = "/app/custom_algorithms/" + file_name
+        if self.step_metadata.get('file_path') == "example":
+            file_path = files("paidiverpy").joinpath("custom_layer/_custom_algorithm_example.py")
         class_name = self.step_metadata.get('class_name')
         check_and_install_dependencies(self.step_metadata.get('dependencies'), self.step_metadata.get('dependencies_path'))
         test = self.step_metadata.get("test")

@@ -98,7 +98,7 @@ exclude = ["*__pycache__*"]
 namespaces = true
 
 [tool.setuptools.package-data]
-paidiverpy = ["configuration-schema.json"]
+paidiverpy = ["*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
