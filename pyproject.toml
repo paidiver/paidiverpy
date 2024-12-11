@@ -102,7 +102,7 @@ paidiverpy = ["*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--cov=src/paidiverpy  --cov-report xml:coverage.xml -vv"
+addopts = "--cov=src/paidiverpy --cov-report=xml:coverage.xml --cov-report=html:coverage_html --cov-report=term-missing -vv"
 
 [tool.coverage.run]
 branch = true
