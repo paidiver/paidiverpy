@@ -1,8 +1,8 @@
 FROM python:3.10-slim
 
 ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    POETRY_VIRTUALENVS_CREATE=false
+  PYTHONDONTWRITEBYTECODE=1 \
+  POETRY_VIRTUALENVS_CREATE=false
 
 WORKDIR /app
 
@@ -21,7 +21,6 @@ RUN mkdir /app/output
 RUN mkdir /app/input
 RUN mkdir /app/custom_algorithms
 COPY pyproject.toml .
-COPY configuration-schema.json .
 COPY LICENSE README.md ./
 COPY src/ src/
 
