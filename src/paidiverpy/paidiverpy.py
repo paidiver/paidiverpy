@@ -147,7 +147,6 @@ class Paidiverpy:
         Returns:
             List[da.core.Array]: The list of processed images.
         """
-        self.logger.info("Processing in parallel", self.client)
         if self.client:
             with self.client:
                 delayed_images = [dask.delayed(method)(img, params) for img in images]
