@@ -18,7 +18,8 @@ steps:
 
   - custom:
       name: "min_max_data"
-      file_path: "/mnt/noc/code/paidiver/paidiverpy/examples/custom_algorithms/custom_algorithm_example.py"
+      file_path: "example"
+      # file_path: "/mnt/noc/code/paidiver/paidiverpy/examples/custom_algorithms/custom_algorithm_example.py"
       class_name: "MyMethod"
       dependencies:
         - "scikit-learn"

@@ -1,48 +1,60 @@
 """ Tests for the Paidiverpy package class.
 """
 
+from pathlib import Path
+import shutil
 import unittest
 
 import logging
-import os
-import subprocess
-import zipfile
-from dotenv import load_dotenv
 
-load_dotenv(override=True)
+import warnings
 
+warnings.filterwarnings(
+    "ignore",
+    category=DeprecationWarning,
+    message=r".*jsonschema.RefResolver is deprecated.*"
+)
+warnings.filterwarnings(
+    "ignore",
+    category=DeprecationWarning,
+    message=r".*distutils Version classes are deprecated.*"
+)
 
 class BaseTestClass(unittest.TestCase):
     """Base test class for the paidiverpy package"""
 
     @classmethod
     def setUpClass(cls):
-        # if os.environ.get("ROOT_PATH"):
-        #     cls.root_dir = os.path.join(os.environ.get("ROOT_PATH"), "tests")
-        # else:
-        #     cls.root_dir = os.path.dirname(__file__)
-        # cls.test_dir = os.path.join(cls.root_dir, "test_data")
-        # cls.local_path = os.path.join(cls.root_dir, "sample_data")
-        # if not os.path.exists(cls.test_dir):
-        #     os.mkdir(cls.test_dir)
-        # if not os.path.exists(cls.local_path):
-        #     os.mkdir(cls.local_path)
-
         cls.logger = logging.getLogger(cls.__name__)
-        # cls.zip_file_path = os.path.join(cls.root_dir, "sample_data.zip")
-
-        # cls.download_and_extract_files()
+        cls.remove_datasets()
+        cls.remove_custom_packages()
 
     @classmethod
     def tearDownClass(cls):
-        pass
-        # for item in os.listdir(cls.test_dir):
-        #     item_path = os.path.join(cls.test_dir, item)
-        #     if os.path.isfile(item_path):
-        #         os.unlink(item_path)
-        #     elif os.path.isdir(item_path):
-        #         os.rmdir(item_path)
+        cls.remove_datasets()
+        cls.remove_custom_packages()
 
+    @classmethod
+    def remove_datasets(cls):
+        """Remove the datasets."""
+        path_dir = Path.home() / ".paidiverpy_cache"
+        if path_dir.exists():
+            try:
+                shutil.rmtree(path_dir)
+                cls.logger.info(f"Removed cache directory: {path_dir}")
+            except Exception as e:
+                cls.logger.error(f"Error removing cache directory: {e}")
+
+    @classmethod
+    def remove_custom_packages(cls):
+        """Remove the custom packages."""
+        path_dir = Path.cwd() / "custom_packages"
+        if path_dir.exists():
+            try:
+                shutil.rmtree(path_dir)
+                cls.logger.info(f"Removed custom packages directory: {path_dir}")
+            except Exception as e:
+                cls.logger.error(f"Error removing custom packages directory: {e}")
 
 if __name__ == "__main__":
     unittest.main()

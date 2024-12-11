@@ -97,9 +97,12 @@ include = ["*"]
 exclude = ["*__pycache__*"]
 namespaces = true
 
+[tool.setuptools.package-data]
+paidiverpy = ["*"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--cov=src/paidiverpy --cov-report=term --cov-report=html"
+addopts = "--cov=src/paidiverpy --cov-report=xml:coverage.xml --cov-report=html:coverage_html --cov-report=term-missing -vv"
 
 [tool.coverage.run]
 branch = true
