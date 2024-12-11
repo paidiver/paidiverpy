@@ -7,6 +7,19 @@ import unittest
 
 import logging
 
+import warnings
+
+warnings.filterwarnings(
+    "ignore",
+    category=DeprecationWarning,
+    message=r".*jsonschema.RefResolver is deprecated.*"
+)
+warnings.filterwarnings(
+    "ignore",
+    category=DeprecationWarning,
+    message=r".*distutils Version classes are deprecated.*"
+)
+
 class BaseTestClass(unittest.TestCase):
     """Base test class for the paidiverpy package"""
 
