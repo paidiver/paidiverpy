@@ -120,7 +120,7 @@ extras = dev
 """
 
 [tool.ruff]
-line-length = 120
+line-length = 150
 output-format = "concise"
 extend-exclude = ["docs"]
 
@@ -146,7 +146,10 @@ ignore = [
     "D107", # Missing docstring in `__init__`
     "TRY401", # No exception type(s) specified in `except`
     "S324", # Probable use of insecure hash functions in `hashlib`
-    "TRY400"
+    "TRY400",
+    "COM812",
+    "ISC001",
+    "PLR0913"
 ]
 pydocstyle.convention = "google"
 

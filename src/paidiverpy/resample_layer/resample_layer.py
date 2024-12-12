@@ -4,7 +4,6 @@ Resample the images based on the configuration file.
 """
 
 import logging
-from typing import Dict, Union
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -26,7 +25,7 @@ from paidiverpy.config.resample_params import ResamplePitchRollParams
 from paidiverpy.config.resample_params import ResampleRegionParams
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
-from paidiverpy.utils import raise_value_error
+from paidiverpy.utils.exceptions import raise_value_error
 
 
 class ResampleLayer(Paidiverpy):
@@ -56,7 +55,7 @@ class ResampleLayer(Paidiverpy):
 
     def __init__(
         self,
-        config_params: Union[Dict, ConfigParams] = None,
+        config_params: dict | ConfigParams = None,
         config_file_path: str | None = None,
         config: Configuration = None,
         metadata: MetadataParser = None,
@@ -465,10 +464,7 @@ class ResampleLayer(Paidiverpy):
         metadata["approx_vertdim_m"] = 2 * (metadata["altitude_m"] + camera_distance) * np.tan(np.radians(theta / 2))
         metadata["approx_horizdim_m"] = 2 * (metadata["altitude_m"] + camera_distance) * np.tan(np.radians(omega / 2))
         metadata["approx_area_m2"] = (
-            4
-            * ((metadata["altitude_m"] + camera_distance) ** 2)
-            * np.tan(np.radians(theta / 2))
-            * np.tan(np.radians(omega / 2))
+            4 * ((metadata["altitude_m"] + camera_distance) ** 2) * np.tan(np.radians(theta / 2)) * np.tan(np.radians(omega / 2))
         )
         metadata["headingoffset_rad"] = np.arctan(metadata["approx_horizdim_m"] / metadata["approx_vertdim_m"])
         metadata["cornerdist_m"] = 0.5 * metadata["approx_horizdim_m"] / np.sin(metadata["headingoffset_rad"])
@@ -497,7 +493,12 @@ class ResampleLayer(Paidiverpy):
             ]
 
             metadata.loc[i, "TRcornerlong"], metadata.loc[i, "TRcornerlat"] = ResampleLayer.calculate_corner(
-                lat, lon, heading_deg, headingoffset_rad, cornerdist_m, 0,
+                lat,
+                lon,
+                heading_deg,
+                headingoffset_rad,
+                cornerdist_m,
+                0,
             )
             metadata.loc[i, "TLcornerlong"], metadata.loc[i, "TLcornerlat"] = ResampleLayer.calculate_corner(
                 lat,
@@ -508,7 +509,12 @@ class ResampleLayer(Paidiverpy):
                 -2 * headingoffset_rad * 180 / np.pi,
             )
             metadata.loc[i, "BLcornerlong"], metadata.loc[i, "BLcornerlat"] = ResampleLayer.calculate_corner(
-                lat, lon, heading_deg, headingoffset_rad, cornerdist_m, 180,
+                lat,
+                lon,
+                heading_deg,
+                headingoffset_rad,
+                cornerdist_m,
+                180,
             )
             metadata.loc[i, "BRcornerlong"], metadata.loc[i, "BRcornerlat"] = ResampleLayer.calculate_corner(
                 lat,
@@ -545,7 +551,6 @@ class ResampleLayer(Paidiverpy):
 
         metadata["overlap"] = 0
         metadata["polygon_m"] = Polygon(coordsn.values)
-        # for i in range(1, len(metadata)):
         for i in metadata.index[1:]:
             m = pd.DataFrame(
                 {

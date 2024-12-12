@@ -1,19 +1,19 @@
 """Configuration module."""
 
 import json
-from pathlib import Path
 from importlib.resources import files
-
+from pathlib import Path
 import jsonschema
 import yaml
 from jsonschema import validate
-from paidiverpy import data
 from paidiverpy.config.colour_params import COLOUR_LAYER_METHODS
 from paidiverpy.config.convert_params import CONVERT_LAYER_METHODS
 from paidiverpy.config.custom_params import CustomParams
 from paidiverpy.config.position_params import POSITION_LAYER_METHODS
 from paidiverpy.config.resample_params import RESAMPLE_LAYER_METHODS
-from paidiverpy.utils import DynamicConfig, check_and_install_dependencies
+from paidiverpy.utils import data
+from paidiverpy.utils.dynamic_classes import DynamicConfig
+from paidiverpy.utils.install_packages import check_and_install_dependencies
 
 
 class GeneralConfig(DynamicConfig):
@@ -27,34 +27,34 @@ class GeneralConfig(DynamicConfig):
     def __init__(self, **kwargs: dict):
         self.name = kwargs.get("name", "raw")
         self.step_name = kwargs.get("step_name", "open")
-        self.sample_data = kwargs.get("sample_data", None)
+        self.sample_data = kwargs.get("sample_data")
         if self.sample_data:
             self._define_sample_data(self.sample_data)
         else:
-            input_path = kwargs.get("input_path", None)
+            input_path = kwargs.get("input_path")
             if input_path:
                 self.input_path = Path(input_path)
-            self.metadata_path = kwargs.get("metadata_path", None)
+            self.metadata_path = kwargs.get("metadata_path")
             if self.metadata_path == "SAMPLE_DATA_BENTHIC":
                 self.metadata_path = Path(data.load("benthic_metadata"))
-            self.metadata_type = kwargs.get("metadata_type", None)
-            self.image_type = kwargs.get("image_type", None)
+            self.metadata_type = kwargs.get("metadata_type")
+            self.image_type = kwargs.get("image_type")
             self.append_data_to_metadata = kwargs.get("append_data_to_metadata", False)
-        output_path = kwargs.get("output_path", None)
+        output_path = kwargs.get("output_path")
         if output_path:
             output_path = Path(output_path)
             self.output_path = output_path
 
         self.n_jobs = kwargs.get("n_jobs", 1)
-        self.client = kwargs.get("client", None)
+        self.client = kwargs.get("client")
         self.track_changes = kwargs.get("track_changes", True)
-        self.rename = kwargs.get("rename", None)
-        samplings = kwargs.get("sampling", None)
+        self.rename = kwargs.get("rename")
+        samplings = kwargs.get("sampling")
         if samplings:
             self.sampling = [SamplingConfig(**sampling) for sampling in samplings]
         else:
             self.sampling = None
-        converts = kwargs.get("convert", None)
+        converts = kwargs.get("convert")
         if converts:
             self.convert = [ConvertConfig(**convert) for convert in converts]
         else:
@@ -81,12 +81,12 @@ class PositionConfig(DynamicConfig):
     def __init__(self, **kwargs: dict):
         self.name = kwargs.get("name", "position")
         self.step_name = kwargs.get("step_name", "position")
-        self.mode = kwargs.get("mode", None)
+        self.mode = kwargs.get("mode")
         if not self.mode:
             msg = "The mode is not defined in the configuration file."
             raise ValueError(msg)
         self.test = kwargs.get("test", False)
-        params = kwargs.get("params", None)
+        params = kwargs.get("params")
         if params:
             self.params = POSITION_LAYER_METHODS[self.mode]["params"](**params)
 
@@ -97,12 +97,12 @@ class ConvertConfig(DynamicConfig):
     def __init__(self, **kwargs: dict):
         self.name = kwargs.get("name", "convert")
         self.step_name = kwargs.get("step_name", "convert")
-        self.mode = kwargs.get("mode", None)
+        self.mode = kwargs.get("mode")
         if not self.mode:
             msg = "The mode is not defined in the configuration file."
             raise ValueError(msg)
         self.test = kwargs.get("test", False)
-        params = kwargs.get("params", None)
+        params = kwargs.get("params")
         if params:
             self.params = CONVERT_LAYER_METHODS[self.mode]["params"](**params)
 
@@ -113,12 +113,12 @@ class ColourConfig(DynamicConfig):
     def __init__(self, **kwargs: dict):
         self.name = kwargs.get("name", "colour")
         self.step_name = kwargs.get("step_name", "colour")
-        self.mode = kwargs.get("mode", None)
+        self.mode = kwargs.get("mode")
         if not self.mode:
             msg = "The mode is not defined in the configuration file."
             raise ValueError(msg)
         self.test = kwargs.get("test", False)
-        params = kwargs.get("params", None)
+        params = kwargs.get("params")
 
         if params:
             self.params = COLOUR_LAYER_METHODS[self.mode]["params"](**params)
@@ -130,12 +130,12 @@ class SamplingConfig(DynamicConfig):
     def __init__(self, **kwargs: dict):
         self.name = kwargs.get("name", "sampling")
         self.step_name = kwargs.get("step_name", "sampling")
-        self.mode = kwargs.get("mode", None)
+        self.mode = kwargs.get("mode")
         if not self.mode:
             msg = "The mode is not defined in the configuration file."
             raise ValueError(msg)
         self.test = kwargs.get("test", False)
-        params = kwargs.get("params", None)
+        params = kwargs.get("params")
         if params:
             self.params = RESAMPLE_LAYER_METHODS[self.mode]["params"](**params)
 
@@ -146,15 +146,16 @@ class CustomConfig(DynamicConfig):
     def __init__(self, **kwargs: dict):
         self.name = kwargs.get("name", "custom")
         self.step_name = kwargs.get("step_name", "custom")
-        self.file_path = kwargs.get("file_path", None)
-        self.class_name = kwargs.get("class_name", None)
+        self.file_path = kwargs.get("file_path")
+        self.class_name = kwargs.get("class_name")
         if not self.file_path or not self.class_name:
             msg = "The file_path and the class_na,e is not defined in the configuration file."
             raise ValueError(msg)
         self.test = kwargs.get("test", False)
-        params = kwargs.get("params", None)
+        params = kwargs.get("params")
         if params:
             self.params = CustomParams(**params)
+
 
 config_class_mapping = {
     "general": GeneralConfig,
@@ -288,8 +289,7 @@ class Configuration:
                 for step_name, step_config in step.items():
                     if step_name in config_class_mapping:
                         if step_name == "custom":
-                            check_and_install_dependencies(step_config.get("dependencies"),
-                                                           step_config.get("dependencies_path"))
+                            check_and_install_dependencies(step_config.get("dependencies"), step_config.get("dependencies_path"))
                         name = step_config.get("name")
                         if not name:
                             step_config["name"] = f"{step_name}_{step_order + 1}"
@@ -374,9 +374,7 @@ class Configuration:
         if self.general:
             result["general"] = self.general.to_dict()
         if yaml_convert:
-            result["steps"] = [
-                {step_info.pop("step_name"): step_info} for step in self.steps for step_info in [step.to_dict()]
-            ]
+            result["steps"] = [{step_info.pop("step_name"): step_info} for step in self.steps for step_info in [step.to_dict()]]
         else:
             result["steps"] = [step.to_dict() for step in self.steps]
         return result

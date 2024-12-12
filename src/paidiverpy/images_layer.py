@@ -10,8 +10,7 @@ import numpy as np
 import pandas as pd
 from IPython.display import HTML
 from PIL import Image
-
-from paidiverpy.utils import is_running_in_docker
+from paidiverpy.utils.docker import is_running_in_docker
 
 MAX_IMAGES_TO_SHOW = 12
 NUM_CHANNELS_GRAY = 1
@@ -58,11 +57,7 @@ class ImagesLayer:
         if update_metadata:
             last_filenames = np.array(self.filenames[-1])
             new_filenames = np.isin(last_filenames, metadata["image-filename"])
-            new_images = [
-                image
-                for image, filename in zip(self.images[-1], new_filenames, strict=False)
-                if filename
-            ]
+            new_images = [image for image, filename in zip(self.images[-1], new_filenames, strict=False) if filename]
             if not track_changes and len(self.images) > 1:
                 len_images = len(self.images[-1])
                 del self.images[-1]
@@ -173,10 +168,7 @@ class ImagesLayer:
         if not output_path.exists():
             output_path.mkdir(parents=True, exist_ok=True)
         for idx, image in enumerate(images):
-            img_path = (
-                output_path
-                / f"{self.filenames[step_order][idx]}.{image_format.lower()}"
-            )
+            img_path = output_path / f"{self.filenames[step_order][idx]}.{image_format.lower()}"
             if image.shape[-1] == NUM_CHANNELS_GRAY:
                 saved_image = np.squeeze(image, axis=-1)
                 cmap = "gray"
@@ -187,7 +179,6 @@ class ImagesLayer:
                 saved_image = image
                 cmap = None
             plt.imsave(str(img_path), saved_image, cmap=cmap)
-
 
     def remove(self, output_path: str | None = None) -> None:
         """Remove the images from the output path.
@@ -203,7 +194,6 @@ class ImagesLayer:
         if output_path.exists():
             for file in output_path.iterdir():
                 file.unlink()
-
 
     def __repr__(self) -> str:
         """Return the string representation of the object.
@@ -241,7 +231,9 @@ class ImagesLayer:
         return HTML(self._generate_html(max_images))
 
     def _generate_html(
-        self, max_images: int = 12, image_number: int | None = None,
+        self,
+        max_images: int = 12,
+        image_number: int | None = None,
     ) -> str:
         """Generate the HTML representation of the object.
 
@@ -332,29 +324,19 @@ class ImagesLayer:
         for step_index, (step, image_arrays) in enumerate(
             zip(self.steps, self.images, strict=False),
         ):
-            html += (
-                f"""
+            html += f"""
                 <div class='step-header'>Step: {step} <span id='arrow-{step_index}'
                     class='toggle-arrow'
                     onclick='toggleMetadata({step_index})'>►</span>
                 </div>
                 """
-            )
             html += f"<div id='metadata-{step_index}' class='metadata' style='display:block;'>"
             if image_number is not None:
-                images_to_show = (
-                    [image_arrays[image_number]]
-                    if len(image_arrays) > image_number
-                    else []
-                )
+                images_to_show = [image_arrays[image_number]] if len(image_arrays) > image_number else []
                 second_set_images = 0
             else:
                 first_set_images = min(max_images, MAX_IMAGES_TO_SHOW)
-                second_set_images = (
-                    max_images - first_set_images
-                    if max_images > MAX_IMAGES_TO_SHOW
-                    else 0
-                )
+                second_set_images = max_images - first_set_images if max_images > MAX_IMAGES_TO_SHOW else 0
                 images_to_show = image_arrays[:first_set_images]
             html += "<div class='image-container'>"
             if len(images_to_show) == 0:
@@ -365,38 +347,39 @@ class ImagesLayer:
 
                 for image_index, image_array in enumerate(images_to_show):
                     html += self._generate_single_image_html(
-                        image_array, step_index, image_index, size,
+                        image_array,
+                        step_index,
+                        image_index,
+                        size,
                     )
                 html += "</div>"
                 if second_set_images > 0:
-                    html += (
-                        f"""
+                    html += f"""
                         <button id='hide-button-{step_index}' class='hide-button'
                             style='display:block;' onclick='hide({step_index})'>
                             HIDE
                         </button>
                         """
-                    )
-                    html += (
-                        f"""<div id='more-images-{step_index}' class='image-container'
+                    html += f"""<div id='more-images-{step_index}' class='image-container'
                         style='display:block;'>
                         """
-                    )
                     for image_index, image_array in enumerate(
-                        image_arrays[12:max_images], start=max_images,
+                        image_arrays[12:max_images],
+                        start=max_images,
                     ):
                         html += self._generate_single_image_html(
-                            image_array, step_index, image_index, size,
+                            image_array,
+                            step_index,
+                            image_index,
+                            size,
                         )
                     html += "</div>"
-                    html += (
-                        f"""
+                    html += f"""
                         <button id='show-more-button-{step_index}' class='show-more-button'
                             onclick='showMore({step_index})'>
                             SHOW MORE
                         </button>
                         """
-                    )
             html += "</div>"
         return html
 
@@ -408,36 +391,31 @@ class ImagesLayer:
         size: tuple,
     ) -> str:
         image_id = f"image-{step_index}-{image_index}"
-        html = (
-            f"""
+        html = f"""
             <div>
                 <p onclick='toggleImage(\"{image_id}\")' style='cursor:pointer;'>
                     Image: {self.filenames[step_index][image_index]}
                     <span id='arrow-{image_id}' class='toggle-arrow'>►</span>
                 </p>
             """
-        )
         if image_array is not None:
-            html += (
-                f"""
+            html += f"""
                 <img id='{image_id}'
                     src='{ImagesLayer.numpy_array_to_base64(image_array, size)}'
                     style='display:block;'/></div>
                 """
-            )
         else:
-            html += (
-                f"""
+            html += f"""
                 <p id='{image_id}' style='color:red; display:block;'>
                     No image to show
                 </p></div>
                 """
-            )
         return html
 
     @staticmethod
     def numpy_array_to_base64(
-        image_array: np.ndarray | da.core.Array, size: tuple = (150, 150),
+        image_array: np.ndarray | da.core.Array,
+        size: tuple = (150, 150),
     ) -> str:
         """Convert a numpy array to a base64 image.
 
