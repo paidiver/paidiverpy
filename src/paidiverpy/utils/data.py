@@ -81,7 +81,7 @@ def download_file(url: str, dataset_name: str, cache_dir: Path = CACHE_DIR) -> P
     Returns:
         Path: The path to the downloaded file.
     """
-    file_hash = hashlib.md5(url.encode()).hexdigest()
+    file_hash = hashlib.sha256(url.encode()).hexdigest()
     zip_path = cache_dir / f"{file_hash}.zip"
 
     if not zip_path.exists():
