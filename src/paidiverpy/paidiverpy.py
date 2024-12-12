@@ -2,22 +2,20 @@
 
 import logging
 from pathlib import Path
-from typing import Dict, Union
 import dask
-from dask.diagnostics import ProgressBar
-import matplotlib.pyplot as plt
-import pandas as pd
 import dask.array as da
+import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+from dask.diagnostics import ProgressBar
 from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
-from paidiverpy.utils import DynamicConfig
-from paidiverpy.utils.parallellisation import get_n_jobs
+from paidiverpy.utils.dynamic_classes import DynamicConfig
+from paidiverpy.utils.logging import initialise_logging
 from paidiverpy.utils.parallellisation import get_client
-
-from paidiverpy.utils import initialise_logging
+from paidiverpy.utils.parallellisation import get_n_jobs
 
 
 class Paidiverpy:
@@ -46,28 +44,24 @@ class Paidiverpy:
 
     def __init__(
         self,
-        config_params: Union[Dict, ConfigParams] = None,
+        config_params: dict | ConfigParams = None,
         config_file_path: str | None = None,
         config: Configuration = None,
         metadata: MetadataParser = None,
         images: ImagesLayer = None,
         paidiverpy: "Paidiverpy" = None,
-        track_changes: bool = None,
+        track_changes: bool | None = None,
         logger: logging.Logger | None = None,
         raise_error: bool = False,
         verbose: int = 2,
     ):
-
         if paidiverpy:
             self._set_variables_from_paidiverpy(paidiverpy)
         else:
             self.raise_error = raise_error
             self.verbose = verbose
             self.logger = logger or initialise_logging(verbose=self.verbose)
-            self.config = config or self._initialise_config(
-                config_file_path,
-                config_params
-            )
+            self.config = config or self._initialise_config(config_file_path, config_params)
             self.metadata = metadata or self._initialize_metadata()
             self.images = images or ImagesLayer(
                 output_path=self.config.general.output_path,
@@ -79,9 +73,8 @@ class Paidiverpy:
             self.track_changes = track_changes
         self.layer_methods = None
 
-
     def run(self, add_new_step: bool = True) -> ImagesLayer | None:
-        """ Run the paidiverpy pipeline.
+        """Run the paidiverpy pipeline.
 
         Args:
             add_new_step (bool, optional): Whether to add a new step. Defaults to True.
@@ -97,10 +90,7 @@ class Paidiverpy:
         params = self.step_metadata.get("params") or {}
         method, params = self._get_method_by_mode(params, self.layer_methods, mode)
         images = self.images.get_step(step=len(self.images.images) - 1, by_order=True)
-        if self.n_jobs == 1:
-            image_list = self.process_sequentially(images, method, params)
-        else:
-            image_list = self.process_parallel(images, method, params)
+        image_list = self.process_sequentially(images, method, params) if self.n_jobs == 1 else self.process_parallel(images, method, params)
         if not test:
             self.step_name = f"color_{self.config_index}" if not self.step_name else self.step_name
             if add_new_step:
@@ -115,7 +105,6 @@ class Paidiverpy:
             self.images.images[-1] = image_list
             return self.images
         return None
-
 
     def process_sequentially(self, images: list[np.ndarray], method: callable, params: dict) -> list[np.ndarray]:
         """Process the images sequentially.
@@ -133,7 +122,10 @@ class Paidiverpy:
         return [method(img, params=params) for img in images]
 
     def process_parallel(
-        self, images: list[da.core.Array], method: callable, params: DynamicConfig,
+        self,
+        images: list[da.core.Array],
+        method: callable,
+        params: DynamicConfig,
     ) -> list[np.ndarray]:
         """Process the images in parallel.
 
@@ -155,14 +147,12 @@ class Paidiverpy:
                 return [da.from_array(img) for img in delayed_images]
         else:
             delayed_images = [dask.delayed(method)(img, params) for img in images]
-            with dask.config.set(scheduler="threads", num_workers=self.n_jobs):
-                with ProgressBar():
-                    delayed_images = dask.compute(*delayed_images)
+            with dask.config.set(scheduler="threads", num_workers=self.n_jobs), ProgressBar():
+                delayed_images = dask.compute(*delayed_images)
             return [da.from_array(img) for img in delayed_images]
 
-
     def _set_variables_from_paidiverpy(self, paidiverpy: "Paidiverpy") -> None:
-        """ Set the variables from the paidiverpy object.
+        """Set the variables from the paidiverpy object.
 
         Args:
             paidiverpy (Paidiverpy): The paidiverpy object.
@@ -180,7 +170,7 @@ class Paidiverpy:
     def _initialise_config(
         self,
         config_file_path: str,
-        config_params: Union[ConfigParams, dict],
+        config_params: ConfigParams | dict,
     ) -> Configuration:
         """Initialize the configuration object.
 
@@ -194,10 +184,7 @@ class Paidiverpy:
         if config_file_path:
             return Configuration(config_file_path)
         general_config = {}
-        if isinstance(config_params, dict):
-            config_params = ConfigParams(config_params)
-        else:
-            config_params = config_params
+        config_params = ConfigParams(config_params) if isinstance(config_params, dict) else config_params
         if config_params.input_path:
             general_config["input_path"] = config_params.input_path
         if config_params.output_path:
@@ -222,7 +209,9 @@ class Paidiverpy:
         """
         general = self.config.general
         if getattr(general, "metadata_path", None) and getattr(
-            general, "metadata_type", None,
+            general,
+            "metadata_type",
+            None,
         ):
             return MetadataParser(config=self.config, logger=self.logger)
         self.logger.info(
@@ -251,14 +240,8 @@ class Paidiverpy:
                     return self.metadata.metadata.copy()
                 return self.metadata.metadata.sort_values("image-datetime").copy()
             if "image-datetime" not in self.metadata.metadata.columns:
-                return self.metadata.metadata[
-                    self.metadata.metadata["flag"] <= flag
-                ].copy()
-            return (
-                self.metadata.metadata[self.metadata.metadata["flag"] <= flag]
-                .sort_values("image-datetime")
-                .copy()
-            )
+                return self.metadata.metadata[self.metadata.metadata["flag"] <= flag].copy()
+            return self.metadata.metadata[self.metadata.metadata["flag"] <= flag].sort_values("image-datetime").copy()
         return self.metadata
 
     def set_metadata(self, metadata: pd.DataFrame) -> None:
@@ -322,15 +305,11 @@ class Paidiverpy:
         )
         self.logger.info("Images are saved to: %s", output_path)
 
-
     def remove_images(self) -> None:
         """Remove output images from the output path."""
-
         output_path = self.config.general.output_path
         self.logger.info("Removing images from the output path: %s", output_path)
         self.images.remove(output_path)
-
-
 
     def plot_trimmed_photos(self, new_metadata: pd.DataFrame) -> None:
         """Plot the trimmed photos.
@@ -339,10 +318,7 @@ class Paidiverpy:
             new_metadata (pd.DataFrame): The new metadata.
         """
         metadata = self.get_metadata()
-        if (
-            "image-longitude" not in metadata.columns
-            or "image-longitude" not in new_metadata.columns
-        ):
+        if "image-longitude" not in metadata.columns or "image-longitude" not in new_metadata.columns:
             self.logger.warning(
                 "Longitude and Latitude columns are not found in the metadata.",
             )
@@ -381,7 +357,10 @@ class Paidiverpy:
         return dict(config_part.__dict__.items())
 
     def _get_method_by_mode(
-        self, params: DynamicConfig, method_dict: dict, mode: str,
+        self,
+        params: DynamicConfig,
+        method_dict: dict,
+        mode: str,
     ) -> tuple:
         """Get the method by mode.
 

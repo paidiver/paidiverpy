@@ -22,7 +22,9 @@ def process_action(parser: argparse.ArgumentParser) -> None:
         sys.exit(2)
 
     pipeline = Pipeline(
-        config_file_path=args.configuration_file, logger=logger, track_changes=False,
+        config_file_path=args.configuration_file,
+        logger=logger,
+        track_changes=False,
     )
     pipeline.run()
     pipeline.save_images()

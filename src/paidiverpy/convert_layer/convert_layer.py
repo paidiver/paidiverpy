@@ -5,10 +5,8 @@ parameters.
 """
 
 import logging
-from typing import Dict, Union
 import cv2
 import numpy as np
-from dask import compute
 from paidiverpy import Paidiverpy
 from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
@@ -21,7 +19,11 @@ from paidiverpy.config.convert_params import ResizeParams
 from paidiverpy.config.convert_params import ToParams
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
-from paidiverpy.utils import EIGHT_BITS, SIXTEEN_BITS, THIRTY_TWO_BITS, raise_value_error
+from paidiverpy.utils.data import EIGHT_BITS
+from paidiverpy.utils.data import SIXTEEN_BITS
+from paidiverpy.utils.data import THIRTY_TWO_BITS
+from paidiverpy.utils.exceptions import raise_value_error
+
 
 class ConvertLayer(Paidiverpy):
     """Process the images in the convert layer.
@@ -53,7 +55,7 @@ class ConvertLayer(Paidiverpy):
 
     def __init__(
         self,
-        config_params: Union[Dict, ConfigParams] = None,
+        config_params: dict | ConfigParams = None,
         config_file_path: str | None = None,
         config: Configuration = None,
         metadata: MetadataParser = None,
@@ -150,7 +152,9 @@ class ConvertLayer(Paidiverpy):
         return image_data
 
     def get_bayer_pattern(
-        self, image_data: np.ndarray, params: BayerPatternParams = None,
+        self,
+        image_data: np.ndarray,
+        params: BayerPatternParams = None,
     ) -> np.ndarray:
         """Convert the image to the specified Bayer pattern.
 
@@ -200,7 +204,6 @@ class ConvertLayer(Paidiverpy):
 
             return image_data
         return cv2.cvtColor(image_data, bayer_pattern)
-
 
     def normalize_image(self, image_data: np.ndarray, params: NormalizeParams = None) -> np.ndarray:
         """Normalize the image data.

@@ -14,7 +14,7 @@ from paidiverpy.config.config import Configuration
 from paidiverpy.config.position_params import POSITION_LAYER_METHODS
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
-from paidiverpy.utils import DynamicConfig
+from paidiverpy.utils.dynamic_classes import DynamicConfig
 
 
 class PositionLayer(Paidiverpy):
@@ -106,10 +106,7 @@ class PositionLayer(Paidiverpy):
         params = self.step_metadata.get("params") or {}
         method, params = self._get_method_by_mode(params, POSITION_LAYER_METHODS, mode)
         images = self.images.get_step(step=len(self.images.images) - 1, by_order=True)
-        if self.n_jobs == 1:
-            image_list = self.process_sequentially(images, method, params)
-        else:
-            image_list = self.process_parallel(images, method, params)
+        image_list = self.process_sequentially(images, method, params) if self.n_jobs == 1 else self.process_parallel(images, method, params)
         if not test:
             self.step_name = f"convert_{self.config_index}" if not self.step_name else self.step_name
             if add_new_step:
@@ -139,7 +136,10 @@ class PositionLayer(Paidiverpy):
         return [method(img, params=params) for img in images]
 
     def process_parallel(
-        self, images: list[da.core.Array], method: callable, params: DynamicConfig,
+        self,
+        images: list[da.core.Array],
+        method: callable,
+        params: DynamicConfig,
     ) -> list[np.ndarray]:
         """Process the images in parallel.
 
@@ -152,7 +152,6 @@ class PositionLayer(Paidiverpy):
             List[da.core.Array]: The list of processed images.
         """
         delayed_images = [dask.delayed(method)(img, params) for img in images]
-        with dask.config.set(scheduler="threads", num_workers=self.n_jobs):
-            with ProgressBar():
-                delayed_images = compute(*delayed_images)
+        with dask.config.set(scheduler="threads", num_workers=self.n_jobs), ProgressBar():
+            delayed_images = compute(*delayed_images)
         return [da.from_array(img) for img in delayed_images]
