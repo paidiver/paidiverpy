@@ -637,7 +637,6 @@ class ColourLayer(Paidiverpy):
 
         return cv2.merge([r, g, b, img[..., 3]]) if img.shape[-1] == NUM_CHANNELS_RGBA else cv2.merge([r, g, b])
 
-
     @staticmethod
     def normalize_img(img: np.ndarray) -> np.ndarray:
         """Normalize the image.
