@@ -4,7 +4,6 @@ This module contains the dataclasses for the parameters of the convert layer
 functions.
 """
 
-
 from paidiverpy.utils.dynamic_classes import DynamicConfig
 
 

@@ -1,4 +1,5 @@
 """Dynamic classes for configuration."""
+
 from pathlib import Path
 
 

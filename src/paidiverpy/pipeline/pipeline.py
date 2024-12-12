@@ -92,13 +92,10 @@ class Pipeline(Paidiverpy):
         if not self.client:
             self.logger.info("Processing images using %s cores", self.n_jobs)
         else:
-            self.logger.info("Processing images using Dask client using the "
-                             "following dashboard link: %s",
-                             self.client.dashboard_link)
+            self.logger.info("Processing images using Dask client using the " "following dashboard link: %s", self.client.dashboard_link)
         for index, step in enumerate(self.steps):
             if index > self.runned_steps:
-                step_name, step_class, step_params = self._get_steps_params(
-                    step)
+                step_name, step_class, step_params = self._get_steps_params(step)
                 self.logger.info(
                     "Running step %s: %s - %s",
                     index,
@@ -149,8 +146,7 @@ class Pipeline(Paidiverpy):
                 self.clear_steps(from_step + 1)
             else:
                 self.logger.warning(
-                    "Step %s does not exist. Run the pipeline from"
-                    "the beginning",
+                    "Step %s does not exist. Run the pipeline from" "the beginning",
                     from_step,
                 )
 
@@ -172,7 +168,6 @@ class Pipeline(Paidiverpy):
         if isinstance(step_class, str):
             step_class = globals()[step_class]
         return step_name, step_class, step_params
-
 
     def export_config(self, output_path: str) -> None:
         """Export the configuration to a yaml file.
@@ -236,13 +231,10 @@ class Pipeline(Paidiverpy):
             List[tuple]: The steps of the pipeline.
         """
         steps = []
-        raw_step = ("raw", OpenLayer, self.config.general.to_dict(
-            convert_path=False))
+        raw_step = ("raw", OpenLayer, self.config.general.to_dict(convert_path=False))
         steps.append(raw_step)
         for _, step in enumerate(self.config.steps):
-            new_step = (step.name,
-                        STEPS_CLASS_TYPES[step.step_name],
-                        step.to_dict())
+            new_step = (step.name, STEPS_CLASS_TYPES[step.step_name], step.to_dict())
             steps.append(new_step)
         return steps
 
