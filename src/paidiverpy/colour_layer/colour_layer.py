@@ -1,4 +1,3 @@
-
 """Colour layer module.
 
 This module contains the ColourLayer class for processing the images in the
@@ -6,10 +5,8 @@ colour layer.
 """
 
 import logging
-from typing import Dict, List, Union
 import cv2
 import numpy as np
-import dask.array as da
 from scipy import ndimage
 from skimage import color
 from skimage import measure
@@ -37,9 +34,15 @@ from paidiverpy.config.colour_params import IlluminationCorrectionParams
 from paidiverpy.config.colour_params import SharpenParams
 from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
-from paidiverpy.images_layer import NUM_CHANNELS_RGBA, ImagesLayer
+from paidiverpy.images_layer import NUM_CHANNELS_RGBA
+from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
-from paidiverpy.utils import DEFAULT_BITS, NUM_CHANNELS_RGB, NUM_IMAGE_DIMS, raise_value_error
+from paidiverpy.utils.data import DEFAULT_BITS
+from paidiverpy.utils.data import NUM_CHANNELS_GREY
+from paidiverpy.utils.data import NUM_CHANNELS_RGB
+from paidiverpy.utils.data import NUM_IMAGE_DIMS
+from paidiverpy.utils.exceptions import raise_value_error
+
 
 class ColourLayer(Paidiverpy):
     """ColourLayer class.
@@ -70,7 +73,7 @@ class ColourLayer(Paidiverpy):
 
     def __init__(
         self,
-        config_params: Union[Dict, ConfigParams] = None,
+        config_params: dict | ConfigParams = None,
         config_file_path: str | None = None,
         config: Configuration = None,
         metadata: MetadataParser = None,
@@ -101,9 +104,7 @@ class ColourLayer(Paidiverpy):
         self.step_metadata = self._calculate_steps_metadata(self.config.steps[self.config_index])
         self.layer_methods = COLOUR_LAYER_METHODS
 
-    def _apply_grayscale_conversion(self,
-                                    image_data: np.ndarray,
-                                    params: GrayScaleParams) -> np.ndarray:
+    def _apply_grayscale_conversion(self, image_data: np.ndarray, params: GrayScaleParams) -> np.ndarray:
         """GrayScale conversion.
 
         Apply the grayscale conversion method specified by params
@@ -143,9 +144,7 @@ class ColourLayer(Paidiverpy):
         """
         if params is None:
             params = GrayScaleParams()
-        if (len(image_data.shape) == NUM_IMAGE_DIMS or
-            (image_data.shape[-1] != NUM_CHANNELS_RGB and
-            image_data.shape[-1] != NUM_CHANNELS_RGBA)):
+        if len(image_data.shape) == NUM_IMAGE_DIMS or (image_data.shape[-1] != NUM_CHANNELS_RGB and image_data.shape[-1] != NUM_CHANNELS_RGBA):
             self.logger.error("Input image must have 3 or 4 channels in the last dimension.")
             if self.raise_error:
                 msg = "Input image must have 3 or 4 channels in the last dimension."
@@ -153,7 +152,7 @@ class ColourLayer(Paidiverpy):
             return image_data
         try:
             if params.keep_alpha and image_data.shape[-1] == NUM_CHANNELS_RGBA:
-                alpha_channel = image_data[..., NUM_CHANNELS_RGBA-1]
+                alpha_channel = image_data[..., NUM_CHANNELS_RGBA - 1]
                 image_data = image_data[..., :NUM_CHANNELS_RGB]
             image_data = self._apply_grayscale_conversion(image_data, params)
 
@@ -171,9 +170,7 @@ class ColourLayer(Paidiverpy):
 
         return image_data
 
-    def gaussian_blur(self,
-                      image_data: np.ndarray,
-                      params: GaussianBlurParams = None) -> np.ndarray:
+    def gaussian_blur(self, image_data: np.ndarray, params: GaussianBlurParams = None) -> np.ndarray:
         """Gaussian blur.
 
         Method to apply Gaussian blur to the image.
@@ -275,9 +272,10 @@ class ColourLayer(Paidiverpy):
 
         return image_data
 
-    def illumination_correction(self,
-                                image_data: np.ndarray,
-                                params: IlluminationCorrectionParams = None,
+    def illumination_correction(
+        self,
+        image_data: np.ndarray,
+        params: IlluminationCorrectionParams = None,
     ) -> np.ndarray:
         """Illumination correction.
 
@@ -430,9 +428,7 @@ class ColourLayer(Paidiverpy):
                 bw = bw_image_data if np.max(bw_image_data) == 0 else bw_image_data / np.max(bw_image_data)
 
                 features = {}
-                clip_frac = float(np.sum(bw[:, 1]) + np.sum(bw[:, -2]) + np.sum(bw[1, :]) + np.sum(bw[-2, :])) / (
-                    2 * bw.shape[0] + 2 * bw.shape[1]
-                )
+                clip_frac = float(np.sum(bw[:, 1]) + np.sum(bw[:, -2]) + np.sum(bw[1, :]) + np.sum(bw[-2, :])) / (2 * bw.shape[0] + 2 * bw.shape[1])
 
                 # Save simple features of the object
                 if params.object_selection != "full_ROI":
@@ -443,9 +439,7 @@ class ColourLayer(Paidiverpy):
                             "minor_axis_length": selected_prop.axis_minor_length,
                             "major_axis_length": selected_prop.axis_major_length,
                             "aspect_ratio": (
-                                (selected_prop.axis_minor_length / selected_prop.axis_major_length)
-                                if selected_prop.axis_major_length != 0
-                                else 1
+                                (selected_prop.axis_minor_length / selected_prop.axis_major_length) if selected_prop.axis_major_length != 0 else 1
                             ),
                             "orientation": selected_prop.orientation,
                         },
@@ -496,10 +490,7 @@ class ColourLayer(Paidiverpy):
                 image_data[:, :, ind] = image_data[:, :, ind] * blurd_bw_image_data
 
             # normalize the image as a float
-            if np.max(image_data) == 0:
-                image_data = np.float32(image_data)
-            else:
-                image_data = np.float32(image_data) / np.max(image_data)
+            image_data = np.float32(image_data) if np.max(image_data) == 0 else np.float32(image_data) / np.max(image_data)
 
             image_data = ColourLayer.deconvolution(
                 image_data,
@@ -521,9 +512,7 @@ class ColourLayer(Paidiverpy):
         self.step_metadata["results"] = results
         return image_data
 
-    def colour_alteration(
-        self, image_data: np.ndarray, params: ColourAlterationParams = None
-    ) -> np.ndarray:
+    def colour_alteration(self, image_data: np.ndarray, params: ColourAlterationParams = None) -> np.ndarray:
         """Apply colour alteration to the image.
 
         Args:
@@ -538,20 +527,20 @@ class ColourLayer(Paidiverpy):
         Returns:
             np.ndarray: The image with colour alteration applied.
         """
-        # try:
-        method = params.method
+        try:
+            method = params.method
 
-        if method == "white_balance":
-            image_data = ColourLayer.white_balance(image_data)
+            if method == "white_balance":
+                image_data = ColourLayer.white_balance(image_data)
 
-        # except Exception as e:
-        #     self.logger.error(f"Error applying colour alteration: {e}")
-        #     if self.raise_error:
-        #         raise e
+        except Exception as e:
+            self.logger.error("Error applying colour alteration: %s", e)
+            if self.raise_error:
+                raise
         return image_data
 
     @staticmethod
-    def gaussian_psf(size: List[int], sigma: float) -> np.ndarray:
+    def gaussian_psf(size: list[int], sigma: float) -> np.ndarray:
         """Gaussian point spread function.
 
         Create a Gaussian point spread function (PSF).
@@ -563,10 +552,10 @@ class ColourLayer(Paidiverpy):
         Returns:
             np.ndarray: The Gaussian PSF.
         """
-        if len(size) == 2:
+        if len(size) == NUM_CHANNELS_GREY:
             psf = np.zeros((size[0], size[1]))
             psf[size[0] // 2, size[1] // 2] = 1
-        elif len(size) == 3:
+        elif len(size) == NUM_CHANNELS_RGB:
             psf = np.zeros((size[0], size[1], size[2]))
             psf[size[0] // 2, size[1] // 2, size[2] // 2] = 1
         psf = gaussian(psf, sigma=sigma)
@@ -574,7 +563,7 @@ class ColourLayer(Paidiverpy):
         return psf
 
     @staticmethod
-    def motion_psf(size: List[float], length: float, angle_xy: float, angle_z: int=0) -> np.ndarray:
+    def motion_psf(size: list[float], length: float, angle_xy: float, angle_z: int = 0) -> np.ndarray:
         """Motion point spread function.
 
         Create a motion point spread function (PSF).
@@ -588,7 +577,7 @@ class ColourLayer(Paidiverpy):
         Returns:
             np.ndarray: The motion PSF
         """
-        if len(size) == 2:
+        if len(size) == NUM_CHANNELS_GREY:
             psf = np.zeros((size[0], size[1]))
             center_x = size[0] // 2
             center_y = size[1] // 2
@@ -598,7 +587,7 @@ class ColourLayer(Paidiverpy):
                 y = int(center_y + i * np.sin(angle_rad))
                 if 0 <= x < size[0] and 0 <= y < size[1]:
                     psf[x, y] = 1
-        elif len(size) == 3:
+        elif len(size) == NUM_CHANNELS_RGB:
             psf = np.zeros((size[0], size[1], size[2]))
             center_x = size[0] // 2
             center_y = size[1] // 2
@@ -614,13 +603,14 @@ class ColourLayer(Paidiverpy):
                     psf[x, y, z] = 1
 
         else:
-            raise ValueError("Size must be either an int or a tuple of length 2 or 3")
+            msg = "Size must be either an int or a tuple of length 2 or 3"
+            raise ValueError(msg)
 
         psf /= psf.sum()
         return psf
 
     @staticmethod
-    def white_balance(img) -> np.ndarray:
+    def white_balance(img: np.ndarray) -> np.ndarray:
         """White balance.
 
         Perform white balancing on the image.
@@ -631,7 +621,7 @@ class ColourLayer(Paidiverpy):
         Returns:
             np.ndarray: The white balanced image.
         """
-        r, g, b = cv2.split(img[:,:,:3])
+        r, g, b = cv2.split(img[:, :, :3])
         avg_r = np.mean(r)
         avg_g = np.mean(g)
         avg_b = np.mean(b)
@@ -645,12 +635,7 @@ class ColourLayer(Paidiverpy):
         g = cv2.convertScaleAbs(g * g_scale)
         b = cv2.convertScaleAbs(b * b_scale)
 
-        if img.shape[-1] == 4:
-            balanced_img = cv2.merge([r, g, b, img[..., 3]])
-        else:
-            balanced_img = cv2.merge([r, g, b])
-
-        return balanced_img
+        return cv2.merge([r, g, b, img[..., 3]]) if img.shape[-1] == NUM_CHANNELS_RGBA else cv2.merge([r, g, b])
 
     @staticmethod
     def normalize_img(img: np.ndarray) -> np.ndarray:
@@ -668,7 +653,6 @@ class ColourLayer(Paidiverpy):
         max_val = np.max(img)
 
         return (img - min_val) / (max_val - min_val)
-
 
     @staticmethod
     def deconvolution(
@@ -803,10 +787,7 @@ class ColourLayer(Paidiverpy):
         return features
 
     @staticmethod
-    def detect_edges(img: np.ndarray,
-                     method: str,
-                     blur_radius: float,
-                     threshold: tuple) -> np.ndarray:
+    def detect_edges(img: np.ndarray, method: str, blur_radius: float, threshold: tuple) -> np.ndarray:
         """Detect edges.
 
         Detect edges in the image.
@@ -823,9 +804,7 @@ class ColourLayer(Paidiverpy):
         if method == "scharr":
             if len(img.shape) == NUM_CHANNELS_RGB:
                 edges_mags = [scharr(img[:, :, i]) for i in range(NUM_CHANNELS_RGB)]
-                filled_edges = [
-                    ColourLayer.process_edges(edges_mag, threshold[0], blur_radius) for edges_mag in edges_mags
-                ]
+                filled_edges = [ColourLayer.process_edges(edges_mag, threshold[0], blur_radius) for edges_mag in edges_mags]
             else:
                 edges_mag = scharr(img)
                 filled_edges = ColourLayer.process_edges(edges_mag, threshold[0], blur_radius)
@@ -930,4 +909,5 @@ class ColourLayer(Paidiverpy):
         output = np.exp(-4 * np.log(2) * ((x - x0) ** 2 + (y - y0) ** 2) / fwhm**2)
         return output / np.sum(output)
 
-ColorLayer = (ColourLayer)
+
+ColorLayer = ColourLayer

@@ -1,14 +1,12 @@
-
 """Color layer module.
 
 This module contains the ColorLayer class for processing the images in the
 color layer.
 """
 
-from importlib.resources import files
-import logging
 import importlib.util
-from typing import Dict, Union
+import logging
+from importlib.resources import files
 import dask
 import dask.array as da
 import numpy as np
@@ -20,12 +18,10 @@ from paidiverpy.config.config_params import ConfigParams
 from paidiverpy.config.custom_params import CustomParams
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
-from paidiverpy.utils import DynamicConfig, check_and_install_dependencies, is_running_in_docker
+from paidiverpy.utils.docker import is_running_in_docker
+from paidiverpy.utils.dynamic_classes import DynamicConfig
+from paidiverpy.utils.install_packages import check_and_install_dependencies
 
-NUM_CHANNELS_RGB = 3
-NUM_CHANNELS_RGBA = 4
-NUM_IMAGE_DIMS = 2
-DEFAULT_BITS = 8
 
 class CustomLayer(Paidiverpy):
     """CustomLayer class.
@@ -56,7 +52,7 @@ class CustomLayer(Paidiverpy):
 
     def __init__(
         self,
-        config_params: Union[Dict, ConfigParams] = None,
+        config_params: dict | ConfigParams = None,
         config_file_path: str | None = None,
         config: Configuration = None,
         metadata: MetadataParser = None,
@@ -99,25 +95,22 @@ class CustomLayer(Paidiverpy):
         Returns:
             Union[ImagesLayer, None]: The images object with the new step added.
         """
-        algorithm_name = self.step_metadata.get('name')
-        file_path = self.step_metadata.get('file_path')
+        algorithm_name = self.step_metadata.get("name")
+        file_path = self.step_metadata.get("file_path")
         is_docker = is_running_in_docker()
         if is_docker:
             file_name = file_path.split("/")[-1]
             file_path = "/app/custom_algorithms/" + file_name
-        if self.step_metadata.get('file_path') == "example":
+        if self.step_metadata.get("file_path") == "example":
             file_path = files("paidiverpy").joinpath("custom_layer/_custom_algorithm_example.py")
-        class_name = self.step_metadata.get('class_name')
-        check_and_install_dependencies(self.step_metadata.get('dependencies'), self.step_metadata.get('dependencies_path'))
+        class_name = self.step_metadata.get("class_name")
+        check_and_install_dependencies(self.step_metadata.get("dependencies"), self.step_metadata.get("dependencies_path"))
         test = self.step_metadata.get("test")
         params = self.step_metadata.get("params") or {}
         params = CustomParams(**params)
         method = self.load_custom_algorithm(file_path, class_name, algorithm_name)
         images = self.images.get_step(step=len(self.images.images) - 1, by_order=True)
-        if self.n_jobs == 1:
-            image_list = self.process_sequentially(images, method, params)
-        else:
-            image_list = self.process_parallel(images, method, params)
+        image_list = self.process_sequentially(images, method, params) if self.n_jobs == 1 else self.process_parallel(images, method, params)
         if not test:
             self.step_name = algorithm_name if not self.step_name else self.step_name
             if add_new_step:
@@ -149,7 +142,10 @@ class CustomLayer(Paidiverpy):
         return [method(img, params=params).process() for img in images]
 
     def process_parallel(
-        self, images: list[da.core.Array], method: callable, params: DynamicConfig,
+        self,
+        images: list[da.core.Array],
+        method: callable,
+        params: DynamicConfig,
     ) -> list[np.ndarray]:
         """Process the images in parallel.
 
@@ -164,16 +160,12 @@ class CustomLayer(Paidiverpy):
             List[da.core.Array]: The list of processed images.
         """
         delayed_images = [dask.delayed(lambda img: method(img, params=params).process())(img) for img in images]
-        with dask.config.set(scheduler="threads", num_workers=self.n_jobs):
-            with ProgressBar():
-                delayed_images = compute(*delayed_images)
+        with dask.config.set(scheduler="threads", num_workers=self.n_jobs), ProgressBar():
+            delayed_images = compute(*delayed_images)
         return [da.from_array(img) for img in delayed_images]
 
-    def load_custom_algorithm(self,
-                              file_path: str,
-                              class_name: str,
-                              algorithm_name: str) -> callable:
-        """ Load a custom algorithm class.
+    def load_custom_algorithm(self, file_path: str, class_name: str, algorithm_name: str) -> callable:
+        """Load a custom algorithm class.
 
         Args:
             file_path (str): The file path of the custom algorithm.
@@ -183,10 +175,8 @@ class CustomLayer(Paidiverpy):
         Returns:
             class: The custom algorithm class.
         """
-
         spec = importlib.util.spec_from_file_location(algorithm_name, file_path)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
 
-        algorithm_class = getattr(module, class_name)
-        return algorithm_class
+        return getattr(module, class_name)

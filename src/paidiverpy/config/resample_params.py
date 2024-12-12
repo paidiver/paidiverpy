@@ -5,7 +5,7 @@ functions.
 """
 
 from dataclasses import dataclass
-from paidiverpy.utils import DynamicConfig
+from paidiverpy.utils.dynamic_classes import DynamicConfig
 
 
 @dataclass

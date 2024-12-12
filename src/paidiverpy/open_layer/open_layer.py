@@ -3,7 +3,6 @@
 import copy
 import gc
 import logging
-from typing import Dict, Union
 import uuid
 import cv2
 import dask
@@ -23,7 +22,8 @@ from paidiverpy.convert_layer import ConvertLayer
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.resample_layer import ResampleLayer
-from paidiverpy.utils import DynamicConfig, is_running_in_docker
+from paidiverpy.utils.docker import is_running_in_docker
+from paidiverpy.utils.dynamic_classes import DynamicConfig
 
 
 class OpenLayer(Paidiverpy):
@@ -52,8 +52,8 @@ class OpenLayer(Paidiverpy):
 
     def __init__(
         self,
-        config_params: Union[Dict, ConfigParams] = None,
-        config_file_path: str | None=None,
+        config_params: dict | ConfigParams = None,
+        config_file_path: str | None = None,
         config: Configuration = None,
         metadata: MetadataParser = None,
         images: ImagesLayer = None,
@@ -138,15 +138,9 @@ class OpenLayer(Paidiverpy):
                 )
                 self.config.steps.pop()
 
-
-        img_path_list = [
-            self.correct_input_path / filename for filename in self.get_metadata()["image-filename"]
-        ]
+        img_path_list = [self.correct_input_path / filename for filename in self.get_metadata()["image-filename"]]
         if self.n_jobs == 1:
-            image_list = [
-                self.process_image(img_path)
-                for img_path in tqdm(img_path_list, total=len(img_path_list), desc="Open Images")
-            ]
+            image_list = [self.process_image(img_path) for img_path in tqdm(img_path_list, total=len(img_path_list), desc="Open Images")]
         else:
             delayed_image_list = [delayed(self.process_image)(img_path) for _, img_path in enumerate(img_path_list)]
             with dask.config.set(scheduler="threads", num_workers=self.n_jobs):
@@ -159,11 +153,7 @@ class OpenLayer(Paidiverpy):
         if rename:
             image_type = f".{self.step_metadata.get('image_type')}" if self.step_metadata.get("image_type") else ""
             if rename == "datetime":
-                metadata["image-filename"] = (
-                    pd.to_datetime(metadata["image-datetime"]).dt.strftime("%Y%m%dT%H%M%S.%f").str[:-3]
-                    + "Z"
-                    + image_type
-                )
+                metadata["image-filename"] = pd.to_datetime(metadata["image-datetime"]).dt.strftime("%Y%m%dT%H%M%S.%f").str[:-3] + "Z" + image_type
 
                 duplicate_mask = metadata.duplicated(subset="image-filename", keep=False)
                 if duplicate_mask.any():
@@ -174,8 +164,7 @@ class OpenLayer(Paidiverpy):
                         axis=1,
                     )
             elif rename == "UUID":
-                metadata["image-filename"] = metadata["image-filename"].apply(
-                    lambda _: str(uuid.uuid4()) + image_type)
+                metadata["image-filename"] = metadata["image-filename"].apply(lambda _: str(uuid.uuid4()) + image_type)
             else:
                 self.logger.error("Unknown rename mode: %s", rename)
                 if self.raise_error:
@@ -234,11 +223,8 @@ class OpenLayer(Paidiverpy):
 
     def extract_exif(self) -> None:
         """Extract EXIF data from the images and add it to the metadata DataFrame."""
-        img_path_list = [
-            self.correct_input_path / filename for filename in self.get_metadata()["image-filename"]
-        ]
-        exif_list = [OpenLayer.extract_exif_single(img_path,
-                                                   self.logger) for img_path in img_path_list]
+        img_path_list = [self.correct_input_path / filename for filename in self.get_metadata()["image-filename"]]
+        exif_list = [OpenLayer.extract_exif_single(img_path, self.logger) for img_path in img_path_list]
         self.set_metadata(self.get_metadata(flag="all").merge(pd.DataFrame(exif_list), on="image-filename", how="left"))
 
     @staticmethod

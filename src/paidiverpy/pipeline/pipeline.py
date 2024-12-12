@@ -3,7 +3,6 @@
 import gc
 import json
 import logging
-from typing import Dict, Union
 from paidiverpy import Paidiverpy
 from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
@@ -40,15 +39,15 @@ class Pipeline(Paidiverpy):
 
     def __init__(
         self,
-        config_params: Union[Dict, ConfigParams] = None,
+        config_params: dict | ConfigParams = None,
         config_file_path: str | None = None,
         config: Configuration = None,
         metadata: MetadataParser = None,
         steps: list[tuple] | None = None,
-        track_changes: bool = None,
+        track_changes: bool | None = None,
         logger: logging.Logger | None = None,
         raise_error: bool = False,
-        verbose: int = 2
+        verbose: int = 2,
     ):
         super().__init__(
             config_params=config_params,
@@ -87,38 +86,21 @@ class Pipeline(Paidiverpy):
             ValueError: No steps defined for the pipeline
             ValueError: Invalid step format
         """
-        if not self.steps:
-            self.logger.error("No steps defined for the pipeline")
-            msg = "No steps defined for the pipeline"
-            raise ValueError(msg)
-        if from_step is not None:
-            if len(self.images.images) > from_step:
-                self.runned_steps = from_step
-                self.clear_steps(from_step + 1)
-            else:
-                self.logger.warning(
-                    "Step %s does not exist. Run the pipeline from the beginning",
-                    from_step,
-                )
+        self._validate_pipeline()
+        self._validate_from_step(from_step)
+
         if not self.client:
             self.logger.info("Processing images using %s cores", self.n_jobs)
         else:
-            self.logger.info("Processing images using Dask client using the following dashboard link: %s", self.client.dashboard_link)
+            self.logger.info("Processing images using Dask client using the " "following dashboard link: %s", self.client.dashboard_link)
         for index, step in enumerate(self.steps):
             if index > self.runned_steps:
-                if len(step) == STEP_WITHOUT_PARAMS:
-                    step_name, step_class = step
-                    step_params = {}
-                elif len(step) == STEP_WITH_PARAMS:
-                    step_name, step_class, step_params = step
-                else:
-                    self.logger.error("Invalid step format: %s", step)
-                    msg = f"Invalid step format: {step}"
-                    raise ValueError(msg)
-                if isinstance(step_class, str):
-                    step_class = globals()[step_class]
+                step_name, step_class, step_params = self._get_steps_params(step)
                 self.logger.info(
-                    "Running step %s: %s - %s", index, step_name, step_class.__name__,
+                    "Running step %s: %s - %s",
+                    index,
+                    step_name,
+                    step_class.__name__,
                 )
                 step_params["step_name"] = self._get_step_name(step_class)
                 step_params["name"] = step_name
@@ -145,6 +127,48 @@ class Pipeline(Paidiverpy):
                 del step_instance
                 gc.collect()
 
+    def _validate_pipeline(self) -> None:
+        """Validate the pipeline.
+
+        Raises:
+            ValueError: No steps defined for the pipeline
+        """
+        if not self.steps:
+            self.logger.error("No steps defined for the pipeline")
+            msg = "No steps defined for the pipeline"
+            raise ValueError(msg)
+
+    def _validate_from_step(self, from_step: int | None) -> None:
+        """Validate the from_step parameter."""
+        if from_step is not None:
+            if len(self.images.images) > from_step:
+                self.runned_steps = from_step
+                self.clear_steps(from_step + 1)
+            else:
+                self.logger.warning(
+                    "Step %s does not exist. Run the pipeline from" "the beginning",
+                    from_step,
+                )
+
+    def _get_steps_params(self, step: tuple) -> tuple:
+        """Get the parameters of the step.
+
+        Args:
+            step (tuple): The step.
+        """
+        if len(step) == STEP_WITHOUT_PARAMS:
+            step_name, step_class = step
+            step_params = {}
+        elif len(step) == STEP_WITH_PARAMS:
+            step_name, step_class, step_params = step
+        else:
+            self.logger.error("Invalid step format: %s", step)
+            msg = f"Invalid step format: {step}"
+            raise ValueError(msg)
+        if isinstance(step_class, str):
+            step_class = globals()[step_class]
+        return step_name, step_class, step_params
+
     def export_config(self, output_path: str) -> None:
         """Export the configuration to a yaml file.
 
@@ -167,8 +191,8 @@ class Pipeline(Paidiverpy):
             step_name (str): Name of the step.
             step_class (Union[str, type]): Class of the step.
             parameters (dict): Parameters for the step.
-            index (int, optional): Index of the step. It is only used when you want
-        to add a step in a specific position. Defaults to None.
+            index (int, optional): Index of the step. It is only used when you
+        want to add a step in a specific position. Defaults to None.
             substitute (bool, optional): Whether to substitute the step in the
         specified index. Defaults to False.
         """
@@ -227,27 +251,40 @@ class Pipeline(Paidiverpy):
             if i % 4 == 0 and i > 0:
                 steps_html += '<div style="clear:both;"></div>'
             steps_html += f"""
-                <div id="step_{i}" title="Click to see more information" class="square" style="cursor: pointer; float:left; padding: 10px; width: max-content; height: 80px; margin: 10px; border: 1px solid #000; text-align: center; line-height: 80px;" onclick="showParameters('step_{i}')">
+                <div id="step_{i}" title="Click to see more information"
+                    class="square" style="cursor: pointer; float:left;
+                    padding: 10px; width: max-content; height: 80px;
+                    margin: 10px; border: 1px solid #000; text-align: center;
+                    line-height: 80px;" onclick="showParameters('step_{i}')">
                     <h2 style="font-size:20px;">{step.name.capitalize()}</h2>
-                    <h2 style="font-size:13px;">Type: {step.step_name.capitalize()}</h2>
+                    <h2 style="font-size:13px;">Type: {
+                        step.step_name.capitalize()}</h2>
                 </div>
             """
             if i < len(self.config.steps) - 1:
                 steps_html += """
-                    <div style="float:left; width: 50px; height: 80px; margin: 10px; text-align: center; line-height: 80px;">
+                    <div style="float:left; width: 50px; height: 80px;
+                        margin: 10px; text-align: center; line-height: 80px;">
                         &#10132;
                     </div>
                 """
             parameters_html += f"""
-                <div id="parameters_step_{i}" class="parameters" style="display: none;">
+                <div id="parameters_step_{i}" class="parameters"
+                    style="display: none;">
                     <pre>{json.dumps(step.to_dict(), indent=4)}</pre>
                 </div>
             """
 
         general_html = f"""
-        <div id="general" title="Click to see more information" class="square" style="float:left; cursor: pointer; padding: 10px; width: max-content; height: 80px; margin: 10px; border: 1px solid #000; text-align: center; line-height: 80px;" onclick="showParameters('general')">
-            <h2 style="font-size:20px;">{self.config.general.name.capitalize()}</h2>
-            <h2 style="font-size:13px;">Type: {self.config.general.step_name.capitalize()}</h2>
+        <div id="general" title="Click to see more information" class="square"
+            style="float:left; cursor: pointer; padding: 10px;
+            width: max-content; height: 80px; margin: 10px;
+            border: 1px solid #000; text-align: center; line-height: 80px;"
+            onclick="showParameters('general')">
+            <h2 style="font-size:20px;">{
+                self.config.general.name.capitalize()}</h2>
+            <h2 style="font-size:13px;">Type: {
+                self.config.general.step_name.capitalize()}</h2>
         </div>
         """
 

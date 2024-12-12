@@ -2,12 +2,21 @@
 
 import hashlib
 import json
-import os
 import zipfile
 from pathlib import Path
 import requests
 from tqdm import tqdm
-from paidiverpy.utils import initialise_logging
+from paidiverpy.utils.logging import initialise_logging
+
+NUM_CHANNELS_GREY = 2
+NUM_CHANNELS_RGB = 3
+NUM_CHANNELS_RGBA = 4
+NUM_IMAGE_DIMS = 2
+DEFAULT_BITS = 8
+EIGHT_BITS = 8
+SIXTEEN_BITS = 16
+THIRTY_TWO_BITS = 32
+
 
 logger = initialise_logging(verbose=2)
 
@@ -72,7 +81,7 @@ def download_file(url: str, dataset_name: str, cache_dir: Path = CACHE_DIR) -> P
     Returns:
         Path: The path to the downloaded file.
     """
-    file_hash = hashlib.md5(url.encode()).hexdigest()
+    file_hash = hashlib.sha256(url.encode()).hexdigest()
     zip_path = cache_dir / f"{file_hash}.zip"
 
     if not zip_path.exists():
@@ -134,10 +143,7 @@ def calculate_information(dataset_name: str, extract_dir: Path, dataset_informat
     Returns:
         dict: Information about the dataset
     """
-    if dataset_name.split("_")[-1] == "csv":
-        metadata_path = f"metadata_{dataset_name}.csv"
-    else:
-        metadata_path = f"metadata_{dataset_name}.json"
+    metadata_path = f"metadata_{dataset_name}.csv" if dataset_name.split("_")[-1] == "csv" else f"metadata_{dataset_name}.json"
     information = {
         "input_path": str(extract_dir / "images"),
         "metadata_path": str(extract_dir / "metadata" / metadata_path),
