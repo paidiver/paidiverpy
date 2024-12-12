@@ -19,3 +19,12 @@ class VariableNotFoundError(Exception):
         message = f"Variable '{variable_name}' not found in the dataset."
         logging.warning(message)
         super().__init__(message)
+
+
+def raise_value_error(message: str) -> None:
+    """Raise a ValueError with the given message.
+
+    Args:
+        message (str): The message to raise the ValueError with.
+    """
+    raise ValueError(message)

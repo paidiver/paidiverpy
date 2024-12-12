@@ -5,7 +5,7 @@ functions.
 """
 
 from dataclasses import dataclass
-from paidiverpy.utils import DynamicConfig
+from paidiverpy.utils.dynamic_classes import DynamicConfig
 
 
 @dataclass
@@ -79,7 +79,8 @@ class DeblurParams(DynamicConfig):
 
 @dataclass
 class ColourAlterationParams(DynamicConfig):
-    """This class contains the parameters for the colour alteration"""
+    """This class contains the parameters for the colour alteration."""
+
     method: str = "white_balance"
 
 

@@ -1,15 +1,15 @@
-""" Tests for the Simple Pipeline class.
-"""
+"""Tests for the Simple Pipeline class."""
 
-import glob
-import os
 import unittest
+from pathlib import Path
 import numpy as np
 import pandas as pd
 from IPython.display import HTML
-from paidiverpy.config.config import Configuration, GeneralConfig
+from paidiverpy.config.config import Configuration
+from paidiverpy.config.config import GeneralConfig
 from paidiverpy.pipeline import Pipeline
 from tests.base_test_class import BaseTestClass
+
 
 class TestSimplePipeline(BaseTestClass):
     """Tests Simple Pipeline.
@@ -19,34 +19,32 @@ class TestSimplePipeline(BaseTestClass):
     """
 
     def test_simple_pipeline(self):
-        """ Test generating a Simple Pipeline """
+        """Test generating a Simple Pipeline."""
         pipeline = Pipeline(config_file_path="examples/config_files/config_benthic.yaml")
-        self.assertTrue(isinstance(pipeline, Pipeline))
-        self.assertTrue(isinstance(pipeline.config, Configuration))
-        self.assertTrue(isinstance(pipeline.config.general, GeneralConfig))
-        self.assertTrue(isinstance(pipeline.to_html(), str))
+        assert isinstance(pipeline, Pipeline)
+        assert isinstance(pipeline.config, Configuration)
+        assert isinstance(pipeline.config.general, GeneralConfig)
+        assert isinstance(pipeline.to_html(), str)
         pipeline.run()
         images = pipeline.images.images
-        self.assertEqual(len(images), 7)
-        self.assertTrue(isinstance(images[0][0], np.ndarray))
+        assert len(images) == 7
+        assert isinstance(images[0][0], np.ndarray)
         pipeline.run(from_step=2)
         images = pipeline.images.images
-        self.assertEqual(len(images), 7)
-        self.assertTrue(isinstance(images[0][0], np.ndarray))
+        assert len(images) == 7
+        assert isinstance(images[0][0], np.ndarray)
         metadata = pipeline.get_metadata()
-        self.assertTrue(isinstance(metadata, pd.DataFrame))
+        assert isinstance(metadata, pd.DataFrame)
         html_image = pipeline.images.show(image_number=5)
-        self.assertTrue(isinstance(html_image, HTML))
+        assert isinstance(html_image, HTML)
         pipeline.save_images(image_format="png")
-        output_files = glob.glob(
-            os.path.join(pipeline.config.general.output_path, "*.png")
-        )
-        self.assertTrue(len(output_files) > 0)
+        output_path = Path(pipeline.config.general.output_path)
+        output_files = list(output_path.glob("*.png"))
+        assert len(output_files) > 0
         pipeline.images.remove()
-        output_files = glob.glob(
-            os.path.join(pipeline.config.general.output_path, "*.png")
-        )
-        self.assertTrue(len(output_files) == 0)
+        output_files = list(output_path.glob("*.png"))
+        assert len(output_files) == 0
+
 
 if __name__ == "__main__":
     unittest.main()
