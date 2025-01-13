@@ -229,7 +229,7 @@ class MetadataParser:
         Args:
             ifdo_data (Dict): parsed iFDO data.
         """
-        miqtt.are_valid_ifdo_fields(ifdo_data["image-set-header"])
+        miqtt.areValidIfdoFields(ifdo_data["image-set-header"])
         unique_names = miqtt.filesHaveUniqueName(ifdo_data["image-set-items"].keys())
         if not unique_names:
             raise IfdoException({"Validation error": f"Duplicate filenames found: {unique_names}"})

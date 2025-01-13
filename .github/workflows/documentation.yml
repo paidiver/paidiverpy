@@ -31,5 +31,5 @@ jobs:
         READTHEDOCS_API_KEY: ${{ secrets.READTHEDOCS_API_KEY }}
       run: |
         curl -X POST -H "Authorization: Token ${READTHEDOCS_API_KEY}" \
-        -d "branch=main" \
+        -d "branch=develop" \
         https://readthedocs.org/api/v3/projects/paidiverpy/versions/latest/builds/
