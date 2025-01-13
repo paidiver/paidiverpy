@@ -8,7 +8,7 @@ The configuration file is a crucial component of the Paidiverpy package. It defi
 Format and Schema
 ------------------
 
-The configuration file is written in YAML format and should adhere to the schema detailed in the `configuration file schema <https://github.com/paidiver/paidiverpy/blob/develop/configuration-schema.json>`_. Below is an example of a configuration file:
+The configuration file is written in YAML format and should adhere to the schema detailed in the `configuration file schema <https://github.com/paidiver/paidiverpy/blob/develop/src/paidiverpy/configuration-schema.json>`_. Below is an example of a configuration file:
 
 .. code-block:: yaml
 
