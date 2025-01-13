@@ -10,7 +10,7 @@ First off, thanks for taking the time to contribute!
 .. note::
 
   Large parts of this document came from the `Xarray <http://xarray.pydata.org/en/stable/contributing.html>`_
-  and `Pandas <http://pandas.pydata.org/pandas*docs/stable/contributing.html>`_ contributing guides.
+  and `Argopy <https://argopy.readthedocs.io/en/latest/contributing.html>`_ contributing guides.
 
 If you seek **support** for your paidiverpy usage or if you don't want to read
 this whole thing and just have a question: `visit our Discussion forum <https://github.com/paidiver/paidiverpy/discussions>`_.
@@ -50,9 +50,7 @@ pull requests to see if the issue has already been reported and/or fixed.
 
 Bug reports must:
 
-#. Include a short, self contained Python snippet reproducing the problem.
-   You can format the code nicely by using `GitHub Flavored Markdown
-   <http://github.github.com/github*flavored*markdown/>`_::
+#. Include a short, self contained Python snippet reproducing the problem:
 
       ```python
       >>> from paidiverpy.pipeline import Pipeline
@@ -108,11 +106,7 @@ Some other important things to know about the docs:
   (what's new, installation, etc).
 
 - The docstrings follow the **Numpy Docstring Standard**, which is used widely
-  in the Scientific Python community. This standard specifies the format of
-  the different sections of the docstring. See `this document
-  <https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt>`_
-  for a detailed explanation, or look at some of the existing functions to
-  extend it in a similar manner.
+  in the Scientific Python community.
 
 - The tutorials make use of the `ipython directive
   <http://matplotlib.org/sampledoc/ipython_directive.html>`_ sphinx extension.
