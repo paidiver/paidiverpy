@@ -67,7 +67,7 @@ In this example:
 Real Example
 ------------
 
-For a more concrete example, consider the following code snippet (available in `examples/custom_algorithms files <https://github.com/paidiver/paidiverpy/tree/develop/src/paidiverpy/custom_algorithms_example.py>`_ of the `paidiverpy` package):
+For a more concrete example, consider the following code snippet (available in `examples/custom_algorithms files <https://github.com/paidiver/paidiverpy/blob/develop/src/paidiverpy/custom_layer/_custom_algorithm_example.py>`_ of the `paidiverpy` package):
 
 .. literalinclude:: ../examples/custom_algorithms/custom_algorithms_example.py
 
