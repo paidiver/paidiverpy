@@ -4,9 +4,11 @@ on:
   workflow_dispatch:
   push:
     branches:
+    - develop
     - main
   pull_request:
     branches:
+    - develop
     - main
   schedule:
   - cron: '0 0 1 * *' # first day of every month at midnight

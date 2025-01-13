@@ -188,7 +188,7 @@ class MetadataParser:
             pd.DataFrame: Metadata DataFrame.
         """
         metadata_path = self.metadata_path if isinstance(self.metadata_path, str) else str(self.metadata_path)
-        metadata = miqtifdo.iFDO_Reader(metadata_path).ifdo
+        metadata = miqtifdo.IfdoReader(metadata_path).ifdo
         self._validate_ifdo(metadata)
         self.dataset_metadata = metadata["image-set-header"]
         metadata = pd.DataFrame(metadata["image-set-items"]).T.reset_index()
@@ -229,7 +229,7 @@ class MetadataParser:
         Args:
             ifdo_data (Dict): parsed iFDO data.
         """
-        miqtt.are_valid_ifdo_fields(ifdo_data["image-set-header"])
+        miqtt.areValidIfdoFields(ifdo_data["image-set-header"])
         unique_names = miqtt.filesHaveUniqueName(ifdo_data["image-set-items"].keys())
         if not unique_names:
             raise IfdoException({"Validation error": f"Duplicate filenames found: {unique_names}"})
