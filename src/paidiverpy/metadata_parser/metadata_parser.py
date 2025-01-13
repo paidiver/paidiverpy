@@ -188,7 +188,7 @@ class MetadataParser:
             pd.DataFrame: Metadata DataFrame.
         """
         metadata_path = self.metadata_path if isinstance(self.metadata_path, str) else str(self.metadata_path)
-        metadata = miqtifdo.iFDO_Reader(metadata_path).ifdo
+        metadata = miqtifdo.IfdoReader(metadata_path).ifdo
         self._validate_ifdo(metadata)
         self.dataset_metadata = metadata["image-set-header"]
         metadata = pd.DataFrame(metadata["image-set-items"]).T.reset_index()
