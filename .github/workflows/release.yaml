@@ -6,8 +6,9 @@ on:
       - main
   pull_request:
     branches:
-    - develop
-    - main
+      - develop
+      - main
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -35,10 +36,9 @@ jobs:
 
     - name: Publish to PyPI
       env:
-        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+        TWINE_USERNAME: "__token__"
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-      run: |
-        python -m twine upload dist/*
+      run: python -m twine upload dist/*
 
   zenodo:
     needs: release
