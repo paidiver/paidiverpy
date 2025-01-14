@@ -1,0 +1,61 @@
+"""This module contains functions to check and install dependencies."""
+
+import subprocess
+import sys
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version
+from pathlib import Path
+from paidiverpy.utils.docker import is_running_in_docker
+
+NUM_CHANNELS_GREY = 2
+NUM_CHANNELS_RGB = 3
+NUM_CHANNELS_RGBA = 4
+NUM_IMAGE_DIMS = 2
+DEFAULT_BITS = 8
+EIGHT_BITS = 8
+SIXTEEN_BITS = 16
+THIRTY_TWO_BITS = 32
+
+
+def check_and_install_dependencies(dependencies: list[str] | None, dependencies_path: str | None) -> None:
+    """Check and install dependencies.
+
+    Args:
+        dependencies (Union[List[str], None]): The dependencies to check and install.
+        dependencies_path (str, None): The path to the dependencies file.
+
+    Raises:
+        PackageNotFoundError: If the package is not found.
+
+    """
+    list_of_dependencies = []
+    if dependencies:
+        list_of_dependencies = dependencies
+    if dependencies_path:
+        is_docker = is_running_in_docker()
+        if is_docker:
+            dependencies_filename = dependencies_path.split("/")[-1]
+            dependencies_path = "/app/custom_algorithms/" + dependencies_filename
+        dependencies_path = Path(dependencies_path)
+        with Path.open(dependencies_path) as file:
+            list_of_dependencies += file.readlines()
+    for package in list_of_dependencies:
+        package_name = package.split("==")[0]
+        if not is_package_installed(package_name):
+            subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
+
+def is_package_installed(package_name: str) -> bool:
+    """Check if the package is installed.
+
+    Args:
+        package_name (str): The package name.
+
+    Returns:
+        bool: Whether the package is installed.
+    """
+    try:
+        version(package_name)
+        return True
+    except PackageNotFoundError:
+        return False

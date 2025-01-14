@@ -1,0 +1,11 @@
+{
+  "title": "Paidiverpy",
+  "creators": [
+      {"name": "Ferreira, Tobias", "affiliation": "NOC"}
+  ],
+  "description": "A library to preprocess image data.",
+  "keywords": ["data", "paidiver", "noc"],
+  "license": "Apache-2.0",
+  "version": "0.0.2",
+  "upload_type": "software"
+}

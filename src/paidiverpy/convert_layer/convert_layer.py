@@ -1,218 +1,294 @@
-""" Open raw image file
-"""
-import numpy as np
-import cv2
-from tqdm import tqdm
+"""Convert Layer.
 
+Convert the images in the convert layer based on the configuration file or
+parameters.
+"""
+
+import logging
+import cv2
+import numpy as np
 from paidiverpy import Paidiverpy
-from paidiverpy.image_layer import ImageLayer
+from paidiverpy.config.config import Configuration
+from paidiverpy.config.config_params import ConfigParams
+from paidiverpy.config.convert_params import CONVERT_LAYER_METHODS
+from paidiverpy.config.convert_params import BayerPatternParams
+from paidiverpy.config.convert_params import BitParams
+from paidiverpy.config.convert_params import CropParams
+from paidiverpy.config.convert_params import NormalizeParams
+from paidiverpy.config.convert_params import ResizeParams
+from paidiverpy.config.convert_params import ToParams
+from paidiverpy.images_layer import ImagesLayer
+from paidiverpy.metadata_parser import MetadataParser
+from paidiverpy.utils.data import EIGHT_BITS
+from paidiverpy.utils.data import SIXTEEN_BITS
+from paidiverpy.utils.data import THIRTY_TWO_BITS
+from paidiverpy.utils.exceptions import raise_value_error
+
 
 class ConvertLayer(Paidiverpy):
-    def __init__(self,
-                 config_file_path=None,
-                 input_path=None,
-                 output_path=None,
-                 catalog_path=None,
-                 catalog_type=None,
-                 catalog=None,
-                 config=None,
-                 logger=None,
-                 images=None,
-                 paidiverpy=None,
-                 step_name=None,
-                 parameters=None,
-                 config_index=None,
-                 raise_error=False,
-                 verbose=True):
+    """Process the images in the convert layer.
 
-        super().__init__(config_file_path=config_file_path,
-                         input_path=input_path,
-                         output_path=output_path,
-                         catalog_path=catalog_path,
-                         catalog_type=catalog_type,
-                         catalog=catalog,
-                         config=config,
-                         logger=logger,
-                         images=images,
-                         paidiverpy=paidiverpy,
-                         raise_error=raise_error,
-                         verbose=verbose)
+    This class provides various methods to convert images according to specified
+    configurations, such as resizing, normalizing, bit depth conversion, and channel conversion.
+
+    Args:
+        config_params (Union[Dict, ConfigParams], optional): The configuration parameters.
+            It can contain the following keys / attributes:
+            - input_path (str): The path to the input files.
+            - output_path (str): The path to the output files.
+            - metadata_path (str): The path to the metadata file.
+            - metadata_type (str): The type of the metadata file.
+            - track_changes (bool): Whether to track changes.
+            - n_jobs (int): The number of n_jobs.
+        config_file_path (str): The path to the configuration file.
+        config (Configuration): The configuration object.
+        metadata (MetadataParser): The metadata object.
+        images (ImagesLayer): The images object.
+        paidiverpy (Paidiverpy): The paidiverpy object.
+        step_name (str): The name of the step.
+        parameters (dict): The parameters for the step.
+        config_index (int): The index of the configuration.
+        logger (logging.Logger): The logger object.
+        raise_error (bool): Whether to raise an error.
+        verbose (int): verbose level (0 = none, 1 = errors/warnings, 2 = info).
+    """
+
+    def __init__(
+        self,
+        config_params: dict | ConfigParams = None,
+        config_file_path: str | None = None,
+        config: Configuration = None,
+        metadata: MetadataParser = None,
+        images: ImagesLayer = None,
+        paidiverpy: "Paidiverpy" = None,
+        step_name: str | None = None,
+        parameters: dict | None = None,
+        config_index: int | None = None,
+        logger: logging.Logger | None = None,
+        raise_error: bool = False,
+        verbose: int = 2,
+    ):
+        super().__init__(
+            config_params=config_params,
+            config_file_path=config_file_path,
+            metadata=metadata,
+            config=config,
+            images=images,
+            paidiverpy=paidiverpy,
+            logger=logger,
+            raise_error=raise_error,
+            verbose=verbose,
+        )
 
         self.step_name = step_name
         if parameters:
             self.config_index = self.config.add_step(config_index, parameters)
         self.step_metadata = self._calculate_steps_metadata(self.config.steps[self.config_index])
+        self.layer_methods = CONVERT_LAYER_METHODS
 
+    def convert_bits(self, image_data: np.ndarray, params: BitParams = None) -> np.ndarray:
+        """Convert the image to the specified number of bits.
 
-    def run(self):
-        test = self.step_metadata.get('test')
-        images = self.images.get_step(step=len(self.images.images)-1, by_order=True)
-        image_list = []
-        for index, img in tqdm(enumerate(images), total=len(images), desc="Processing Images"):
-            img_data = img.image
-            if self.step_metadata.get('bits'):
-                img_data = ConvertLayer.convert_bits(img_data, output_bits=self.step_metadata.get('bits'), autoscale=self.step_metadata.get('autoscale'))
-            if self.step_metadata.get('to'):
-                img_data = ConvertLayer.channel_convert(img_data, to=self.step_metadata.get('to'), channel_selector=self.step_metadata.get('channel_selector'))
-            if self.step_metadata.get('bayer_pattern'):
-                try:
-                    bayer_pattern = ConvertLayer.get_bayer_pattern(
-                        img=img_data,
-                        bayer_pattern=self.step_metadata.get('bayer_pattern'),
-                        logger=self.logger,
-                        raise_error=self.raise_error)
-                    img_data = cv2.cvtColor(img_data, bayer_pattern)
-                except Exception as e:
-                    if self.raise_error:
-                        self.logger.error("Failed to convert the image to the Bayer pattern: %s", str(e))
-                        raise ValueError(f"Failed to convert the image to the Bayer pattern: {str(e)}") from e
-                    self.logger.warning("Failed to convert the image to the Bayer pattern: %s", str(e))
-                    self.logger.warning("The image will be processed without the Bayer pattern conversion.")
-                    return img_data
-            if self.step_metadata.get('normalize'):
-                img_data = ConvertLayer.normalize_image(img_data,
-                                                        value_range=self.step_metadata['normalize'],
-                                                        logger=self.logger,
-                                                        raise_error=self.raise_error)
-            if self.step_metadata.get('resize'):
-                img_data = ConvertLayer.resize(img_data,
-                                               value_range=self.step_metadata['resize'],
-                                               logger=self.logger,
-                                               raise_error=self.raise_error)
-            if self.step_metadata.get('crop'):
-                img_data = ConvertLayer.crop_images(img_data,
-                                                   value_range=self.step_metadata['crop'],
-                                                   logger=self.logger,
-                                                   raise_error=self.raise_error)
+        Args:
+            image_data (np.ndarray): The image data.
+            params (BitParams, optional): The parameters for the bit conversion.
+        Defaults to BitParams().
 
-            img = ImageLayer(image=img_data,
-                            image_metadata=self.get_catalog(flag='all').iloc[index].to_dict(),
-                            step_order=self.images.get_last_step_order(),
-                            step_name=self.step_name)
-            image_list.append(img)
-        if not test:
-            self.step_name = f'convert_{self.config_index}' if not self.step_name else self.step_name
-            self.images.add_step(step=self.step_name,
-                                 images=image_list,
-                                 step_metadata=self.step_metadata)
-
-    @staticmethod
-    def convert_bits(img, output_bits = None, autoscale = None, logger = None, raise_error = False):
-        if autoscale:
-            try:
-                result = np.float32(img) - np.min(img)
-                result[result < 0.0] = 0.0
-                if np.max(img) != 0:
-                    result = result / np.max(img)
-                if output_bits == 8:
-                    img_bit = np.uint8(255 * result)
-                elif output_bits == 16:
-                    img_bit = np.uint16(65535 * result)
-                elif output_bits == 32:
-                    img_bit = np.float32(result)
-            except Exception as e:
-                if logger:
-                    logger.error("Failed to autoscale the image: %s", e)
-                if raise_error:
-                    raise ValueError(f"Failed to autoscale the image: {str(e)}") from e
-                img_bit = img
+        Returns:
+            np.ndarray: The image data with the specified number of bits.
+        """
+        if params is None:
+            params = BitParams()
+        if params.output_bits == EIGHT_BITS:
+            image_data = np.uint8(image_data * 255)
+        elif params.output_bits == SIXTEEN_BITS:
+            image_data = np.uint16(image_data * 65535)
+        elif params.output_bits == THIRTY_TWO_BITS:
+            image_data = np.float32(image_data)
         else:
-            if output_bits == 8:
-                img_bit = np.uint8(255)
-            elif output_bits == 16:
-                img_bit = np.uint16(65535)
-            elif output_bits == 32:
-                img_bit = np.float32(result)
-        return img_bit
+            self.logger.warning("Unsupported output bits: %s", params.output_bits)
+            if self.raise_error:
+                msg = f"Unsupported output bits: {params.output_bits}"
+                raise ValueError(msg)
 
-    @staticmethod
-    def channel_convert(img, to = None, channel_selector = None, logger = None, raise_error = False):
+        return image_data
+
+    def channel_convert(self, image_data: np.ndarray, params: ToParams = None) -> np.ndarray:
+        """Convert the image to the specified channel.
+
+        Args:
+            image_data (np.ndarray): The image data.
+            params (ToParams, optional): The parameters for the channel conversion.
+        Defaults to ToParams().
+
+        Raises:
+            ValueError: The image is already in RGB format.
+            ValueError: The image is already in grayscale.
+            ValueError: Failed to convert the image to {params.to}: {str(e)}
+
+        Returns:
+            np.ndarray: The image data with the specified channel.
+        """
+        if params is None:
+            params = ToParams()
         try:
-            if to == 'RGB':
-                if len(img.shape) != 3 and img.shape[2] != 3:
-                    img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
-            elif to == 'gray':
-                if channel_selector in [0, 1, 2]:
-                    img = img[:, :, channel_selector]
+            if params.to == "RGB":
+                if image_data.shape[-1] == 1:
+                    image_data = cv2.cvtColor(image_data, cv2.COLOR_GRAY2RGB)
                 else:
-                    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        except Exception as e:
-            if logger:
-                logger.error(f"Failed to convert the image to {to}: {str(e)}")
-            if raise_error:
-                raise ValueError(f"Failed to convert the image to {to}: {str(e)}") from e
-        return img
+                    raise_value_error("The image is already in RGB format.")
+            elif params.to == "gray":
+                if image_data.shape[-1] == 1:
+                    raise_value_error("The image is already in grayscale.")
+                if params.channel_selector in [0, 1, 2]:
+                    image_data = image_data[:, :, params.channel_selector]
+                else:
+                    image_data = cv2.cvtColor(image_data, cv2.COLOR_BGR2GRAY)
+        except Exception as e:  # noqa: BLE001
+            self.logger.warning("Failed to convert the image to %s: %s", params.to, e)
+            if self.raise_error:
+                msg = f"Failed to convert the image to {params.to}: {e}"
+                raise_value_error(msg)
+        return image_data
 
-    @staticmethod
-    def get_bayer_pattern(img, bayer_pattern, logger=None, raise_error=False):
-        # Determine the number of channels in the input image
-        if len(img.shape) == 3:
-            img_channels = img.shape[2]
-        else:
-            img_channels = 1
-        
-        if img_channels == 1:
-            if bayer_pattern == 'RG':
-                return cv2.COLOR_BAYER_RG2RGB
-            elif bayer_pattern == 'BG':
-                return cv2.COLOR_BAYER_BG2RGB
-            elif bayer_pattern == 'GR':
-                return cv2.COLOR_BAYER_GR2RGB
-            elif bayer_pattern == 'GB':
-                return cv2.COLOR_BAYER_GB2RGB
-            else:
-                if logger:
-                    logger.warning("Invalid Bayer pattern for a single-channel image: %s", bayer_pattern)
-                if raise_error:
-                    raise ValueError("Invalid Bayer pattern for a single-channel image. Expected 'RG', 'BG', 'GR', or 'GB'.")
-                return None
-        elif img_channels in [3, 4]:
-            if logger:
-                logger.warning("Unsupported number of channels in the image: %s", img_channels)
-            if raise_error:
-                raise ValueError("Invalid Bayer pattern for a single-channel image. Expected 'RG', 'BG', 'GR', or 'GB'.")
-            return None
-        else:
-            if logger:
-                logger.warning("Unsupported number of channels in the image: %s", img_channels)
-            if raise_error:
-                raise ValueError("Unsupported number of channels in the image.")
-            return None
+    def get_bayer_pattern(
+        self,
+        image_data: np.ndarray,
+        params: BayerPatternParams = None,
+    ) -> np.ndarray:
+        """Convert the image to the specified Bayer pattern.
 
+        Args:
+            image_data (np.ndarray): The image data.
+            params (BayerPatternParams, optional): The parameters for the Bayer pattern conversion.
+        Defaults to BayerPatternParams().
 
-    @staticmethod
-    def normalize_image(img, value_range=None, logger=None, raise_error=False):
+        Raises:
+            ValueError: Invalid Bayer pattern for a single-channel image.
+            KeyError: Invalid Bayer pattern for a single-channel image.
+        Expected 'RG', 'BG', 'GR', or 'GB'.
+
+        Returns:
+            np.ndarray: The image data with the specified Bayer pattern.
+        """
+        if params is None:
+            params = BayerPatternParams()
+        if image_data.shape[-1] != 1:
+            self.logger.warning(
+                "Invalid Bayer pattern for a single-channel image: %s",
+                params.bayer_pattern,
+            )
+            if self.raise_error:
+                msg = "Invalid Bayer pattern for a single-channel image. Expected 'RG', 'BG', 'GR', or 'GB'."
+                raise ValueError(
+                    msg,
+                )
+            return image_data
         try:
-            return cv2.normalize(img, img, value_range[0], value_range[1], cv2.NORM_MINMAX, dtype=cv2.CV_32F)
-        except Exception as e:
-            if logger:
-                logger.error(f"Failed to normalize the image: {str(e)}")
-            if raise_error:
-                raise ValueError(f"Failed to normalize the image: {str(e)}") from e
-        return img
+            bayer_pattern = {
+                "RG": cv2.COLOR_BAYER_RG2RGB,
+                "BG": cv2.COLOR_BAYER_BG2RGB,
+                "GR": cv2.COLOR_BAYER_GR2RGB,
+                "GB": cv2.COLOR_BAYER_GB2RGB,
+            }[params.bayer_pattern]
+        except KeyError as exc:
+            self.logger.warning(
+                "Invalid Bayer pattern for a single-channel image: %s",
+                params.bayer_pattern,
+            )
+            if self.raise_error:
+                msg = "Invalid Bayer pattern for a single-channel image. Expected 'RG', 'BG', 'GR', or 'GB'."
+                raise KeyError(
+                    msg,
+                ) from exc
 
-    @staticmethod
-    def resize(img, value_range, logger=None, raise_error=False):
-        try:
-            return cv2.resize(img, (value_range[0], value_range[1]), interpolation=cv2.INTER_LANCZOS4)
-        except Exception as e:
-            if logger:
-                logger.error(f"Failed to resize the image: {str(e)}")
-            if raise_error:
-                raise ValueError(f"Failed to resize the image: {str(e)}") from e
-        return img
+            return image_data
+        return cv2.cvtColor(image_data, bayer_pattern)
 
-    @staticmethod
-    def crop_images(img, value_range, logger=None, raise_error=False):
+    def normalize_image(self, image_data: np.ndarray, params: NormalizeParams = None) -> np.ndarray:
+        """Normalize the image data.
+
+        Args:
+            image_data (np.ndarray): The image data.
+            params (NormalizeParams, optional): The parameters for the image normalization.
+        Defaults to NormalizeParams().
+
+        Raises:
+            ValueError: Failed to normalize the image: {str(e)}
+
+        Returns:
+            np.ndarray: The normalized image data.
+        """
+        if params is None:
+            params = NormalizeParams()
         try:
-            start_x, end_x = value_range[0]
-            start_y, end_y = value_range[1]
-            if start_x < 0 or end_x > img.shape[0] or start_y < 0 or end_y > img.shape[1]:
-                raise ValueError("Crop range is out of bounds.")
-            return img[start_x:end_x, start_y:end_y, :]
+            return cv2.normalize(
+                image_data,
+                image_data,
+                params.min,
+                params.max,
+                cv2.NORM_MINMAX,
+                dtype=cv2.CV_32F,
+            )
         except Exception as e:
-            if logger:
-                logger.error("Failed to crop the image: %s", str(e))
-            if raise_error:
-                raise ValueError(f"Failed to crop the image: {str(e)}") from e
-        return img
+            self.logger.warning("Failed to normalize the image: %s", e)
+            if self.raise_error:
+                msg = f"Failed to normalize the image: {e!s}"
+                raise ValueError(msg) from e
+        return image_data
+
+    def resize(self, image_data: np.ndarray, params: ResizeParams = None) -> np.ndarray:
+        """Resize the image data.
+
+        Args:
+            image_data (np.ndarray): The image data.
+            params (ResizeParams, optional): The parameters for the image resizing.
+        Defaults to ResizeParams().
+
+        Raises:
+            ValueError: Failed to resize the image: {str(e)}
+
+        Returns:
+            np.ndarray: The resized image data.
+        """
+        if params is None:
+            params = ResizeParams()
+        try:
+            return cv2.resize(image_data, (params.min, params.max), interpolation=cv2.INTER_LANCZOS4)
+        except Exception as e:
+            self.logger.warning("Failed to resize the image: %s", e)
+            if self.raise_error:
+                msg = f"Failed to resize the image: {e!s}"
+                raise ValueError(msg) from e
+        return image_data
+
+    def crop_images(self, image_data: np.ndarray, params: CropParams = None) -> np.ndarray:
+        """Crop the image data.
+
+        Args:
+            image_data (np.ndarray): The image data.
+            params (CropParams, optional): The parameters for the image cropping.
+        Defaults to CropParams().
+
+        Raises:
+            ValueError: Crop range is out of bounds.
+            ValueError: Failed to crop the image: {str(e)}
+
+        Returns:
+            np.ndarray: The cropped image data.
+        """
+        if params is None:
+            params = CropParams()
+        try:
+            start_x, end_x = params.x[0]
+            start_y, end_y = params.y[1]
+            if start_x < 0 or end_x > image_data.shape[1] or start_y < 0 or end_y > image_data.shape[2]:
+                msg = "Crop range is out of bounds."
+                raise_value_error(msg)
+            return image_data[:, start_x:end_x, start_y:end_y, :]
+        except Exception as e:
+            self.logger.warning("Failed to crop the image: %s", e)
+            if self.raise_error:
+                msg = f"Failed to crop the image: {e!s}"
+                raise ValueError(msg) from e
+        return image_data
