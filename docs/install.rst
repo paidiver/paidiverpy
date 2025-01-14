@@ -10,7 +10,14 @@ You can install the package locally or use our docker image.
 
 - **Install the package locally**:
 
-You can install `paidiverpy` locally or on a notebook server such as JASMIN or the NOC Data Science Platform (DSP). The following steps are applicable to both environments, but steps 2 and 3 are required if you are using a notebook server.
+
+To install it using pip, you can run the following command:
+
+.. code-block:: text
+
+  pip install paidiverpy
+
+You can also build the package from source. To do so, you need to clone the repository and install the package using the following commands:
 
 1. Clone the repository:
 
@@ -38,7 +45,7 @@ You can install `paidiverpy` locally or on a notebook server such as JASMIN or t
   conda env create -f environment.yml
   conda activate Paidiverpy
 
-3. (Optional) For JASMIN or DSP users, you also need to install the environment in the Jupyter IPython kernel. Execute the following command:
+3. (Optional) For notebooks servers, like JASMIN or DSP users, you also need to install the environment in the Jupyter IPython kernel. Execute the following command:
 
 .. code-block:: text
 
