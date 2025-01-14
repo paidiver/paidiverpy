@@ -1,142 +1,256 @@
-""" Open raw image file
-"""
+"""Open raw image file."""
+
+import copy
 import gc
+import logging
+import uuid
+import cv2
+import dask
+import dask_image.imread
+import numpy as np
+import pandas as pd
+from dask import compute
+from dask import delayed
+from dask.diagnostics import ProgressBar
 from PIL import Image
 from PIL.ExifTags import TAGS
-import pandas as pd
-import cv2
 from tqdm import tqdm
 from paidiverpy import Paidiverpy
+from paidiverpy.config.config import Configuration
+from paidiverpy.config.config_params import ConfigParams
 from paidiverpy.convert_layer import ConvertLayer
-from paidiverpy.image_layer import ImageLayer
+from paidiverpy.images_layer import ImagesLayer
+from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.resample_layer import ResampleLayer
+from paidiverpy.utils.docker import is_running_in_docker
+from paidiverpy.utils.dynamic_classes import DynamicConfig
+
 
 class OpenLayer(Paidiverpy):
-    def __init__(self,
-                 config_file_path=None,
-                 input_path=None,
-                 output_path=None,
-                 catalog_path=None,
-                 catalog_type=None,
-                 catalog=None,
-                 config=None,
-                 logger=None,
-                 images=None,
-                 paidiverpy=None,
-                 step_name='raw',
-                 parameters=None,
-                 raise_error=False,
-                 verbose=True):
+    """Open raw image file.
 
-        super().__init__(config_file_path=config_file_path,
-                         input_path=input_path,
-                         output_path=output_path,
-                         catalog_path=catalog_path,
-                         catalog_type=catalog_type,
-                         catalog=catalog,
-                         config=config,
-                         logger=logger,
-                         images=images,
-                         paidiverpy=paidiverpy,
-                         raise_error=raise_error,
-                         verbose=verbose)
+    Args:
+        config_params (Union[Dict, ConfigParams], optional): The configuration parameters.
+            It can contain the following keys / attributes:
+            - input_path (str): The path to the input files.
+            - output_path (str): The path to the output files.
+            - metadata_path (str): The path to the metadata file.
+            - metadata_type (str): The type of the metadata file.
+            - track_changes (bool): Whether to track changes.
+            - n_jobs (int): The number of n_jobs.
+        config_file_path (str): The path to the configuration file.
+        config (Configuration): The configuration object.
+        metadata (MetadataParser): The metadata object.
+        images (ImagesLayer): The images object.
+        paidiverpy (Paidiverpy): The paidiverpy object.
+        step_name (str): The name of the step.
+        parameters (dict): The parameters for the step.
+        logger (logging.Logger): The logger object.
+        raise_error (bool): Whether to raise an error.
+        verbose (int): verbose level (0 = none, 1 = errors/warnings, 2 = info).
+    """
+
+    def __init__(
+        self,
+        config_params: dict | ConfigParams = None,
+        config_file_path: str | None = None,
+        config: Configuration = None,
+        metadata: MetadataParser = None,
+        images: ImagesLayer = None,
+        paidiverpy: "Paidiverpy" = None,
+        step_name: str = "raw",
+        parameters: dict | None = None,
+        logger: logging.Logger | None = None,
+        raise_error: bool = False,
+        verbose: int = 2,
+    ):
+        super().__init__(
+            config_params=config_params,
+            config_file_path=config_file_path,
+            metadata=metadata,
+            config=config,
+            images=images,
+            paidiverpy=paidiverpy,
+            logger=logger,
+            raise_error=raise_error,
+            verbose=verbose,
+        )
 
         self.step_name = step_name
         if parameters:
-            self.config.add_config('general', parameters)
+            self.config.add_config("general", parameters)
 
+        is_docker = is_running_in_docker()
+        if self.config.general.sample_data:
+            self.correct_input_path = self.config.general.input_path
+        else:
+            self.correct_input_path = "/app/input/" if is_docker else self.config.general.input_path
         self.extract_exif()
         self.step_metadata = self._calculate_steps_metadata(self.config.general)
 
-    def run(self):
-        if self.step_name == 'raw':
+    def run(self) -> None:
+        """Run the open layer steps based on the configuration file or parameters."""
+        if self.step_name == "raw":
             self.import_image()
+            if self.step_metadata.get("convert"):
+                for step in self.step_metadata.get("convert"):
+                    dict_step = step.to_dict() if issubclass(type(step), DynamicConfig) else step
+                    step_params = {
+                        "step_name": "convert",
+                        "name": dict_step.get("mode"),
+                        "mode": dict_step.get("mode"),
+                        "params": dict_step.get("params"),
+                    }
+                    new_config = copy.copy(self.config)
+                    convert_layer = ConvertLayer(
+                        config=new_config,
+                        metadata=self.metadata,
+                        images=self.images,
+                        step_name=step_params["name"],
+                        parameters=step_params,
+                        config_index=None,
+                    )
+                    self.images = convert_layer.run(add_new_step=False)
 
-    def import_image(self):
-        if self.step_metadata.get('sampling_mode') and self.step_metadata.get('sampling_limits'):
-            self.config.general.mode = self.step_metadata.get('sampling_mode')
-            self.config.general.limits = self.step_metadata.get('sampling_limits')
-            self.set_catalog(ResampleLayer(config=self.config, catalog=self.catalog).run())
+                    # remove last step
+                    self.config.steps.pop()
+                    del convert_layer
+                    gc.collect()
 
-        img_path_list = [
-            self.config.general.input_path / filename for filename in self.get_catalog()['filename']]
+    def import_image(self) -> None:
+        """Import images with optional Dask parallelization."""
+        if self.step_metadata.get("sampling"):
+            for step in self.step_metadata.get("sampling"):
+                dict_step = step.to_dict() if issubclass(type(step), DynamicConfig) else step
+                step_params = {
+                    "step_name": "sampling",
+                    "name": dict_step.get("mode"),
+                    "mode": dict_step.get("mode"),
+                    "params": dict_step.get("params"),
+                }
+                new_config = copy.copy(self.config)
+                self.set_metadata(
+                    ResampleLayer(
+                        config=new_config,
+                        metadata=self.metadata,
+                        parameters=step_params,
+                    ).run(),
+                )
+                self.config.steps.pop()
 
-        image_list = []
+        img_path_list = [self.correct_input_path / filename for filename in self.get_metadata()["image-filename"]]
+        if self.n_jobs == 1:
+            image_list = [self.process_image(img_path) for img_path in tqdm(img_path_list, total=len(img_path_list), desc="Open Images")]
+        else:
+            delayed_image_list = [delayed(self.process_image)(img_path) for _, img_path in enumerate(img_path_list)]
+            with dask.config.set(scheduler="threads", num_workers=self.n_jobs):
+                with ProgressBar():
+                    computed_images = compute(*delayed_image_list)
+                image_list = list(computed_images)
 
-        for index, img_path in tqdm(enumerate(img_path_list), total=len(img_path_list), desc="Processing Images"):
-            img = self.open_image(
-                img_path=img_path,
-                image_metadata=self.get_catalog(flag='all').iloc[index].to_dict()
-            )
-            image_list.append(img)
-            del img
-            gc.collect()
-        self.images.add_step(step=self.step_name, images=image_list, step_metadata=self.step_metadata)
+        metadata = self.get_metadata()
+        rename = self.step_metadata.get("rename")
+        if rename:
+            image_type = f".{self.step_metadata.get('image_type')}" if self.step_metadata.get("image_type") else ""
+            if rename == "datetime":
+                metadata["image-filename"] = pd.to_datetime(metadata["image-datetime"]).dt.strftime("%Y%m%dT%H%M%S.%f").str[:-3] + "Z" + image_type
+
+                duplicate_mask = metadata.duplicated(subset="image-filename", keep=False)
+                if duplicate_mask.any():
+                    duplicates = metadata[duplicate_mask]
+                    duplicates["duplicate_number"] = duplicates.groupby("image-filename").cumcount() + 1
+                    metadata.loc[duplicate_mask, "image-filename"] = duplicates.apply(
+                        lambda row: f"{row['image-filename'][:-1]}_{row['duplicate_number']}",
+                        axis=1,
+                    )
+            elif rename == "UUID":
+                metadata["image-filename"] = metadata["image-filename"].apply(lambda _: str(uuid.uuid4()) + image_type)
+            else:
+                self.logger.error("Unknown rename mode: %s", rename)
+                if self.raise_error:
+                    msg = f"Unknown rename mode: {rename}"
+                    raise ValueError(msg)
+            self.set_metadata(metadata)
+
+        self.images.add_step(
+            step=self.step_name,
+            images=image_list,
+            step_metadata=self.step_metadata,
+            metadata=metadata,
+            track_changes=self.track_changes,
+        )
         del image_list
         gc.collect()
 
-    def open_image(self,
-                   img_path,
-                   image_metadata = None):
+    def process_image(self, img_path: str) -> np.ndarray | dask.array.core.Array:
+        """Process a single image file.
 
-        img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
+        Args:
+            img_path (str): The path to the image file
 
-        if self.step_metadata.get('convert_bayer_pattern'):
-            try:
-                bayer_pattern = ConvertLayer.get_bayer_pattern(
-                    img=img,
-                    bayer_pattern=self.step_metadata.get('convert_bayer_pattern'),
-                    logger=self.logger,
-                    raise_error=self.raise_error)
-                img = cv2.cvtColor(img, bayer_pattern)
-            except Exception as e:
-                if self.raise_error:
-                    self.logger.error("Failed to convert the image to the Bayer pattern: %s", str(e))
-                    raise ValueError("Failed to convert the image to the Bayer pattern") from e
-                self.logger.warning("Failed to convert the image to the Bayer pattern: %s", str(e))
-                self.logger.warning("The image will be processed without the Bayer pattern conversion")                
-                return img
-        
-        if self.step_metadata.get('convert_bits'):
-            img = ConvertLayer.convert_bits(img,
-                                            self.step_metadata.get('convert_bits'),
-                                            self.step_metadata.get('convert_autoscale'),
-                                            logger=self.logger,
-                                            raise_error=self.raise_error)
-        if self.step_metadata.get('convert_to'):
-            img = ConvertLayer.channel_convert(
-                img,
-                self.step_metadata.get('convert_to'),
-                self.step_metadata.get('convert_channel_selector'),
-                logger=self.logger,
-                raise_error=self.raise_error)
-        # img = OpenLayer.normalize_image(img)
-        if self.step_metadata.get('convert_normalize'):
-            img = ConvertLayer.normalize_image(img,
-                                               self.step_metadata['convert_normalize'],
-                                               logger=self.logger,
-                                               raise_error=self.raise_error)
-        img = ImageLayer(image=img,
-                         image_metadata=image_metadata,
-                         step_order=self.images.get_last_step_order(),
-                         step_name=self.step_name)
+        Returns:
+            Union[np.ndarray, dask.array.core.Array]: The processed image data
+        """
+        img = self.open_image(img_path=img_path)
+        gc.collect()
         return img
 
-    def extract_exif(self):
-        img_path_list = [self.config.general.input_path / filename for filename in self.get_catalog()['filename']]
-        exif_list = []
-        for img_path in img_path_list:
-            exif_list.append(OpenLayer.extract_exif_single(img_path))
-        self.set_catalog(self.get_catalog(flag='all').merge(pd.DataFrame(exif_list), on='filename', how='left'))
+    def open_image(self, img_path: str) -> np.ndarray | dask.array.core.Array:
+        """Open an image file.
+
+        Args:
+            img_path (str): The path to the image file
+
+        Raises:
+            ValueError: Failed to open the image
+
+        Returns:
+            Union[np.ndarray, dask.array.core.Array]: The image data
+        """
+        if self.n_jobs == 1:
+            img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
+        else:
+            img = dask_image.imread.imread(img_path)
+            img = np.squeeze(img)
+        if img is None:
+            if self.raise_error:
+                self.logger.error("Failed to open the image: %s", img_path)
+                msg = "Failed to open the image"
+                raise ValueError(msg)
+            self.logger.warning("Failed to open the image: %s", img_path)
+            return None
+        return img
+
+    def extract_exif(self) -> None:
+        """Extract EXIF data from the images and add it to the metadata DataFrame."""
+        img_path_list = [self.correct_input_path / filename for filename in self.get_metadata()["image-filename"]]
+        exif_list = [OpenLayer.extract_exif_single(img_path, self.logger) for img_path in img_path_list]
+        self.set_metadata(self.get_metadata(flag="all").merge(pd.DataFrame(exif_list), on="image-filename", how="left"))
 
     @staticmethod
-    def extract_exif_single(img_path):
-        img_pil = Image.open(img_path)
-        exif_data = img_pil.getexif()
+    def extract_exif_single(img_path: str, logger: logging.Logger) -> dict:
+        """Extract EXIF data from a single image file.
+
+        Args:
+            img_path (str): The path to the image file.
+            logger (logging.Logger): The logger object.
+
+        Returns:
+            dict: The EXIF data.
+        """
         exif = {}
-        if exif_data is not None:
-            exif['filename'] = img_path.name
-            for tag, value in exif_data.items():
-                tag_name = TAGS.get(tag, tag)
-                exif[tag_name] = value
+        try:
+            img_pil = Image.open(img_path)
+            exif_data = img_pil.getexif()
+            if exif_data is not None:
+                exif["image-filename"] = img_path.name
+                for tag, value in exif_data.items():
+                    tag_name = TAGS.get(tag, tag)
+                    exif[tag_name] = value
+        except FileNotFoundError as e:
+            logger.warning("Failed to open %s: %s", img_path, e)
+        except OSError as e:
+            logger.warning("Failed to open %s: %s", img_path, e)
+        except Exception as e:  # noqa: BLE001
+            logger.warning("Failed to extract EXIF data from %s: %s", img_path, e)
         return exif

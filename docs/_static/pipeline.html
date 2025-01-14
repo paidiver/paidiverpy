@@ -1,0 +1,135 @@
+<div style="display: flex; flex-wrap: wrap; align-items: center">
+  <div
+    id="general"
+    title="Click to see more information"
+    class="square"
+    style="
+      float: left;
+      cursor: pointer;
+      padding: 10px;
+      width: max-content;
+      height: max-content;
+      margin: 10px;
+      border: 1px solid #000;
+      text-align: center;
+      line-height: 80px;
+    "
+    onclick="showParameters('general')"
+  >
+    <h2 style="font-size: 20px">Raw</h2>
+    <h2 style="font-size: 13px">Type: Raw</h2>
+  </div>
+
+  <div
+    style="
+      float: left;
+      width: 50px;
+      height: max-content;
+      margin: 10px;
+      text-align: center;
+      line-height: 80px;
+    "
+  >
+    &#10132;
+  </div>
+  <div
+    id="step_0"
+    title="Click to see more information"
+    class="square"
+    style="
+      cursor: pointer;
+      float: left;
+      padding: 10px;
+      width: max-content;
+      height: max-content;
+      margin: 10px;
+      border: 1px solid #000;
+      text-align: center;
+      line-height: 80px;
+    "
+    onclick="showParameters('step_0')"
+  >
+    <h2 style="font-size: 20px">Colour_correction</h2>
+    <h2 style="font-size: 13px">Type: Colour</h2>
+  </div>
+</div>
+<div id="parameters" style="padding: 10px; margin: 10px">
+  <div id="parameters_step_0" class="parameters" style="display: none">
+    <pre>
+{
+                "name": "colour_correction",
+                "step_name": "colour",
+                "mode": "grayscale",
+                "test": false
+                }</pre
+    >
+  </div>
+  <div id="parameters_general" class="parameters" style="display: none">
+    <pre>
+{
+            "name": "raw",
+            "step_name": "raw",
+            "sample_data": "benthic_csv",
+            "input_path": "/home/tobfer/.paidiverpy_cache/benthic_csv/images",
+            "metadata_path": "/home/tobfer/.paidiverpy_cache/benthic_csv/metadata/metadata_benthic_csv.csv",
+            "metadata_type": "CSV_FILE",
+            "image_type": "PNG",
+            "append_data_to_metadata": "/home/tobfer/.paidiverpy_cache/benthic_csv/metadata/appended_metadata_benthic_csv.csv",
+            "output_path": "output",
+            "n_jobs": 1,
+            "rename": "datetime",
+            "sampling": [
+              {
+                  "name": "sampling",
+                  "step_name": "sampling",
+                  "mode": "percent",
+                  "test": false,
+                  "params": {
+                      "value": 0.1
+                  }
+              }
+            ],
+            "convert": [
+              {
+                  "name": "convert",
+                  "step_name": "convert",
+                  "mode": "bits",
+                  "test": false,
+                  "params": {
+                      "output_bits": 8
+                  }
+              }
+            ]
+            }</pre
+    >
+  </div>
+</div>
+<script>
+  function showParameters(id) {
+    // Hide all parameter sections
+    var currentTarget = document.getElementById(id);
+    var square = document.getElementsByClassName("square");
+    var allParams = document.getElementsByClassName("parameters");
+    var selectedParams = document.getElementById("parameters_" + id);
+    var idWasVisible = false;
+    if (selectedParams) {
+      var idWasVisible = selectedParams.style.display === "block";
+    }
+    for (var i = 0; i < square.length; i++) {
+      square[i].style.color = "black";
+    }
+    for (var i = 0; i < allParams.length; i++) {
+      allParams[i].style.display = "none";
+    }
+    // Show the selected parameter section
+    if (selectedParams) {
+      if (idWasVisible) {
+        selectedParams.style.display = "none";
+        currentTarget.style.color = "black";
+      } else {
+        selectedParams.style.display = "block";
+        currentTarget.style.color = "red";
+      }
+    }
+  }
+</script>

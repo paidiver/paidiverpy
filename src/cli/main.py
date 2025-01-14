@@ -1,35 +1,44 @@
+"""Main module for the paidiverpy CLI."""
+
 import argparse
-import logging
-import os
 import sys
-
-from paidiverpy.color_layer.color_layer import ColorLayer
-from paidiverpy.open_layer.open_layer import OpenLayer
 from paidiverpy.pipeline import Pipeline
-from utils import initialise_logging
+from paidiverpy.utils.logging import initialise_logging
 
-logger = logging.getLogger(__name__)
+logger = initialise_logging()
 
-def process_action(parser):
+
+def process_action(parser: argparse.ArgumentParser) -> None:
+    """Process the action based on the arguments provided.
+
+    Args:
+        parser (argparse.ArgumentParser): The parser to parse the arguments from.
+    """
     args = parser.parse_args()
 
-    if len(sys.argv) == 1 and args is None:
+    if len(sys.argv) == 1:
         # Show help if no args provided
         parser.print_help(sys.stderr)
         sys.exit(2)
 
-    pipeline = Pipeline(config_file_path=args.configuration_file)
-    config = pipeline.config
-
-    images = OpenLayer(config=config).import_image()
-
-    if config.edge:
-        images = ColorLayer(config=config).edge_detection(images=images)
-
-    return images
+    pipeline = Pipeline(
+        config_file_path=args.configuration_file,
+        logger=logger,
+        track_changes=False,
+    )
+    pipeline.run()
+    pipeline.save_images()
 
 
-def add_arguments(parser):
+def add_arguments(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    """Add arguments to the parser.
+
+    Args:
+        parser (argparse.ArgumentParser): The parser to add arguments to.
+
+    Returns:
+        argparse.ArgumentParser: The parser with added arguments.
+    """
     parser.add_argument(
         "-c",
         "--configuration_file",
@@ -39,16 +48,11 @@ def add_arguments(parser):
     )
     return parser
 
-def main():
 
-    initialise_logging()
-
+def main() -> None:
+    """Main function for the paidiverpy CLI."""
     parser = argparse.ArgumentParser(description="Paidiverpy image preprocessing")
     parser = add_arguments(parser)
 
     process_action(parser)
-    logging.info("✔ paidiverpy terminated successfully ✔")
-    sys.exit(0)
-
-if __name__ == "__main__":
-    main()
+    logger.info("✔ paidiverpy terminated successfully ✔")

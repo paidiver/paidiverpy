@@ -1,0 +1,30 @@
+cff-version: "1.2.0"
+title: "paidiverpy"
+authors:
+  - family-names: Ferreira
+    given-names: Tobias
+    orcid: "https://orcid.org/0000-0002-0888-9751"
+  - family-names: Masoudi
+    given-names: Mojtaba
+    orcid: "https://orcid.org/0000-0002-0007-0362"
+  - family-names: Loïc
+    given-names: Audenhaege
+    name-particle: Van
+    orcid: "https://orcid.org/0000-0003-3973-029X"
+  - family-names: Orenstein
+    given-names: Erik
+    orcid: "https://orcid.org/0000-0002-9822-6774"
+  - family-names: Sauze
+    given-names: Colin
+    orcid: "https://orcid.org/0000-0001-5368-9217"
+  - family-names: Durden
+    given-names: Jennife
+    orcid: "https://orcid.org/0000-0002-6529-9109"
+date-released: 2025-01-14
+version: "0.0.2"
+doi: 10.0000/FIXME
+url: "https://github.com/paidiver/paidiverpy"
+keywords:
+  - "image processing"
+  - "machine learning"
+message: "If you use this software, please cite it using these metadata."
