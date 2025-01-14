@@ -12,6 +12,14 @@ The official documentation is hosted on ReadTheDocs.org: https://paidiverpy.read
 
 ## Installation
 
+To install paidiverpy, run:
+
+ ```bash
+pip install paidiverpy
+ ```
+
+### Build from Source
+
 You can install `paidiverpy` locally or on a notebook server such as JASMIN or the NOC Data Science Platform (DSP). The following steps are applicable to both environments, but steps 2 and 3 are required if you are using a notebook server.
 
 1. Clone the repository:
