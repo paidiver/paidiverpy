@@ -3,7 +3,7 @@
 import argparse
 import sys
 from paidiverpy.pipeline import Pipeline
-from paidiverpy.utils import initialise_logging
+from paidiverpy.utils.logging import initialise_logging
 
 logger = initialise_logging()
 
