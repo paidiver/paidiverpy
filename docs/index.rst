@@ -14,7 +14,7 @@ Paidiverpy package documentation
 
 .. admonition:: Note
 
-  This package is still in active development, and frequent updates and changes are expected. The API and features may evolve as we continue improving it.
+  This package is still in active devment, and frequent updates and changes are expected. The API and features may evolve as we continue improving it.
 
   Comprehensive documentation is forthcoming.
 

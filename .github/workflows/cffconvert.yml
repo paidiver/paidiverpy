@@ -3,11 +3,11 @@ name: cffconvert
 on:
   push:
     branches:
-    - develop
+    - dev
     - main
   pull_request:
     branches:
-    - develop
+    - dev
     - main
 
 jobs:
