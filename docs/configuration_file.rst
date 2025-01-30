@@ -8,7 +8,7 @@ The configuration file is a crucial component of the Paidiverpy package. It defi
 Format and Schema
 ------------------
 
-The configuration file is written in YAML format and should adhere to the schema detailed in the `configuration file schema <https://github.com/paidiver/paidiverpy/blob/develop/src/paidiverpy/configuration-schema.json>`_. Below is an example of a configuration file:
+The configuration file is written in YAML format and should adhere to the schema detailed in the `configuration file schema <https://github.com/paidiver/paidiverpy/blob/dev/src/paidiverpy/configuration-schema.json>`_. Below is an example of a configuration file:
 
 .. code-block:: yaml
 
@@ -69,7 +69,7 @@ In the example above, the configuration file outlines a pipeline with the follow
 Example Configuration Files
 ------------------
 
-Example configuration files for processing the sample datasets can be found in the `example/config_files <https://github.com/paidiver/paidiverpy/tree/develop/examples/config_files>`_ directory of the repository. These files can be used to test the example notebooks described in the :doc:`gallery examples <gallery>`. Running the examples will automatically download the sample data.
+Example configuration files for processing the sample datasets can be found in the `example/config_files <https://github.com/paidiver/paidiverpy/tree/dev/examples/config_files>`_ directory of the repository. These files can be used to test the example notebooks described in the :doc:`gallery examples <gallery>`. Running the examples will automatically download the sample data.
 
 Validation Tools
 ------------------

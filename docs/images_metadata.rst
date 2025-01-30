@@ -32,6 +32,6 @@ Example Files
 
 Examples of both CSV and IFDO metadata files are available in the ``example/metadata`` directory. You can refer to these examples to guide the creation of your own metadata files:
 
-- `Example Metadata Files <https://github.com/paidiver/paidiverpy/tree/develop/examples/metadata>`_
+- `Example Metadata Files <https://github.com/paidiver/paidiverpy/tree/dev/examples/metadata>`_
 
 By following these guidelines and utilizing the provided examples, you can ensure that your metadata is well-structured and compatible with the Paidiverpy package, facilitating effective image processing.

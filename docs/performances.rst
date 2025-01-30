@@ -110,6 +110,6 @@ Key Considerations
 Examples and Resources
 ----------------------
 
-- **Configuration Files**: Find example configuration files for parallel execution in the `GitHub repository <https://github.com/paidiver/paidiverpy/tree/develop/examples/config_files>`_.
+- **Configuration Files**: Find example configuration files for parallel execution in the `GitHub repository <https://github.com/paidiver/paidiverpy/tree/dev/examples/config_files>`_.
 
 - **Interactive Examples**: Explore example notebooks with custom algorithms in the :doc:`gallery examples <gallery>`.
