@@ -242,7 +242,7 @@ class Paidiverpy:
             if "image-datetime" not in self.metadata.metadata.columns:
                 return self.metadata.metadata[self.metadata.metadata["flag"] <= flag].copy()
             return self.metadata.metadata[self.metadata.metadata["flag"] <= flag].sort_values("image-datetime").copy()
-        return self.metadata
+        return self.metadata.compute()
 
     def set_metadata(self, metadata: pd.DataFrame) -> None:
         """Set the metadata.

@@ -6,7 +6,9 @@ import logging
 import uuid
 import cv2
 import dask
+import dask.array as da
 import dask_image.imread
+import fsspec
 import numpy as np
 import pandas as pd
 from dask import compute
@@ -24,6 +26,7 @@ from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.resample_layer import ResampleLayer
 from paidiverpy.utils.docker import is_running_in_docker
 from paidiverpy.utils.dynamic_classes import DynamicConfig
+from paidiverpy.utils.object_store import define_storage_options
 
 
 class OpenLayer(Paidiverpy):
@@ -79,10 +82,13 @@ class OpenLayer(Paidiverpy):
         self.step_name = step_name
         if parameters:
             self.config.add_config("general", parameters)
-
         is_docker = is_running_in_docker()
+        self.storage_options = define_storage_options(self.config.input_path)
+
         if self.config.general.sample_data:
             self.correct_input_path = self.config.general.input_path
+        elif self.config.input_path.startswith(("http", "s3://")):
+            self.correct_input_path = self.config.input_path
         else:
             self.correct_input_path = "/app/input/" if is_docker else self.config.general.input_path
         self.extract_exif()
@@ -207,11 +213,39 @@ class OpenLayer(Paidiverpy):
         Returns:
             Union[np.ndarray, dask.array.core.Array]: The image data
         """
+        is_remote = str(img_path).startswith(("http://", "https://", "s3://"))
+
         if self.n_jobs == 1:
-            img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
+            # Sequential processing
+            if is_remote:
+                with fsspec.open(img_path, mode="rb", **self.storage_options) as f:
+                    img_array = np.frombuffer(f.read(), np.uint8)
+                img = cv2.imdecode(img_array, cv2.IMREAD_UNCHANGED)
+            else:
+                img = cv2.imread(str(img_path), cv2.IMREAD_UNCHANGED)
         else:
-            img = dask_image.imread.imread(img_path)
-            img = np.squeeze(img)
+            if is_remote:
+                files = fsspec.open_files([img_path], mode="rb", **self.storage_options)
+                lazy_arrays = [
+                    da.from_delayed(
+                        dask.delayed(cv2.imdecode)(
+                            np.frombuffer(f.read(), np.uint8), cv2.IMREAD_UNCHANGED
+                        ),
+                        shape=(None, None, 3), dtype=np.uint8
+                    )
+                    for f in files
+                ]
+                img = da.stack(lazy_arrays, axis=0)[0]
+            else:
+                img = dask_image.imread.imread(str(img_path))
+                img = np.squeeze(img)
+
+
+        # if self.n_jobs == 1:
+        #     img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
+        # else:
+        #     img = dask_image.imread.imread(img_path)
+        #     img = np.squeeze(img)
         if img is None:
             if self.raise_error:
                 self.logger.error("Failed to open the image: %s", img_path)
@@ -220,6 +254,48 @@ class OpenLayer(Paidiverpy):
             self.logger.warning("Failed to open the image: %s", img_path)
             return None
         return img
+
+
+    def open_image(self, img_path: str) -> np.ndarray | dask.array.core.Array:
+        """Open an image file lazily from an object store.
+
+        Args:
+            img_path (str): The path to the image file (local or remote)
+
+        Raises:
+            ValueError: If the image cannot be opened.
+
+        Returns:
+            Union[np.ndarray, da.Array]: The image data (Dask array if parallel processing).
+        """
+        if img_path.startswith(("http", "s3://")):
+            if self.n_jobs == 1:
+                # Lazy streaming for single-threaded use (OpenCV)
+                with fsspec.open(img_path, mode="rb") as f:
+                    img_array = np.frombuffer(f.read(), np.uint8)
+                img = cv2.imdecode(img_array, cv2.IMREAD_UNCHANGED)
+            else:
+                # Lazily load images as Dask array
+                files = fsspec.open_files([img_path], mode="rb")
+                lazy_arrays = [da.from_delayed(dask.delayed(cv2.imdecode)(
+                    np.frombuffer(f.read(), np.uint8), cv2.IMREAD_UNCHANGED),
+                    shape=(None, None, 3), dtype=np.uint8) for f in files]
+                img = da.stack(lazy_arrays, axis=0)[0]
+        else:
+            if self.n_jobs == 1:
+                img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
+            else:
+                img = dask_image.imread.imread(img_path)
+
+        if img is None:
+            self.logger.warning("Failed to open the image: %s", img_path)
+            if self.raise_error:
+                raise ValueError("Failed to open the image")
+            return None
+
+        return img
+
+
 
     def extract_exif(self) -> None:
         """Extract EXIF data from the images and add it to the metadata DataFrame."""
