@@ -242,7 +242,7 @@ class Paidiverpy:
             if "image-datetime" not in self.metadata.metadata.columns:
                 return self.metadata.metadata[self.metadata.metadata["flag"] <= flag].copy()
             return self.metadata.metadata[self.metadata.metadata["flag"] <= flag].sort_values("image-datetime").copy()
-        return self.metadata.compute()
+        return self.metadata
 
     def set_metadata(self, metadata: pd.DataFrame) -> None:
         """Set the metadata.
@@ -302,6 +302,9 @@ class Paidiverpy:
             last=last,
             output_path=output_path,
             image_format=image_format,
+            client=self.client,
+            n_jobs=self.n_jobs,
+            logger=self.logger,
         )
         self.logger.info("Images are saved to: %s", output_path)
 
