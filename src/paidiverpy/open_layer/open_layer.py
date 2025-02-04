@@ -4,8 +4,10 @@ import copy
 import gc
 import logging
 import uuid
+from io import BytesIO
 import cv2
 import dask
+import dask.array as da
 import dask_image.imread
 import numpy as np
 import pandas as pd
@@ -24,6 +26,7 @@ from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.resample_layer import ResampleLayer
 from paidiverpy.utils.docker import is_running_in_docker
 from paidiverpy.utils.dynamic_classes import DynamicConfig
+from paidiverpy.utils.object_store import define_storage_options, get_file_from_bucket
 
 
 class OpenLayer(Paidiverpy):
@@ -79,13 +82,14 @@ class OpenLayer(Paidiverpy):
         self.step_name = step_name
         if parameters:
             self.config.add_config("general", parameters)
-
         is_docker = is_running_in_docker()
-        if self.config.general.sample_data:
+        self.storage_options = define_storage_options(self.config.general.input_path)
+
+
+        if self.config.general.sample_data or self.config.general.is_remote:
             self.correct_input_path = self.config.general.input_path
         else:
             self.correct_input_path = "/app/input/" if is_docker else self.config.general.input_path
-        self.extract_exif()
         self.step_metadata = self._calculate_steps_metadata(self.config.general)
 
     def run(self) -> None:
@@ -137,8 +141,10 @@ class OpenLayer(Paidiverpy):
                     ).run(),
                 )
                 self.config.steps.pop()
-
-        img_path_list = [self.correct_input_path / filename for filename in self.get_metadata()["image-filename"]]
+        if self.config.general.is_remote:
+            img_path_list = [self.correct_input_path + filename for filename in self.get_metadata()["image-filename"]]
+        else:
+            img_path_list = [self.correct_input_path / filename for filename in self.get_metadata()["image-filename"]]
         if self.n_jobs == 1:
             image_list = [self.process_image(img_path) for img_path in tqdm(img_path_list, total=len(img_path_list), desc="Open Images")]
         else:
@@ -191,11 +197,32 @@ class OpenLayer(Paidiverpy):
         Returns:
             Union[np.ndarray, dask.array.core.Array]: The processed image data
         """
-        img = self.open_image(img_path=img_path)
+        img, exif = self.open_image(img_path=img_path)
+
+        if exif:
+            metadata = self.get_metadata(flag="all").merge(
+                pd.DataFrame([exif]), on="image-filename", how="left", suffixes=("", "_new")
+            )
+
+            for col in pd.DataFrame([exif]).columns:
+                if col in metadata.columns and f"{col}_new" in metadata.columns:
+                    metadata[col] = metadata[col].combine_first(metadata[f"{col}_new"])
+                    metadata = metadata.drop(columns=[f"{col}_new"])
+
+            self.set_metadata(metadata)
         gc.collect()
+
+        if img is None:
+            if self.raise_error:
+                self.logger.error("Failed to open the image: %s", img_path)
+                msg = "Failed to open the image"
+                raise ValueError(msg)
+            self.logger.warning("Failed to open the image: %s", img_path)
+            return None
+
         return img
 
-    def open_image(self, img_path: str) -> np.ndarray | dask.array.core.Array:
+    def open_image(self, img_path: str) -> tuple[np.ndarray | dask.array.core.Array, dict]:
         """Open an image file.
 
         Args:
@@ -205,35 +232,58 @@ class OpenLayer(Paidiverpy):
             ValueError: Failed to open the image
 
         Returns:
-            Union[np.ndarray, dask.array.core.Array]: The image data
+            tuple[np.ndarray | dask.array.core.Array, dict]: The image data and the EXIF data
         """
-        if self.n_jobs == 1:
-            img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
+        exif = {}
+        if self.config.general.is_remote:
+            try:
+                img_bytes = get_file_from_bucket(img_path, self.storage_options)
+                if self.n_jobs == 1:
+                    img_array = np.frombuffer(img_bytes, np.uint8)
+                    img = cv2.imdecode(img_array, cv2.IMREAD_UNCHANGED)
+                else:
+                    img_array = np.frombuffer(img_bytes, np.uint8)
+                    decoded_img = cv2.imdecode(img_array, cv2.IMREAD_UNCHANGED)
+                    lazy_img = delayed(cv2.imdecode)(
+                        np.frombuffer(img_bytes, np.uint8), cv2.IMREAD_UNCHANGED
+                    )
+                    img = da.from_delayed(lazy_img, shape=decoded_img.shape, dtype=decoded_img.dtype)
+                exif = OpenLayer.extract_exif_single(BytesIO(img_bytes),
+                                                    self.logger,
+                                                    image_name=img_path.split("/")[-1])
+            except (FileNotFoundError, OSError, TypeError) as e:
+                img = None
+                self.logger.warning("Failed to open %s: %s", img_path, e)
+
         else:
-            img = dask_image.imread.imread(img_path)
-            img = np.squeeze(img)
-        if img is None:
-            if self.raise_error:
-                self.logger.error("Failed to open the image: %s", img_path)
-                msg = "Failed to open the image"
-                raise ValueError(msg)
-            self.logger.warning("Failed to open the image: %s", img_path)
-            return None
-        return img
+            exif = OpenLayer.extract_exif_single(img_path, self.logger)
+            if self.n_jobs == 1:
+                img = cv2.imread(str(img_path), cv2.IMREAD_UNCHANGED)
+            else:
+                img = dask_image.imread.imread(str(img_path))
+                img = np.squeeze(img)
+        return img, exif
 
     def extract_exif(self) -> None:
         """Extract EXIF data from the images and add it to the metadata DataFrame."""
         img_path_list = [self.correct_input_path / filename for filename in self.get_metadata()["image-filename"]]
-        exif_list = [OpenLayer.extract_exif_single(img_path, self.logger) for img_path in img_path_list]
-        self.set_metadata(self.get_metadata(flag="all").merge(pd.DataFrame(exif_list), on="image-filename", how="left"))
+        self.logger.info("Extracting EXIF data from %s", img_path_list)
+        exif_list = [OpenLayer.extract_exif_single(
+            img_path, self.logger) for img_path in img_path_list]
+        self.set_metadata(self.get_metadata(
+            flag="all").merge(
+                pd.DataFrame(exif_list), on="image-filename", how="left"))
 
     @staticmethod
-    def extract_exif_single(img_path: str, logger: logging.Logger) -> dict:
+    def extract_exif_single(img_path: str,
+                            logger: logging.Logger,
+                            image_name: str | None = None) -> dict:
         """Extract EXIF data from a single image file.
 
         Args:
             img_path (str): The path to the image file.
             logger (logging.Logger): The logger object.
+            image_name (str, optional): The name of the image file. Defaults to None.
 
         Returns:
             dict: The EXIF data.
@@ -243,7 +293,10 @@ class OpenLayer(Paidiverpy):
             img_pil = Image.open(img_path)
             exif_data = img_pil.getexif()
             if exif_data is not None:
-                exif["image-filename"] = img_path.name
+                if image_name:
+                    exif["image-filename"] = image_name
+                else:
+                    exif["image-filename"] = img_path.name
                 for tag, value in exif_data.items():
                     tag_name = TAGS.get(tag, tag)
                     exif[tag_name] = value
