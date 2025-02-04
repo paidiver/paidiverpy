@@ -1,19 +1,19 @@
 """Module for parsing metadata files."""
 
-import logging
-import os
-import fsspec
-import warnings
+from io import BytesIO
 import json
-import mariqt.sources.ifdo as miqtifdo
-import mariqt.tests as miqtt
-# import pandas as pd
+import logging
+import warnings
 import dask.dataframe as dd
+import boto3
+import mariqt.tests as miqtt
+import pandas as pd
 from mariqt.core import IfdoException
 from shapely.geometry import Point
 from paidiverpy.config.config import Configuration
 from paidiverpy.utils.logging import initialise_logging
-from paidiverpy.utils.object_store import define_storage_options
+from paidiverpy.utils.object_store import define_storage_options, get_file_from_bucket
+
 warnings.filterwarnings("ignore", category=UserWarning)
 
 filename_columns = ["image-filename", "filename", "file_name", "FileName", "File Name"]
@@ -178,7 +178,7 @@ class MetadataParser:
         Returns:
             dd.DataFrame: Metadata DataFrame.
         """
-        new_metadata = dd.read_csv(self.append_data_to_metadata).drop_duplicates(subset="filename", keep="first")
+        new_metadata = pd.read_csv(self.append_data_to_metadata).drop_duplicates(subset="filename", keep="first")
 
         if not any(col in new_metadata.columns for col in filename_columns):
             msg = f"Metadata does not have a filename column: {filename_columns}"
@@ -196,10 +196,8 @@ class MetadataParser:
             dd.DataFrame: Metadata DataFrame.
         """
         metadata_path = self.metadata_path if isinstance(self.metadata_path, str) else str(self.metadata_path)
-        with fsspec.open(metadata_path, mode="rt", **self.storage_options) as f:
-            metadata = json.load(f)
-
-
+        file_bytes = get_file_from_bucket(metadata_path, self.storage_options)
+        metadata =  json.loads(file_bytes.decode("utf-8"))
         self._validate_ifdo(metadata)
         self.dataset_metadata = metadata["image-set-header"]
         metadata = dd.from_dict(metadata["image-set-items"], orient="index", npartitions=2)
@@ -211,7 +209,7 @@ class MetadataParser:
         if "image-datetime" in metadata.columns:
             metadata["image-datetime"] = dd.to_datetime(metadata["image-datetime"])
             metadata = metadata.sort_values(by="image-datetime")
-        return metadata
+        return metadata.compute()
 
     def _open_csv_metadata(self) -> dd.DataFrame:
         """Open CSV metadata file.
@@ -219,11 +217,13 @@ class MetadataParser:
         Returns:
             dd.DataFrame: Metadata DataFrame
         """
-
-        with fsspec.open(self.metadata_path, mode="rt", **self.storage_options) as f:
-            metadata = dd.read_csv(self.metadata_path,
-                                storage_options=self.storage_options,
-                                assume_missing=True)
+        if self.storage_options:
+            file_bytes = get_file_from_bucket(self.metadata_path, self.storage_options)
+            file_bytes = BytesIO(file_bytes)
+            df_pandas = pd.read_csv(file_bytes)
+            metadata = dd.from_pandas(df_pandas)
+        else:
+            metadata = dd.read_csv(self.metadata_path, assume_missing=True)
 
         if not any(col in metadata.columns for col in index_columns):
             metadata = metadata.reset_index().rename(columns={"index": "ID"})
@@ -234,7 +234,7 @@ class MetadataParser:
             metadata["image-datetime"] = dd.to_datetime(metadata["image-datetime"])
             metadata = metadata.sort_values(by="image-datetime")
 
-        return metadata
+        return metadata.compute()
 
     @staticmethod
     def _validate_ifdo(ifdo_data: dict) -> None:
@@ -257,7 +257,7 @@ class MetadataParser:
         Returns:
             str: String representation of the metadata.
         """
-        return repr(self.metadata.compute)
+        return repr(self.metadata)
 
     def _repr_html_(self) -> str:
         """Return the HTML representation of the metadata.
@@ -266,6 +266,6 @@ class MetadataParser:
             str: HTML representation of the metadata.
         """
         message = "This is a instance of 'MetadataParser'<br><br>"
-        metadata = self.metadata.compute()
+        metadata = self.metadata
 
         return message + metadata._repr_html_()
