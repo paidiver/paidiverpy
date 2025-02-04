@@ -30,10 +30,12 @@ class GeneralConfig(DynamicConfig):
         self.sample_data = kwargs.get("sample_data")
         if self.sample_data:
             self._define_sample_data(self.sample_data)
+            self.is_remote = False
         else:
             input_path = kwargs.get("input_path")
+            self.is_remote = str(input_path).startswith(("http://", "https://", "s3://"))
             if input_path:
-                self.input_path = Path(input_path)
+                self.input_path = Path(input_path) if not self.is_remote else input_path
             self.metadata_path = kwargs.get("metadata_path")
             if self.metadata_path == "SAMPLE_DATA_BENTHIC":
                 self.metadata_path = Path(data.load("benthic_metadata"))
@@ -41,8 +43,10 @@ class GeneralConfig(DynamicConfig):
             self.image_type = kwargs.get("image_type")
             self.append_data_to_metadata = kwargs.get("append_data_to_metadata", False)
         output_path = kwargs.get("output_path")
+        self.output_is_remote = str(output_path).startswith(("http://", "https://", "s3://"))
         if output_path:
-            output_path = Path(output_path)
+            if not self.output_is_remote:
+                output_path = Path(output_path)
             self.output_path = output_path
 
         self.n_jobs = kwargs.get("n_jobs", 1)

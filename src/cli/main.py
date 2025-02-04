@@ -1,8 +1,10 @@
 """Main module for the paidiverpy CLI."""
 
 import argparse
+import json
 import sys
 from paidiverpy.pipeline import Pipeline
+from paidiverpy.utils.benchmark_test import benchmark_handler
 from paidiverpy.utils.logging import initialise_logging
 
 logger = initialise_logging()
@@ -17,10 +19,14 @@ def process_action(parser: argparse.ArgumentParser) -> None:
     args = parser.parse_args()
 
     if len(sys.argv) == 1:
-        # Show help if no args provided
         parser.print_help(sys.stderr)
         sys.exit(2)
-
+    if not args.configuration_file:
+        logger.error("Please provide a configuration file.")
+        sys.exit(1)
+    if args.benchmark_test:
+        benchmark_handler(args.benchmark_test, args.configuration_file, logger)
+        return
     pipeline = Pipeline(
         config_file_path=args.configuration_file,
         logger=logger,
@@ -46,6 +52,21 @@ def add_arguments(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         default="./config/config.yaml",
         help="Path to the configuration file 'config.yaml'",
     )
+
+    parser.add_argument(
+        "-bt",
+        "--benchmark_test",
+        dest="benchmark_test",
+        type=json.loads,
+        help=(
+            "OPTIONAL: ONLY FOR BENCHMARK TESTING. Information for benchmark tests "
+            "as a JSON string. E.g., "
+            '\'{"cores": [1,2,4,8,16,32], "processes": [1,2,4,8,16,32], '
+            '"memory": [1,2,4,8,16,32], "scale": [1,2,4,8,16,32] }\''
+        ),
+        default={},
+    )
+
     return parser
 
 

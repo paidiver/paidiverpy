@@ -44,7 +44,6 @@ def check_and_install_dependencies(dependencies: list[str] | None, dependencies_
         if not is_package_installed(package_name):
             subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
-
 def is_package_installed(package_name: str) -> bool:
     """Check if the package is installed.
 
@@ -56,6 +55,6 @@ def is_package_installed(package_name: str) -> bool:
     """
     try:
         version(package_name)
-        return True
     except PackageNotFoundError:
         return False
+    return True

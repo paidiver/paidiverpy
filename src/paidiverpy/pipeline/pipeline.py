@@ -117,6 +117,7 @@ class Pipeline(Paidiverpy):
                         parameters=step_params,
                         config_index=index - 1,
                     )
+
                 step_instance.run()
                 if not step_params.get("test", False):
                     self.images = step_instance.images
@@ -293,11 +294,16 @@ class Pipeline(Paidiverpy):
                 <pre>{json.dumps(self.config.general.to_dict(), indent=4)}</pre>
             </div>
         """
+        part_text = ""
+        if len(self.steps) > 1:
+            part_text = (
+                '<div style="float:left; width: 50px; height: 80px; margin: 10px; '
+                f'text-align: center; line-height: 80px;">&#10132;</div>{steps_html}'
+            )
 
         return f"""
         <div style="display: flex; flex-wrap: wrap; align-items: center;">
-            {general_html}
-            {f'<div style="float:left; width: 50px; height: 80px; margin: 10px; text-align: center; line-height: 80px;">&#10132;</div>{steps_html}' if len(self.steps) > 1 else ''}
+            {general_html}{part_text}
         </div>
         <div id="parameters" style="padding: 10px; margin: 10px;">{parameters_html}</div>
         <script>
