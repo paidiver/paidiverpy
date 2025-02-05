@@ -91,7 +91,7 @@ Required dependencies
 - scipy
 - xarray
 
-Requirement dependencies details can be found `here <https://github.com/paidiver/paidiverpy/blob/develop/pyproject.toml>`_.
+Requirement dependencies details can be found `here <https://github.com/paidiver/paidiverpy/blob/dev/pyproject.toml>`_.
 
 These dependencies will be installed automatically when you install the package.
 

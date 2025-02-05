@@ -66,7 +66,7 @@ You can install `paidiverpy` locally or on a notebook server such as JASMIN or t
 
 First, create a configuration file. Example configuration files for processing the sample datasets are available in the `example/config` directory. You can use these files to test the example notebooks described in the [Usage section](#usage). Note that running the examples will automatically download the sample data.
 
-The configuration file should follow the JSON schema described in the [configuration file schema](src/paidiverpy/configuration-schema.json). An online tool to validate configuration files is available [here](https://paidiver.github.io/paidiverpy/config_check.html).
+The configuration file should follow the JSON schema described in the [configuration file schema](src/paidiverpy/configuration-schema.json). An online tool to validate configuration files is available [here](https://paidiver.github.io/paidiverpy/docs/config_check.html).
 
 ### Metadata
 
@@ -108,6 +108,7 @@ While comprehensive documentation is forthcoming, you can explore various use ca
 - [Rerun pipeline steps with modified configurations](examples/example_notebooks/pipeline_interaction.ipynb)
 - [Use parallelization with Dask](examples/example_notebooks/pipeline_dask.ipynb)
 - [Run a pipeline using a public dataset with IFDO metadata](examples/example_notebooks/pipeline_ifdo.ipynb)
+- [Run a pipeline using a data on a object store](examples/example_notebooks/pipeline_remote_data.ipynb)
 
 ### Example Data
 

@@ -2,19 +2,20 @@
 
 import logging
 import sys
+from typing import ClassVar
 
 
 class ColorFormatter(logging.Formatter):
     """Custom formatter to add colors to log messages."""
 
-    COLORS = {
+    COLORS: ClassVar[dict[str, str]] = {
         "DEBUG": "\033[94m",  # Blue
         "INFO": "\033[92m",  # Green
         "WARNING": "\033[93m",  # Yellow
         "ERROR": "\033[91m",  # Red
         "CRITICAL": "\033[95m",  # Magenta
     }
-    RESET = "\033[0m"
+    RESET: ClassVar[str] = "\033[0m"
 
     def format(self, record: logging.LogRecord) -> str:
         """Format the log message with color.
