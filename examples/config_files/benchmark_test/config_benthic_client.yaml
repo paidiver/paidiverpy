@@ -1,0 +1,52 @@
+general:
+  sample_data: "benthic_csv"
+  output_path: "./output"
+  client:
+    cluster_type: "slurm"
+    params:
+      queue: "par-single"
+      cores: 16
+      processes: 1
+      memory: "64GB"
+      scale: 2
+      walltime: "12:00:00"
+      job_extra_directives: ["--output=slurm-%j.out","--error=slurm-%j.err"],
+  image_type: "JPG"
+  track_changes: False
+
+steps:
+  - convert:
+      mode: "bits"
+      params:
+        output_bits: 8
+  - colour:
+      name: "colour_alteration"
+      mode: "colour_alteration"
+      params:
+        method:
+          "white_balance"
+  - colour:
+      name: "gaussian_blur"
+      mode: "gaussian_blur"
+      params:
+        sigma: 1.0
+  - colour:
+      name: "sharpen"
+      mode: "sharpen"
+      params:
+        alpha: 1.5
+        beta: -0.5
+  - colour:
+      name: "contrast"
+      mode: "contrast"
+  - sampling:
+      name: "datetime"
+      mode: "datetime"
+      params:
+        min: "2018-06-11 04:14:00"
+        max: "2018-06-11 04:20:00"
+  - sampling:
+      name: "percent"
+      mode: "percent"
+        params:
+          value: 0.1

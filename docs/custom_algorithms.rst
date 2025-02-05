@@ -67,7 +67,7 @@ In this example:
 Real Example
 ------------
 
-For a more concrete example, consider the following code snippet (available in `examples/custom_algorithms files <https://github.com/paidiver/paidiverpy/blob/develop/src/paidiverpy/custom_layer/_custom_algorithm_example.py>`_ of the `paidiverpy` package):
+For a more concrete example, consider the following code snippet (available in `examples/custom_algorithms files <https://github.com/paidiver/paidiverpy/blob/dev/src/paidiverpy/custom_layer/_custom_algorithm_example.py>`_ of the `paidiverpy` package):
 
 .. literalinclude:: ../examples/custom_algorithms/custom_algorithms_example.py
 
@@ -102,7 +102,7 @@ In this setup:
 
 To execute, run your application with the configuration file above, and the custom algorithm will be applied accordingly.
 
-Example configuration files for custom algorithms can be found in the `example/config_files <https://github.com/paidiver/paidiverpy/tree/develop/examples/config_files>`_ directory of the repository. You can also run an example notebook with a custom algorithm by exploring the :doc:`gallery examples <gallery>`.
+Example configuration files for custom algorithms can be found in the `example/config_files <https://github.com/paidiver/paidiverpy/tree/dev/examples/config_files>`_ directory of the repository. You can also run an example notebook with a custom algorithm by exploring the :doc:`gallery examples <gallery>`.
 
 Run in Docker
 ------------

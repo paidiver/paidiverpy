@@ -6,7 +6,7 @@ notebooks/
 output/
 examples/examples_notebooks/output/*
 examples/examples_notebooks/*.yaml
-
+test_examples/*
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
