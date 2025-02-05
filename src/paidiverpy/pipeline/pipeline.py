@@ -117,7 +117,6 @@ class Pipeline(Paidiverpy):
                         parameters=step_params,
                         config_index=index - 1,
                     )
-
                 step_instance.run()
                 if not step_params.get("test", False):
                     self.images = step_instance.images
@@ -127,6 +126,8 @@ class Pipeline(Paidiverpy):
 
                 del step_instance
                 gc.collect()
+        if self.client:
+            self.client.close()
 
     def _validate_pipeline(self) -> None:
         """Validate the pipeline.

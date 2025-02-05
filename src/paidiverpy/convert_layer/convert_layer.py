@@ -6,6 +6,7 @@ parameters.
 
 import logging
 import cv2
+from dask.distributed import Client
 import numpy as np
 from paidiverpy import Paidiverpy
 from paidiverpy.config.config import Configuration
@@ -47,6 +48,7 @@ class ConvertLayer(Paidiverpy):
         paidiverpy (Paidiverpy): The paidiverpy object.
         step_name (str): The name of the step.
         parameters (dict): The parameters for the step.
+        client (Client): The Dask client.
         config_index (int): The index of the configuration.
         logger (logging.Logger): The logger object.
         raise_error (bool): Whether to raise an error.
@@ -63,6 +65,7 @@ class ConvertLayer(Paidiverpy):
         paidiverpy: "Paidiverpy" = None,
         step_name: str | None = None,
         parameters: dict | None = None,
+        client: Client | None = None,
         config_index: int | None = None,
         logger: logging.Logger | None = None,
         raise_error: bool = False,
@@ -75,6 +78,7 @@ class ConvertLayer(Paidiverpy):
             config=config,
             images=images,
             paidiverpy=paidiverpy,
+            client=client,
             logger=logger,
             raise_error=raise_error,
             verbose=verbose,

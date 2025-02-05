@@ -61,12 +61,11 @@ def add_arguments(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         help=(
             "OPTIONAL: ONLY FOR BENCHMARK TESTING. Information for benchmark tests "
             "as a JSON string. E.g., "
-            '\'{"cores": [1,2,4,8,16,32], "processes": [1,2,4,8,16,32], '
-            '"memory": [1,2,4,8,16,32], "scale": [1,2,4,8,16,32] }\''
+            '\'{"cluster_type": "slurm", "cores": [1,2,4,8,16,32], "processes": [1,2,4,8,16,32], '
+            '"memory": [1,2,4,8,16,32,64], "scale": [1,2,4,8] }\''
         ),
         default={},
     )
-
     return parser
 
 

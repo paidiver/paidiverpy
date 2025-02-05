@@ -47,7 +47,7 @@
             "cluster_type": {
               "type": "string",
               "enum": [
-                "dask",
+                "local",
                 "slurm"
               ]
             },
@@ -61,14 +61,14 @@
           "if": {
             "properties": {
               "cluster_type": {
-                "const": "dask"
+                "const": "local"
               }
             }
           },
           "then": {
             "properties": {
               "params": {
-                "$ref": "#/definitions/client_params/dask_params"
+                "$ref": "#/definitions/client_params/local_params"
               }
             }
           },
@@ -211,7 +211,7 @@
   ],
   "definitions": {
     "client_params": {
-      "dask_params": {
+      "local_params": {
         "type": "object",
         "properties": {
           "n_workers": {

@@ -73,7 +73,7 @@ class ImagesLayer:
                 self.images.append([None] * len_images)
             self.images.append(new_images)
         else:
-            if not track_changes and len(self.images) > 1:
+            if not track_changes and len(self.images) > 0:
                 len_images = len(self.images[-1])
                 del self.images[-1]
                 self.images.append([None] * len_images)
