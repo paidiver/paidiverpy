@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from dask.diagnostics import ProgressBar
+from dask.distributed import Client
 from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
 from paidiverpy.images_layer import ImagesLayer
@@ -34,6 +35,7 @@ class Paidiverpy:
         config (Configuration, optional): The configuration object.
         metadata (MetadataParser, optional): The metadata object.
         images (ImagesLayer, optional): The images object.
+        client (Client, optional): The Dask client object.
         paidiverpy (Paidiverpy, optional): The paidiverpy object.
         track_changes (bool): Whether to track changes. Defaults to None, which means
             it will be set to the value of the configuration file.
@@ -49,6 +51,7 @@ class Paidiverpy:
         config: Configuration = None,
         metadata: MetadataParser = None,
         images: ImagesLayer = None,
+        client: Client | None = None,
         paidiverpy: "Paidiverpy" = None,
         track_changes: bool | None = None,
         logger: logging.Logger | None = None,
@@ -66,7 +69,7 @@ class Paidiverpy:
             self.images = images or ImagesLayer(
                 output_path=self.config.general.output_path,
             )
-            self.client = get_client(self.config.general.client)
+            self.client = client or get_client(self.config.general.client)
             self.n_jobs = get_n_jobs(self.config.general.n_jobs)
             self.track_changes = self.config.general.track_changes
         if track_changes is not None:

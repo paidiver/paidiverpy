@@ -71,7 +71,7 @@ def get_client(config_client: dict) -> Client:
     cluster_type = config_client.get("cluster_type")
     if cluster_type == "slurm":
         client = parse_dask_job(config_client)
-    if cluster_type == "dask":
+    if cluster_type == "local":
         client = parse_dask_job(config_client)
     else:
         msg = f"Job type {cluster_type} not supported."

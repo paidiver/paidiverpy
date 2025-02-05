@@ -195,9 +195,15 @@ class MetadataParser:
         Returns:
             dd.DataFrame: Metadata DataFrame.
         """
+
         metadata_path = self.metadata_path if isinstance(self.metadata_path, str) else str(self.metadata_path)
-        file_bytes = get_file_from_bucket(metadata_path, self.storage_options)
-        metadata =  json.loads(file_bytes.decode("utf-8"))
+
+        if self.config.general.is_remote:
+            file_bytes = get_file_from_bucket(metadata_path, self.storage_options)
+            metadata =  json.loads(file_bytes.decode("utf-8"))
+        else:
+            with open(metadata_path, "r") as file:
+                metadata = json.load(file)
         self._validate_ifdo(metadata)
         self.dataset_metadata = metadata["image-set-header"]
         metadata = dd.from_dict(metadata["image-set-items"], orient="index", npartitions=2)
@@ -217,7 +223,7 @@ class MetadataParser:
         Returns:
             dd.DataFrame: Metadata DataFrame
         """
-        if self.storage_options:
+        if self.config.general.is_remote:
             file_bytes = get_file_from_bucket(self.metadata_path, self.storage_options)
             file_bytes = BytesIO(file_bytes)
             df_pandas = pd.read_csv(file_bytes)
