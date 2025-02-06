@@ -4,11 +4,11 @@ Resample the images based on the configuration file.
 """
 
 import logging
-from dask.distributed import Client
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from dask.distributed import Client
 from geopy.distance import geodesic
 from shapely.geometry import Polygon
 from paidiverpy import Paidiverpy

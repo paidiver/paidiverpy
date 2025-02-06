@@ -36,11 +36,12 @@ def update_dask_config(dask_config_kwargs: dict) -> None:
         logging.info("Updated dask configuration settings")
 
 
-def parse_dask_job(job: dict) -> Client:
+def parse_dask_job(job: dict, n_jobs: int) -> Client:
     """Parse the Dask job configuration.
 
     Args:
         job (dict): Job configuration.
+        n_jobs (int): Number of jobs.
 
     Returns:
         dask.distributed.Client: Dask client.
@@ -49,31 +50,40 @@ def parse_dask_job(job: dict) -> Client:
     if job.get("type") == "slurm":
         cluster = SLURMCluster(job.get("job_cluster_kwargs"))
         cluster_type = "SLURMCluster"
+        job_id = cluster.job_id
     else:
         cluster = LocalCluster(job.get("job_cluster_kwargs"))
         cluster_type = "LocalCluster"
+        job_id = None
+    cluster.scale(n_jobs)
     client = Client(cluster)
     logging.info("Created %s with Client: %s", cluster_type, client.dashboard_link)
+    if job_id is not None:
+        return client, job_id
     return client
 
 
-def get_client(config_client: dict) -> Client:
+def get_client(config_client: dict, n_jobs: int) -> Client:
     """Parse the client configuration.
 
     Args:
         config_client (dict): Client configuration.
+        n_jobs (int): Number of jobs.
 
     Returns:
         dask.distributed.Client: Dask client.
     """
     if config_client is None:
         return None
+    job_id = None
     cluster_type = config_client.get("cluster_type")
     if cluster_type == "slurm":
-        client = parse_dask_job(config_client)
+        client, job_id = parse_dask_job(config_client, n_jobs)
     if cluster_type == "local":
-        client = parse_dask_job(config_client)
+        client = parse_dask_job(config_client, n_jobs)
     else:
         msg = f"Job type {cluster_type} not supported."
         raise ValueError(msg)
+    if job_id is not None:
+        return client, job_id
     return client

@@ -18,6 +18,9 @@ class TestPipelineCustomAlgorithm(BaseTestClass):
 
     def test_custom_algorithm(self):
         """Test generating a Pipeline with Custom Algorithm."""
+        number_pipeline_steps = 3
+        number_images = 3
+
         pipeline = Pipeline(config_file_path="examples/config_files/config_custom_algorithm.yaml", verbose=1)
 
         assert isinstance(pipeline, Pipeline)
@@ -26,11 +29,11 @@ class TestPipelineCustomAlgorithm(BaseTestClass):
         assert isinstance(pipeline.to_html(), str)
         assert isinstance(pipeline.get_metadata(), pd.DataFrame)
         assert pipeline.steps[-1][2]["step_name"] == "custom"
-        assert len(pipeline.steps) == 3
+        assert len(pipeline.steps) == number_pipeline_steps
         pipeline.run()
         images = pipeline.images.images
         assert isinstance(images[0][0], np.ndarray)
-        assert len(images) == 3
+        assert len(images) == number_images
 
 
 if __name__ == "__main__":

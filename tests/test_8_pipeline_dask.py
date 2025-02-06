@@ -19,6 +19,8 @@ class TestPipelineDask(BaseTestClass):
 
     def test_parallel_processing_dask(self):
         """Test generating a Pipeline with Parallel Processing using dask."""
+        number_images = 7
+
         pipeline = Pipeline(config_file_path="examples/config_files/config_benthic_dask.yaml", verbose=0)
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
@@ -28,7 +30,7 @@ class TestPipelineDask(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert isinstance(images[0][0], da.core.Array)
-        assert len(images) == 7
+        assert len(images) == number_images
         html_image = pipeline.images.show(image_number=2)
         assert isinstance(html_image, HTML)
 

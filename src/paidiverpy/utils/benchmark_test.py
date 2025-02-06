@@ -1,33 +1,37 @@
+"""This module contains functions to run the benchmark test."""
+
 import gc
+import itertools
 import json
 import logging
-import itertools
-from pathlib import Path
+import subprocess
 import time
+from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import yaml
-from paidiverpy.config.config import Configuration
 from paidiverpy.pipeline.pipeline import Pipeline
 
+
 def benchmark_task(configuration_file: str,
-                   logger: logging.Logger
-                   ):
+                   logger: logging.Logger) -> None:
     """Run the benchmark task.
 
     Args:
         configuration_file (str): The path to the configuration file.
         logger (logging.Logger): The logger to log messages.
-
     """
     pipeline = Pipeline(
         config_file_path=configuration_file,
         logger=logger,
         track_changes=False,
     )
+    start_time = time.perf_counter()
     pipeline.run()
+    end_time = time.perf_counter()
     del pipeline
     gc.collect()
+    return start_time, end_time
 
 def plot_results(results: list, cluster_type: str) -> None:
     """Plot the benchmark results.
@@ -36,7 +40,6 @@ def plot_results(results: list, cluster_type: str) -> None:
         results (list): The list of benchmark results.
         cluster_type (str): The cluster type.
     """
-
     if cluster_type == "local":
         labels = [f"{r['workers']} Workers, {r['threads']} Threads, {r['memory']}GB" for r in results]
         sorted_indices = np.argsort([r["workers"] * 1000 + r["threads"] * 100 + r["memory"] for r in results])
@@ -59,18 +62,38 @@ def plot_results(results: list, cluster_type: str) -> None:
     plt.title(f"Dask Benchmark on {cluster_type} cluster")
 
     for index, value in enumerate(times):
-        plt.text(value + 0.5, index, f"{value:.2f}s", va='center', fontsize=10)
+        plt.text(value + 0.5, index, f"{value:.2f}s", va="center", fontsize=10)
 
     plt.gca().invert_yaxis()
     plt.savefig(f"benchmark_results_{cluster_type}.png")
 
-
 def update_yaml(file_path: str,
                 cluster_type: str,
                 output_file: str,
-                **kwargs) -> str:
-    """Update the YAML file with new benchmarking parameters and save it."""
-    with open(file_path, "r") as f:
+                **kwargs: dict) -> str:
+    """Update the YAML file with new benchmarking parameters and save it.
+
+    Args:
+        file_path (str): The path to the configuration file.
+        cluster_type (str): The cluster type.
+        output_file (str): The output file path.
+        **kwargs: The benchmarking parameters. It should be a dictionary with the following:
+            - For LocalCluster:
+                - workers (int): The number of workers.
+                - threads (int): The number of threads.
+                - memory (int): The memory limit.
+            - For SLURM:
+                - cores (int): The number of cores.
+                - processes (int): The number of processes.
+                - memory (int): The memory limit.
+                - scale (int): The scale factor.
+                - walltime (str): The walltime.
+                - queue (str): The queue name.
+
+    Returns:
+        str: The output file path.
+    """
+    with Path(file_path).open() as f:
         config = yaml.safe_load(f)
 
     if cluster_type == "slurm":
@@ -78,6 +101,8 @@ def update_yaml(file_path: str,
         processes = kwargs.get("processes", 1)
         memory = kwargs.get("memory", 1)
         scale = kwargs.get("scale", 1)
+        walltime = kwargs.get("walltime", "00:15:00")
+        queue = kwargs.get("queue", "par-single")
         config["general"]["client"] = {
             "cluster_type": cluster_type,
             "params": {
@@ -85,8 +110,8 @@ def update_yaml(file_path: str,
                 "processes": processes,
                 "memory": f"{memory}GB",
                 "scale": scale,
-                "walltime": "00:15:00",
-                "queue": "par-single",
+                "walltime": walltime,
+                "queue": queue
             }
         }
     else:
@@ -102,10 +127,11 @@ def update_yaml(file_path: str,
             }
         }
 
-    with open(output_file, "w") as f:
+    with Path(output_file).open("w") as f:
         yaml.dump(config, f, default_flow_style=False)
 
     return output_file
+
 
 def benchmark_local(benchmark_params: dict,
                     configuration_file: str,
@@ -116,7 +142,6 @@ def benchmark_local(benchmark_params: dict,
         benchmark_params (dict): The benchmark parameters.
         configuration_file (str): The path to the configuration files.
         logger (logging.Logger): The logger to log messages.
-        benchmark_results (list): The benchmark results.
 
     Returns:
         list: The benchmark results.
@@ -137,10 +162,11 @@ def benchmark_local(benchmark_params: dict,
             threads=threads,
             memory=memory
         )
-        logger.info("Running benchmark test with %s workers, %s threads, %sGB memory", workers, threads, memory)
-        start_time = time.perf_counter()
-        benchmark_task(updated_config_file, logger)
-        end_time = time.perf_counter()
+        logger.info("Running benchmark test with %s workers, %s threads, %sGB memory",
+                    workers,
+                    threads,
+                    memory)
+        start_time, end_time = benchmark_task(updated_config_file, logger)
         logger.info("Benchmark test completed")
 
         benchmark_results.append({
@@ -172,6 +198,8 @@ def benchmark_slurm(benchmark_params: dict,
     processes = benchmark_params.get("processes", [1])
     memory = benchmark_params.get("memory", [1])
     scale = benchmark_params.get("scale", [1])
+    walltime = benchmark_params.get("walltime", "00:30:00")
+    queue = benchmark_params.get("queue", "par-single")
     for core, proc, mem, sc in itertools.product(cores, processes, memory, scale):
         output_file = f"config_{cluster_type}_{core}_{proc}_{mem}_{sc}.yaml"
 
@@ -179,10 +207,12 @@ def benchmark_slurm(benchmark_params: dict,
             file_path=configuration_file,
             cluster_type=cluster_type,
             output_file=output_file,
-            core=core,
-            proc=proc,
-            mem=mem,
-            sc=sc
+            cores=core,
+            processes=proc,
+            memory=mem,
+            scale=sc,
+            walltime=walltime,
+            queue=queue
         )
 
         logger.info("Running benchmark test with %s cores, %s processes, %sGB memory, %s scale", core, proc, mem, sc)
@@ -200,6 +230,31 @@ def benchmark_slurm(benchmark_params: dict,
         })
 
     return benchmark_results
+
+
+def get_slurm_start_time(job_id: str) -> float:
+    """Get the start time of a SLURM job by querying the job information.
+
+    Args:
+        job_id (str): The SLURM job ID.
+
+    Returns:
+        float: The start time of the job in seconds since the epoch.
+    """
+    try:
+        # Query SLURM for the job's information
+        slurm_output = subprocess.check_output(
+            ["scontrol", "show", "job", job_id], encoding="utf-8"
+        )
+        # Parse the start time from the output (example: StartTime=2025-02-06T10:05:00)
+        start_time_str = next(line for line in slurm_output.splitlines() if "StartTime=" in line)
+        start_time = start_time_str.split("StartTime=")[1]
+        # Convert the start time to a timestamp
+        return time.mktime(time.strptime(start_time, "%Y-%m-%dT%H:%M:%S"))
+    except Exception as e:
+        logger.error(f"Error getting start time for job {job_id}: {e}")
+        return None
+
 
 def benchmark_handler(benchmark_params: dict,
                       configuration_file: str,
@@ -223,9 +278,8 @@ def benchmark_handler(benchmark_params: dict,
 
     logger.info("Benchmark test completed")
 
-    print(json.dumps(benchmark_results))
 
-    with open(f"benchmark_results_{cluster_type}.json", "w") as f:
+    with Path(f"benchmark_results_{cluster_type}.json").open("w") as f:
         json.dump(benchmark_results, f, indent=4)
     logger.info("Test results saved to benchmark_results_%s.json", cluster_type)
 

@@ -19,6 +19,8 @@ class TestSimpleProcessing(BaseTestClass):
 
     def test_open_layer_class(self):
         """Test the OpenLayer class."""
+        number_images = 2
+
         open_layer = OpenLayer(config_file_path="examples/config_files/config_simple.yaml")
         assert isinstance(open_layer, OpenLayer)
         open_layer_config = open_layer.config
@@ -45,7 +47,7 @@ class TestSimpleProcessing(BaseTestClass):
         assert resample_layer_config.steps == open_layer_config.steps
         resample_layer.run()
         images = resample_layer.images.images
-        assert len(images) == 2
+        assert len(images) == number_images
 
 
 if __name__ == "__main__":

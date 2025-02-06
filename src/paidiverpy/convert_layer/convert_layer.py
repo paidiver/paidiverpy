@@ -6,8 +6,8 @@ parameters.
 
 import logging
 import cv2
-from dask.distributed import Client
 import numpy as np
+from dask.distributed import Client
 from paidiverpy import Paidiverpy
 from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
