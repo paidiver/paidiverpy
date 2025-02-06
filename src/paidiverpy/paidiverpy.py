@@ -73,6 +73,9 @@ class Paidiverpy:
                 result = get_client(self.config.general.client, self.config.general.n_jobs)
                 if isinstance(result, tuple):
                     self.client, self.job_id = result
+                else:
+                    self.client = result
+                    self.job_id = None
             else:
                 self.client = client
                 self.job_id = None
@@ -149,11 +152,11 @@ class Paidiverpy:
             List[da.core.Array]: The list of processed images.
         """
         if self.client:
-            with self.client:
-                delayed_images = [dask.delayed(method)(img, params) for img in images]
-                with ProgressBar():
-                    delayed_images = dask.compute(*delayed_images)
-                return [da.from_array(img) for img in delayed_images]
+            delayed_images = [dask.delayed(method)(img, params) for img in images]
+            futures = self.client.compute(delayed_images)
+            with ProgressBar():
+                results = self.client.gather(futures)
+            return [da.from_array(img) for img in results]
         else:
             delayed_images = [dask.delayed(method)(img, params) for img in images]
             with dask.config.set(scheduler="threads", num_workers=self.n_jobs), ProgressBar():
@@ -374,6 +377,7 @@ class Paidiverpy:
         params: DynamicConfig,
         method_dict: dict,
         mode: str,
+        class_method: bool = True,
     ) -> tuple:
         """Get the method by mode.
 
@@ -395,6 +399,9 @@ class Paidiverpy:
         if not isinstance(params, method_info["params"]):
             params = method_info["params"](**params)
         method_name = method_info["method"]
-        method = getattr(self, method_name)
+        if class_method:
+            method = getattr(self.__class__, method_name)
+        else:
+            method = getattr(self, method_name)
 
         return method, params

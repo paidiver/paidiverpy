@@ -90,7 +90,8 @@ class ConvertLayer(Paidiverpy):
         self.step_metadata = self._calculate_steps_metadata(self.config.steps[self.config_index])
         self.layer_methods = CONVERT_LAYER_METHODS
 
-    def convert_bits(self, image_data: np.ndarray, params: BitParams = None) -> np.ndarray:
+    @staticmethod
+    def convert_bits(image_data: np.ndarray, params: BitParams = None) -> np.ndarray:
         """Convert the image to the specified number of bits.
 
         Args:
@@ -109,15 +110,16 @@ class ConvertLayer(Paidiverpy):
             image_data = np.uint16(image_data * 65535)
         elif params.output_bits == THIRTY_TWO_BITS:
             image_data = np.float32(image_data)
-        else:
-            self.logger.warning("Unsupported output bits: %s", params.output_bits)
-            if self.raise_error:
-                msg = f"Unsupported output bits: {params.output_bits}"
-                raise ValueError(msg)
+        # else:
+        #     self.logger.warning("Unsupported output bits: %s", params.output_bits)
+        #     if self.raise_error:
+        #         msg = f"Unsupported output bits: {params.output_bits}"
+        #         raise ValueError(msg)
 
         return image_data
 
-    def channel_convert(self, image_data: np.ndarray, params: ToParams = None) -> np.ndarray:
+    @staticmethod
+    def channel_convert(image_data: np.ndarray, params: ToParams = None) -> np.ndarray:
         """Convert the image to the specified channel.
 
         Args:
@@ -149,14 +151,15 @@ class ConvertLayer(Paidiverpy):
                 else:
                     image_data = cv2.cvtColor(image_data, cv2.COLOR_BGR2GRAY)
         except Exception as e:  # noqa: BLE001
-            self.logger.warning("Failed to convert the image to %s: %s", params.to, e)
-            if self.raise_error:
-                msg = f"Failed to convert the image to {params.to}: {e}"
-                raise_value_error(msg)
+            pass
+            # self.logger.warning("Failed to convert the image to %s: %s", params.to, e)
+            # if self.raise_error:
+            #     msg = f"Failed to convert the image to {params.to}: {e}"
+            #     raise_value_error(msg)
         return image_data
 
+    @staticmethod
     def get_bayer_pattern(
-        self,
         image_data: np.ndarray,
         params: BayerPatternParams = None,
     ) -> np.ndarray:
@@ -178,15 +181,15 @@ class ConvertLayer(Paidiverpy):
         if params is None:
             params = BayerPatternParams()
         if image_data.shape[-1] != 1:
-            self.logger.warning(
-                "Invalid Bayer pattern for a single-channel image: %s",
-                params.bayer_pattern,
-            )
-            if self.raise_error:
-                msg = "Invalid Bayer pattern for a single-channel image. Expected 'RG', 'BG', 'GR', or 'GB'."
-                raise ValueError(
-                    msg,
-                )
+            # self.logger.warning(
+            #     "Invalid Bayer pattern for a single-channel image: %s",
+            #     params.bayer_pattern,
+            # )
+            # if self.raise_error:
+            #     msg = "Invalid Bayer pattern for a single-channel image. Expected 'RG', 'BG', 'GR', or 'GB'."
+            #     raise ValueError(
+            #         msg,
+            #     )
             return image_data
         try:
             bayer_pattern = {
@@ -196,20 +199,21 @@ class ConvertLayer(Paidiverpy):
                 "GB": cv2.COLOR_BAYER_GB2RGB,
             }[params.bayer_pattern]
         except KeyError as exc:
-            self.logger.warning(
-                "Invalid Bayer pattern for a single-channel image: %s",
-                params.bayer_pattern,
-            )
-            if self.raise_error:
-                msg = "Invalid Bayer pattern for a single-channel image. Expected 'RG', 'BG', 'GR', or 'GB'."
-                raise KeyError(
-                    msg,
-                ) from exc
+            # self.logger.warning(
+            #     "Invalid Bayer pattern for a single-channel image: %s",
+            #     params.bayer_pattern,
+            # )
+            # if self.raise_error:
+            #     msg = "Invalid Bayer pattern for a single-channel image. Expected 'RG', 'BG', 'GR', or 'GB'."
+            #     raise KeyError(
+            #         msg,
+            #     ) from exc
 
             return image_data
         return cv2.cvtColor(image_data, bayer_pattern)
 
-    def normalize_image(self, image_data: np.ndarray, params: NormalizeParams = None) -> np.ndarray:
+    @staticmethod
+    def normalize_image(image_data: np.ndarray, params: NormalizeParams = None) -> np.ndarray:
         """Normalize the image data.
 
         Args:
@@ -235,13 +239,15 @@ class ConvertLayer(Paidiverpy):
                 dtype=cv2.CV_32F,
             )
         except Exception as e:
-            self.logger.warning("Failed to normalize the image: %s", e)
-            if self.raise_error:
-                msg = f"Failed to normalize the image: {e!s}"
-                raise ValueError(msg) from e
+            pass
+            # self.logger.warning("Failed to normalize the image: %s", e)
+            # if self.raise_error:
+            #     msg = f"Failed to normalize the image: {e!s}"
+            #     raise ValueError(msg) from e
         return image_data
 
-    def resize(self, image_data: np.ndarray, params: ResizeParams = None) -> np.ndarray:
+    @staticmethod
+    def resize(image_data: np.ndarray, params: ResizeParams = None) -> np.ndarray:
         """Resize the image data.
 
         Args:
@@ -260,13 +266,15 @@ class ConvertLayer(Paidiverpy):
         try:
             return cv2.resize(image_data, (params.min, params.max), interpolation=cv2.INTER_LANCZOS4)
         except Exception as e:
-            self.logger.warning("Failed to resize the image: %s", e)
-            if self.raise_error:
-                msg = f"Failed to resize the image: {e!s}"
-                raise ValueError(msg) from e
+            pass
+            # self.logger.warning("Failed to resize the image: %s", e)
+            # if self.raise_error:
+            #     msg = f"Failed to resize the image: {e!s}"
+            #     raise ValueError(msg) from e
         return image_data
 
-    def crop_images(self, image_data: np.ndarray, params: CropParams = None) -> np.ndarray:
+    @staticmethod
+    def crop_images(image_data: np.ndarray, params: CropParams = None) -> np.ndarray:
         """Crop the image data.
 
         Args:
@@ -291,8 +299,9 @@ class ConvertLayer(Paidiverpy):
                 raise_value_error(msg)
             return image_data[:, start_x:end_x, start_y:end_y, :]
         except Exception as e:
-            self.logger.warning("Failed to crop the image: %s", e)
-            if self.raise_error:
-                msg = f"Failed to crop the image: {e!s}"
-                raise ValueError(msg) from e
+            pass
+            # self.logger.warning("Failed to crop the image: %s", e)
+            # if self.raise_error:
+            #     msg = f"Failed to crop the image: {e!s}"
+            #     raise ValueError(msg) from e
         return image_data

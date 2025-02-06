@@ -105,7 +105,7 @@ class ResampleLayer(Paidiverpy):
             raise ValueError(msg)
         test = self.step_metadata.get("test")
         params = self.step_metadata.get("params") or {}
-        method, params = self._get_method_by_mode(params, RESAMPLE_LAYER_METHODS, mode)
+        method, params = self._get_method_by_mode(params, RESAMPLE_LAYER_METHODS, mode, False)
         try:
             metadata = method(self.step_order, test=test, params=params)
         except Exception as e:  # noqa: BLE001

@@ -231,7 +231,7 @@ class OpenLayer(Paidiverpy):
         for _, img_path in enumerate(img_path_list):
             delayed_image_list.append(delayed(func)(img_path, storage_options=self.storage_options, parallel=True))
         with ProgressBar():
-            futures = self.client.compute(delayed_image_list)
+            futures = self.client.compute(delayed_image_list, sync=False)
             return self.client.gather(futures)
 
 
