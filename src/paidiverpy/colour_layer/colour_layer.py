@@ -104,7 +104,8 @@ class ColourLayer(Paidiverpy):
         self.step_metadata = self._calculate_steps_metadata(self.config.steps[self.config_index])
         self.layer_methods = COLOUR_LAYER_METHODS
 
-    def _apply_grayscale_conversion(self, image_data: np.ndarray, params: GrayScaleParams) -> np.ndarray:
+    @staticmethod
+    def _apply_grayscale_conversion(image_data: np.ndarray, params: GrayScaleParams) -> np.ndarray:
         """GrayScale conversion.
 
         Apply the grayscale conversion method specified by params
@@ -127,7 +128,8 @@ class ColourLayer(Paidiverpy):
             return (np.max(image_data, axis=-1) + np.min(image_data, axis=-1)) / 2
         return cv2.cvtColor(image_data, cv2.COLOR_BGR2GRAY)
 
-    def grayscale(self, image_data: np.ndarray, params: GrayScaleParams = None) -> np.ndarray:
+    @staticmethod
+    def grayscale(image_data: np.ndarray, params: GrayScaleParams = None) -> np.ndarray:
         """Convert the image to grayscale.
 
         Method to convert the image to grayscale.
@@ -145,16 +147,16 @@ class ColourLayer(Paidiverpy):
         if params is None:
             params = GrayScaleParams()
         if len(image_data.shape) == NUM_IMAGE_DIMS or (image_data.shape[-1] != NUM_CHANNELS_RGB and image_data.shape[-1] != NUM_CHANNELS_RGBA):
-            self.logger.error("Input image must have 3 or 4 channels in the last dimension.")
-            if self.raise_error:
-                msg = "Input image must have 3 or 4 channels in the last dimension."
-                raise ValueError(msg)
+            # self.logger.error("Input image must have 3 or 4 channels in the last dimension.")
+            # if self.raise_error:
+            #     msg = "Input image must have 3 or 4 channels in the last dimension."
+            #     raise ValueError(msg)
             return image_data
         try:
             if params.keep_alpha and image_data.shape[-1] == NUM_CHANNELS_RGBA:
                 alpha_channel = image_data[..., NUM_CHANNELS_RGBA - 1]
                 image_data = image_data[..., :NUM_CHANNELS_RGB]
-            image_data = self._apply_grayscale_conversion(image_data, params)
+            image_data = ColourLayer._apply_grayscale_conversion(image_data, params)
 
             if params.invert_colours:
                 image_data = 255 - image_data
@@ -163,14 +165,16 @@ class ColourLayer(Paidiverpy):
                 image_data = np.dstack([image_data, alpha_channel])
 
         except Exception as e:
-            self.logger.exception("Error converting image to grayscale: %s", e)
-            if self.raise_error:
-                msg = f"Error converting image to grayscale: {e}"
-                raise ValueError(msg) from e
+            pass
+            # self.logger.exception("Error converting image to grayscale: %s", e)
+            # if self.raise_error:
+            #     msg = f"Error converting image to grayscale: {e}"
+            #     raise ValueError(msg) from e
 
         return image_data
 
-    def gaussian_blur(self, image_data: np.ndarray, params: GaussianBlurParams = None) -> np.ndarray:
+    @staticmethod
+    def gaussian_blur(image_data: np.ndarray, params: GaussianBlurParams = None) -> np.ndarray:
         """Gaussian blur.
 
         Method to apply Gaussian blur to the image.
@@ -191,13 +195,15 @@ class ColourLayer(Paidiverpy):
         try:
             image_data = cv2.GaussianBlur(image_data, (0, 0), params.sigma)
         except Exception as e:
-            self.logger.exception("Error applying Gaussian blur: %s", e)
-            if self.raise_error:
-                msg = f"Error applying Gaussian blur: {e}"
-                raise ValueError(msg) from e
+            pass
+            # self.logger.exception("Error applying Gaussian blur: %s", e)
+            # if self.raise_error:
+            #     msg = f"Error applying Gaussian blur: {e}"
+            #     raise ValueError(msg) from e
         return image_data
 
-    def sharpen(self, image_data: np.ndarray, params: SharpenParams = None) -> np.ndarray:
+    @staticmethod
+    def sharpen(image_data: np.ndarray, params: SharpenParams = None) -> np.ndarray:
         """Sharpening.
 
         Method to apply sharpening to the image.
@@ -222,14 +228,15 @@ class ColourLayer(Paidiverpy):
                 np.uint8 if bits == DEFAULT_BITS else np.uint16,
             )
         except Exception as e:
-            self.logger.exception("Error applying sharpening: %s", e)
-            if self.raise_error:
-                msg = f"Error applying sharpening: {e}"
-                raise ValueError(msg) from e
+            pass
+            # self.logger.exception("Error applying sharpening: %s", e)
+            # if self.raise_error:
+            #     msg = f"Error applying sharpening: {e}"
+            #     raise ValueError(msg) from e
         return image_data
 
+    @staticmethod
     def contrast_adjustment(
-        self,
         image_data: np.ndarray,
         params: ContrastAdjustmentParams = None,
     ) -> np.ndarray:
@@ -265,15 +272,16 @@ class ColourLayer(Paidiverpy):
                 np.uint8 if bits == DEFAULT_BITS else np.uint16,
             )
         except Exception as e:
-            self.logger.exception("Error applying contrast adjustment: %s", e)
-            if self.raise_error:
-                msg = f"Error applying contrast adjustment: {e}"
-                raise ValueError(msg) from e
+            pass
+            # self.logger.exception("Error applying contrast adjustment: %s", e)
+            # if self.raise_error:
+            #     msg = f"Error applying contrast adjustment: {e}"
+            #     raise ValueError(msg) from e
 
         return image_data
 
+    @staticmethod
     def illumination_correction(
-        self,
         image_data: np.ndarray,
         params: IlluminationCorrectionParams = None,
     ) -> np.ndarray:
@@ -303,10 +311,11 @@ class ColourLayer(Paidiverpy):
                 image_data = image_data - background
 
         except Exception as e:
-            self.logger.exception("Error applying contrast adjustment: %s", e)
-            if self.raise_error:
-                msg = f"Error applying contrast adjustment: {e}"
-                raise ValueError(msg) from e
+            pass
+            # self.logger.exception("Error applying contrast adjustment: %s", e)
+            # if self.raise_error:
+            #     msg = f"Error applying contrast adjustment: {e}"
+            #     raise ValueError(msg) from e
         return image_data
 
     def deblur(self, image_data: np.ndarray, params: DeblurParams = None) -> np.ndarray:
@@ -352,21 +361,22 @@ class ColourLayer(Paidiverpy):
                     np.uint8 if bits == DEFAULT_BITS else np.uint16,
                 )
 
-            else:
-                self.logger.error("Unknown method type. Please use 'wiener'.")
-                if self.raise_error:
-                    msg = "Unknown method type. Please use 'wiener'."
-                    raise_value_error(msg)
+            # else:
+                # self.logger.error("Unknown method type. Please use 'wiener'.")
+                # if self.raise_error:
+                #     msg = "Unknown method type. Please use 'wiener'."
+                #     raise_value_error(msg)
 
         except Exception as e:
-            self.logger.exception("Error applying contrast adjustment: %s", e)
-            if self.raise_error:
-                msg = f"Error applying contrast adjustment: {e}"
-                raise_value_error(msg)
+            pass
+            # self.logger.exception("Error applying contrast adjustment: %s", e)
+            # if self.raise_error:
+            #     msg = f"Error applying contrast adjustment: {e}"
+            #     raise_value_error(msg)
         return image_data
 
+    @staticmethod
     def edge_detection(
-        self,
         image_data: np.ndarray,
         params: EdgeDetectionParams = None,
     ) -> np.ndarray:
@@ -503,16 +513,18 @@ class ColourLayer(Paidiverpy):
                 params.small_float_val,
             )
         except Exception as e:
-            self.logger.exception("Error applying edge detection: %s", e)
-            if self.raise_error:
-                msg = f"Error applying edge detection: {e}"
-                raise ValueError(msg) from e
-        results = self.step_metadata.get("results", [])
-        results.append(features)
-        self.step_metadata["results"] = results
+            pass
+            # self.logger.exception("Error applying edge detection: %s", e)
+            # if self.raise_error:
+            #     msg = f"Error applying edge detection: {e}"
+            #     raise ValueError(msg) from e
+        # results = self.step_metadata.get("results", [])
+        # results.append(features)
+        # self.step_metadata["results"] = results
         return image_data
 
-    def colour_alteration(self, image_data: np.ndarray, params: ColourAlterationParams = None) -> np.ndarray:
+    @staticmethod
+    def colour_alteration(image_data: np.ndarray, params: ColourAlterationParams = None) -> np.ndarray:
         """Apply colour alteration to the image.
 
         Args:
@@ -534,9 +546,10 @@ class ColourLayer(Paidiverpy):
                 image_data = ColourLayer.white_balance(image_data)
 
         except Exception as e:
-            self.logger.error("Error applying colour alteration: %s", e)
-            if self.raise_error:
-                raise
+            pass
+            # self.logger.error("Error applying colour alteration: %s", e)
+            # if self.raise_error:
+            #     raise
         return image_data
 
     @staticmethod

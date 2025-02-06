@@ -3,10 +3,10 @@ general:
   output_path: "./output"
   n_jobs: 1
   image_type: "JPG"
-  sampling:
-    - mode: "fixed"
-      params:
-        value: 20
+  # sampling:
+  #   - mode: "fixed"
+  #     params:
+  #       value: 20
   convert:
     - mode: "bits"
       params:
