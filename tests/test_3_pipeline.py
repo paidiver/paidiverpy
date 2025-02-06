@@ -20,6 +20,8 @@ class TestSimplePipeline(BaseTestClass):
 
     def test_simple_pipeline(self):
         """Test generating a Simple Pipeline."""
+        number_images = 7
+        number_output_files = 0
         pipeline = Pipeline(config_file_path="examples/config_files/config_benthic.yaml")
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
@@ -27,11 +29,11 @@ class TestSimplePipeline(BaseTestClass):
         assert isinstance(pipeline.to_html(), str)
         pipeline.run()
         images = pipeline.images.images
-        assert len(images) == 7
+        assert len(images) == number_images
         assert isinstance(images[0][0], np.ndarray)
         pipeline.run(from_step=2)
         images = pipeline.images.images
-        assert len(images) == 7
+        assert len(images) == number_images
         assert isinstance(images[0][0], np.ndarray)
         metadata = pipeline.get_metadata()
         assert isinstance(metadata, pd.DataFrame)
@@ -40,10 +42,10 @@ class TestSimplePipeline(BaseTestClass):
         pipeline.save_images(image_format="png")
         output_path = Path(pipeline.config.general.output_path)
         output_files = list(output_path.glob("*.png"))
-        assert len(output_files) > 0
+        assert len(output_files) > number_output_files
         pipeline.images.remove()
         output_files = list(output_path.glob("*.png"))
-        assert len(output_files) == 0
+        assert len(output_files) == number_output_files
 
 
 if __name__ == "__main__":

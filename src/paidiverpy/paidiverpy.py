@@ -69,7 +69,13 @@ class Paidiverpy:
             self.images = images or ImagesLayer(
                 output_path=self.config.general.output_path,
             )
-            self.client = client or get_client(self.config.general.client)
+            if not client:
+                result = get_client(self.config.general.client, self.config.general.n_jobs)
+                if isinstance(result, tuple):
+                    self.client, self.job_id = result
+            else:
+                self.client = client
+                self.job_id = None
             self.n_jobs = get_n_jobs(self.config.general.n_jobs)
             self.track_changes = self.config.general.track_changes
         if track_changes is not None:
@@ -169,6 +175,7 @@ class Paidiverpy:
         self.n_jobs = paidiverpy.n_jobs
         self.track_changes = paidiverpy.track_changes
         self.client = paidiverpy.client
+        self.job_id = paidiverpy.job_id
 
     def _initialise_config(
         self,

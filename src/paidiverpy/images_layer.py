@@ -2,9 +2,9 @@
 
 import base64
 import gc
-from io import BytesIO
 import io
 import logging
+from io import BytesIO
 from pathlib import Path
 from tkinter.ttk import Progressbar
 import dask
@@ -12,14 +12,15 @@ import dask.array as da
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from dask.diagnostics import ProgressBar
+from dask.distributed import Client
 from IPython.display import HTML
 from PIL import Image
-from dask.distributed import Client
-from dask.diagnostics import ProgressBar
-
 from paidiverpy.utils.docker import is_running_in_docker
-from paidiverpy.utils.object_store import check_create_bucket_exists, create_client, upload_file_to_bucket
 from paidiverpy.utils.logging import initialise_logging
+from paidiverpy.utils.object_store import check_create_bucket_exists
+from paidiverpy.utils.object_store import create_client
+from paidiverpy.utils.object_store import upload_file_to_bucket
 
 MAX_IMAGES_TO_SHOW = 12
 NUM_CHANNELS_GRAY = 1
@@ -154,7 +155,7 @@ class ImagesLayer:
         image_format: str = "png",
         client: Client = None,
         n_jobs: int = 1,
-        logger: logging.Logger = None,
+        logger: logging.Logger | None = None,
     ) -> None:
         """Save the images in the pipeline.
 
@@ -169,7 +170,6 @@ class ImagesLayer:
             logger (logging.Logger, optional): The logger to log messages. Defaults to None.
         """
         images = self.get_step(step, by_order, last)
-        is_docker = is_running_in_docker()
         is_remote = str(output_path).startswith("s3://")
         if not logger:
             logger = initialise_logging()
@@ -181,23 +181,35 @@ class ImagesLayer:
         else:
             step_order = self.steps.index(step)
         if is_remote:
-            s3_client = create_client()
-            bucket_name, key = output_path[5:].split("/", 1)
-            check_create_bucket_exists(bucket_name, s3_client, logger)
-            if client:
-                logger.info("Uploading images to S3 using Dask")
-                with client:
-                    with Progressbar():
-                        delayed_tasks = [
-                            dask.delayed(self.process_and_upload)(image,
-                                                                  output_path + f"{self.filenames[step_order][idx]}.{image_format.lower()}",
-                                                                  image_format,
-                                                                  s3_client)
-                            for idx, image in enumerate(images)
-                        ]
-                        dask.compute(*delayed_tasks)
-            elif n_jobs > 1:
-                logger.info("Uploading images to S3 using Dask")
+            self.save_remote(images, output_path, image_format, client, n_jobs, step_order, logger)
+        else:
+            self.save_local(images, output_path, image_format, client, n_jobs, step_order, logger)
+
+    def save_remote(self,
+                    images: list[np.ndarray | da.core.Array],
+                    output_path: str,
+                    image_format: str,
+                    client: Client,
+                    n_jobs: int,
+                    step_order: int,
+                    logger: logging.Logger) -> None:
+        """Save the images to a remote location.
+
+        Args:
+            images (list): The images to save.
+            output_path (str): The output path to save the images.
+            image_format (str): The image format to save.
+            client (Client): The Dask client.
+            n_jobs (int): The number of jobs to use.
+            step_order (int): The step order.
+            logger (logging.Logger): The logger to log messages.
+        """
+        s3_client = create_client()
+        bucket_name = output_path[5:].split("/")[0]
+        check_create_bucket_exists(bucket_name, s3_client, logger)
+        if client:
+            logger.info("Uploading images to S3 using Dask")
+            with client, Progressbar():
                 delayed_tasks = [
                     dask.delayed(self.process_and_upload)(image,
                                                             output_path + f"{self.filenames[step_order][idx]}.{image_format.lower()}",
@@ -205,49 +217,91 @@ class ImagesLayer:
                                                             s3_client)
                     for idx, image in enumerate(images)
                 ]
-                with dask.config.set(scheduler="threads", num_workers=n_jobs), ProgressBar():
-                    dask.compute(*delayed_tasks)
-            else:
-                logger.info("Uploading images to S3")
-                for idx, image in enumerate(images):
-                    img_path = output_path + f"{self.filenames[step_order][idx]}.{image_format.lower()}"
-                    self.process_and_upload(image, img_path, image_format, s3_client)
+                dask.compute(*delayed_tasks)
+        elif n_jobs > 1:
+            logger.info("Uploading images to S3 using Dask")
+            delayed_tasks = [
+                dask.delayed(self.process_and_upload)(image,
+                                                        output_path + f"{self.filenames[step_order][idx]}.{image_format.lower()}",
+                                                        image_format,
+                                                        s3_client)
+                for idx, image in enumerate(images)
+            ]
+            with dask.config.set(scheduler="threads", num_workers=n_jobs), ProgressBar():
+                dask.compute(*delayed_tasks)
         else:
-            if is_docker:
-                output_path = Path("/app/output/")
-            if not output_path:
-                output_path = self.output_path
-            if not output_path.exists():
-                output_path.mkdir(parents=True, exist_ok=True)
-            if client:
-                logger.info("Saving images using Dask")
-                with client:
-                    with Progressbar():
-                        delayed_tasks = [
-                            dask.delayed(self.process_and_upload)(image,
-                                                                  output_path / f"{self.filenames[step_order][idx]}.{image_format.lower()}",
-                                                                  image_format)
-                            for idx, image in enumerate(images)
-                        ]
-                        dask.compute(*delayed_tasks)
-            elif n_jobs > 1:
-                logger.info("Saving images using Dask")
+            logger.info("Uploading images to S3")
+            for idx, image in enumerate(images):
+                img_path = output_path + f"{self.filenames[step_order][idx]}.{image_format.lower()}"
+                self.process_and_upload(image, img_path, image_format, s3_client)
+
+
+    def save_local(self,
+                     images: list[np.ndarray | da.core.Array],
+                        output_path: str,
+                        image_format: str,
+                        client: Client,
+                        n_jobs: int,
+                        step_order: int,
+                        logger: logging.Logger) -> None:
+        """Save the images to a local location.
+
+        Args:
+            images (list): The images to save.
+            output_path (str): The output path to save the images.
+            image_format (str): The image format to save.
+            client (Client): The Dask client.
+            n_jobs (int): The number of jobs to use.
+            step_order (int): The step order.
+            logger (logging.Logger): The logger to log messages.
+        """
+        is_docker = is_running_in_docker()
+        if is_docker:
+            output_path = Path("/app/output/")
+        if not output_path:
+            output_path = self.output_path
+        if not output_path.exists():
+            output_path.mkdir(parents=True, exist_ok=True)
+        if client:
+            logger.info("Saving images using Dask")
+            with client, Progressbar():
                 delayed_tasks = [
                     dask.delayed(self.process_and_upload)(image,
-                                                            output_path + f"{self.filenames[step_order][idx]}.{image_format.lower()}",
+                                                            output_path / f"{self.filenames[step_order][idx]}.{image_format.lower()}",
                                                             image_format)
                     for idx, image in enumerate(images)
                 ]
-                with dask.config.set(scheduler="threads", num_workers=n_jobs), ProgressBar():
-                    dask.compute(*delayed_tasks)
-            else:
-                logger.info("Saving images")
-                for idx, image in enumerate(images):
-                    img_path = output_path / f"{self.filenames[step_order][idx]}.{image_format.lower()}"
-                    self.process_and_upload(image, img_path, image_format)
+                dask.compute(*delayed_tasks)
+        elif n_jobs > 1:
+            logger.info("Saving images using Dask")
+            delayed_tasks = [
+                dask.delayed(self.process_and_upload)(image,
+                                                        output_path / f"{self.filenames[step_order][idx]}.{image_format.lower()}",
+                                                        image_format)
+                for idx, image in enumerate(images)
+            ]
+            with dask.config.set(scheduler="threads", num_workers=n_jobs), ProgressBar():
+                dask.compute(*delayed_tasks)
+        else:
+            logger.info("Saving images")
+            for idx, image in enumerate(images):
+                img_path = output_path / f"{self.filenames[step_order][idx]}.{image_format.lower()}"
+                self.process_and_upload(image, img_path, image_format)
 
 
-    def process_and_upload(self, image, img_path, image_format, s3_client=None):
+    def process_and_upload(self,
+                           image: np.ndarray | da.core.Array,
+                           img_path: str | Path,
+                           image_format: str,
+                           s3_client: Client | None = None) -> None:
+        """Process and upload the images.
+
+        Args:
+            image (Union[np.ndarray, da.core.Array]): The image to process and upload.
+            img_path (Union[str, Path]): The image path to save.
+            image_format (str): The image format to save.
+            s3_client (boto3.client, optional): The S3 client. Defaults to None.
+        """
         saved_image, cmap = self.calculate_image(image)
         if s3_client:
             buffer = io.BytesIO()
@@ -259,7 +313,14 @@ class ImagesLayer:
 
 
     def calculate_image(self, image: np.ndarray | da.core.Array) -> tuple:
+        """Calculate the image.
 
+        Args:
+            image (Union[np.ndarray, da.core.Array]): The image to calculate.
+
+        Returns:
+            Tuple[np.ndarray, str]: The saved image and the colormap.
+        """
         if image.shape[-1] == NUM_CHANNELS_GRAY:
             saved_image = np.squeeze(image, axis=-1)
             cmap = "gray"

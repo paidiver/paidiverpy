@@ -26,7 +26,8 @@ from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.resample_layer import ResampleLayer
 from paidiverpy.utils.docker import is_running_in_docker
 from paidiverpy.utils.dynamic_classes import DynamicConfig
-from paidiverpy.utils.object_store import define_storage_options, get_file_from_bucket
+from paidiverpy.utils.object_store import define_storage_options
+from paidiverpy.utils.object_store import get_file_from_bucket
 
 
 class OpenLayer(Paidiverpy):
@@ -141,6 +142,7 @@ class OpenLayer(Paidiverpy):
                         client=self.client,
                     ).run(),
                 )
+                gc.collect()
                 self.config.steps.pop()
         if self.config.general.is_remote:
             img_path_list = [self.correct_input_path + filename for filename in self.get_metadata()["image-filename"]]
@@ -148,13 +150,12 @@ class OpenLayer(Paidiverpy):
             img_path_list = [self.correct_input_path / filename for filename in self.get_metadata()["image-filename"]]
         if self.client:
             images_and_exifs = self._process_image_client(img_path_list, remote=self.config.general.is_remote)
+        elif self.n_jobs == 1:
+            images_and_exifs = []
+            for img_path in tqdm(img_path_list, total=len(img_path_list), desc="Open Images"):
+                images_and_exifs.append(self.process_image_sequential(img_path, remote=self.config.general.is_remote))
         else:
-            if self.n_jobs == 1:
-                images_and_exifs = []
-                for img_path in tqdm(img_path_list, total=len(img_path_list), desc="Open Images"):
-                    images_and_exifs.append(self.process_image_sequential(img_path, remote=self.config.general.is_remote))
-            else:
-                images_and_exifs = self._process_image_threads(img_path_list, remote=self.config.general.is_remote)
+            images_and_exifs = self._process_image_threads(img_path_list, remote=self.config.general.is_remote)
         exifs, image_list = [], []
         for img, exif in images_and_exifs:
             image_list.append(img)
@@ -176,11 +177,14 @@ class OpenLayer(Paidiverpy):
         del image_list
         gc.collect()
 
-    def process_image_sequential(self, img_path: str, remote=False) -> np.ndarray | dask.array.core.Array:
+    def process_image_sequential(self,
+                                 img_path: str,
+                                 remote: bool = False) -> tuple[np.ndarray | dask.array.core.Array, dict]:
         """Process a single image file.
 
         Args:
             img_path (str): The path to the image file
+            remote (bool, optional): Whether the image is remote. Defaults to False.
 
         Returns:
             Union[np.ndarray, dask.array.core.Array]: The processed image data
@@ -189,11 +193,14 @@ class OpenLayer(Paidiverpy):
         img, exif = func(img_path, storage_options=self.storage_options, parallel=False)
         return img, exif
 
-    def _process_image_threads(self, img_path_list: list[str], remote=False) -> list[np.ndarray]:
+    def _process_image_threads(self,
+                               img_path_list: list[str],
+                               remote: bool = False) -> list[np.ndarray]:
         """Process images using Dask threads.
 
         Args:
             img_path_list (list[str]): The list of image paths.
+            remote (bool, optional): Whether the images are remote. Defaults to False.
 
         Returns:
             list[np.ndarray]: The list of processed images.
@@ -205,30 +212,31 @@ class OpenLayer(Paidiverpy):
         with dask.config.set(scheduler="threads", num_workers=self.n_jobs):
             with ProgressBar():
                 computed_images = compute(*delayed_image_list)
-            image_list = list(computed_images)
-        return image_list
+            return list(computed_images)
 
-    def _process_image_client(self, img_path_list: list[str], remote=False) -> list[np.ndarray]:
+    def _process_image_client(self,
+                              img_path_list: list[str],
+                              remote: bool = False) -> list[np.ndarray]:
         """Process images using a Dask client.
 
         Args:
             img_path_list (list[str]): The list of image paths.
+            remote (bool, optional): Whether the images are remote. Defaults to False.
 
         Returns:
+            list[np.ndarray]: The list of processed images.
         """
-
         func = OpenLayer.open_image_remote if remote else OpenLayer.open_image_local
         delayed_image_list = []
         for _, img_path in enumerate(img_path_list):
             delayed_image_list.append(delayed(func)(img_path, storage_options=self.storage_options, parallel=True))
         with ProgressBar():
             futures = self.client.compute(delayed_image_list)
-            computed_images = self.client.gather(futures)
-        return computed_images
+            return self.client.gather(futures)
 
 
     def rename_images(self, rename: str, metadata: pd.DataFrame) -> pd.DataFrame:
-        """ Rename images based on the rename mode.
+        """Rename images based on the rename mode.
 
         Args:
             rename (str): The rename mode
@@ -264,13 +272,15 @@ class OpenLayer(Paidiverpy):
 
 
     @staticmethod
-    def open_image_remote(img_path: str, **kwargs) -> tuple[np.ndarray | dask.array.core.Array, dict]:
+    def open_image_remote(img_path: str,
+                          **kwargs: dict) -> tuple[np.ndarray | dask.array.core.Array, dict]:
         """Open an image file.
 
         Args:
             img_path (str): The path to the image file
-            parallel (bool): Whether to use Dask for parallel processing
-            storage_options (dict): The storage options
+            **kwargs (dict): Additional keyword arguments. The following are supported:
+                - storage_options (dict): The storage options for reading metadata file.
+                - parallel (bool): Whether to use Dask for parallel processing.
 
         Raises:
             ValueError: Failed to open the image
@@ -300,12 +310,14 @@ class OpenLayer(Paidiverpy):
         return img, exif
 
     @staticmethod
-    def open_image_local(img_path: str, **kwargs) -> tuple[np.ndarray | dask.array.core.Array, dict]:
+    def open_image_local(img_path: str,
+                         **kwargs: dict) -> tuple[np.ndarray | dask.array.core.Array, dict]:
         """Open an image file.
 
         Args:
             img_path (str): The path to the image file
-            parallel (bool): Whether to use Dask for parallel processing
+            **kwargs (dict): Additional keyword arguments. The following are supported:
+                - parallel (bool): Whether to use Dask for parallel processing.
 
         Raises:
             ValueError: Failed to open the image

@@ -21,15 +21,17 @@ class TestPipelineTestSteps(BaseTestClass):
     @patch("matplotlib.pyplot.show")
     def test_pipeline_testing_steps(self, mock_show: MagicMock):
         """Test the Pipeline Testing Steps."""
+        number_images = 1
+        number_calls = 2
         pipeline = Pipeline(config_file_path="examples/config_files/config_benthic_test_steps.yaml")
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
         assert isinstance(pipeline.config.general, GeneralConfig)
         assert isinstance(pipeline.to_html(), str)
         pipeline.run()
-        assert mock_show.call_count == 2
+        assert mock_show.call_count == number_calls
         images = pipeline.images.images
-        assert len(images) == 1
+        assert len(images) == number_images
         assert isinstance(images[0][0], np.ndarray)
         assert pipeline.steps[1][2]["test"]
         pipeline.add_step(
@@ -46,8 +48,8 @@ class TestPipelineTestSteps(BaseTestClass):
         assert pipeline.steps[-1][2]["test"] is False
         pipeline.run(from_step=0)
         images = pipeline.images.images
-        assert len(images) == 2
-        assert mock_show.call_count == 2
+        assert len(images) == number_images + 1
+        assert mock_show.call_count == number_calls
         pipeline.add_step(
             "datetime",
             ResampleLayer,
@@ -60,9 +62,9 @@ class TestPipelineTestSteps(BaseTestClass):
         assert pipeline.steps[-1][2]["test"] is True
         assert pipeline.steps[-1][0] == "datetime"
         pipeline.run()
-        assert mock_show.call_count == 3
+        assert mock_show.call_count == number_calls + 1
         images = pipeline.images.images
-        assert len(images) == 2
+        assert len(images) == number_images + 1
         pipeline.add_step(
             "datetime",
             ResampleLayer,
@@ -77,9 +79,9 @@ class TestPipelineTestSteps(BaseTestClass):
         assert pipeline.steps[-1][2]["test"] is False
         assert pipeline.steps[-1][0] == "datetime"
         pipeline.run()
-        assert mock_show.call_count == 3
+        assert mock_show.call_count == number_calls + 1
         images = pipeline.images.images
-        assert len(images) == 3
+        assert len(images) == number_images + 2
 
 
 if __name__ == "__main__":
