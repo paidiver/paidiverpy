@@ -69,6 +69,20 @@ todo_include_todos = False
 # -- Use autoapi.extension to run sphinx-apidoc -------
 
 autoapi_dirs = ["../src/paidiverpy"]
+autoapi_root = 'api'
+
+autoapi_keep_files = False
+autoapi_options = [
+    # "members",
+    # "undoc-members",
+    "show-inheritance",
+    "show-module-summary",
+    "special-members",
+    "imported-members",
+    "no-private-members",
+    "no-inherited-members",
+    "no-class-attributes",
+]
 
 # -- Options for HTML output ----------------------------------------------
 
@@ -132,3 +146,12 @@ intersphinx_mapping = {
     'pandas': ('https://pandas.pydata.org/docs/', None),
     'python': ('https://docs.python.org/3/', None),
 }
+
+autodoc_default_options = {
+    "member-order": "bysource",
+    "undoc-members": True,
+    "show-inheritance": True,
+    "fullqualname": True
+}
+
+add_module_names = True

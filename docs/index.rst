@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Paidiverpy package documentation
-====================
+================================
 
 **Paidiverpy** is a Python package designed to create pipelines for preprocessing image data for biodiversity analysis.
 

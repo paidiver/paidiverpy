@@ -23,7 +23,7 @@ def check_and_install_dependencies(dependencies: list[str] | None, dependencies_
     """Check and install dependencies.
 
     Args:
-        dependencies (Union[List[str], None]): The dependencies to check and install.
+        dependencies (list[str] | None]): The dependencies to check and install.
         dependencies_path (str, None): The path to the dependencies file.
 
     Raises:

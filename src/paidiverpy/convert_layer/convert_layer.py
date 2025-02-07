@@ -24,7 +24,7 @@ from paidiverpy.utils.data import EIGHT_BITS
 from paidiverpy.utils.data import SIXTEEN_BITS
 from paidiverpy.utils.data import THIRTY_TWO_BITS
 from paidiverpy.utils.exceptions import raise_value_error
-from paidiverpy.utils.logging import check_raise_error
+from paidiverpy.utils.logging_functions import check_raise_error
 
 
 class ConvertLayer(Paidiverpy):
@@ -34,7 +34,7 @@ class ConvertLayer(Paidiverpy):
     configurations, such as resizing, normalizing, bit depth conversion, and channel conversion.
 
     Args:
-        config_params (Union[Dict, ConfigParams], optional): The configuration parameters.
+        config_params (dict | ConfigParams, optional): The configuration parameters.
             It can contain the following keys / attributes:
             - input_path (str): The path to the input files.
             - output_path (str): The path to the output files.

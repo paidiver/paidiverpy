@@ -5,7 +5,7 @@ import json
 import sys
 from paidiverpy.pipeline import Pipeline
 from paidiverpy.utils.benchmark_test import benchmark_handler
-from paidiverpy.utils.logging import initialise_logging
+from paidiverpy.utils.logging_functions import initialise_logging
 
 logger = initialise_logging()
 
