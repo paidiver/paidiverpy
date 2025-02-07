@@ -155,22 +155,22 @@ class Paidiverpy:
             List[da.core.Array]: The list of processed images.
         """
         if self.client:
-            delayed_images = [dask.delayed(method)(img, params) for img in images]
-            futures = self.client.compute(delayed_images)
-            with ProgressBar():
+            if isinstance(self.client.cluster, dask.distributed.LocalCluster):
+                delayed_images = [dask.delayed(method)(img, params) for img in images]
+                futures = self.client.compute(delayed_images)
+                with ProgressBar():
+                    results = self.client.gather(futures)
+                return [da.from_array(img) for img in results]
+            else:
+                futures = []
+                for img in images:
+                    futures.append(self.client.submit(method, img, params))
                 results = self.client.gather(futures)
-            return [da.from_array(img) for img in results]
-        if isinstance(self.client.cluster, dask.distributed.local.LocalCluster):
-            delayed_images = [dask.delayed(method)(img, params) for img in images]
-            with dask.config.set(scheduler="threads", num_workers=self.n_jobs), ProgressBar():
-                delayed_images = dask.compute(*delayed_images)
-            return [da.from_array(img) for img in delayed_images]
-        else:
-            futures = []
-            for img in images:
-                futures.append(self.client.submit(method, img, params))
-            results = self.client.gather(futures)
-            return [da.from_array(img) for img in results]
+                return [da.from_array(img) for img in results]
+        with dask.config.set(scheduler="threads", num_workers=self.n_jobs), ProgressBar():
+            delayed_images = dask.compute(*delayed_images)
+        return [da.from_array(img) for img in delayed_images]
+
 
     def _set_variables_from_paidiverpy(self, paidiverpy: "Paidiverpy") -> None:
         """Set the variables from the paidiverpy object.

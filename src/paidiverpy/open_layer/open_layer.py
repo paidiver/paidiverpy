@@ -226,10 +226,9 @@ class OpenLayer(Paidiverpy):
         Returns:
             list[np.ndarray]: The list of processed images.
         """
-        import pdb; pdb.set_trace()
         func = OpenLayer.open_image_remote if remote else OpenLayer.open_image_local
         delayed_image_list = []
-        if isinstance(self.client.cluster, dask.distributed.local.LocalCluster):
+        if isinstance(self.client.cluster, dask.distributed.LocalCluster):
             for _, img_path in enumerate(img_path_list):
                 delayed_image_list.append(delayed(func)(img_path, storage_options=self.storage_options, parallel=True))
             with ProgressBar():
