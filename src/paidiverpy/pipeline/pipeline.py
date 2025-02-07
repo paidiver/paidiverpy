@@ -75,12 +75,13 @@ class Pipeline(Paidiverpy):
         self.steps = steps
         self.runned_steps = -1
 
-    def run(self, from_step: int | None = None) -> None:
+    def run(self, from_step: int | None = None, close_client: bool = True) -> None:
         """Run the pipeline.
 
         Args:
             from_step (int, optional): The step to start from. Defaults to None,
-        which means the pipeline will start from the last runned step.
+                which means the pipeline will start from the last runned step.
+            close_client (bool, optional): Whether to close the client. Defaults to True.
 
         Raises:
             ValueError: No steps defined for the pipeline
@@ -117,7 +118,6 @@ class Pipeline(Paidiverpy):
                         parameters=step_params,
                         config_index=index - 1,
                     )
-
                 step_instance.run()
                 if not step_params.get("test", False):
                     self.images = step_instance.images
@@ -127,6 +127,8 @@ class Pipeline(Paidiverpy):
 
                 del step_instance
                 gc.collect()
+        if self.client and close_client:
+            self.client.close()
 
     def _validate_pipeline(self) -> None:
         """Validate the pipeline.

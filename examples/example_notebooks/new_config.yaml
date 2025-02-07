@@ -12,6 +12,7 @@ general:
   metadata_type: CSV_FILE
   n_jobs: 1
   name: raw
+  output_is_remote: false
   output_path: output
   rename: datetime
   sample_data: benthic_csv

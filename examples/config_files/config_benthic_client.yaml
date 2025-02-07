@@ -1,12 +1,13 @@
 general:
   sample_data: "benthic_csv"
   output_path: "./output"
+  n_jobs: 2
   client:
-    cluster_type: "dask"
+    cluster_type: "local"
     params:
-      n_workers: 1
+      n_workers: 4
       threads_per_worker: 4
-      memory_limit: "4GB"
+      memory_limit: "8GB"
   # client:
   #   cluster_type: "slurm"
   #   params:
@@ -14,9 +15,8 @@ general:
   #     cores: 16
   #     processes: 1
   #     memory: "64GB"
-  #     scale: 2
   #     walltime: "12:00:00"
-  #     job_extra_directives: ["--output=slurm-%j.out","--error=slurm-%j.err"],
+  #     job_extra_directives: ["--output=slurm-%j.out","--error=slurm-%j.err"]
   image_type: "JPG"
   track_changes: False
   sampling:
@@ -29,29 +29,12 @@ general:
         output_bits: 8
 
 steps:
-  - sampling:
-      name: "datetime"
-      mode: "datetime"
-      params:
-        min: "2018-06-11 04:14:00"
-        max: "2018-06-11 04:20:00"
-
-  - sampling:
-      name: "overlapping"
-      mode: "overlapping"
-      params:
-        theta: 40
-        omega: 57
-        threshold: 0.5
-
   - colour:
       name: "colour_alteration"
       mode: "colour_alteration"
       params:
         method:
-          "white_balance" # choose 'white_balance' to adjust the white balance to a warmer temperature
-          # to restore reds and yellow channels.
-
+          "white_balance"
   - colour:
       name: "gaussian_blur"
       mode: "gaussian_blur"

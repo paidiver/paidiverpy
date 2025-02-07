@@ -15,6 +15,7 @@ class GrayScaleParams(DynamicConfig):
     keep_alpha: bool = False
     method: str = "opencv"
     invert_colours: bool = False
+    raise_error: bool = False
 
 
 @dataclass
@@ -22,6 +23,7 @@ class GaussianBlurParams(DynamicConfig):
     """This class contains the parameters for the Gaussian blur."""
 
     sigma: float = 1.0
+    raise_error: bool = False
 
 
 @dataclass
@@ -39,6 +41,7 @@ class EdgeDetectionParams(DynamicConfig):
     deconv_iter: int = 10
     deconv_mask_weight: float = 0.03
     small_float_val: float = 1e-6
+    raise_error: bool = False
 
 
 @dataclass
@@ -47,6 +50,7 @@ class SharpenParams(DynamicConfig):
 
     alpha: float = 1.5
     beta: float = -0.5
+    raise_error: bool = False
 
 
 @dataclass
@@ -57,6 +61,7 @@ class ContrastAdjustmentParams(DynamicConfig):
     kernel_size: int = None
     clip_limit: float = 0.01
     gamma_value: float = 0.5
+    raise_error: bool = False
 
 
 @dataclass
@@ -65,6 +70,7 @@ class IlluminationCorrectionParams(DynamicConfig):
 
     method: str = "rolling"
     radius: int = 100
+    raise_error: bool = False
 
 
 @dataclass
@@ -75,6 +81,7 @@ class DeblurParams(DynamicConfig):
     psf_type: str = "gaussian"
     sigma: float = 20
     angle: int = 45
+    raise_error: bool = False
 
 
 @dataclass
@@ -82,6 +89,7 @@ class ColourAlterationParams(DynamicConfig):
     """This class contains the parameters for the colour alteration."""
 
     method: str = "white_balance"
+    raise_error: bool = False
 
 
 COLOUR_LAYER_METHODS = {

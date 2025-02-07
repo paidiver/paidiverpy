@@ -219,6 +219,9 @@ class Configuration:
         except yaml.YAMLError as e:
             msg = f"Failed to load the configuration file: {e!s}"
             raise yaml.YAMLError(msg) from e
+        except yaml.parser.ParserError as e:
+            msg = f"Failed to parse the configuration file: {e!s}"
+            raise yaml.parser.ParserError(msg) from e
 
         self.general = self._validate_general_config(config_data)
         self._load_steps(config_data)

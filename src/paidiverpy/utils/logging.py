@@ -2,7 +2,18 @@
 
 import logging
 import sys
+from enum import IntEnum
 from typing import ClassVar
+from paidiverpy.utils.exceptions import raise_value_error
+
+
+class VerboseLevel(IntEnum):
+    """Verbose levels for logging."""
+
+    NONE = 0
+    ERRORS_WARNINGS = 1
+    INFO = 2
+    DEBUG = 3
 
 
 class ColorFormatter(logging.Formatter):
@@ -35,22 +46,23 @@ def initialise_logging(verbose: int = 2) -> logging.Logger:
     """Initialise logging configuration.
 
     Args:
-        verbose (int): Verbose level (0 = none, 1 = errors/warnings, 2 = info,
-            3 = debug). Defaults to 2.
+        verbose (int): Verbose level (0 = NONE, 1 = ERRORS_WARNINGS, 2 = INFO, 3 = DEBUG).
+            Defaults to 2.
 
     Returns:
         logging.Logger: The logger object.
     """
-    if verbose == 0:
-        logging_level = logging.CRITICAL
-    elif verbose == 1:
-        logging_level = logging.WARNING
-    elif verbose == 2:
-        logging_level = logging.INFO
-    else:
-        logging_level = logging.DEBUG
+    try:
+        log_level = {
+            VerboseLevel.NONE: logging.CRITICAL,
+            VerboseLevel.ERRORS_WARNINGS: logging.WARNING,
+            VerboseLevel.INFO: logging.INFO,
+            VerboseLevel.DEBUG: logging.DEBUG,
+        }[VerboseLevel(verbose)]
+    except ValueError as err:
+        msg = f"Invalid verbose level: {verbose}. Choose from {list(VerboseLevel)}."
+        raise ValueError(msg) from err
 
-    # Prepare the logging configuration arguments
     handler = logging.StreamHandler(sys.stdout)
     formatter = ColorFormatter(
         "☁ paidiverpy ☁  | %(levelname)10s | %(asctime)s | %(message)s",
@@ -58,9 +70,22 @@ def initialise_logging(verbose: int = 2) -> logging.Logger:
     )
     handler.setFormatter(formatter)
 
-    logging.basicConfig(
-        handlers=[handler],
-        level=logging_level,
-    )
+    logging.basicConfig(handlers=[handler], level=log_level)
 
     return logging.getLogger(__name__)
+
+
+def check_raise_error(raise_error: bool, message: str) -> None:
+    """Check if an error should be raised and raise it if necessary.
+
+    Args:
+        raise_error (bool): Whether to raise an error.
+        message (str): The error message.
+
+    Raises:
+        ValueError: The error message.
+    """
+    if raise_error:
+        logging.error(message)
+        raise_value_error(message)
+    logging.warning(message)

@@ -36,44 +36,57 @@ def update_dask_config(dask_config_kwargs: dict) -> None:
         logging.info("Updated dask configuration settings")
 
 
-def parse_dask_job(job: dict) -> Client:
+def parse_dask_job(job: dict, n_jobs: int) -> Client:
     """Parse the Dask job configuration.
 
     Args:
         job (dict): Job configuration.
+        n_jobs (int): Number of jobs.
 
     Returns:
         dask.distributed.Client: Dask client.
     """
     update_dask_config(job.get("dask_config_kwargs"))
-    if job.get("type") == "slurm":
-        cluster = SLURMCluster(job.get("job_cluster_kwargs"))
+    if job.get("cluster_type") == "slurm":
+        cluster = SLURMCluster(**job.get("params"))
         cluster_type = "SLURMCluster"
-    else:
-        cluster = LocalCluster(job.get("job_cluster_kwargs"))
+        job_id = None
+    elif job.get("cluster_type") == "local":
+        cluster = LocalCluster(**job.get("params"))
         cluster_type = "LocalCluster"
+        job_id = None
+    else:
+        msg = "Cluster type not supported"
+        raise ValueError(msg)
+    cluster.scale(n_jobs)
     client = Client(cluster)
     logging.info("Created %s with Client: %s", cluster_type, client.dashboard_link)
+    if cluster_type == "SLURMCluster":
+        return (client, job_id)
     return client
 
 
-def get_client(config_client: dict) -> Client:
+def get_client(config_client: dict, n_jobs: int) -> Client:
     """Parse the client configuration.
 
     Args:
         config_client (dict): Client configuration.
+        n_jobs (int): Number of jobs.
 
     Returns:
         dask.distributed.Client: Dask client.
     """
     if config_client is None:
         return None
+    job_id = None
     cluster_type = config_client.get("cluster_type")
     if cluster_type == "slurm":
-        client = parse_dask_job(config_client)
-    if cluster_type == "dask":
-        client = parse_dask_job(config_client)
+        client, job_id = parse_dask_job(config_client, n_jobs)
+    elif cluster_type == "local":
+        client = parse_dask_job(config_client, n_jobs)
     else:
         msg = f"Job type {cluster_type} not supported."
         raise ValueError(msg)
+    if cluster_type == "slurm":
+        return client, job_id
     return client
