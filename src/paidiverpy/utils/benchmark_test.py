@@ -12,8 +12,7 @@ import yaml
 from paidiverpy.pipeline.pipeline import Pipeline
 
 
-def benchmark_task(configuration_file: str,
-                   logger: logging.Logger) -> None:
+def benchmark_task(configuration_file: str, logger: logging.Logger) -> None:
     """Run the benchmark task.
 
     Args:
@@ -31,6 +30,7 @@ def benchmark_task(configuration_file: str,
     del pipeline
     gc.collect()
     return start_time, end_time
+
 
 def plot_results(results: list, cluster_type: str, filename: str) -> None:
     """Plot the benchmark results.
@@ -71,11 +71,8 @@ def plot_results(results: list, cluster_type: str, filename: str) -> None:
     plt.gca().invert_yaxis()
     plt.savefig(f"{filename}.png")
 
-def update_yaml(file_path: str,
-                cluster_type: str,
-                output_file: str,
-                n_jobs: int,
-                **kwargs: dict) -> str:
+
+def update_yaml(file_path: str, cluster_type: str, output_file: str, n_jobs: int, **kwargs: dict) -> str:
     """Update the YAML file with new benchmarking parameters and save it.
 
     Args:
@@ -109,13 +106,7 @@ def update_yaml(file_path: str,
         queue = kwargs.get("queue", "par-single")
         config["general"]["client"] = {
             "cluster_type": cluster_type,
-            "params": {
-                "cores": cores,
-                "processes": processes,
-                "memory": f"{memory}GB",
-                "walltime": walltime,
-                "queue": queue
-            }
+            "params": {"cores": cores, "processes": processes, "memory": f"{memory}GB", "walltime": walltime, "queue": queue},
         }
     elif cluster_type == "local":
         workers = kwargs.get("workers", 1)
@@ -123,11 +114,7 @@ def update_yaml(file_path: str,
         memory = kwargs.get("memory", 1)
         config["general"]["client"] = {
             "cluster_type": cluster_type,
-            "params": {
-                "n_workers": workers,
-                "threads_per_worker": threads,
-                "memory_limit": f"{memory}GB"
-            }
+            "params": {"n_workers": workers, "threads_per_worker": threads, "memory_limit": f"{memory}GB"},
         }
     config["general"]["n_jobs"] = n_jobs
 
@@ -137,9 +124,7 @@ def update_yaml(file_path: str,
     return output_file
 
 
-def benchmark_threads(benchmark_params: dict,
-                    configuration_file: str,
-                    logger: logging.Logger) -> list:
+def benchmark_threads(benchmark_params: dict, configuration_file: str, logger: logging.Logger) -> list:
     """Handle the benchmark test for LocalCluster.
 
     Args:
@@ -176,10 +161,7 @@ def benchmark_threads(benchmark_params: dict,
     return benchmark_results
 
 
-
-def benchmark_local(benchmark_params: dict,
-                    configuration_file: str,
-                    logger: logging.Logger) -> list:
+def benchmark_local(benchmark_params: dict, configuration_file: str, logger: logging.Logger) -> list:
     """Handle the benchmark test for LocalCluster.
 
     Args:
@@ -208,11 +190,7 @@ def benchmark_local(benchmark_params: dict,
             threads=threads,
             memory=memory,
         )
-        logger.info("Running benchmark test with %s workers, %s threads, %sGB memory, %s scale",
-                    workers,
-                    threads,
-                    memory,
-                    n_job)
+        logger.info("Running benchmark test with %s workers, %s threads, %sGB memory, %s scale", workers, threads, memory, n_job)
         start_time, end_time = benchmark_task(updated_config_file, logger)
         logger.info("Benchmark test completed")
         time_taken = round(end_time - start_time, 2)
@@ -229,9 +207,8 @@ def benchmark_local(benchmark_params: dict,
         gc.collect()
     return benchmark_results
 
-def benchmark_slurm(benchmark_params: dict,
-                    configuration_file: str,
-                    logger: logging.Logger) -> list:
+
+def benchmark_slurm(benchmark_params: dict, configuration_file: str, logger: logging.Logger) -> list:
     """Handle the benchmark test for SLURM.
 
     Args:
@@ -262,7 +239,7 @@ def benchmark_slurm(benchmark_params: dict,
             processes=proc,
             memory=mem,
             walltime=walltime,
-            queue=queue
+            queue=queue,
         )
 
         logger.info("Running benchmark test with %s cores, %s processes, %sGB memory, %s scale", core, proc, mem, n_job)
@@ -282,9 +259,8 @@ def benchmark_slurm(benchmark_params: dict,
 
     return benchmark_results
 
-def benchmark_handler(benchmark_params: dict,
-                      configuration_file: str,
-                      logger: logging.Logger) -> None:
+
+def benchmark_handler(benchmark_params: dict, configuration_file: str, logger: logging.Logger) -> None:
     """Handle the benchmark test.
 
     Args:

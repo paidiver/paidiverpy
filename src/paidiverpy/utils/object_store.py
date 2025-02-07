@@ -1,4 +1,5 @@
 """This module contains utility functions for interacting with object storage."""
+
 import io
 import logging
 import os
@@ -9,6 +10,7 @@ import requests
 from dotenv import load_dotenv
 
 load_dotenv()
+
 
 def define_storage_options(path: str | Path) -> dict:
     """Define storage options for reading metadata file.
@@ -37,8 +39,8 @@ def define_storage_options(path: str | Path) -> dict:
             storage_options["endpoint_url"] = os_endpoint
     return storage_options
 
-def get_file_from_bucket(file_path: str,
-                         storage_options: dict) -> bytes:
+
+def get_file_from_bucket(file_path: str, storage_options: dict) -> bytes:
     """Get a file from an object store bucket.
 
     Args:
@@ -58,6 +60,7 @@ def get_file_from_bucket(file_path: str,
     response.raise_for_status()
     return response.content
 
+
 def create_client() -> boto3.client:
     """Create a boto3 client for S3.
 
@@ -67,9 +70,8 @@ def create_client() -> boto3.client:
     storage_options = define_storage_options("s3://")
     return boto3.client(**storage_options)
 
-def check_create_bucket_exists(bucket_name: str,
-                               client: boto3.client,
-                               logger: logging.Logger) -> None:
+
+def check_create_bucket_exists(bucket_name: str, client: boto3.client, logger: logging.Logger) -> None:
     """Check if a bucket exists.
 
     Args:
@@ -87,9 +89,7 @@ def check_create_bucket_exists(bucket_name: str,
         client.create_bucket(Bucket=bucket_name)
 
 
-def upload_file_to_bucket(file_obj: io.BytesIO,
-                          output_path: str,
-                          client: boto3.client) -> None:
+def upload_file_to_bucket(file_obj: io.BytesIO, output_path: str, client: boto3.client) -> None:
     """Upload an in-memory file to an object store bucket.
 
     Args:

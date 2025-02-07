@@ -132,9 +132,7 @@ class Paidiverpy:
         Returns:
             List[np.ndarray]: The list of processed images.
         """
-        return [method(img, params=params) for img in tqdm(images,
-                                                           total=len(images),
-                                                           desc="Processing images")]
+        return [method(img, params=params) for img in tqdm(images, total=len(images), desc="Processing images")]
 
     def process_parallel(
         self,
@@ -161,16 +159,15 @@ class Paidiverpy:
                 with ProgressBar():
                     results = self.client.gather(futures)
                 return [da.from_array(img) for img in results]
-            else:
-                futures = []
-                for img in images:
-                    futures.append(self.client.submit(method, img, params))
-                results = self.client.gather(futures)
-                return [da.from_array(img) for img in results]
+            futures = []
+            for img in images:
+                futures.append(self.client.submit(method, img, params))
+            results = self.client.gather(futures)
+            return [da.from_array(img) for img in results]
+        delayed_images = [dask.delayed(method)(img, params) for img in images]
         with dask.config.set(scheduler="threads", num_workers=self.n_jobs), ProgressBar():
             delayed_images = dask.compute(*delayed_images)
         return [da.from_array(img) for img in delayed_images]
-
 
     def _set_variables_from_paidiverpy(self, paidiverpy: "Paidiverpy") -> None:
         """Set the variables from the paidiverpy object.

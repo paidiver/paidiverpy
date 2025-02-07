@@ -15,6 +15,7 @@ class ReprojectParams(DynamicConfig):
     placeholder: str = "placeholder"
     raise_error: bool = False
 
+
 POSITION_LAYER_METHODS = {
     "reproject": {"params": ReprojectParams, "method": "convert_bits"},
 }

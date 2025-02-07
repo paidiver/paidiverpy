@@ -86,7 +86,6 @@ class OpenLayer(Paidiverpy):
         is_docker = is_running_in_docker()
         self.storage_options = define_storage_options(self.config.general.input_path)
 
-
         if self.config.general.sample_data or self.config.general.is_remote:
             self.correct_input_path = self.config.general.input_path
         else:
@@ -177,9 +176,7 @@ class OpenLayer(Paidiverpy):
         del image_list
         gc.collect()
 
-    def process_image_sequential(self,
-                                 img_path: str,
-                                 remote: bool = False) -> tuple[np.ndarray | dask.array.core.Array, dict]:
+    def process_image_sequential(self, img_path: str, remote: bool = False) -> tuple[np.ndarray | dask.array.core.Array, dict]:
         """Process a single image file.
 
         Args:
@@ -193,9 +190,7 @@ class OpenLayer(Paidiverpy):
         img, exif = func(img_path, storage_options=self.storage_options, parallel=False)
         return img, exif
 
-    def _process_image_threads(self,
-                               img_path_list: list[str],
-                               remote: bool = False) -> list[np.ndarray]:
+    def _process_image_threads(self, img_path_list: list[str], remote: bool = False) -> list[np.ndarray]:
         """Process images using Dask threads.
 
         Args:
@@ -214,9 +209,7 @@ class OpenLayer(Paidiverpy):
                 computed_images = compute(*delayed_image_list)
             return list(computed_images)
 
-    def _process_image_client(self,
-                              img_path_list: list[str],
-                              remote: bool = False) -> list[np.ndarray]:
+    def _process_image_client(self, img_path_list: list[str], remote: bool = False) -> list[np.ndarray]:
         """Process images using a Dask client.
 
         Args:
@@ -238,7 +231,6 @@ class OpenLayer(Paidiverpy):
             for _, img_path in enumerate(img_path_list):
                 futures.append(self.client.submit(func, img_path, storage_options=self.storage_options, parallel=True))
         return self.client.gather(futures)
-
 
     def rename_images(self, rename: str, metadata: pd.DataFrame) -> pd.DataFrame:
         """Rename images based on the rename mode.
@@ -275,10 +267,8 @@ class OpenLayer(Paidiverpy):
         self.set_metadata(metadata)
         return metadata
 
-
     @staticmethod
-    def open_image_remote(img_path: str,
-                          **kwargs: dict) -> tuple[np.ndarray | dask.array.core.Array, dict]:
+    def open_image_remote(img_path: str, **kwargs: dict) -> tuple[np.ndarray | dask.array.core.Array, dict]:
         """Open an image file.
 
         Args:
@@ -298,25 +288,20 @@ class OpenLayer(Paidiverpy):
             if kwargs.get("parallel"):
                 img_array = np.frombuffer(img_bytes, np.uint8)
                 decoded_img = cv2.imdecode(img_array, cv2.IMREAD_UNCHANGED)
-                lazy_img = delayed(cv2.imdecode)(
-                    np.frombuffer(img_bytes, np.uint8), cv2.IMREAD_UNCHANGED
-                )
+                lazy_img = delayed(cv2.imdecode)(np.frombuffer(img_bytes, np.uint8), cv2.IMREAD_UNCHANGED)
                 img = da.from_delayed(lazy_img, shape=decoded_img.shape, dtype=decoded_img.dtype)
             else:
                 img_array = np.frombuffer(img_bytes, np.uint8)
                 img = cv2.imdecode(img_array, cv2.IMREAD_UNCHANGED)
-            exif = OpenLayer.extract_exif_single(BytesIO(img_bytes),
-                                                image_name=img_path.split("/")[-1])
+            exif = OpenLayer.extract_exif_single(BytesIO(img_bytes), image_name=img_path.split("/")[-1])
         except (FileNotFoundError, OSError, TypeError) as e:
             img = None
             logging.warning("Failed to open %s: %s", img_path, e)
 
-
         return img, exif
 
     @staticmethod
-    def open_image_local(img_path: str,
-                         **kwargs: dict) -> tuple[np.ndarray | dask.array.core.Array, dict]:
+    def open_image_local(img_path: str, **kwargs: dict) -> tuple[np.ndarray | dask.array.core.Array, dict]:
         """Open an image file.
 
         Args:
@@ -339,8 +324,7 @@ class OpenLayer(Paidiverpy):
         return img, exif
 
     @staticmethod
-    def extract_exif_single(img_path: str,
-                            image_name: str | None = None) -> dict:
+    def extract_exif_single(img_path: str, image_name: str | None = None) -> dict:
         """Extract EXIF data from a single image file.
 
         Args:

@@ -184,14 +184,16 @@ class ImagesLayer:
         else:
             self.save_local(images, output_path, image_format, client, n_jobs, step_order, logger)
 
-    def save_remote(self,
-                    images: list[np.ndarray | da.core.Array],
-                    output_path: str,
-                    image_format: str,
-                    client: Client,
-                    n_jobs: int,
-                    step_order: int,
-                    logger: logging.Logger) -> None:
+    def save_remote(
+        self,
+        images: list[np.ndarray | da.core.Array],
+        output_path: str,
+        image_format: str,
+        client: Client,
+        n_jobs: int,
+        step_order: int,
+        logger: logging.Logger,
+    ) -> None:
         """Save the images to a remote location.
 
         Args:
@@ -209,10 +211,9 @@ class ImagesLayer:
         if client:
             logger.info("Uploading images to S3 using Dask")
             delayed_tasks = [
-                dask.delayed(self.process_and_upload)(image,
-                                                        output_path + f"{self.filenames[step_order][idx]}.{image_format.lower()}",
-                                                        image_format,
-                                                        s3_client)
+                dask.delayed(self.process_and_upload)(
+                    image, output_path + f"{self.filenames[step_order][idx]}.{image_format.lower()}", image_format, s3_client
+                )
                 for idx, image in enumerate(images)
             ]
             with ProgressBar():
@@ -221,10 +222,9 @@ class ImagesLayer:
         elif n_jobs > 1:
             logger.info("Uploading images to S3 using Dask")
             delayed_tasks = [
-                dask.delayed(self.process_and_upload)(image,
-                                                        output_path + f"{self.filenames[step_order][idx]}.{image_format.lower()}",
-                                                        image_format,
-                                                        s3_client)
+                dask.delayed(self.process_and_upload)(
+                    image, output_path + f"{self.filenames[step_order][idx]}.{image_format.lower()}", image_format, s3_client
+                )
                 for idx, image in enumerate(images)
             ]
             with dask.config.set(scheduler="threads", num_workers=n_jobs), ProgressBar():
@@ -235,15 +235,16 @@ class ImagesLayer:
                 img_path = output_path + f"{self.filenames[step_order][idx]}.{image_format.lower()}"
                 self.process_and_upload(image, img_path, image_format, s3_client)
 
-
-    def save_local(self,
-                     images: list[np.ndarray | da.core.Array],
-                        output_path: str,
-                        image_format: str,
-                        client: Client,
-                        n_jobs: int,
-                        step_order: int,
-                        logger: logging.Logger) -> None:
+    def save_local(
+        self,
+        images: list[np.ndarray | da.core.Array],
+        output_path: str,
+        image_format: str,
+        client: Client,
+        n_jobs: int,
+        step_order: int,
+        logger: logging.Logger,
+    ) -> None:
         """Save the images to a local location.
 
         Args:
@@ -265,9 +266,7 @@ class ImagesLayer:
         if client:
             logger.info("Saving images using Dask")
             delayed_tasks = [
-                dask.delayed(self.process_and_upload)(image,
-                                                        output_path / f"{self.filenames[step_order][idx]}.{image_format.lower()}",
-                                                        image_format)
+                dask.delayed(self.process_and_upload)(image, output_path / f"{self.filenames[step_order][idx]}.{image_format.lower()}", image_format)
                 for idx, image in enumerate(images)
             ]
             with ProgressBar():
@@ -276,9 +275,7 @@ class ImagesLayer:
         elif n_jobs > 1:
             logger.info("Saving images using Dask")
             delayed_tasks = [
-                dask.delayed(self.process_and_upload)(image,
-                                                        output_path / f"{self.filenames[step_order][idx]}.{image_format.lower()}",
-                                                        image_format)
+                dask.delayed(self.process_and_upload)(image, output_path / f"{self.filenames[step_order][idx]}.{image_format.lower()}", image_format)
                 for idx, image in enumerate(images)
             ]
             with dask.config.set(scheduler="threads", num_workers=n_jobs), ProgressBar():
@@ -289,12 +286,7 @@ class ImagesLayer:
                 img_path = output_path / f"{self.filenames[step_order][idx]}.{image_format.lower()}"
                 self.process_and_upload(image, img_path, image_format)
 
-
-    def process_and_upload(self,
-                           image: np.ndarray | da.core.Array,
-                           img_path: str | Path,
-                           image_format: str,
-                           s3_client: Client | None = None) -> None:
+    def process_and_upload(self, image: np.ndarray | da.core.Array, img_path: str | Path, image_format: str, s3_client: Client | None = None) -> None:
         """Process and upload the images.
 
         Args:
@@ -311,7 +303,6 @@ class ImagesLayer:
             upload_file_to_bucket(buffer, img_path, s3_client)
         else:
             plt.imsave(img_path, saved_image, cmap=cmap, format=image_format)
-
 
     def calculate_image(self, image: np.ndarray | da.core.Array) -> tuple:
         """Calculate the image.

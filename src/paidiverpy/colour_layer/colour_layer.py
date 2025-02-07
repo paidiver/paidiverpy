@@ -164,7 +164,7 @@ class ColourLayer(Paidiverpy):
             if params.keep_alpha and "alpha_channel" in locals():
                 image_data = np.dstack([image_data, alpha_channel])
 
-        except Exception as e:   # noqa: BLE001
+        except Exception as e:  # noqa: BLE001
             msg = f"Error converting image to grayscale: {e}"
             check_raise_error(params.raise_error, msg)
 
@@ -390,86 +390,10 @@ class ColourLayer(Paidiverpy):
                 image_data = np.dstack((image_data, image_data, image_data))
             filled_edges = ColourLayer.detect_edges(gray_image_data, params.method, params.blur_radius, params.threshold)
             label_image_data = morphology.label(filled_edges, connectivity=2, background=0)
-            props = measure.regionprops(label_image_data, gray_image_data)
 
-            valid_object = False
-            if len(props) > 0:
-                max_area = 0
-                max_area_ind = 0
-
-                area_list = []
-
-                for index, prop in enumerate(props):
-                    area_list.append(prop.axis_major_length)
-                    if prop.axis_major_length > max_area:
-                        max_area = prop.axis_major_length
-                        max_area_ind = index
-
-                area_list = sorted(area_list, reverse=True)
-
-                selected_index = max_area_ind
-
-                if params.object_selection != "full_ROI" and params.object_type != "aggregate":
-                    bw_image_data = label_image_data == props[selected_index].label
-                else:
-                    bw_image_data = label_image_data > 0
-                    # Recompute props on single mask
-                    props = measure.regionprops(bw_image_data.astype(np.uint8), gray_image_data)
-                    selected_index = 0
-
-                bw = bw_image_data if np.max(bw_image_data) == 0 else bw_image_data / np.max(bw_image_data)
-
-                features = {}
-                clip_frac = float(np.sum(bw[:, 1]) + np.sum(bw[:, -2]) + np.sum(bw[1, :]) + np.sum(bw[-2, :])) / (2 * bw.shape[0] + 2 * bw.shape[1])
-
-                # Save simple features of the object
-                if params.object_selection != "full_ROI":
-                    selected_prop = props[selected_index]
-                    features.update(
-                        {
-                            "area": selected_prop.area,
-                            "minor_axis_length": selected_prop.axis_minor_length,
-                            "major_axis_length": selected_prop.axis_major_length,
-                            "aspect_ratio": (
-                                (selected_prop.axis_minor_length / selected_prop.axis_major_length) if selected_prop.axis_major_length != 0 else 1
-                            ),
-                            "orientation": selected_prop.orientation,
-                        },
-                    )
-                else:
-                    features.update(
-                        {
-                            "area": bw.shape[0] * bw.shape[1],
-                            "minor_axis_length": min(bw.shape[0], bw.shape[1]),
-                            "major_axis_length": max(bw.shape[0], bw.shape[1]),
-                            "aspect_ratio": (
-                                (props[selected_index].axis_minor_length / props[selected_index].axis_major_length)
-                                if props[selected_index].axis_major_length != 0
-                                else 1
-                            ),
-                            "orientation": 0,
-                        },
-                    )
-
-                # save all features except for those with  pixel data
-                output_dict = {
-                    prop: props[selected_index][prop]
-                    for prop in props[selected_index]
-                    if prop not in ["convex_image", "filled_image", "image", "coords"]
-                }
-                features = output_dict
-                features["clipped_fraction"] = clip_frac
-                valid_object = True
-            else:
-                features = {
-                    "area": 0.0,
-                    "minor_axis_length": 0.0,
-                    "major_axis_length": 0.0,
-                    "aspect_ratio": 1,
-                    "orientation": 0.0,
-                    "clippped_fraction": 1.0,
-                }
-            features["valid_object"] = valid_object
+            features, bw_image_data = ColourLayer.get_object_features(
+                gray_image_data, label_image_data, params
+            )
 
             # sharpness analysis of the image using FFTs
             features = ColourLayer.sharpness_analysis(gray_image_data, image_data, features, params.estimate_sharpness)
@@ -528,6 +452,105 @@ class ColourLayer(Paidiverpy):
             msg = f"Error applying colour alteration: {e}"
             check_raise_error(params.raise_error, msg)
         return image_data
+
+    @staticmethod
+    def get_object_features(gray_image_data: np.ndarray,
+                            label_image_data: np.ndarray,
+                            params: EdgeDetectionParams) -> tuple[dict, np.ndarray]:
+        """Get object features.
+
+        Get the features of the object.
+
+        Args:
+            gray_image_data (np.ndarray): The grayscale image data.
+            label_image_data (np.ndarray): The label image data.
+            params (EdgeDetectionParams): The parameters for edge detection.
+
+        Returns:
+            tuple[dict, np.ndarray]: The features of the object and the binary image data.
+        """
+        props = measure.regionprops(label_image_data, gray_image_data)
+        valid_object = False
+        bw_image_data = None
+        if len(props) > 0:
+            max_area = 0
+            max_area_ind = 0
+
+            area_list = []
+
+            for index, prop in enumerate(props):
+                area_list.append(prop.axis_major_length)
+                if prop.axis_major_length > max_area:
+                    max_area = prop.axis_major_length
+                    max_area_ind = index
+
+            area_list = sorted(area_list, reverse=True)
+
+            selected_index = max_area_ind
+
+            if params.object_selection != "full_ROI" and params.object_type != "aggregate":
+                bw_image_data = label_image_data == props[selected_index].label
+            else:
+                bw_image_data = label_image_data > 0
+                # Recompute props on single mask
+                props = measure.regionprops(bw_image_data.astype(np.uint8), gray_image_data)
+                selected_index = 0
+
+            bw = bw_image_data if np.max(bw_image_data) == 0 else bw_image_data / np.max(bw_image_data)
+
+            features = {}
+            clip_frac = float(np.sum(bw[:, 1]) + np.sum(bw[:, -2]) + np.sum(bw[1, :]) + np.sum(bw[-2, :])) / (2 * bw.shape[0] + 2 * bw.shape[1])
+
+            # Save simple features of the object
+            if params.object_selection != "full_ROI":
+                selected_prop = props[selected_index]
+                features.update(
+                    {
+                        "area": selected_prop.area,
+                        "minor_axis_length": selected_prop.axis_minor_length,
+                        "major_axis_length": selected_prop.axis_major_length,
+                        "aspect_ratio": (
+                            (selected_prop.axis_minor_length / selected_prop.axis_major_length) if selected_prop.axis_major_length != 0 else 1
+                        ),
+                        "orientation": selected_prop.orientation,
+                    },
+                )
+            else:
+                features.update(
+                    {
+                        "area": bw.shape[0] * bw.shape[1],
+                        "minor_axis_length": min(bw.shape[0], bw.shape[1]),
+                        "major_axis_length": max(bw.shape[0], bw.shape[1]),
+                        "aspect_ratio": (
+                            (props[selected_index].axis_minor_length / props[selected_index].axis_major_length)
+                            if props[selected_index].axis_major_length != 0
+                            else 1
+                        ),
+                        "orientation": 0,
+                    },
+                )
+
+            # save all features except for those with  pixel data
+            output_dict = {
+                prop: props[selected_index][prop]
+                for prop in props[selected_index]
+                if prop not in ["convex_image", "filled_image", "image", "coords"]
+            }
+            features = output_dict
+            features["clipped_fraction"] = clip_frac
+            valid_object = True
+        else:
+            features = {
+                "area": 0.0,
+                "minor_axis_length": 0.0,
+                "major_axis_length": 0.0,
+                "aspect_ratio": 1,
+                "orientation": 0.0,
+                "clippped_fraction": 1.0,
+            }
+        features["valid_object"] = valid_object
+        return (features, bw_image_data)
+
 
     @staticmethod
     def gaussian_psf(size: list[int], sigma: float) -> np.ndarray:

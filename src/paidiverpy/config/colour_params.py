@@ -91,6 +91,7 @@ class ColourAlterationParams(DynamicConfig):
     method: str = "white_balance"
     raise_error: bool = False
 
+
 COLOUR_LAYER_METHODS = {
     "grayscale": {"params": GrayScaleParams, "method": "grayscale"},
     "gaussian_blur": {"params": GaussianBlurParams, "method": "gaussian_blur"},
