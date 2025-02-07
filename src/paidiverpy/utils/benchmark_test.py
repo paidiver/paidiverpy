@@ -4,7 +4,6 @@ import gc
 import itertools
 import json
 import logging
-import subprocess
 import time
 from pathlib import Path
 import matplotlib.pyplot as plt
@@ -165,11 +164,13 @@ def benchmark_threads(benchmark_params: dict,
         logger.info("Running benchmark test with %s threads", n_job)
         start_time, end_time = benchmark_task(updated_config_file, logger)
         logger.info("Benchmark test completed")
-
-        benchmark_results.append({
-            "threads": n_jobs,
-            "time_taken": round(end_time - start_time, 2),
-        })
+        time_taken = round(end_time - start_time, 2)
+        logger.info("Time taken: %s seconds", time_taken)
+        results = {
+            "threads": n_job,
+            "time_taken": time_taken,
+        }
+        benchmark_results.append(results)
         Path(output_file).unlink()
         gc.collect()
     return benchmark_results
@@ -214,14 +215,16 @@ def benchmark_local(benchmark_params: dict,
                     n_job)
         start_time, end_time = benchmark_task(updated_config_file, logger)
         logger.info("Benchmark test completed")
-
-        benchmark_results.append({
+        time_taken = round(end_time - start_time, 2)
+        logger.info("Time taken: %s seconds", time_taken)
+        results = {
             "workers": workers,
             "threads": threads,
             "memory": memory,
             "scale": n_job,
-            "time_taken": round(end_time - start_time, 2),
-        })
+            "time_taken": time_taken,
+        }
+        benchmark_results.append(results)
         Path(output_file).unlink()
         gc.collect()
     return benchmark_results
@@ -263,45 +266,21 @@ def benchmark_slurm(benchmark_params: dict,
         )
 
         logger.info("Running benchmark test with %s cores, %s processes, %sGB memory, %s scale", core, proc, mem, n_job)
-        start_time = time.perf_counter()
-        benchmark_task(updated_config_file, logger)
-        end_time = time.perf_counter()
+        start_time, end_time = benchmark_task(updated_config_file, logger)
         logger.info("Benchmark test completed")
-
-        benchmark_results.append({
+        time_taken = round(end_time - start_time, 2)
+        logger.info("Time taken: %s seconds", time_taken)
+        results = {
             "cpus": core,
             "processes": proc,
             "memory": mem,
-            "scale": n_jobs,
-            "time_taken": round(end_time - start_time, 2),
-        })
+            "scale": n_job,
+            "time_taken": time_taken,
+        }
+
+        benchmark_results.append(results)
 
     return benchmark_results
-
-
-def get_slurm_start_time(job_id: str) -> float:
-    """Get the start time of a SLURM job by querying the job information.
-
-    Args:
-        job_id (str): The SLURM job ID.
-
-    Returns:
-        float: The start time of the job in seconds since the epoch.
-    """
-    try:
-        # Query SLURM for the job's information
-        slurm_output = subprocess.check_output(
-            ["scontrol", "show", "job", job_id], encoding="utf-8"
-        )
-        # Parse the start time from the output (example: StartTime=2025-02-06T10:05:00)
-        start_time_str = next(line for line in slurm_output.splitlines() if "StartTime=" in line)
-        start_time = start_time_str.split("StartTime=")[1]
-        # Convert the start time to a timestamp
-        return time.mktime(time.strptime(start_time, "%Y-%m-%dT%H:%M:%S"))
-    except Exception as e:
-        logger.error(f"Error getting start time for job {job_id}: {e}")
-        return None
-
 
 def benchmark_handler(benchmark_params: dict,
                       configuration_file: str,
@@ -315,7 +294,7 @@ def benchmark_handler(benchmark_params: dict,
     """
     logger.info("Starting benchmark test")
     configuration_file = Path(configuration_file)
-    cluster_type = benchmark_params.get("cluster_type", None)
+    cluster_type = benchmark_params.get("cluster_type", "threads")
     if cluster_type == "slurm":
         logger.info("Running benchmark test on SLURM cluster")
         benchmark_results = benchmark_slurm(benchmark_params, configuration_file, logger)
@@ -330,7 +309,6 @@ def benchmark_handler(benchmark_params: dict,
     for result in benchmark_results:
         logger.info(result)
 
-    # Save the benchmark results to a JSON file witi datetime on the filename
     filename = f"benchmark_results_{cluster_type}_{time.strftime('%Y%m%d_%H%M%S')}"
     with Path(f"{filename}.json").open("w") as f:
         json.dump(benchmark_results, f, indent=4)

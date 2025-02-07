@@ -80,7 +80,8 @@ class Pipeline(Paidiverpy):
 
         Args:
             from_step (int, optional): The step to start from. Defaults to None,
-        which means the pipeline will start from the last runned step.
+                which means the pipeline will start from the last runned step.
+            close_client (bool, optional): Whether to close the client. Defaults to True.
 
         Raises:
             ValueError: No steps defined for the pipeline

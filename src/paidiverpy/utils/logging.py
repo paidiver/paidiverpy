@@ -4,6 +4,7 @@ import logging
 import sys
 from enum import IntEnum
 from typing import ClassVar
+from paidiverpy.utils.exceptions import raise_value_error
 
 
 class VerboseLevel(IntEnum):
@@ -68,3 +69,18 @@ def initialise_logging(verbose: int = 2) -> logging.Logger:
     logging.basicConfig(handlers=[handler], level=log_level)
 
     return logging.getLogger(__name__)
+
+def check_raise_error(raise_error: bool, message: str) -> None:
+    """Check if an error should be raised and raise it if necessary.
+
+    Args:
+        raise_error (bool): Whether to raise an error.
+        message (str): The error message.
+
+    Raises:
+        ValueError: The error message.
+    """
+    if raise_error:
+        logging.error(message)
+        raise_value_error(message)
+    logging.warning(message)

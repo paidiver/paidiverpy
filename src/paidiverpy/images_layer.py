@@ -218,7 +218,6 @@ class ImagesLayer:
             with ProgressBar():
                 futures = client.compute(delayed_tasks)
                 client.gather(futures)
-                # dask.compute(*delayed_tasks)
         elif n_jobs > 1:
             logger.info("Uploading images to S3 using Dask")
             delayed_tasks = [
@@ -274,7 +273,6 @@ class ImagesLayer:
             with ProgressBar():
                 futures = client.compute(delayed_tasks)
                 client.gather(futures)
-                # dask.compute(*delayed_tasks)
         elif n_jobs > 1:
             logger.info("Saving images using Dask")
             delayed_tasks = [

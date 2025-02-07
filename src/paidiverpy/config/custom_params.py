@@ -13,3 +13,4 @@ class CustomParams(DynamicConfig):
     def __init__(self, **kwargs: dict) -> None:
         for key, value in kwargs.items():
             setattr(self, key, value)
+    raise_error: bool = False
