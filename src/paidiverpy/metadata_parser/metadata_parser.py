@@ -1,18 +1,19 @@
 """Module for parsing metadata files."""
 
-from io import BytesIO
 import json
 import logging
 import warnings
+from io import BytesIO
+from pathlib import Path
 import dask.dataframe as dd
-import boto3
 import mariqt.tests as miqtt
 import pandas as pd
 from mariqt.core import IfdoException
 from shapely.geometry import Point
 from paidiverpy.config.config import Configuration
 from paidiverpy.utils.logging import initialise_logging
-from paidiverpy.utils.object_store import define_storage_options, get_file_from_bucket
+from paidiverpy.utils.object_store import define_storage_options
+from paidiverpy.utils.object_store import get_file_from_bucket
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -21,6 +22,7 @@ index_columns = ["id", "index", "ID", "Index", "Id"]
 datetime_columns = ["image-datetime", "datetime", "date_time", "DateTime", "Datetime"]
 lat_columns = ["image-latitude", "lat", "latitude_deg", "latitude", "Latitude", "Latitude_deg", "Lat"]
 lon_columns = ["image-longitude", "lon", "longitude_deg", "longitude", "Longitude", "Longitude_deg", "Lon"]
+
 
 class MetadataParser:
     """Class for parsing metadata files.
@@ -196,8 +198,13 @@ class MetadataParser:
             dd.DataFrame: Metadata DataFrame.
         """
         metadata_path = self.metadata_path if isinstance(self.metadata_path, str) else str(self.metadata_path)
-        file_bytes = get_file_from_bucket(metadata_path, self.storage_options)
-        metadata =  json.loads(file_bytes.decode("utf-8"))
+
+        if self.config.general.is_remote:
+            file_bytes = get_file_from_bucket(metadata_path, self.storage_options)
+            metadata = json.loads(file_bytes.decode("utf-8"))
+        else:
+            with Path(metadata_path).open() as file:
+                metadata = json.load(file)
         self._validate_ifdo(metadata)
         self.dataset_metadata = metadata["image-set-header"]
         metadata = dd.from_dict(metadata["image-set-items"], orient="index", npartitions=2)
@@ -217,7 +224,7 @@ class MetadataParser:
         Returns:
             dd.DataFrame: Metadata DataFrame
         """
-        if self.storage_options:
+        if self.config.general.is_remote:
             file_bytes = get_file_from_bucket(self.metadata_path, self.storage_options)
             file_bytes = BytesIO(file_bytes)
             df_pandas = pd.read_csv(file_bytes)
@@ -246,7 +253,7 @@ class MetadataParser:
         Args:
             ifdo_data (Dict): parsed iFDO data.
         """
-        miqtt.are_valid_ifdo_fields(ifdo_data["image-set-header"])
+        miqtt.areValidIfdoFields(ifdo_data["image-set-header"])
         unique_names = miqtt.filesHaveUniqueName(ifdo_data["image-set-items"].keys())
         if not unique_names:
             raise IfdoException({"Validation error": f"Duplicate filenames found: {unique_names}"})

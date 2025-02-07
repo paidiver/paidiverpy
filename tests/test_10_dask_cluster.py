@@ -1,7 +1,7 @@
 """Tests for the Dask Cluster."""
 
 import unittest
-import numpy as np
+import dask.array
 import pandas as pd
 from paidiverpy.config.config import Configuration
 from paidiverpy.config.config import GeneralConfig
@@ -18,6 +18,8 @@ class TestDaskCluster(BaseTestClass):
 
     def test_dask_cluster(self):
         """Test generating a Pipeline with Custom Algorithm."""
+        number_images = 5
+
         pipeline = Pipeline(config_file_path="examples/config_files/config_benthic_client.yaml", verbose=2)
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
@@ -26,10 +28,10 @@ class TestDaskCluster(BaseTestClass):
         assert isinstance(pipeline.get_metadata(), pd.DataFrame)
         pipeline.run()
         images = pipeline.images.images
-        assert isinstance(images[0][0], np.ndarray)
+        assert images[0][0] is None
         assert images[1][0] is None
-        assert isinstance(images[-1][0], np.ndarray)
-        assert len(images) == 7
+        assert isinstance(images[-1][0], dask.array.core.Array)
+        assert len(images) == number_images
 
 
 if __name__ == "__main__":

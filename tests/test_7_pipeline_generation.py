@@ -18,6 +18,10 @@ class TestPipelineGenerator(BaseTestClass):
 
     def test_pipeline_generator1(self):
         """Test generating a Pipeline 1."""
+        number_images = 1
+        number_pipeline_steps = 1
+        number_general_sampling = 1
+
         open_layer_params = {
             "convert": [
                 {
@@ -34,15 +38,20 @@ class TestPipelineGenerator(BaseTestClass):
             config_file_path="examples/config_files/config_simple.yaml",
             steps=pipeline_steps,
         )
-        assert len(pipeline.steps) == 1
-        assert len(pipeline.config.general.sampling) == 1
+        assert len(pipeline.steps) == number_pipeline_steps
+        assert len(pipeline.config.general.sampling) == number_general_sampling
         pipeline.run()
         images = pipeline.images.images
         assert isinstance(images[0][0], np.ndarray)
-        assert len(images) == 1
+        assert len(images) == number_images
 
     def test_pipeline_generator2(self):
         """Test generating a Pipeline 2."""
+        number_images = 2
+        number_pipeline_steps = 2
+        number_general_sampling = 1
+        number_output_files = 1
+
         open_layer_params = {
             "convert": [
                 {
@@ -62,21 +71,21 @@ class TestPipelineGenerator(BaseTestClass):
             config_file_path="examples/config_files/config_simple.yaml",
             steps=pipeline_steps,
         )
-        assert len(pipeline.steps) == 2
-        assert len(pipeline.config.general.sampling) == 1
+        assert len(pipeline.steps) == number_pipeline_steps
+        assert len(pipeline.config.general.sampling) == number_general_sampling
         pipeline.run()
         images = pipeline.images.images
         assert isinstance(images[0][0], np.ndarray)
-        assert len(images) == 2
+        assert len(images) == number_images
         pipeline.export_config("new_config.yaml")
         config_output_path = Path("./new_config.yaml")
         output_files = list(config_output_path.parent.glob(config_output_path.name))
-        assert len(output_files) == 1
+        assert len(output_files) == number_output_files
         pipeline = Pipeline(config_file_path="new_config.yaml")
         pipeline.run()
         images = pipeline.images.images
         assert isinstance(images[0][0], np.ndarray)
-        assert len(images) == 2
+        assert len(images) == number_images
         config_output_path.unlink()
         output_files = list(config_output_path.parent.glob(config_output_path.name))
         assert len(output_files) == 0

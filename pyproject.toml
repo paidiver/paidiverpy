@@ -24,7 +24,7 @@ dependencies = [
   "scipy>=1.13.1",
   "tqdm>=4.66.4",
   "PyYAML>=6.0.1",
-  "mariqt>=0.6.12",
+  "mariqt>=1.0.0",
   "openpyxl>=3.0.9",
   "shapely>=2.0.5",
   "geopy>=2.4.1",
@@ -38,8 +38,8 @@ dependencies = [
   "matplotlib>=3.5.0",
   "ipython>=8.26.0",
   "dask_jobqueue>=0.9.0",
-  "s3fs==2024.12.0",
-  "python-dotenv>=1.0.1"
+  "python-dotenv>=1.0.1",
+  "boto3>=1.35.92"
   ]
 license = {file = "LICENSE"}
 version = "0.0.2"
@@ -142,16 +142,15 @@ ignore = [
     "FIX002", # Resolve TODOs
     "B028",   # No explicit `stacklevel` keyword argument found in warning
     # No docstrings required in the following cases
-    "D100", # Missing module docstring
-    "D104", # Missing public package docstring
     "D105", # Missing docstring in magic method
     "D107", # Missing docstring in `__init__`
-    "TRY401", # No exception type(s) specified in `except`
     "S324", # Probable use of insecure hash functions in `hashlib`
     "TRY400",
     "COM812",
     "ISC001",
-    "PLR0913"
+    "PLR0913",
+    "ERA001",  # Commented code
+
 ]
 pydocstyle.convention = "google"
 

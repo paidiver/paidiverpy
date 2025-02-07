@@ -5,6 +5,7 @@ general:
     name: convert
     params:
       output_bits: 8
+      raise_error: false
     step_name: convert
     test: false
   image_type: BMP
@@ -14,6 +15,7 @@ general:
   metadata_type: CSV_FILE
   n_jobs: 1
   name: raw
+  output_is_remote: false
   output_path: output
   rename: null
   sample_data: pelagic_csv
@@ -21,6 +23,7 @@ general:
   - mode: percent
     name: sampling
     params:
+      raise_error: false
       value: 0.9
     step_name: sampling
     test: false
@@ -46,6 +49,7 @@ steps:
       method: scharr
       object_selection: largest_area
       object_type: isolated
+      raise_error: false
       small_float_val: 0.0001
       threshold:
       - 2.5

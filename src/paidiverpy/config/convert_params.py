@@ -13,6 +13,7 @@ class BitParams(DynamicConfig):
     """This class contains the parameters for the bit conversion."""
 
     output_bits: int = 8
+    raise_error: bool = False
 
 
 @dataclass
@@ -21,14 +22,15 @@ class ToParams(DynamicConfig):
 
     to: str = "uint8"
     channel_selector: int = 0
+    raise_error: bool = False
 
 
 @dataclass
 class BayerPatternParams(DynamicConfig):
     """This class contains the parameters for the Bayer pattern conversion."""
 
-    def __init__(self) -> None:
-        self.bayer_pattern: str = "BGGR"
+    bayer_pattern: str = "BGGR"
+    raise_error: bool = False
 
 
 @dataclass
@@ -37,6 +39,7 @@ class NormalizeParams(DynamicConfig):
 
     min: float = 0
     max: float = 1
+    raise_error: bool = False
 
 
 @dataclass
@@ -45,6 +48,7 @@ class ResizeParams(DynamicConfig):
 
     min: int = 256
     max: int = 256
+    raise_error: bool = False
 
 
 @dataclass
@@ -53,6 +57,7 @@ class CropParams(DynamicConfig):
 
     x: tuple = (0, -1)
     y: tuple = (0, -1)
+    raise_error: bool = False
 
 
 CONVERT_LAYER_METHODS = {

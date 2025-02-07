@@ -20,6 +20,9 @@ class TestPipelineInteraction(BaseTestClass):
 
     def test_pipeline_interaction(self):
         """Test the Pipeline Interaction."""
+        number_images = 3
+        number_pipeline_steps = 3
+
         pipeline = Pipeline(config_file_path="examples/config_files/config_pelagic.yaml")
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
@@ -27,10 +30,10 @@ class TestPipelineInteraction(BaseTestClass):
         assert isinstance(pipeline.to_html(), str)
         pipeline.run()
         assert pipeline.steps[-1][2]["test"] is False
-        assert len(pipeline.steps) == 3
+        assert len(pipeline.steps) == number_pipeline_steps
         images = pipeline.images.images
         assert isinstance(images[0][0], np.ndarray)
-        assert len(images) == 3
+        assert len(images) == number_images
         pipeline.add_step(
             "Area1",
             ResampleLayer,
@@ -39,20 +42,23 @@ class TestPipelineInteraction(BaseTestClass):
             substitute=True,
         )
         assert pipeline.steps[-1][2]["test"] is False
-        assert len(pipeline.steps) == 3
+        assert len(pipeline.steps) == number_pipeline_steps
         pipeline.run(from_step=0)
         images = pipeline.images.images
         assert isinstance(images[0][0], np.ndarray)
-        assert len(images) == 3
+        assert len(images) == number_images
         pipeline.add_step("contrast", ColourLayer, {"mode": "contrast"})
-        assert len(pipeline.steps) == 4
+        assert len(pipeline.steps) == number_pipeline_steps + 1
         pipeline.run()
         images = pipeline.images.images
         assert isinstance(images[0][0], np.ndarray)
-        assert len(images) == 4
+        assert len(images) == number_images + 1
 
     def test_pipeline_export(self):
         """Test the Pipeline Export."""
+        number_images = 4
+        number_pipeline_steps = 4
+        number_output_files = 1
         pipeline = Pipeline(config_file_path="examples/config_files/config_pelagic.yaml")
         pipeline.add_step(
             "Area1",
@@ -63,16 +69,16 @@ class TestPipelineInteraction(BaseTestClass):
         )
         pipeline.add_step("contrast", ColourLayer, {"mode": "contrast"})
         pipeline.run()
-        assert len(pipeline.steps) == 4
+        assert len(pipeline.steps) == number_pipeline_steps
         pipeline.export_config("./new_config_pelagic.yaml")
         pipeline = Pipeline(config_file_path="./new_config_pelagic.yaml")
         pipeline.run()
         images = pipeline.images.images
         assert isinstance(images[0][0], np.ndarray)
-        assert len(images) == 4
+        assert len(images) == number_images
         config_output_path = Path("./new_config_pelagic.yaml")
         output_files = list(config_output_path.parent.glob(config_output_path.name))
-        assert len(output_files) == 1
+        assert len(output_files) == number_output_files
         config_output_path.unlink()
         output_files = list(config_output_path.parent.glob(config_output_path.name))
         assert len(output_files) == 0

@@ -1,15 +1,16 @@
 """This module contains utility functions for interacting with object storage."""
+
 import io
 import logging
 import os
 from pathlib import Path
-
 import boto3
 import botocore
 import requests
 from dotenv import load_dotenv
 
 load_dotenv()
+
 
 def define_storage_options(path: str | Path) -> dict:
     """Define storage options for reading metadata file.
@@ -38,20 +39,27 @@ def define_storage_options(path: str | Path) -> dict:
             storage_options["endpoint_url"] = os_endpoint
     return storage_options
 
-def get_file_from_bucket(file_path: str,
-                         storage_options: dict) -> io.BytesIO:
 
+def get_file_from_bucket(file_path: str, storage_options: dict) -> bytes:
+    """Get a file from an object store bucket.
+
+    Args:
+        file_path (str): Full S3 path (e.g., "s3://my-bucket/path/to/image.png").
+        storage_options (dict): Storage options for reading metadata file.
+
+    Returns:
+        bytes: The file content.
+    """
     if file_path.startswith("s3://"):
         s3_path = file_path[5:]
         bucket_name, key = s3_path.split("/", 1)
         s3_client = boto3.client(**storage_options)
         response = s3_client.get_object(Bucket=bucket_name, Key=key)
-        img_bytes = response["Body"].read()
-        return img_bytes
-    else:
-        response = requests.get(file_path, stream=True)
-        response.raise_for_status()
-        return response.content
+        return response["Body"].read()
+    response = requests.get(file_path, stream=True, timeout=10)
+    response.raise_for_status()
+    return response.content
+
 
 def create_client() -> boto3.client:
     """Create a boto3 client for S3.
@@ -62,9 +70,8 @@ def create_client() -> boto3.client:
     storage_options = define_storage_options("s3://")
     return boto3.client(**storage_options)
 
-def check_create_bucket_exists(bucket_name: str,
-                               client: boto3.client,
-                               logger: logging.Logger) -> None:
+
+def check_create_bucket_exists(bucket_name: str, client: boto3.client, logger: logging.Logger) -> None:
     """Check if a bucket exists.
 
     Args:
@@ -75,17 +82,14 @@ def check_create_bucket_exists(bucket_name: str,
     exists = True
     try:
         client.head_bucket(Bucket=bucket_name)
-    except botocore.exceptions.ClientError as e:
-        # If a client error is thrown, check if it was a 404 error.
+    except botocore.exceptions.ClientError:
         exists = False
     if not exists:
-        logger.info(f"Creating bucket {bucket_name}.")
+        logger.info("Creating bucket %s.", bucket_name)
         client.create_bucket(Bucket=bucket_name)
 
 
-def upload_file_to_bucket(file_obj: io.BytesIO,
-                          output_path: str,
-                          client: boto3.client) -> None:
+def upload_file_to_bucket(file_obj: io.BytesIO, output_path: str, client: boto3.client) -> None:
     """Upload an in-memory file to an object store bucket.
 
     Args:
