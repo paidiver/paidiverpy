@@ -34,7 +34,7 @@ class OpenLayer(Paidiverpy):
     """Open raw image file.
 
     Args:
-        config_params (Union[Dict, ConfigParams], optional): The configuration parameters.
+        config_params (dict | ConfigParams, optional): The configuration parameters.
             It can contain the following keys / attributes:
             - input_path (str): The path to the input files.
             - output_path (str): The path to the output files.
@@ -184,7 +184,7 @@ class OpenLayer(Paidiverpy):
             remote (bool, optional): Whether the image is remote. Defaults to False.
 
         Returns:
-            Union[np.ndarray, dask.array.core.Array]: The processed image data
+            np.ndarray | dask.array.core.Array: The processed image data
         """
         func = OpenLayer.open_image_remote if remote else OpenLayer.open_image_local
         img, exif = func(img_path, storage_options=self.storage_options, parallel=False)

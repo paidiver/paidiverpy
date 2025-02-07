@@ -15,7 +15,7 @@ from paidiverpy.config.config_params import ConfigParams
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.utils.dynamic_classes import DynamicConfig
-from paidiverpy.utils.logging import initialise_logging
+from paidiverpy.utils.logging_functions import initialise_logging
 from paidiverpy.utils.parallellisation import get_client
 from paidiverpy.utils.parallellisation import get_n_jobs
 
@@ -24,7 +24,7 @@ class Paidiverpy:
     """Main class for the paidiverpy package.
 
     Args:
-        config_params (Union[Dict, ConfigParams], optional): The configuration parameters.
+        config_params (dict | ConfigParams, optional): The configuration parameters.
             It can contain the following keys / attributes:
             - input_path (str): The path to the input files.
             - output_path (str): The path to the output files.
@@ -195,7 +195,7 @@ class Paidiverpy:
 
         Args:
             config_file_path (str): Configuration file path.
-            config_params (Union[ConfigParams, dict]): Configuration parameters.
+            config_params (ConfigParams | dict): Configuration parameters.
 
         Returns:
             Configuration: The configuration object.
@@ -306,7 +306,7 @@ class Paidiverpy:
         """Save the images.
 
         Args:
-            step (Union[str, int], optional): The step name or order. Defaults to None.
+            step (str | int, optional): The step name or order. Defaults to None.
             by_order (bool, optional): Whether to save by order. Defaults to False.
             image_format (str, optional): The image format. Defaults to "png".
         """
@@ -356,7 +356,7 @@ class Paidiverpy:
         """Clear steps from the images and metadata.
 
         Args:
-            value (Union[int, str]): Step name or order.
+            value (int | str): Step name or order.
             by_order (bool, optional): Whether to remove by order. Defaults to True.
         """
         if by_order:

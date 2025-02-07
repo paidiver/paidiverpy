@@ -18,7 +18,7 @@ class Pipeline(Paidiverpy):
     """Pipeline builder class for image preprocessing.
 
     Args:
-        config_params (Union[Dict, ConfigParams], optional): The configuration parameters.
+        config_params (dict | ConfigParams, optional): The configuration parameters.
             It can contain the following keys / attributes:
             - input_path (str): The path to the input files.
             - output_path (str): The path to the output files.
@@ -192,12 +192,12 @@ class Pipeline(Paidiverpy):
 
         Args:
             step_name (str): Name of the step.
-            step_class (Union[str, type]): Class of the step.
+            step_class (str | type): Class of the step.
             parameters (dict): Parameters for the step.
             index (int, optional): Index of the step. It is only used when you
-        want to add a step in a specific position. Defaults to None.
+                want to add a step in a specific position. Defaults to None.
             substitute (bool, optional): Whether to substitute the step in the
-        specified index. Defaults to False.
+                specified index. Defaults to False.
         """
         if not parameters.get("name"):
             parameters["name"] = step_name

@@ -6,7 +6,7 @@ import zipfile
 from pathlib import Path
 import requests
 from tqdm import tqdm
-from paidiverpy.utils.logging import initialise_logging
+from paidiverpy.utils.logging_functions import initialise_logging
 
 NUM_CHANNELS_GREY = 2
 NUM_CHANNELS_RGB = 3

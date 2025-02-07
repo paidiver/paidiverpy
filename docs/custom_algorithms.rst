@@ -62,6 +62,7 @@ In this example:
 * Dependencies are specified both as a list and optionally via a requirements file. Both sets of dependencies are installed before executing the algorithm.
 
 .. admonition:: Important
+
   You only need to specify external packages as dependencies; packages already available in your environment or included with `paidiverpy` do not need to be listed and will be ignored.
 
 Real Example
@@ -69,7 +70,7 @@ Real Example
 
 For a more concrete example, consider the following code snippet (available in `examples/custom_algorithms files <https://github.com/paidiver/paidiverpy/blob/dev/src/paidiverpy/custom_layer/_custom_algorithm_example.py>`_ of the `paidiverpy` package):
 
-.. literalinclude:: ../examples/custom_algorithms/custom_algorithms_example.py
+.. literalinclude:: ../src/paidiverpy/custom_layer/_custom_algorithm_example.py
 
 In this example, the custom algorithm accepts an image and a `feature_range` parameter. Using `sklearn`'s `MinMaxScaler`, it normalizes the image data within the specified range, then returns the processed data.
 
@@ -105,7 +106,7 @@ To execute, run your application with the configuration file above, and the cust
 Example configuration files for custom algorithms can be found in the `example/config_files <https://github.com/paidiver/paidiverpy/tree/dev/examples/config_files>`_ directory of the repository. You can also run an example notebook with a custom algorithm by exploring the :doc:`gallery examples <gallery>`.
 
 Run in Docker
-------------
+-------------
 
 To pass the custom algorithm to the Docker container, you need to mount the custom algorithm file to the container. The following steps show how to run the container with a custom algorithm:
 

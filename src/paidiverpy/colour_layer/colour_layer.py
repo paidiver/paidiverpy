@@ -43,7 +43,7 @@ from paidiverpy.utils.data import NUM_CHANNELS_GREY
 from paidiverpy.utils.data import NUM_CHANNELS_RGB
 from paidiverpy.utils.data import NUM_IMAGE_DIMS
 from paidiverpy.utils.exceptions import raise_value_error
-from paidiverpy.utils.logging import check_raise_error
+from paidiverpy.utils.logging_functions import check_raise_error
 
 
 class ColourLayer(Paidiverpy):
@@ -52,7 +52,7 @@ class ColourLayer(Paidiverpy):
     This class contains the methods for processing the images in the colour layer.
 
     Args:
-        config_params (Union[Dict, ConfigParams], optional): The configuration parameters.
+        config_params (dict | ConfigParams, optional): The configuration parameters.
             It can contain the following keys / attributes:
             - input_path (str): The path to the input files.
             - output_path (str): The path to the output files.

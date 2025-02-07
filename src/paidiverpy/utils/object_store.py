@@ -16,7 +16,7 @@ def define_storage_options(path: str | Path) -> dict:
     """Define storage options for reading metadata file.
 
     Args:
-        path (Union[str, Path]): Path to the metadata file.
+        path (str | Path): Path to the metadata file.
 
     Returns:
         dict: Storage options for reading metadata file.

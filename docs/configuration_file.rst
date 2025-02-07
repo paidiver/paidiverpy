@@ -1,12 +1,12 @@
 .. _package-organisation:
 
 Configuration File
-====================
+==================
 
 The configuration file is a crucial component of the Paidiverpy package. It defines the pipeline you want to run, specifying the input data, processing steps, and output data. Although it is possible to run or create a pipeline without a configuration file, using one is highly recommended to ensure reproducibility and simplify modifications.
 
 Format and Schema
-------------------
+-----------------
 
 The configuration file is written in YAML format and should adhere to the schema detailed in the `configuration file schema <https://github.com/paidiver/paidiverpy/blob/dev/src/paidiverpy/configuration-schema.json>`_. Below is an example of a configuration file:
 
@@ -56,7 +56,7 @@ The configuration file is written in YAML format and should adhere to the schema
             beta: -0.5
 
 Explanation of the Configuration File
-------------------
+-------------------------------------
 
 In the example above, the configuration file outlines a pipeline with the following steps:
 
@@ -67,12 +67,12 @@ In the example above, the configuration file outlines a pipeline with the follow
 - Step 4. **Sharpening**: Sharpen the images using an alpha of 1.5 and a beta of -0.5.
 
 Example Configuration Files
-------------------
+---------------------------
 
 Example configuration files for processing the sample datasets can be found in the `example/config_files <https://github.com/paidiver/paidiverpy/tree/dev/examples/config_files>`_ directory of the repository. These files can be used to test the example notebooks described in the :doc:`gallery examples <gallery>`. Running the examples will automatically download the sample data.
 
 Validation Tools
-------------------
+----------------
 
 To validate your configuration files, you can use the following resources:
 
