@@ -1,32 +1,21 @@
+[![DOI][zenodo-badge]][zenodo-link]
+[![Documentation][rtd-badge]][rtd-link]
+[![Pypi][pip-badge]][pip-link]
+
+[zenodo-badge]: https://zenodo.org/badge/DOI/10.5281/zenodo.14644007.svg
+[zenodo-link]: https://doi.org/10.5281/zenodo.14644007
+[rtd-badge]: https://img.shields.io/readthedocs/paidiverpy?logo=readthedocs
+[rtd-link]: https://paidiverpy.readthedocs.io/en/latest/?badge=latest
+[pip-badge]: https://img.shields.io/pypi/v/paidiverpy
+[pip-link]: https://pypi.org/project/paidiverpy/
+
+
 ![Logo](docs/_static/logo_paidiver_docs.png)
 
 **Paidiverpy** is a Python package designed to create pipelines for preprocessing image data for biodiversity analysis.
 
 > **Note:** This package is still in active development, and frequent updates and changes are expected. The API and features may evolve as we continue improving it.
 
-[![DOI][joss-badge]][joss-link] [![Documentation][rtd-badge]][rtd-link] [![Pypi][pip-badge]][pip-link] [![Conda][conda-badge]][conda-link]                                                                       [![codecov][cov-badge]][conda-link]  ![CI][ci-badge] [![CI Energy][ci-energy-badge-co2]][ci-energy-link]
-[![Open-SSF][ossf-badge]][ossf-link]
-
-[joss-badge]: https://img.shields.io/badge/DOI-10.21105%2Fjoss.02425-brightgreen
-[joss-link]: https://dx.doi.org/10.21105/joss.02425
-[ci-badge]: https://github.com/euroargodev/argopy/actions/workflows/pytests.yml/badge.svg
-[cov-badge]: https://codecov.io/gh/euroargodev/argopy/branch/master/graph/badge.svg
-[cov-link]: https://codecov.io/gh/euroargodev/argopy
-[rtd-badge]: https://img.shields.io/readthedocs/argopy?logo=readthedocs
-[rtd-link]: https://argopy.readthedocs.io/en/latest/?badge=latest
-[pip-badge]: https://img.shields.io/pypi/v/argopy
-[pip-link]: https://pypi.org/project/argopy/
-[conda-badge]: https://img.shields.io/conda/vn/conda-forge/argopy?logo=anaconda
-[conda-link]: https://anaconda.org/conda-forge/argopy
-[ossf-badge]: https://www.bestpractices.dev/projects/5939/badge
-[ossf-link]: https://www.bestpractices.dev/projects/5939
-[ci-energy-link]: https://metrics.green-coding.io/ci.html?repo=euroargodev/argopy&branch=master&workflow=22344160
-[ci-energy-badge]: https://api.green-coding.io/v1/ci/badge/get?repo=euroargodev/argopy&branch=master&workflow=22344160&mode=totals&duration_days=30
-[ci-energy-badge-co2]: https://api.green-coding.io/v1/ci/badge/get?repo=euroargodev/argopy&branch=master&workflow=22344160&mode=totals&duration_days=30&metric=carbon
-
-[ci-energy-link-upstream]: https://metrics.green-coding.io/ci.html?repo=euroargodev/argopy&branch=master&workflow=25052179
-[ci-energy-badge-upstream]: https://api.green-coding.io/v1/ci/badge/get?repo=euroargodev/argopy&branch=master&workflow=25052179&mode=totals&duration_days=30
-[ci-energy-badge-upstream-co2]: https://api.green-coding.io/v1/ci/badge/get?repo=euroargodev/argopy&branch=master&workflow=25052179&mode=totals&duration_days=30&metric=carbon
 
 ## Documentation
 
