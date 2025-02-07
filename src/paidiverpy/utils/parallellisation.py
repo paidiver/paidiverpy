@@ -56,7 +56,8 @@ def parse_dask_job(job: dict, n_jobs: int) -> Client:
         cluster_type = "LocalCluster"
         job_id = None
     else:
-        raise ValueError("Cluster type not supported")
+        msg = "Cluster type not supported"
+        raise ValueError(msg)
     cluster.scale(n_jobs)
     client = Client(cluster)
     logging.info("Created %s with Client: %s", cluster_type, client.dashboard_link)

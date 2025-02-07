@@ -129,8 +129,8 @@ def unzip_file(zip_path: Path, dataset_name: str, extract_dir: Path = CACHE_DIR)
                         zip_ref.extract(file_info, extract_dir)
                         bar.update(1)
             logger.info("Extracted files to %s", extract_dir)
-        except:
-            logger.error("Failed to extract files to %s", extract_dir)
+        except Exception as e:  # noqa: BLE001
+            logger.error("Failed to extract files to %s: %s", extract_dir, e)
             logger.error("Removing the zip file at %s", zip_path)
             logger.error("Please try again.")
             zip_path.unlink()

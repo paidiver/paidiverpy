@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 from dask.diagnostics import ProgressBar
 from dask.distributed import Client
+from tqdm import tqdm
 from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
 from paidiverpy.images_layer import ImagesLayer
@@ -131,7 +132,9 @@ class Paidiverpy:
         Returns:
             List[np.ndarray]: The list of processed images.
         """
-        return [method(img, params=params) for img in images]
+        return [method(img, params=params) for img in tqdm(images,
+                                                           total=len(images),
+                                                           desc="Processing images")]
 
     def process_parallel(
         self,
@@ -157,11 +160,10 @@ class Paidiverpy:
             with ProgressBar():
                 results = self.client.gather(futures)
             return [da.from_array(img) for img in results]
-        else:
-            delayed_images = [dask.delayed(method)(img, params) for img in images]
-            with dask.config.set(scheduler="threads", num_workers=self.n_jobs), ProgressBar():
-                delayed_images = dask.compute(*delayed_images)
-            return [da.from_array(img) for img in delayed_images]
+        delayed_images = [dask.delayed(method)(img, params) for img in images]
+        with dask.config.set(scheduler="threads", num_workers=self.n_jobs), ProgressBar():
+            delayed_images = dask.compute(*delayed_images)
+        return [da.from_array(img) for img in delayed_images]
 
     def _set_variables_from_paidiverpy(self, paidiverpy: "Paidiverpy") -> None:
         """Set the variables from the paidiverpy object.
@@ -385,6 +387,8 @@ class Paidiverpy:
             params (DynamicConfig): The parameters.
             method_dict (dict): The method dictionary.
             mode (str): The mode.
+            class_method (bool, optional): Whether the method is a class method.
+                Defaults to True.
 
         Raises:
             ValueError: Unsupported mode.
@@ -399,9 +403,6 @@ class Paidiverpy:
         if not isinstance(params, method_info["params"]):
             params = method_info["params"](**params)
         method_name = method_info["method"]
-        if class_method:
-            method = getattr(self.__class__, method_name)
-        else:
-            method = getattr(self, method_name)
+        method = getattr(self.__class__, method_name) if class_method else getattr(self, method_name)
 
         return method, params
