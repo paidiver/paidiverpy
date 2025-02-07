@@ -1,5 +1,6 @@
 """This module contains functions to check and install dependencies."""
 
+import re
 import subprocess
 import sys
 from importlib.metadata import PackageNotFoundError
@@ -17,6 +18,7 @@ SIXTEEN_BITS = 16
 THIRTY_TWO_BITS = 32
 
 
+PACKAGE_REGEX = re.compile(r"^[a-zA-Z0-9_-]+(==[a-zA-Z0-9_.-]+)?$")
 def check_and_install_dependencies(dependencies: list[str] | None, dependencies_path: str | None) -> None:
     """Check and install dependencies.
 
@@ -40,9 +42,13 @@ def check_and_install_dependencies(dependencies: list[str] | None, dependencies_
         with Path.open(dependencies_path) as file:
             list_of_dependencies += file.readlines()
     for package in list_of_dependencies:
-        package_name = package.split("==")[0]
+        package_name = package.strip()
+        if not PACKAGE_REGEX.match(package_name):
+            msg = f"Invalid package name or version: {package_name}"
+            raise ValueError(msg)
+        package_name = package_name.split("==")[0]
         if not is_package_installed(package_name):
-            subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+            subprocess.check_call([sys.executable, "-m", "pip", "install", package]) # noqa: S603
 
 def is_package_installed(package_name: str) -> bool:
     """Check if the package is installed.

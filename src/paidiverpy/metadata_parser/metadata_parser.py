@@ -23,6 +23,7 @@ datetime_columns = ["image-datetime", "datetime", "date_time", "DateTime", "Date
 lat_columns = ["image-latitude", "lat", "latitude_deg", "latitude", "Latitude", "Latitude_deg", "Lat"]
 lon_columns = ["image-longitude", "lon", "longitude_deg", "longitude", "Longitude", "Longitude_deg", "Lon"]
 
+
 class MetadataParser:
     """Class for parsing metadata files.
 
@@ -200,7 +201,7 @@ class MetadataParser:
 
         if self.config.general.is_remote:
             file_bytes = get_file_from_bucket(metadata_path, self.storage_options)
-            metadata =  json.loads(file_bytes.decode("utf-8"))
+            metadata = json.loads(file_bytes.decode("utf-8"))
         else:
             with Path(metadata_path).open() as file:
                 metadata = json.load(file)

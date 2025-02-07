@@ -474,61 +474,7 @@ class ResampleLayer(Paidiverpy):
         metadata["cornerdist_m"] = 0.5 * metadata["approx_horizdim_m"] / np.sin(metadata["headingoffset_rad"])
         metadata["longpos_deg"] = metadata["image-longitude"] + 360
 
-        corner_columns = [
-            "TRcornerlong",
-            "TRcornerlat",
-            "TLcornerlong",
-            "TLcornerlat",
-            "BLcornerlong",
-            "BLcornerlat",
-            "BRcornerlong",
-            "BRcornerlat",
-        ]
-        metadata[corner_columns] = 0.0
-        for i, row in metadata.iterrows():
-            lat, lon, heading_deg, headingoffset_rad, cornerdist_m = row[
-                [
-                    "image-latitude",
-                    "longpos_deg",
-                    "heading_deg",
-                    "headingoffset_rad",
-                    "cornerdist_m",
-                ]
-            ]
-
-            metadata.loc[i, "TRcornerlong"], metadata.loc[i, "TRcornerlat"] = ResampleLayer.calculate_corner(
-                lat,
-                lon,
-                heading_deg,
-                headingoffset_rad,
-                cornerdist_m,
-                0,
-            )
-            metadata.loc[i, "TLcornerlong"], metadata.loc[i, "TLcornerlat"] = ResampleLayer.calculate_corner(
-                lat,
-                lon,
-                heading_deg,
-                headingoffset_rad,
-                cornerdist_m,
-                -2 * headingoffset_rad * 180 / np.pi,
-            )
-            metadata.loc[i, "BLcornerlong"], metadata.loc[i, "BLcornerlat"] = ResampleLayer.calculate_corner(
-                lat,
-                lon,
-                heading_deg,
-                headingoffset_rad,
-                cornerdist_m,
-                180,
-            )
-            metadata.loc[i, "BRcornerlong"], metadata.loc[i, "BRcornerlat"] = ResampleLayer.calculate_corner(
-                lat,
-                lon,
-                heading_deg,
-                headingoffset_rad,
-                cornerdist_m,
-                180 - 2 * headingoffset_rad * 180 / np.pi,
-            )
-
+        metadata = ResampleLayer.calculate_corners(metadata)
         n = pd.DataFrame(
             {
                 "long_deg": [
@@ -620,6 +566,72 @@ class ResampleLayer(Paidiverpy):
         gdf[gdf.overlap == 0].plot(ax=ax, facecolor="none", edgecolor="black", label="No Overlap")
         gdf[gdf.overlap == 1].plot(ax=ax, facecolor="none", edgecolor="red", label="Overlap")
         plt.show(block=False)
+
+    @staticmethod
+    def calculate_corners(metadata: pd.DataFrame) -> pd.DataFrame:
+        """Calculate the corners.
+
+        Args:
+            metadata (pd.DataFrame): The metadata.
+
+        Returns:
+            pd.DataFrame: The metadata with the corners.
+        """
+        corner_columns = [
+            "TRcornerlong",
+            "TRcornerlat",
+            "TLcornerlong",
+            "TLcornerlat",
+            "BLcornerlong",
+            "BLcornerlat",
+            "BRcornerlong",
+            "BRcornerlat",
+        ]
+        metadata[corner_columns] = 0.0
+        for i, row in metadata.iterrows():
+            lat, lon, heading_deg, headingoffset_rad, cornerdist_m = row[
+                [
+                    "image-latitude",
+                    "longpos_deg",
+                    "heading_deg",
+                    "headingoffset_rad",
+                    "cornerdist_m",
+                ]
+            ]
+
+            metadata.loc[i, "TRcornerlong"], metadata.loc[i, "TRcornerlat"] = ResampleLayer.calculate_corner(
+                lat,
+                lon,
+                heading_deg,
+                headingoffset_rad,
+                cornerdist_m,
+                0,
+            )
+            metadata.loc[i, "TLcornerlong"], metadata.loc[i, "TLcornerlat"] = ResampleLayer.calculate_corner(
+                lat,
+                lon,
+                heading_deg,
+                headingoffset_rad,
+                cornerdist_m,
+                -2 * headingoffset_rad * 180 / np.pi,
+            )
+            metadata.loc[i, "BLcornerlong"], metadata.loc[i, "BLcornerlat"] = ResampleLayer.calculate_corner(
+                lat,
+                lon,
+                heading_deg,
+                headingoffset_rad,
+                cornerdist_m,
+                180,
+            )
+            metadata.loc[i, "BRcornerlong"], metadata.loc[i, "BRcornerlat"] = ResampleLayer.calculate_corner(
+                lat,
+                lon,
+                heading_deg,
+                headingoffset_rad,
+                cornerdist_m,
+                180 - 2 * headingoffset_rad * 180 / np.pi,
+            )
+        return metadata
 
     @staticmethod
     def calculate_corner(

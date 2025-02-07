@@ -32,6 +32,7 @@ class BayerPatternParams(DynamicConfig):
     bayer_pattern: str = "BGGR"
     raise_error: bool = False
 
+
 @dataclass
 class NormalizeParams(DynamicConfig):
     """This class contains the parameters for the image normalization."""
@@ -39,6 +40,7 @@ class NormalizeParams(DynamicConfig):
     min: float = 0
     max: float = 1
     raise_error: bool = False
+
 
 @dataclass
 class ResizeParams(DynamicConfig):
@@ -48,6 +50,7 @@ class ResizeParams(DynamicConfig):
     max: int = 256
     raise_error: bool = False
 
+
 @dataclass
 class CropParams(DynamicConfig):
     """This class contains the parameters for the image cropping."""
@@ -55,6 +58,7 @@ class CropParams(DynamicConfig):
     x: tuple = (0, -1)
     y: tuple = (0, -1)
     raise_error: bool = False
+
 
 CONVERT_LAYER_METHODS = {
     "bits": {"params": BitParams, "method": "convert_bits"},

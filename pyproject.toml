@@ -142,16 +142,15 @@ ignore = [
     "FIX002", # Resolve TODOs
     "B028",   # No explicit `stacklevel` keyword argument found in warning
     # No docstrings required in the following cases
-    "D100", # Missing module docstring
-    "D104", # Missing public package docstring
     "D105", # Missing docstring in magic method
     "D107", # Missing docstring in `__init__`
-    "TRY401", # No exception type(s) specified in `except`
     "S324", # Probable use of insecure hash functions in `hashlib`
     "TRY400",
     "COM812",
     "ISC001",
-    "PLR0913"
+    "PLR0913",
+    "ERA001",  # Commented code
+
 ]
 pydocstyle.convention = "google"
 

@@ -9,10 +9,13 @@ from paidiverpy.utils.exceptions import raise_value_error
 
 class VerboseLevel(IntEnum):
     """Verbose levels for logging."""
+
     NONE = 0
     ERRORS_WARNINGS = 1
     INFO = 2
     DEBUG = 3
+
+
 class ColorFormatter(logging.Formatter):
     """Custom formatter to add colors to log messages."""
 
@@ -37,6 +40,7 @@ class ColorFormatter(logging.Formatter):
         color = self.COLORS.get(record.levelname, self.RESET)
         message = super().format(record)
         return f"{color}{message}{self.RESET}"
+
 
 def initialise_logging(verbose: int = 2) -> logging.Logger:
     """Initialise logging configuration.
@@ -69,6 +73,7 @@ def initialise_logging(verbose: int = 2) -> logging.Logger:
     logging.basicConfig(handlers=[handler], level=log_level)
 
     return logging.getLogger(__name__)
+
 
 def check_raise_error(raise_error: bool, message: str) -> None:
     """Check if an error should be raised and raise it if necessary.

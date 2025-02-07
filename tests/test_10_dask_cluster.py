@@ -1,8 +1,8 @@
 """Tests for the Dask Cluster."""
 
 import unittest
-import numpy as np
 import pandas as pd
+import dask.array
 from paidiverpy.config.config import Configuration
 from paidiverpy.config.config import GeneralConfig
 from paidiverpy.pipeline import Pipeline
@@ -30,7 +30,7 @@ class TestDaskCluster(BaseTestClass):
         images = pipeline.images.images
         assert images[0][0] is None
         assert images[1][0] is None
-        assert isinstance(images[-1][0], np.ndarray)
+        assert isinstance(images[-1][0], dask.array.core.Array)
         assert len(images) == number_images
 
 
