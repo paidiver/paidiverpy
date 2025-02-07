@@ -110,7 +110,8 @@ class ConvertLayer(Paidiverpy):
             image_data = np.uint16(image_data * 65535)
         elif params.output_bits == THIRTY_TWO_BITS:
             image_data = np.float32(image_data)
-        # else:
+        else:
+            logging.warning("Unsupported output bits: %s", params.output_bits)
         #     self.logger.warning("Unsupported output bits: %s", params.output_bits)
         #     if self.raise_error:
         #         msg = f"Unsupported output bits: {params.output_bits}"
@@ -151,7 +152,7 @@ class ConvertLayer(Paidiverpy):
                 else:
                     image_data = cv2.cvtColor(image_data, cv2.COLOR_BGR2GRAY)
         except Exception as e:  # noqa: BLE001
-            pass
+            logging.warning("Failed to convert the image to %s: %s", params.to, e)
             # self.logger.warning("Failed to convert the image to %s: %s", params.to, e)
             # if self.raise_error:
             #     msg = f"Failed to convert the image to {params.to}: {e}"
@@ -199,6 +200,7 @@ class ConvertLayer(Paidiverpy):
                 "GB": cv2.COLOR_BAYER_GB2RGB,
             }[params.bayer_pattern]
         except KeyError as exc:
+            logging.warning("Invalid Bayer pattern for a single-channel image: %s", params.bayer_pattern)
             # self.logger.warning(
             #     "Invalid Bayer pattern for a single-channel image: %s",
             #     params.bayer_pattern,
@@ -239,7 +241,7 @@ class ConvertLayer(Paidiverpy):
                 dtype=cv2.CV_32F,
             )
         except Exception as e:
-            pass
+            logging.warning("Failed to normalize the image: %s", e)
             # self.logger.warning("Failed to normalize the image: %s", e)
             # if self.raise_error:
             #     msg = f"Failed to normalize the image: {e!s}"
@@ -266,7 +268,7 @@ class ConvertLayer(Paidiverpy):
         try:
             return cv2.resize(image_data, (params.min, params.max), interpolation=cv2.INTER_LANCZOS4)
         except Exception as e:
-            pass
+            logging.warning("Failed to resize the image: %s", e)
             # self.logger.warning("Failed to resize the image: %s", e)
             # if self.raise_error:
             #     msg = f"Failed to resize the image: {e!s}"
@@ -299,7 +301,8 @@ class ConvertLayer(Paidiverpy):
                 raise_value_error(msg)
             return image_data[:, start_x:end_x, start_y:end_y, :]
         except Exception as e:
-            pass
+            logging.warning("Failed to crop the image: %s", e)
+            # pass
             # self.logger.warning("Failed to crop the image: %s", e)
             # if self.raise_error:
             #     msg = f"Failed to crop the image: {e!s}"

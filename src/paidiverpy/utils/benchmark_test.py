@@ -33,21 +33,26 @@ def benchmark_task(configuration_file: str,
     gc.collect()
     return start_time, end_time
 
-def plot_results(results: list, cluster_type: str) -> None:
+def plot_results(results: list, cluster_type: str, filename: str) -> None:
     """Plot the benchmark results.
 
     Args:
         results (list): The list of benchmark results.
         cluster_type (str): The cluster type.
+        filename (str): The filename to save the plot.
     """
     if cluster_type == "local":
-        labels = [f"{r['workers']} Workers, {r['threads']} Threads, {r['memory']}GB" for r in results]
-        sorted_indices = np.argsort([r["workers"] * 1000 + r["threads"] * 100 + r["memory"] for r in results])
-        y_label = "Configuration (Workers, Threads, Memory)"
+        labels = [f"{r['workers']} Workers, {r['threads']} Threads, {r['memory']}GB, {r['scale']} Scale" for r in results]
+        sorted_indices = np.argsort([r["workers"] * 1000 + r["threads"] * 100 + r["memory"] + r["scale"] for r in results])
+        y_label = "Configuration (Workers, Threads, Memory, Scale)"
+    elif cluster_type == "slurm":
+        labels = [f"{r['cpus']} CPUs, {r['memory']}GB, {r['processes']} Processes, {r['scale']} Scale" for r in results]
+        sorted_indices = np.argsort([r["cpus"] * 1000 + r["memory"] + r["processes"] + r["scale"] for r in results])
+        y_label = "Configuration (CPUs, Memory, Processes, Scale)"
     else:
-        labels = [f"{r['cpus']} CPUs, {r['memory']}GB" for r in results]
-        sorted_indices = np.argsort([r["cpus"] * 1000 + r["memory"] for r in results])
-        y_label = "Configuration (CPUs, Memory)"
+        labels = [f"{r['threads']} Threads" for r in results]
+        sorted_indices = np.argsort([r["threads"] for r in results])
+        y_label = "Configuration (Threads)"
 
     times = [r["time_taken"] for r in results]
 
@@ -65,11 +70,12 @@ def plot_results(results: list, cluster_type: str) -> None:
         plt.text(value + 0.5, index, f"{value:.2f}s", va="center", fontsize=10)
 
     plt.gca().invert_yaxis()
-    plt.savefig(f"benchmark_results_{cluster_type}.png")
+    plt.savefig(f"{filename}.png")
 
 def update_yaml(file_path: str,
                 cluster_type: str,
                 output_file: str,
+                n_jobs: int,
                 **kwargs: dict) -> str:
     """Update the YAML file with new benchmarking parameters and save it.
 
@@ -77,6 +83,7 @@ def update_yaml(file_path: str,
         file_path (str): The path to the configuration file.
         cluster_type (str): The cluster type.
         output_file (str): The output file path.
+        n_jobs (int): The number of jobs.
         **kwargs: The benchmarking parameters. It should be a dictionary with the following:
             - For LocalCluster:
                 - workers (int): The number of workers.
@@ -86,7 +93,6 @@ def update_yaml(file_path: str,
                 - cores (int): The number of cores.
                 - processes (int): The number of processes.
                 - memory (int): The memory limit.
-                - scale (int): The scale factor.
                 - walltime (str): The walltime.
                 - queue (str): The queue name.
 
@@ -100,7 +106,6 @@ def update_yaml(file_path: str,
         cores = kwargs.get("cores", 1)
         processes = kwargs.get("processes", 1)
         memory = kwargs.get("memory", 1)
-        scale = kwargs.get("scale", 1)
         walltime = kwargs.get("walltime", "00:15:00")
         queue = kwargs.get("queue", "par-single")
         config["general"]["client"] = {
@@ -109,12 +114,11 @@ def update_yaml(file_path: str,
                 "cores": cores,
                 "processes": processes,
                 "memory": f"{memory}GB",
-                "scale": scale,
                 "walltime": walltime,
                 "queue": queue
             }
         }
-    else:
+    elif cluster_type == "local":
         workers = kwargs.get("workers", 1)
         threads = kwargs.get("threads", 1)
         memory = kwargs.get("memory", 1)
@@ -126,11 +130,50 @@ def update_yaml(file_path: str,
                 "memory_limit": f"{memory}GB"
             }
         }
+    config["general"]["n_jobs"] = n_jobs
 
     with Path(output_file).open("w") as f:
         yaml.dump(config, f, default_flow_style=False)
 
     return output_file
+
+
+def benchmark_threads(benchmark_params: dict,
+                    configuration_file: str,
+                    logger: logging.Logger) -> list:
+    """Handle the benchmark test for LocalCluster.
+
+    Args:
+        benchmark_params (dict): The benchmark parameters.
+        configuration_file (str): The path to the configuration files.
+        logger (logging.Logger): The logger to log messages.
+
+    Returns:
+        list: The benchmark results.
+    """
+    benchmark_results = []
+    n_jobs = benchmark_params.get("n_jobs", [1])
+    for n_job in n_jobs:
+        output_file = f"config_threads_{n_job}.yaml"
+
+        updated_config_file = update_yaml(
+            file_path=configuration_file,
+            cluster_type=None,
+            output_file=output_file,
+            n_jobs=n_job,
+        )
+        logger.info("Running benchmark test with %s threads", n_job)
+        start_time, end_time = benchmark_task(updated_config_file, logger)
+        logger.info("Benchmark test completed")
+
+        benchmark_results.append({
+            "threads": n_jobs,
+            "time_taken": round(end_time - start_time, 2),
+        })
+        Path(output_file).unlink()
+        gc.collect()
+    return benchmark_results
+
 
 
 def benchmark_local(benchmark_params: dict,
@@ -151,21 +194,24 @@ def benchmark_local(benchmark_params: dict,
     n_workers = benchmark_params.get("n_workers", [1])
     threads_per_worker = benchmark_params.get("threads_per_worker", [1])
     memory_limit = benchmark_params.get("memory_limit", [1])
-    for workers, threads, memory in itertools.product(n_workers, threads_per_worker, memory_limit):
-        output_file = f"config_{cluster_type}_{workers}_{threads}_{memory}.yaml"
+    n_jobs = benchmark_params.get("n_jobs", [2])
+    for workers, threads, memory, n_job in itertools.product(n_workers, threads_per_worker, memory_limit, n_jobs):
+        output_file = f"config_{cluster_type}_{workers}_{threads}_{memory}_{n_jobs}.yaml"
 
         updated_config_file = update_yaml(
             file_path=configuration_file,
             cluster_type=cluster_type,
             output_file=output_file,
+            n_jobs=n_job,
             workers=workers,
             threads=threads,
-            memory=memory
+            memory=memory,
         )
-        logger.info("Running benchmark test with %s workers, %s threads, %sGB memory",
+        logger.info("Running benchmark test with %s workers, %s threads, %sGB memory, %s scale",
                     workers,
                     threads,
-                    memory)
+                    memory,
+                    n_job)
         start_time, end_time = benchmark_task(updated_config_file, logger)
         logger.info("Benchmark test completed")
 
@@ -173,6 +219,7 @@ def benchmark_local(benchmark_params: dict,
             "workers": workers,
             "threads": threads,
             "memory": memory,
+            "scale": n_job,
             "time_taken": round(end_time - start_time, 2),
         })
         Path(output_file).unlink()
@@ -197,25 +244,25 @@ def benchmark_slurm(benchmark_params: dict,
     cores = benchmark_params.get("cores", [1])
     processes = benchmark_params.get("processes", [1])
     memory = benchmark_params.get("memory", [1])
-    scale = benchmark_params.get("scale", [1])
     walltime = benchmark_params.get("walltime", "00:30:00")
     queue = benchmark_params.get("queue", "par-single")
-    for core, proc, mem, sc in itertools.product(cores, processes, memory, scale):
-        output_file = f"config_{cluster_type}_{core}_{proc}_{mem}_{sc}.yaml"
+    n_jobs = benchmark_params.get("n_jobs", [2])
+    for core, proc, mem, n_job in itertools.product(cores, processes, memory, n_jobs):
+        output_file = f"config_{cluster_type}_{core}_{proc}_{mem}_{n_job}.yaml"
 
         updated_config_file = update_yaml(
             file_path=configuration_file,
             cluster_type=cluster_type,
             output_file=output_file,
+            n_jobs=n_job,
             cores=core,
             processes=proc,
             memory=mem,
-            scale=sc,
             walltime=walltime,
             queue=queue
         )
 
-        logger.info("Running benchmark test with %s cores, %s processes, %sGB memory, %s scale", core, proc, mem, sc)
+        logger.info("Running benchmark test with %s cores, %s processes, %sGB memory, %s scale", core, proc, mem, n_job)
         start_time = time.perf_counter()
         benchmark_task(updated_config_file, logger)
         end_time = time.perf_counter()
@@ -225,7 +272,7 @@ def benchmark_slurm(benchmark_params: dict,
             "cpus": core,
             "processes": proc,
             "memory": mem,
-            "scale": sc,
+            "scale": n_jobs,
             "time_taken": round(end_time - start_time, 2),
         })
 
@@ -268,20 +315,26 @@ def benchmark_handler(benchmark_params: dict,
     """
     logger.info("Starting benchmark test")
     configuration_file = Path(configuration_file)
-    cluster_type = benchmark_params.get("cluster_type")
+    cluster_type = benchmark_params.get("cluster_type", None)
     if cluster_type == "slurm":
         logger.info("Running benchmark test on SLURM cluster")
         benchmark_results = benchmark_slurm(benchmark_params, configuration_file, logger)
-    else:
+    elif cluster_type == "local":
         logger.info("Running benchmark test on LocalCluster")
         benchmark_results = benchmark_local(benchmark_params, configuration_file, logger)
+    else:
+        logger.info("Running benchmark test using threads")
+        benchmark_results = benchmark_threads(benchmark_params, configuration_file, logger)
 
-    logger.info("Benchmark test completed")
+    logger.info("Benchmark test completed. Test results:")
+    for result in benchmark_results:
+        logger.info(result)
 
-
-    with Path(f"benchmark_results_{cluster_type}.json").open("w") as f:
+    # Save the benchmark results to a JSON file witi datetime on the filename
+    filename = f"benchmark_results_{cluster_type}_{time.strftime('%Y%m%d_%H%M%S')}"
+    with Path(f"{filename}.json").open("w") as f:
         json.dump(benchmark_results, f, indent=4)
     logger.info("Test results saved to benchmark_results_%s.json", cluster_type)
 
-    plot_results(benchmark_results, cluster_type)
+    plot_results(benchmark_results, cluster_type, filename)
     logger.info("Plotting benchmark results")

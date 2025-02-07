@@ -75,7 +75,7 @@ class Pipeline(Paidiverpy):
         self.steps = steps
         self.runned_steps = -1
 
-    def run(self, from_step: int | None = None) -> None:
+    def run(self, from_step: int | None = None, close_client: bool = True) -> None:
         """Run the pipeline.
 
         Args:
@@ -126,7 +126,7 @@ class Pipeline(Paidiverpy):
 
                 del step_instance
                 gc.collect()
-        if self.client:
+        if self.client and close_client:
             self.client.close()
 
     def _validate_pipeline(self) -> None:

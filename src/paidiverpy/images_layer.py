@@ -6,7 +6,6 @@ import io
 import logging
 from io import BytesIO
 from pathlib import Path
-from tkinter.ttk import Progressbar
 import dask
 import dask.array as da
 import matplotlib.pyplot as plt
@@ -209,15 +208,17 @@ class ImagesLayer:
         check_create_bucket_exists(bucket_name, s3_client, logger)
         if client:
             logger.info("Uploading images to S3 using Dask")
-            with client, Progressbar():
-                delayed_tasks = [
-                    dask.delayed(self.process_and_upload)(image,
-                                                            output_path + f"{self.filenames[step_order][idx]}.{image_format.lower()}",
-                                                            image_format,
-                                                            s3_client)
-                    for idx, image in enumerate(images)
-                ]
-                dask.compute(*delayed_tasks)
+            delayed_tasks = [
+                dask.delayed(self.process_and_upload)(image,
+                                                        output_path + f"{self.filenames[step_order][idx]}.{image_format.lower()}",
+                                                        image_format,
+                                                        s3_client)
+                for idx, image in enumerate(images)
+            ]
+            with ProgressBar():
+                futures = client.compute(delayed_tasks)
+                client.gather(futures)
+                # dask.compute(*delayed_tasks)
         elif n_jobs > 1:
             logger.info("Uploading images to S3 using Dask")
             delayed_tasks = [
@@ -264,14 +265,16 @@ class ImagesLayer:
             output_path.mkdir(parents=True, exist_ok=True)
         if client:
             logger.info("Saving images using Dask")
-            with client, Progressbar():
-                delayed_tasks = [
-                    dask.delayed(self.process_and_upload)(image,
-                                                            output_path / f"{self.filenames[step_order][idx]}.{image_format.lower()}",
-                                                            image_format)
-                    for idx, image in enumerate(images)
-                ]
-                dask.compute(*delayed_tasks)
+            delayed_tasks = [
+                dask.delayed(self.process_and_upload)(image,
+                                                        output_path / f"{self.filenames[step_order][idx]}.{image_format.lower()}",
+                                                        image_format)
+                for idx, image in enumerate(images)
+            ]
+            with ProgressBar():
+                futures = client.compute(delayed_tasks)
+                client.gather(futures)
+                # dask.compute(*delayed_tasks)
         elif n_jobs > 1:
             logger.info("Saving images using Dask")
             delayed_tasks = [
