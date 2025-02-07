@@ -1,8 +1,8 @@
 """Tests for the Dask Cluster."""
 
 import unittest
-import pandas as pd
 import dask.array
+import pandas as pd
 from paidiverpy.config.config import Configuration
 from paidiverpy.config.config import GeneralConfig
 from paidiverpy.pipeline import Pipeline
