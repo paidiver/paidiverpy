@@ -38,13 +38,11 @@ jobs:
           pip install .
           pip install .[test]
           pip install .[dev,publishing]
-
-
       - name: Test with pytest
         run: |
           conda run -n Paidiverpy pytest tests/
       - name: Verify that we can build the package
-        run: python -m build
+        run: conda run -n Paidiverpy build
   lint:
     name: Linting build
     runs-on: ubuntu-latest
