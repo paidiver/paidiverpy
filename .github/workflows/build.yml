@@ -36,8 +36,10 @@ jobs:
           source ~/.bashrc
           conda activate Paidiverpy
           pip install .
-          pip install ".[test]"
-          pip install ".[dev,publishing]"
+          pip install .[test]
+          pip install .[dev,publishing]
+
+
       - name: Test with pytest
         run: |
           conda run -n Paidiverpy pytest tests/

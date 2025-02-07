@@ -7,7 +7,14 @@ name = "Paidiverpy"
 description = "A library to preprocess image data."
 requires-python = ">=3.10"
 keywords = ["data", "paidiver", "noc"]
-authors = [{email = "tobias.ferreira@noc.ac.uk"},{name = "Tobias Ferreira"}]
+authors = [
+  {name = "Tobias Ferreira", email = "tobias.ferreira@noc.ac.uk"},
+  {name = "Mojtaba Masoudi", email = "mojtaba.masoudi@noc.ac.uk"},
+  {name = "Van Loïc Audenhaege", email = "loic.audenhaege@noc.ac.uk"},
+  {name = "Erik Orenstein", email = "erik.orenstein@noc.ac.uk"},
+  {name = "Colin Sauze", email = "colin.sauze@noc.ac.uk"},
+  {name = "Jennifer Durden", email = "jennifer.durden@noc.ac.uk"}
+]
 maintainers = [{name = "Tobias Ferreira", email = "tobias.ferreira@noc.ac.uk"}]
 classifiers = [
   "Programming Language :: Python :: 3",
