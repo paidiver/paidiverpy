@@ -226,13 +226,19 @@ class OpenLayer(Paidiverpy):
         Returns:
             list[np.ndarray]: The list of processed images.
         """
+        import pdb; pdb.set_trace()
         func = OpenLayer.open_image_remote if remote else OpenLayer.open_image_local
         delayed_image_list = []
-        for _, img_path in enumerate(img_path_list):
-            delayed_image_list.append(delayed(func)(img_path, storage_options=self.storage_options, parallel=True))
-        with ProgressBar():
-            futures = self.client.compute(delayed_image_list, sync=False)
-            return self.client.gather(futures)
+        if isinstance(self.client.cluster, dask.distributed.local.LocalCluster):
+            for _, img_path in enumerate(img_path_list):
+                delayed_image_list.append(delayed(func)(img_path, storage_options=self.storage_options, parallel=True))
+            with ProgressBar():
+                futures = self.client.compute(delayed_image_list, sync=False)
+        else:
+            futures = []
+            for _, img_path in enumerate(img_path_list):
+                futures.append(self.client.submit(func, img_path, storage_options=self.storage_options, parallel=True))
+        return self.client.gather(futures)
 
 
     def rename_images(self, rename: str, metadata: pd.DataFrame) -> pd.DataFrame:
