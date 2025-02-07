@@ -42,7 +42,11 @@ jobs:
         run: |
           conda run -n Paidiverpy pytest tests/
       - name: Verify that we can build the package
-        run: conda run -n Paidiverpy build
+        run:  |
+          source ~/.bashrc
+          conda activate Paidiverpy
+          pip install .[dev,publishing]
+          conda run -n Paidiverpy build
   lint:
     name: Linting build
     runs-on: ubuntu-latest
