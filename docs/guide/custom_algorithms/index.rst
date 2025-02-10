@@ -1,3 +1,5 @@
+.. _guide_custom_algorithms:
+
 Custom Algorithm Guide
 ======================
 
@@ -8,7 +10,7 @@ Creating a Custom Algorithm
 
 To create a custom algorithm, start by creating a new file that contains a class inheriting from the `BaseCustomAlgorithm` class. This base class is located in the `paidiverpy.custom_layer.base_custom_algorithm` module, shown below:
 
-.. literalinclude:: ../src/paidiverpy/custom_layer/base_custom_algorithm.py
+.. literalinclude:: ../../../src/paidiverpy/custom_layer/base_custom_algorithm.py
 
 Your custom algorithm class should extend `BaseCustomAlgorithm` and implement the `process` method. Here’s a simple example:
 
@@ -70,7 +72,7 @@ Real Example
 
 For a more concrete example, consider the following code snippet (available in `examples/custom_algorithms files <https://github.com/paidiver/paidiverpy/blob/dev/src/paidiverpy/custom_layer/_custom_algorithm_example.py>`_ of the `paidiverpy` package):
 
-.. literalinclude:: ../src/paidiverpy/custom_layer/_custom_algorithm_example.py
+.. literalinclude:: ../../../src/paidiverpy/custom_layer/_custom_algorithm_example.py
 
 In this example, the custom algorithm accepts an image and a `feature_range` parameter. Using `sklearn`'s `MinMaxScaler`, it normalizes the image data within the specified range, then returns the processed data.
 
@@ -103,7 +105,7 @@ In this setup:
 
 To execute, run your application with the configuration file above, and the custom algorithm will be applied accordingly.
 
-Example configuration files for custom algorithms can be found in the `example/config_files <https://github.com/paidiver/paidiverpy/tree/dev/examples/config_files>`_ directory of the repository. You can also run an example notebook with a custom algorithm by exploring the :doc:`gallery examples <gallery>`.
+Example configuration files for custom algorithms can be found in the `example/config_files <https://github.com/paidiver/paidiverpy/tree/dev/examples/config_files>`_ directory of the repository. You can also run an example notebook with a custom algorithm by exploring the :ref:`gallery` section.
 
 Run in Docker
 -------------

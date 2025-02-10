@@ -17,8 +17,8 @@
 # -- Project information -----------------------------------------------------
 
 project = "Paidiverpy"
-copyright = "2024-09-03 14:12:44, Tobias Ferreira"
-author = "Tobias Ferreira"
+copyright = "2024-2025, Paidiver"
+author = "Paidiver Developers"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

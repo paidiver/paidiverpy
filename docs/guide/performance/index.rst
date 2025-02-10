@@ -1,5 +1,7 @@
-Performances
-============
+.. _guide_performance:
+
+Performance
+===========
 
 Overview
 --------
@@ -60,8 +62,9 @@ To create a **LocalCluster**, configure the ``client`` parameter as follows:
       metadata_path: '/metadata/path/metadata.json'
       metadata_type: 'IFDO'
       image_type: 'JPG'
+      n_jobs: 2
       client:
-        cluster_type: "dask"
+        cluster_type: "local"
         params:
           n_workers: 1
           threads_per_worker: 4
@@ -73,8 +76,14 @@ To create a **LocalCluster**, configure the ``client`` parameter as follows:
 
 The ``params`` block corresponds to parameters for the Dask **LocalCluster** class, where you can specify the number of workers, threads per worker, and memory limits.
 
+You also need to specify the number of jobs in the ``general`` section. In this example, ``n_jobs: 2`` means that the Client will be scaled to 2 workers.
+
 2. SLURMCluster (Dask-Jobqueue)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. admonition:: Note
+
+  IMPORTANT: This feature will be available in the upcoming release.
 
 To create a **SLURMCluster**, configure the ``client`` parameter as follows:
 
@@ -100,6 +109,8 @@ To create a **SLURMCluster**, configure the ``client`` parameter as follows:
 
 Here, the ``params`` block maps to parameters for the Dask **SLURMCluster** class. You can specify workers, threads, memory limits, and additional job options.
 
+You also need to specify the number of jobs in the ``general`` section. In this example, ``n_jobs: 2`` means that the Client will be scaled to 2 workers.
+
 Key Considerations
 ------------------
 
@@ -112,4 +123,4 @@ Examples and Resources
 
 - **Configuration Files**: Find example configuration files for parallel execution in the `GitHub repository <https://github.com/paidiver/paidiverpy/tree/dev/examples/config_files>`_.
 
-- **Interactive Examples**: Explore example notebooks with custom algorithms in the :doc:`gallery examples <gallery>`.
+- **Interactive Examples**: Explore example notebooks with custom algorithms in the :ref:`gallery` section.

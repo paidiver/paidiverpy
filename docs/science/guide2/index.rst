@@ -1,3 +1,5 @@
+.. _science_guide2:
+
 Colour/content-based processing
 ===============================
 
@@ -28,7 +30,7 @@ Objective image quality metrics can be categorized into three main types dependi
 In our case, where no original image is available for comparison, we must rely on no-reference metrics to quantitatively assess the effectiveness of our preprocessing techniques. Our focus here will be on the specific quantitative metrics that have been utilized by researchers to gauge the performance of preprocessing algorithms in such contexts.
 
 
-[SC] Schettini, R., Corchs, S. "Underwater image processing: state of the art of restoration and image enhancement methods." EURASIP Journal on Advances in Signal Processing, 2010.  
+[SC] Schettini, R., Corchs, S. "Underwater image processing: state of the art of restoration and image enhancement methods." EURASIP Journal on Advances in Signal Processing, 2010.
 [MI] Massot-Campos, M., Yamada, T., Thornton, B. "Towards sensor agnostic artificial intelligence for underwater imagery." IEEE Underwater Technology, 2023.
 
 ---
@@ -58,10 +60,10 @@ Some challenges arise during the colour alteration process:
 The success of colour alteration is measured by comparing processed images with true colour charts or known references. Accurate colour correction should result in images that closely match the expected real-world colours of the objects and environments depicted.
 
 
-[RA] Schettini, R., Corchs, S. "Underwater Image Processing: State of the Art of Restoration and Image Enhancement Methods." EURASIP Journal on Advances in Signal Processing, 2010.  
-[SA] Sankpal, S.S., Deshpande, S.S. "A review on image enhancement and color correction techniques for underwater images." Advances in Computational Sciences and Technology, 2016.  
-[GA] Garcia, R., Nicosevici, T., Cufí, X. "On the way to solve lighting problems in underwater imaging." IEEE, 2002.  
-[CH] Chambah, M., Semani, D., Renouf, A., et al. "Underwater color constancy: enhancement of automatic live fish recognition." SPIE, 2003.  
+[RA] Schettini, R., Corchs, S. "Underwater Image Processing: State of the Art of Restoration and Image Enhancement Methods." EURASIP Journal on Advances in Signal Processing, 2010.
+[SA] Sankpal, S.S., Deshpande, S.S. "A review on image enhancement and color correction techniques for underwater images." Advances in Computational Sciences and Technology, 2016.
+[GA] Garcia, R., Nicosevici, T., Cufí, X. "On the way to solve lighting problems in underwater imaging." IEEE, 2002.
+[CH] Chambah, M., Semani, D., Renouf, A., et al. "Underwater color constancy: enhancement of automatic live fish recognition." SPIE, 2003.
 [ZH] Zhang, W., Zhuang, P., Sun, H.H., et al. "Underwater image enhancement via minimal color loss and locally adaptive contrast enhancement." IEEE Transactions on Image Processing, 2022.
 
 ---
@@ -94,7 +96,7 @@ Several challenges complicate the process of contrast alteration:
 The success of contrast alteration is measured by the clarity of image details and improved feature visibility, essential for tasks such as species identification.
 
 
-[AI] Almutiry, O., et al. "Underwater images contrast enhancement and its challenges: a survey." Multimedia Tools and Applications, 2024.  
+[AI] Almutiry, O., et al. "Underwater images contrast enhancement and its challenges: a survey." Multimedia Tools and Applications, 2024.
 [SC] Schettini, R., Corchs, S. "Underwater image processing: state of the art of restoration and image enhancement methods." EURASIP Journal on Advances in Signal Processing, 2010.
 
 ---
@@ -186,4 +188,3 @@ The success of de-blurring is measured by the sharpness and clarity of the resto
 
 
 [ZHA] Zhang, Z., Zheng, L., Piao, Y., Tao, S., Xu, W., Gao, T., and Wu, X. "Blind remote sensing image deblurring using local binary pattern prior." Remote Sensing, 2022.
-
