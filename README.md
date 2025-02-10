@@ -97,7 +97,7 @@ Examples of CSV and IFDO metadata files are in the `example/metadata` directory.
 
 The package is organised into multiple layers:
 
-![Package Organisation](docs/_static/paidiver_organisation.png)
+![Package Organisation](docs/_static/paidiver_organisation.jpg)
 
 The `Paidiverpy` class serves as the main container for image processing functions. It manages several subclasses for specific processing tasks: `OpenLayer`, `ConvertLayer`, `PositionLayer`, `ResampleLayer`, and `ColourLayer`.
 
