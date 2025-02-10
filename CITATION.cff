@@ -1,4 +1,4 @@
-cff-version: "1.2.0"
+cff-version: "0.0.2"
 title: "paidiverpy"
 authors:
   - family-names: Ferreira
@@ -21,7 +21,7 @@ authors:
     given-names: Jennifer
     orcid: "https://orcid.org/0000-0002-6529-9109"
 date-released: 2025-01-14
-version: "0.0.2"
+version: "0.1.0"
 doi: 10.0000/FIXME
 url: "https://github.com/paidiver/paidiverpy"
 keywords:
