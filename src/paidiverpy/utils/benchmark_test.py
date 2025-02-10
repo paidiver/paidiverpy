@@ -81,16 +81,16 @@ def update_yaml(file_path: str, cluster_type: str, output_file: str, n_jobs: int
         output_file (str): The output file path.
         n_jobs (int): The number of jobs.
         **kwargs: The benchmarking parameters. It should be a dictionary with the following:
-            - For LocalCluster:
-                - workers (int): The number of workers.
-                - threads (int): The number of threads.
-                - memory (int): The memory limit.
-            - For SLURM:
-                - cores (int): The number of cores.
-                - processes (int): The number of processes.
-                - memory (int): The memory limit.
-                - walltime (str): The walltime.
-                - queue (str): The queue name.
+            For LocalCluster:
+            - workers (int): The number of workers.
+            - threads (int): The number of threads.
+            - memory (int): The memory limit.
+            For SLURM:
+            - cores (int): The number of cores.
+            - processes (int): The number of processes.
+            - memory (int): The memory limit.
+            - walltime (str): The walltime.
+            - queue (str): The queue name.
 
     Returns:
         str: The output file path.

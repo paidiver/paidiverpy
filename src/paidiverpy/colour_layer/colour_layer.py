@@ -43,7 +43,7 @@ from paidiverpy.utils.data import NUM_CHANNELS_GREY
 from paidiverpy.utils.data import NUM_CHANNELS_RGB
 from paidiverpy.utils.data import NUM_IMAGE_DIMS
 from paidiverpy.utils.exceptions import raise_value_error
-from paidiverpy.utils.logging import check_raise_error
+from paidiverpy.utils.logging_functions import check_raise_error
 
 
 class ColourLayer(Paidiverpy):
@@ -52,7 +52,7 @@ class ColourLayer(Paidiverpy):
     This class contains the methods for processing the images in the colour layer.
 
     Args:
-        config_params (Union[Dict, ConfigParams], optional): The configuration parameters.
+        config_params (dict | ConfigParams, optional): The configuration parameters.
             It can contain the following keys / attributes:
             - input_path (str): The path to the input files.
             - output_path (str): The path to the output files.
@@ -391,9 +391,7 @@ class ColourLayer(Paidiverpy):
             filled_edges = ColourLayer.detect_edges(gray_image_data, params.method, params.blur_radius, params.threshold)
             label_image_data = morphology.label(filled_edges, connectivity=2, background=0)
 
-            features, bw_image_data = ColourLayer.get_object_features(
-                gray_image_data, label_image_data, params
-            )
+            features, bw_image_data = ColourLayer.get_object_features(gray_image_data, label_image_data, params)
 
             # sharpness analysis of the image using FFTs
             features = ColourLayer.sharpness_analysis(gray_image_data, image_data, features, params.estimate_sharpness)
@@ -454,9 +452,7 @@ class ColourLayer(Paidiverpy):
         return image_data
 
     @staticmethod
-    def get_object_features(gray_image_data: np.ndarray,
-                            label_image_data: np.ndarray,
-                            params: EdgeDetectionParams) -> tuple[dict, np.ndarray]:
+    def get_object_features(gray_image_data: np.ndarray, label_image_data: np.ndarray, params: EdgeDetectionParams) -> tuple[dict, np.ndarray]:
         """Get object features.
 
         Get the features of the object.
@@ -532,9 +528,7 @@ class ColourLayer(Paidiverpy):
 
             # save all features except for those with  pixel data
             output_dict = {
-                prop: props[selected_index][prop]
-                for prop in props[selected_index]
-                if prop not in ["convex_image", "filled_image", "image", "coords"]
+                prop: props[selected_index][prop] for prop in props[selected_index] if prop not in ["convex_image", "filled_image", "image", "coords"]
             }
             features = output_dict
             features["clipped_fraction"] = clip_frac
@@ -550,7 +544,6 @@ class ColourLayer(Paidiverpy):
             }
         features["valid_object"] = valid_object
         return (features, bw_image_data)
-
 
     @staticmethod
     def gaussian_psf(size: list[int], sigma: float) -> np.ndarray:

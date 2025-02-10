@@ -20,7 +20,10 @@ You can run your preprocessing pipeline using **Paidiverpy** in several ways, ty
       ☁ paidiverpy ☁  |       INFO | 2024-11-04 17:49:25 | Step 1 completed
 
 
-   In this example, we instantiate the `Pipeline` class and pass a configuration file containing the pipeline information and run the pipeline. The images will be processed as NumPy arrays.
+   In this example, we instantiate the `Pipeline` class and pass a configuration file containing the pipeline information and run the pipeline.
+
+   For more details on the configuration file format, refer to the :doc:`configuration_file` section.
+   The images will be processed as NumPy arrays.
 
    To view the pipeline details, simply print the pipeline object:
 

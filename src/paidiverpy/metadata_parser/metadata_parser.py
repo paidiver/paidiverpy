@@ -11,7 +11,7 @@ import pandas as pd
 from mariqt.core import IfdoException
 from shapely.geometry import Point
 from paidiverpy.config.config import Configuration
-from paidiverpy.utils.logging import initialise_logging
+from paidiverpy.utils.logging_functions import initialise_logging
 from paidiverpy.utils.object_store import define_storage_options
 from paidiverpy.utils.object_store import get_file_from_bucket
 

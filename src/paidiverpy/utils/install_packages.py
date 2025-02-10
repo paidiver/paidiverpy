@@ -19,11 +19,13 @@ THIRTY_TWO_BITS = 32
 
 
 PACKAGE_REGEX = re.compile(r"^[a-zA-Z0-9_-]+(==[a-zA-Z0-9_.-]+)?$")
+
+
 def check_and_install_dependencies(dependencies: list[str] | None, dependencies_path: str | None) -> None:
     """Check and install dependencies.
 
     Args:
-        dependencies (Union[List[str], None]): The dependencies to check and install.
+        dependencies (list[str] | None]): The dependencies to check and install.
         dependencies_path (str, None): The path to the dependencies file.
 
     Raises:
@@ -48,7 +50,8 @@ def check_and_install_dependencies(dependencies: list[str] | None, dependencies_
             raise ValueError(msg)
         package_name = package_name.split("==")[0]
         if not is_package_installed(package_name):
-            subprocess.check_call([sys.executable, "-m", "pip", "install", package]) # noqa: S603
+            subprocess.check_call([sys.executable, "-m", "pip", "install", package])  # noqa: S603
+
 
 def is_package_installed(package_name: str) -> bool:
     """Check if the package is installed.

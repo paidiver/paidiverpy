@@ -18,7 +18,7 @@ class Pipeline(Paidiverpy):
     """Pipeline builder class for image preprocessing.
 
     Args:
-        config_params (Union[Dict, ConfigParams], optional): The configuration parameters.
+        config_params (dict | ConfigParams, optional): The configuration parameters.
             It can contain the following keys / attributes:
             - input_path (str): The path to the input files.
             - output_path (str): The path to the output files.
@@ -93,7 +93,7 @@ class Pipeline(Paidiverpy):
         if not self.client:
             self.logger.info("Processing images using %s cores", self.n_jobs)
         else:
-            self.logger.info("Processing images using Dask client using the " "following dashboard link: %s", self.client.dashboard_link)
+            self.logger.info("Processing images using Dask client using the following dashboard link: %s", self.client.dashboard_link)
         for index, step in enumerate(self.steps):
             if index > self.runned_steps:
                 step_name, step_class, step_params = self._get_steps_params(step)
@@ -149,7 +149,7 @@ class Pipeline(Paidiverpy):
                 self.clear_steps(from_step + 1)
             else:
                 self.logger.warning(
-                    "Step %s does not exist. Run the pipeline from" "the beginning",
+                    "Step %s does not exist. Run the pipeline fromthe beginning",
                     from_step,
                 )
 
@@ -192,12 +192,12 @@ class Pipeline(Paidiverpy):
 
         Args:
             step_name (str): Name of the step.
-            step_class (Union[str, type]): Class of the step.
+            step_class (str | type): Class of the step.
             parameters (dict): Parameters for the step.
             index (int, optional): Index of the step. It is only used when you
-        want to add a step in a specific position. Defaults to None.
+                want to add a step in a specific position. Defaults to None.
             substitute (bool, optional): Whether to substitute the step in the
-        specified index. Defaults to False.
+                specified index. Defaults to False.
         """
         if not parameters.get("name"):
             parameters["name"] = step_name
@@ -260,8 +260,7 @@ class Pipeline(Paidiverpy):
                     margin: 10px; border: 1px solid #000; text-align: center;
                     line-height: 80px;" onclick="showParameters('step_{i}')">
                     <h2 style="font-size:20px;">{step.name.capitalize()}</h2>
-                    <h2 style="font-size:13px;">Type: {
-                        step.step_name.capitalize()}</h2>
+                    <h2 style="font-size:13px;">Type: {step.step_name.capitalize()}</h2>
                 </div>
             """
             if i < len(self.config.steps) - 1:
@@ -284,10 +283,8 @@ class Pipeline(Paidiverpy):
             width: max-content; height: 80px; margin: 10px;
             border: 1px solid #000; text-align: center; line-height: 80px;"
             onclick="showParameters('general')">
-            <h2 style="font-size:20px;">{
-                self.config.general.name.capitalize()}</h2>
-            <h2 style="font-size:13px;">Type: {
-                self.config.general.step_name.capitalize()}</h2>
+            <h2 style="font-size:20px;">{self.config.general.name.capitalize()}</h2>
+            <h2 style="font-size:13px;">Type: {self.config.general.step_name.capitalize()}</h2>
         </div>
         """
 
@@ -299,8 +296,7 @@ class Pipeline(Paidiverpy):
         part_text = ""
         if len(self.steps) > 1:
             part_text = (
-                '<div style="float:left; width: 50px; height: 80px; margin: 10px; '
-                f'text-align: center; line-height: 80px;">&#10132;</div>{steps_html}'
+                f'<div style="float:left; width: 50px; height: 80px; margin: 10px; text-align: center; line-height: 80px;">&#10132;</div>{steps_html}'
             )
 
         return f"""

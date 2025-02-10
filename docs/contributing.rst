@@ -1,6 +1,6 @@
-**********************
+**************************
 Contributing to paidiverpy
-**********************
+**************************
 
 .. contents:: Table of contents:
    :local:
@@ -82,12 +82,12 @@ experts. If something in the docs doesn't make sense to you, updating the
 relevant section after you figure it out is a great way to ensure it will help
 the next person.
 
-.. contents:: Documentation:
+.. contents:: Paidiverpy Documentation:
    :local:
 
 
 About the *paidiverpy* documentation
---------------------------------
+------------------------------------
 
 The documentation is written in **reStructuredText**, which is almost like writing
 in plain English, and built using `Sphinx <http://sphinx-doc.org/>`__. The
@@ -135,7 +135,7 @@ Some other important things to know about the docs:
 
 
 How to build the *paidiverpy* documentation
----------------------------------------
+-------------------------------------------
 
 Requirements
 ^^^^^^^^^^^^
