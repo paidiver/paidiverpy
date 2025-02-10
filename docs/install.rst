@@ -1,8 +1,6 @@
 Installation
 ============
 
-|License|
-
 Instructions
 ------------
 
@@ -45,13 +43,7 @@ You can also build the package from source. To do so, you need to clone the repo
   conda env create -f environment.yml
   conda activate Paidiverpy
 
-3. (Optional) For notebooks servers, like JASMIN or DSP users, you also need to install the environment in the Jupyter IPython kernel. Execute the following command:
-
-.. code-block:: text
-
-  python -m ipykernel install --user --name Paidiverpy
-
-4. Install the paidiverpy package:
+3. Install the paidiverpy package:
 
 Finally, you can install the paidiverpy package:
 
@@ -79,48 +71,19 @@ You can also run Paidiverpy using Docker. You can either build the container loc
   docker pull soutobias/paidiverpy:latest
   docker tag soutobias/paidiverpy:latest paidiverpy:latest
 
-Required dependencies
----------------------
+Required and additional dependencies
+------------------------------------
 
-- jsonschema
-- mariqt
-- opencv
-- pillow
-- PyYAML
-- scikit-image
-- scipy
-- xarray
+Requirement dependencies details can be found `here <https://github.com/paidiver/paidiverpy/blob/dev/pyproject.toml>`_. These dependencies will be installed automatically when you install the package.
 
-Requirement dependencies details can be found `here <https://github.com/paidiver/paidiverpy/blob/dev/pyproject.toml>`_.
+You may also need to install the following packages (required by opencv-python):
 
-These dependencies will be installed automatically when you install the package.
+- libgl
+- libegl
+- libopengl
 
-Optional dependencies
----------------------
+On Ubuntu/Debian, you can install these packages using the following command:
 
-For a complete **paidiverpy** experience, you may also consider to install the following packages:
+.. code-block:: text
 
-**Utilities**
-
-- shapely
-- geopy
-- geopandas
-- tqdm
-
-**Performances**
-
-- dask
-- distributed
-- dask-image
-
-**Visualisation**
-
-- IPython
-- graphviz
-- ipykernel
-- ipywidgets
-- matplotlib
-
-
-.. |License| image:: https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square
-    :target: https://www.apache.org/licenses/
+  sudo apt install -y libgl1 libegl1 libopengl0

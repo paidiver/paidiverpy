@@ -17,15 +17,15 @@
 # -- Project information -----------------------------------------------------
 
 project = "Paidiverpy"
-copyright = "2024-09-03 14:12:44, Tobias Ferreira"
-author = "Tobias Ferreira"
+copyright = "2024-2025, Paidiver"
+author = "Paidiver Developers"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-version = "0.1.0"
+version = "0.0.2"
 # The full version, including alpha/beta/rc tags.
 release = version
 
@@ -69,6 +69,20 @@ todo_include_todos = False
 # -- Use autoapi.extension to run sphinx-apidoc -------
 
 autoapi_dirs = ["../src/paidiverpy"]
+autoapi_root = 'api'
+
+autoapi_keep_files = False
+autoapi_options = [
+    # "members",
+    # "undoc-members",
+    "show-inheritance",
+    "show-module-summary",
+    "special-members",
+    "imported-members",
+    "no-private-members",
+    "no-inherited-members",
+    "no-class-attributes",
+]
 
 # -- Options for HTML output ----------------------------------------------
 
@@ -132,3 +146,12 @@ intersphinx_mapping = {
     'pandas': ('https://pandas.pydata.org/docs/', None),
     'python': ('https://docs.python.org/3/', None),
 }
+
+autodoc_default_options = {
+    "member-order": "bysource",
+    "undoc-members": True,
+    "show-inheritance": True,
+    "fullqualname": True
+}
+
+add_module_names = True

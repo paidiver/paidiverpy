@@ -16,7 +16,7 @@ from dask.distributed import Client
 from IPython.display import HTML
 from PIL import Image
 from paidiverpy.utils.docker import is_running_in_docker
-from paidiverpy.utils.logging import initialise_logging
+from paidiverpy.utils.logging_functions import initialise_logging
 from paidiverpy.utils.object_store import check_create_bucket_exists
 from paidiverpy.utils.object_store import create_client
 from paidiverpy.utils.object_store import upload_file_to_bucket
@@ -55,7 +55,7 @@ class ImagesLayer:
 
         Args:
             step (str): The step to add
-            images (Union[np.ndarray, da.core.Array], optional): The images to add.
+            images (np.ndarray | da.core.Array, optional): The images to add.
         Defaults to None.
             metadata (pd.DataFrame, optional): The metadata to add. Defaults to None.
             step_metadata (dict, optional): The metadata for the step.
@@ -125,12 +125,12 @@ class ImagesLayer:
         """Get a step by name or order.
 
         Args:
-            step (Union[str, int], optional): The step to get. Defaults to None.
+            step (str | int, optional): The step to get. Defaults to None.
             by_order (bool, optional): If True, get the step by order. Defaults to False.
             last (bool, optional): If True, get the last step. Defaults to False.
 
         Returns:
-            List[Union[np.ndarray, da.core.Array]]: The images for the step
+            list[np.ndarray | da.core.Array]: The images for the step
         """
         if last:
             return self.images[-1]
@@ -159,7 +159,7 @@ class ImagesLayer:
         """Save the images in the pipeline.
 
         Args:
-            step (Union[str, int], optional): The step to save. Defaults to None.
+            step (str| int, optional): The step to save. Defaults to None.
             by_order (bool, optional): If True, save the step by order. Defaults to False.
             last (bool, optional): If True, save the last step. Defaults to False.
             output_path (str, optional): The output path to save the images. Defaults to None.
@@ -290,8 +290,8 @@ class ImagesLayer:
         """Process and upload the images.
 
         Args:
-            image (Union[np.ndarray, da.core.Array]): The image to process and upload.
-            img_path (Union[str, Path]): The image path to save.
+            image (np.ndarray | da.core.Array): The image to process and upload.
+            img_path (str | Path): The image path to save.
             image_format (str): The image format to save.
             s3_client (boto3.client, optional): The S3 client. Defaults to None.
         """
@@ -308,10 +308,10 @@ class ImagesLayer:
         """Calculate the image.
 
         Args:
-            image (Union[np.ndarray, da.core.Array]): The image to calculate.
+            image (np.ndarray | da.core.Array): The image to calculate.
 
         Returns:
-            Tuple[np.ndarray, str]: The saved image and the colormap.
+            tuple[np.ndarray, str]: The saved image and the colormap.
         """
         if image.shape[-1] == NUM_CHANNELS_GRAY:
             saved_image = np.squeeze(image, axis=-1)
@@ -564,7 +564,7 @@ class ImagesLayer:
         """Convert a numpy array to a base64 image.
 
         Args:
-            image_array (Union[np.ndarray, da.core.Array]): The image array
+            image_array (np.ndarray | da.core.Array): The image array
             size (tuple, optional): _description_. Defaults to (150, 150).
 
         Returns:

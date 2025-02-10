@@ -1,8 +1,21 @@
-# Paidiverpy
+[![DOI][zenodo-badge]][zenodo-link]
+[![Documentation][rtd-badge]][rtd-link]
+[![Pypi][pip-badge]][pip-link]
+
+[zenodo-badge]: https://zenodo.org/badge/DOI/10.5281/zenodo.14644007.svg
+[zenodo-link]: https://doi.org/10.5281/zenodo.14644007
+[rtd-badge]: https://img.shields.io/readthedocs/paidiverpy?logo=readthedocs
+[rtd-link]: https://paidiverpy.readthedocs.io/en/latest/?badge=latest
+[pip-badge]: https://img.shields.io/pypi/v/paidiverpy
+[pip-link]: https://pypi.org/project/paidiverpy/
+
+
+![Logo](docs/_static/logo_paidiver_docs.png)
 
 **Paidiverpy** is a Python package designed to create pipelines for preprocessing image data for biodiversity analysis.
 
 > **Note:** This package is still in active development, and frequent updates and changes are expected. The API and features may evolve as we continue improving it.
+
 
 ## Documentation
 
@@ -66,7 +79,7 @@ You can install `paidiverpy` locally or on a notebook server such as JASMIN or t
 
 First, create a configuration file. Example configuration files for processing the sample datasets are available in the `example/config` directory. You can use these files to test the example notebooks described in the [Usage section](#usage). Note that running the examples will automatically download the sample data.
 
-The configuration file should follow the JSON schema described in the [configuration file schema](src/paidiverpy/configuration-schema.json). An online tool to validate configuration files is available [here](https://paidiver.github.io/paidiverpy/docs/config_check.html).
+The configuration file should follow the JSON schema described in the [configuration file schema](src/paidiverpy/configuration-schema.json). An online tool to validate configuration files is available [here](https://paidiver.github.io/paidiverpy/config_check.html).
 
 ### Metadata
 
@@ -84,7 +97,7 @@ Examples of CSV and IFDO metadata files are in the `example/metadata` directory.
 
 The package is organised into multiple layers:
 
-![Package Organisation](docs/_static/paidiver_organisation.png)
+![Package Organisation](docs/_static/paidiver_organisation.jpg)
 
 The `Paidiverpy` class serves as the main container for image processing functions. It manages several subclasses for specific processing tasks: `OpenLayer`, `ConvertLayer`, `PositionLayer`, `ResampleLayer`, and `ColourLayer`.
 

@@ -29,7 +29,7 @@ class CustomLayer(Paidiverpy):
     Process the images in the custom layer.
 
     Args:
-        config_params (Union[Dict, ConfigParams], optional): The configuration parameters.
+        config_params (dict | ConfigParams, optional): The configuration parameters.
             It can contain the following keys / attributes:
             - input_path (str): The path to the input files.
             - output_path (str): The path to the output files.
@@ -93,7 +93,7 @@ class CustomLayer(Paidiverpy):
         Defaults to True.
 
         Returns:
-            Union[ImagesLayer, None]: The images object with the new step added.
+            ImagesLayer | None: The images object with the new step added.
         """
         algorithm_name = self.step_metadata.get("name")
         file_path = self.step_metadata.get("file_path")
