@@ -22,7 +22,7 @@ If you're looking for user documentation, go [here](README.md).
     ```bash
     conda init
 
-    # Command to restart the terminal. This command may not be necessary if mamba init has already been successfully run before
+    # Command to restart the terminal. This command may not be necessary if conda init has already been successfully run before
     exec bash
 
     conda env create -f environment.yml
@@ -125,12 +125,12 @@ make coverage
 cat _build/coverage/python.txt
 ```
 
-To [test snippets](https://www.sphinx-doc.org/en/master/usage/extensions/doctest.html) in documentation run
+<!-- To [test snippets](https://www.sphinx-doc.org/en/master/usage/extensions/doctest.html) in documentation run
 
 ```shell
 cd docs
 make doctest
-```
+``` -->
 
 ## Versioning
 
