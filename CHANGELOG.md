@@ -6,6 +6,7 @@
 
 **Closed issues:**
 
+- Link Checker Report - 2025-02-11 [\#132](https://github.com/paidiver/paidiverpy/issues/132)
 - Link Checker Report - 2025-02-07 [\#120](https://github.com/paidiver/paidiverpy/issues/120)
 - Link Checker Report - 2025-02-07 [\#119](https://github.com/paidiver/paidiverpy/issues/119)
 - Link Checker Report - 2025-02-07 [\#118](https://github.com/paidiver/paidiverpy/issues/118)
@@ -27,6 +28,7 @@
 
 **Merged pull requests:**
 
+- 32 create GitHub actions and add runner [\#133](https://github.com/paidiver/paidiverpy/pull/133) ([soutobias](https://github.com/soutobias))
 - 32 create GitHub actions and add runner [\#127](https://github.com/paidiver/paidiverpy/pull/127) ([soutobias](https://github.com/soutobias))
 - 87 code review [\#110](https://github.com/paidiver/paidiverpy/pull/110) ([soutobias](https://github.com/soutobias))
 - 24 lazy load catalog [\#107](https://github.com/paidiver/paidiverpy/pull/107) ([soutobias](https://github.com/soutobias))
