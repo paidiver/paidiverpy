@@ -17,7 +17,7 @@ If you prefer to manually download the example data for testing, you can do so u
 
 .. code-block:: python
 
-    from paidiverpy import data
+    from paidiverpy.utils import data
     data.load(DATASET_NAME)
 
 Available Datasets
