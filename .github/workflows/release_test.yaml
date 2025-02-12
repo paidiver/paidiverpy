@@ -34,7 +34,25 @@ jobs:
         source ~/.bashrc
         pip install --upgrade pip
         pip install .
-        pip install build twine wheel
+        pip install build twine wheel requests
+
+    - name: Extract Package Version
+      run: echo "PACKAGE_VERSION=$(python -c 'import paidiverpy; print(paidiverpy.__version__)')" >> $GITHUB_ENV
+
+    - name: Check if version exists on Test PyPI
+      env:
+        TEST_PYPI_USERNAME: "__token__"
+        TEST_PYPI_PASSWORD: ${{ secrets.TEST_PYPI_PASSWORD }}
+      run: |
+        PACKAGE_NAME="paidiverpy"  # Replace with your package name
+        RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://test.pypi.org/pypi/$PACKAGE_NAME/${{ env.PACKAGE_VERSION }}/json)
+
+        if [ "$RESPONSE" -eq 200 ]; then
+          echo "Version exists, attempting deletion..."
+          curl -X DELETE -u "$TEST_PYPI_USERNAME:$TEST_PYPI_PASSWORD" "https://test.pypi.org/manage/project/$PACKAGE_NAME/release/${{ env.PACKAGE_VERSION }}/"
+        else
+          echo "Version does not exist, proceeding with upload."
+        fi
 
     - name: Build Package
       run: python -m build
