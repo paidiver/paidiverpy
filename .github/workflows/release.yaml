@@ -29,29 +29,12 @@ jobs:
         source ~/.bashrc
         pip install --upgrade pip
         pip install .
-        pip install build twine wheel requests
-
-    - name: Extract Package Version
-      run: echo "PACKAGE_VERSION=$(python -c 'import paidiverpy; print(paidiverpy.__version__)')" >> $GITHUB_ENV
-
-    - name: Check if version exists on PyPI
-      run: |
-        PACKAGE_NAME="paidiverpy"
-        RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://pypi.org/pypi/$PACKAGE_NAME/${{ env.PACKAGE_VERSION }}/json)
-
-        if [ "$RESPONSE" -eq 200 ]; then
-          echo "Version $PACKAGE_VERSION already exists on PyPI. Skipping upload."
-          echo "SKIP_UPLOAD=true" >> $GITHUB_ENV
-        else
-          echo "Version $PACKAGE_VERSION does not exist. Proceeding with upload."
-          echo "SKIP_UPLOAD=false" >> $GITHUB_ENV
+        pip install build twine wheel
 
     - name: Build Package
-      if: env.SKIP_UPLOAD == 'false'
       run: python -m build
 
     - name: Publish to PyPI
-      if: env.SKIP_UPLOAD == 'false'
       env:
         TWINE_USERNAME: "__token__"
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
@@ -63,4 +46,5 @@ jobs:
 
     steps:
     - name: Trigger Zenodo Archival
-      if:
+      if: success()
+      run: echo "Zenodo archival handled automatically by GitHub release."
