@@ -11,6 +11,7 @@ import pandas as pd
 from mariqt.core import IfdoException
 from shapely.geometry import Point
 from paidiverpy.config.config import Configuration
+from paidiverpy.utils.docker import is_running_in_docker
 from paidiverpy.utils.logging_functions import initialise_logging
 from paidiverpy.utils.object_store import define_storage_options
 from paidiverpy.utils.object_store import get_file_from_bucket
@@ -63,6 +64,7 @@ class MetadataParser:
 
         self.metadata = self.open_metadata()
         self.dataset_metadata = None
+        self.is_docker = is_running_in_docker()
 
     def _build_config(self, metadata_path: str, metadata_type: str, append_data_to_metadata: str) -> Configuration:
         """Build a configuration object.
@@ -203,6 +205,9 @@ class MetadataParser:
             file_bytes = get_file_from_bucket(metadata_path, self.storage_options)
             metadata = json.loads(file_bytes.decode("utf-8"))
         else:
+            if self.is_docker:
+                metadata_filename = Path(metadata_path).name
+                metadata_path = f"/app/metadata/{metadata_filename}"
             with Path(metadata_path).open() as file:
                 metadata = json.load(file)
         self._validate_ifdo(metadata)
@@ -230,6 +235,10 @@ class MetadataParser:
             df_pandas = pd.read_csv(file_bytes)
             metadata = dd.from_pandas(df_pandas)
         else:
+            if self.is_docker:
+                metadata_filename = Path(self.metadata_path).name
+                self.metadata_path = f"/app/metadata/{metadata_filename}"
+
             metadata = dd.read_csv(self.metadata_path, assume_missing=True)
 
         if not any(col in metadata.columns for col in index_columns):
