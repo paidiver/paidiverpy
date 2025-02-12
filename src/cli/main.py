@@ -41,7 +41,8 @@ def process_action(parser: argparse.ArgumentParser) -> None:
     )
     pipeline.run(close_client=False)
     pipeline.save_images()
-    pipeline.client.close()
+    if pipeline.client:
+        pipeline.client.close()
 
 
 def add_arguments(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:

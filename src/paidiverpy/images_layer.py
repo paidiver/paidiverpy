@@ -221,6 +221,8 @@ class ImagesLayer:
                 client.gather(futures)
         elif n_jobs > 1:
             logger.info("Uploading images to S3 using Dask")
+            logger.info(f"output_path: {output_path}")
+            logger.info(f"filenames: {self.filenames[step_order]}")
             delayed_tasks = [
                 dask.delayed(self.process_and_upload)(
                     image, output_path + f"{self.filenames[step_order][idx]}.{image_format.lower()}", image_format, s3_client
