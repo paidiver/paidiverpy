@@ -1,13 +1,22 @@
 """Module for parsing metadata files."""
 
+import json
 import logging
-import mariqt.sources.ifdo as miqtifdo
+import warnings
+from io import BytesIO
+from pathlib import Path
+import dask.dataframe as dd
 import mariqt.tests as miqtt
 import pandas as pd
 from mariqt.core import IfdoException
 from shapely.geometry import Point
 from paidiverpy.config.config import Configuration
-from paidiverpy.utils.logging import initialise_logging
+from paidiverpy.utils.docker import is_running_in_docker
+from paidiverpy.utils.logging_functions import initialise_logging
+from paidiverpy.utils.object_store import define_storage_options
+from paidiverpy.utils.object_store import get_file_from_bucket
+
+warnings.filterwarnings("ignore", category=UserWarning)
 
 filename_columns = ["image-filename", "filename", "file_name", "FileName", "File Name"]
 index_columns = ["id", "index", "ID", "Index", "Id"]
@@ -44,6 +53,8 @@ class MetadataParser:
         self.metadata_type = getattr(self.config.general, "metadata_type", None)
         self.append_data_to_metadata = getattr(self.config.general, "append_data_to_metadata", None)
         self.metadata_path = getattr(self.config.general, "metadata_path", None)
+        self.storage_options = define_storage_options(self.metadata_path)
+
         if not self.metadata_path:
             msg = "Metadata path is not specified."
             raise ValueError(msg)
@@ -76,14 +87,14 @@ class MetadataParser:
         config.add_config("general", general_params)
         return config
 
-    def open_metadata(self) -> pd.DataFrame:
+    def open_metadata(self) -> dd.DataFrame:
         """Open metadata file.
 
         Raises:
             ValueError: Metadata type is not supported.
 
         Returns:
-            pd.DataFrame: Metadata DataFrame.
+            dd.DataFrame: Metadata DataFrame.
         """
         if self.metadata_type == "IFDO":
             metadata = self._open_ifdo_metadata()
@@ -99,14 +110,14 @@ class MetadataParser:
         metadata["flag"] = 0
         return self._process_coordinates(metadata)
 
-    def _process_coordinates(self, metadata: pd.DataFrame) -> pd.DataFrame:
+    def _process_coordinates(self, metadata: dd.DataFrame) -> dd.DataFrame:
         """Process coordinates in the metadata.
 
         Args:
-            metadata (pd.DataFrame): Metadata DataFrame.
+            metadata (dd.DataFrame): Metadata DataFrame.
 
         Returns:
-            pd.DataFrame: Metadata DataFrame.
+            dd.DataFrame: Metadata DataFrame.
         """
         metadata = self._rename_columns(metadata, lat_columns)
         metadata = self._rename_columns(metadata, lon_columns)
@@ -115,11 +126,11 @@ class MetadataParser:
 
         return metadata
 
-    def _rename_columns(self, metadata: pd.DataFrame, columns: list, raise_error: bool = False) -> pd.DataFrame:
+    def _rename_columns(self, metadata: dd.DataFrame, columns: list, raise_error: bool = False) -> dd.DataFrame:
         """Rename columns in the metadata.
 
         Args:
-            metadata (pd.DataFrame): Metadata DataFrame.
+            metadata (dd.DataFrame): Metadata DataFrame.
             columns (list): List of columns to rename.
             raise_error (bool, optional): Raise error if column is not found.
         Defaults to False.
@@ -128,7 +139,7 @@ class MetadataParser:
             ValueError: Metadata does not have a column.
 
         Returns:
-            pd.DataFrame: Metadata DataFrame.
+            dd.DataFrame: Metadata DataFrame.
         """
         if not any(col in metadata.columns for col in columns):
             if raise_error:
@@ -155,20 +166,20 @@ class MetadataParser:
                 metadata = metadata.rename(columns={col: columns[0]})
                 columns_1 = columns.copy()
                 columns_1.remove(columns_1[0])
-                return metadata.drop(columns_1, errors="ignore")
+                return metadata.drop(columns_1, errors="ignore", axis=1)
         return None
 
-    def _add_data_to_metadata(self, metadata: pd.DataFrame) -> pd.DataFrame:
+    def _add_data_to_metadata(self, metadata: dd.DataFrame) -> dd.DataFrame:
         """Add additional data to the metadata.
 
         Args:
-            metadata (pd.DataFrame): Metadata DataFrame.
+            metadata (dd.DataFrame): Metadata DataFrame.
 
         Raises:
             ValueError: Metadata does not have a filename column.
 
         Returns:
-            pd.DataFrame: Metadata DataFrame.
+            dd.DataFrame: Metadata DataFrame.
         """
         new_metadata = pd.read_csv(self.append_data_to_metadata).drop_duplicates(subset="filename", keep="first")
 
@@ -181,32 +192,53 @@ class MetadataParser:
         new_metadata = self._rename_columns(new_metadata, filename_columns)
         return metadata.merge(new_metadata, how="left", on="image-filename")
 
-    def _open_ifdo_metadata(self) -> pd.DataFrame:
+    def _open_ifdo_metadata(self) -> dd.DataFrame:
         """Open iFDO metadata file.
 
         Returns:
-            pd.DataFrame: Metadata DataFrame.
+            dd.DataFrame: Metadata DataFrame.
         """
         metadata_path = self.metadata_path if isinstance(self.metadata_path, str) else str(self.metadata_path)
-        metadata = miqtifdo.IfdoReader(metadata_path).ifdo
+
+        if self.config.general.is_remote:
+            file_bytes = get_file_from_bucket(metadata_path, self.storage_options)
+            metadata = json.loads(file_bytes.decode("utf-8"))
+        else:
+            if is_running_in_docker():
+                metadata_filename = Path(metadata_path).name
+                metadata_path = f"/app/metadata/{metadata_filename}"
+            with Path(metadata_path).open() as file:
+                metadata = json.load(file)
         self._validate_ifdo(metadata)
         self.dataset_metadata = metadata["image-set-header"]
-        metadata = pd.DataFrame(metadata["image-set-items"]).T.reset_index()
+        metadata = dd.from_dict(metadata["image-set-items"], orient="index", npartitions=2)
+        metadata = metadata.reset_index()
         metadata = metadata.rename(columns={"index": "image-filename"})
         metadata = metadata.reset_index()
         metadata = metadata.rename(columns={"index": "ID"})
-        if "image-datetime" in metadata.columns:
-            metadata["image-datetime"] = pd.to_datetime(metadata["image-datetime"])
-            metadata = metadata.sort_values(by="image-datetime")
-        return metadata
 
-    def _open_csv_metadata(self) -> pd.DataFrame:
+        if "image-datetime" in metadata.columns:
+            metadata["image-datetime"] = dd.to_datetime(metadata["image-datetime"])
+            metadata = metadata.sort_values(by="image-datetime")
+        return metadata.compute()
+
+    def _open_csv_metadata(self) -> dd.DataFrame:
         """Open CSV metadata file.
 
         Returns:
-            pd.DataFrame: Metadata DataFrame
+            dd.DataFrame: Metadata DataFrame
         """
-        metadata = pd.read_csv(self.metadata_path)
+        if self.config.general.is_remote:
+            file_bytes = get_file_from_bucket(self.metadata_path, self.storage_options)
+            file_bytes = BytesIO(file_bytes)
+            df_pandas = pd.read_csv(file_bytes)
+            metadata = dd.from_pandas(df_pandas)
+        else:
+            if is_running_in_docker():
+                metadata_filename = Path(self.metadata_path).name
+                self.metadata_path = f"/app/metadata/{metadata_filename}"
+
+            metadata = dd.read_csv(self.metadata_path, assume_missing=True)
 
         if not any(col in metadata.columns for col in index_columns):
             metadata = metadata.reset_index().rename(columns={"index": "ID"})
@@ -214,10 +246,10 @@ class MetadataParser:
         metadata = self._rename_columns(metadata, filename_columns, raise_error=True)
         metadata = self._rename_columns(metadata, datetime_columns)
         if "image-datetime" in metadata.columns:
-            metadata["image-datetime"] = pd.to_datetime(metadata["image-datetime"])
+            metadata["image-datetime"] = dd.to_datetime(metadata["image-datetime"])
             metadata = metadata.sort_values(by="image-datetime")
 
-        return metadata
+        return metadata.compute()
 
     @staticmethod
     def _validate_ifdo(ifdo_data: dict) -> None:
@@ -249,5 +281,6 @@ class MetadataParser:
             str: HTML representation of the metadata.
         """
         message = "This is a instance of 'MetadataParser'<br><br>"
+        metadata = self.metadata
 
-        return message + self.metadata._repr_html_()
+        return message + metadata._repr_html_()

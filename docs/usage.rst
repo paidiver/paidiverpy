@@ -20,7 +20,10 @@ You can run your preprocessing pipeline using **Paidiverpy** in several ways, ty
       ☁ paidiverpy ☁  |       INFO | 2024-11-04 17:49:25 | Step 1 completed
 
 
-   In this example, we instantiate the `Pipeline` class and pass a configuration file containing the pipeline information and run the pipeline. The images will be processed as NumPy arrays.
+   In this example, we instantiate the `Pipeline` class and pass a configuration file containing the pipeline information and run the pipeline.
+
+   For more details on the configuration file format, refer to the :doc:`configuration_file` section.
+   The images will be processed as NumPy arrays.
 
    To view the pipeline details, simply print the pipeline object:
 
@@ -60,16 +63,34 @@ You can run your preprocessing pipeline using **Paidiverpy** in several ways, ty
 
    .. code-block:: bash
 
-       docker run --rm \
-         -v <INPUT_PATH>:/app/input/ \
-         -v <OUTPUT_PATH>:/app/output/ \
-         -v <FULL_PATH_OF_CONFIGURATION_FILE_WITHOUT_FILENAME>:/app/config_files \
-         paidiverpy \
-         paidiverpy -c /app/examples/config_files/<CONFIGURATION_FILE_FILENAME>
+        docker run --rm \
+          -v <INPUT_PATH>:/app/input/ \
+          -v <OUTPUT_PATH>:/app/output/ \
+          -v <METADATA_PATH>:/app/metadata/ \
+          -v <CONFIG_DIR>:/app/config_files/ \
+          paidiverpy -c /app/examples/config_files/<CONFIG_FILE>
 
    In this command:
 
-   - `<INPUT_PATH>`: The input path defined in your configuration file, where the input images are located.
-   - `<OUTPUT_PATH>`: The output path specified in your configuration file.
-   - `<FULL_PATH_OF_CONFIGURATION_FILE_WITHOUT_FILENAME>`: The local directory containing your configuration file.
-   - `<CONFIGURATION_FILE_FILENAME>`: The name of the configuration file.
+   - `<INPUT_PATH>`: Local directory containing input images (as defined in the configuration file).
+   - `<OUTPUT_PATH>`: Local directory where processed images will be saved.
+   - `<METADATA_PATH>`: Local directory containing the metadata file.
+   - `<CONFIG_DIR>`: Local directory containing the configuration file.
+   - `<CONFIG_FILE>`: Name of the configuration file.
+
+   If you are using remote data from an object store, it is not necessary to create volumes for the remote data. However, if you want to upload images to an object store, you need to pass an environment file in the `docker run` command, as shown below:
+
+   .. code-block:: bash
+
+        docker run --rm \
+          -v <CONFIG_DIR>:/app/config_files/ \
+          --env-file .env \
+          paidiverpy -c /app/examples/config_files/<CONFIG_FILE>
+
+   In this case, you have to create a `.env` file with your object store credentials:
+
+   .. code-block:: text
+
+        OS_SECRET=your_secret
+        OS_TOKEN=your_token
+        OS_ENDPOINT=your_endpoint

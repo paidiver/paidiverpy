@@ -4,6 +4,7 @@ This module contains the ColourLayer class for processing the images in the
 colour layer.
 """
 
+import contextlib
 import logging
 import cv2
 import numpy as np
@@ -42,6 +43,7 @@ from paidiverpy.utils.data import NUM_CHANNELS_GREY
 from paidiverpy.utils.data import NUM_CHANNELS_RGB
 from paidiverpy.utils.data import NUM_IMAGE_DIMS
 from paidiverpy.utils.exceptions import raise_value_error
+from paidiverpy.utils.logging_functions import check_raise_error
 
 
 class ColourLayer(Paidiverpy):
@@ -50,7 +52,7 @@ class ColourLayer(Paidiverpy):
     This class contains the methods for processing the images in the colour layer.
 
     Args:
-        config_params (Union[Dict, ConfigParams], optional): The configuration parameters.
+        config_params (dict | ConfigParams, optional): The configuration parameters.
             It can contain the following keys / attributes:
             - input_path (str): The path to the input files.
             - output_path (str): The path to the output files.
@@ -104,7 +106,8 @@ class ColourLayer(Paidiverpy):
         self.step_metadata = self._calculate_steps_metadata(self.config.steps[self.config_index])
         self.layer_methods = COLOUR_LAYER_METHODS
 
-    def _apply_grayscale_conversion(self, image_data: np.ndarray, params: GrayScaleParams) -> np.ndarray:
+    @staticmethod
+    def _apply_grayscale_conversion(image_data: np.ndarray, params: GrayScaleParams) -> np.ndarray:
         """GrayScale conversion.
 
         Apply the grayscale conversion method specified by params
@@ -127,7 +130,8 @@ class ColourLayer(Paidiverpy):
             return (np.max(image_data, axis=-1) + np.min(image_data, axis=-1)) / 2
         return cv2.cvtColor(image_data, cv2.COLOR_BGR2GRAY)
 
-    def grayscale(self, image_data: np.ndarray, params: GrayScaleParams = None) -> np.ndarray:
+    @staticmethod
+    def grayscale(image_data: np.ndarray, params: GrayScaleParams = None) -> np.ndarray:
         """Convert the image to grayscale.
 
         Method to convert the image to grayscale.
@@ -145,16 +149,14 @@ class ColourLayer(Paidiverpy):
         if params is None:
             params = GrayScaleParams()
         if len(image_data.shape) == NUM_IMAGE_DIMS or (image_data.shape[-1] != NUM_CHANNELS_RGB and image_data.shape[-1] != NUM_CHANNELS_RGBA):
-            self.logger.error("Input image must have 3 or 4 channels in the last dimension.")
-            if self.raise_error:
-                msg = "Input image must have 3 or 4 channels in the last dimension."
-                raise ValueError(msg)
+            msg = "Input image must have 3 or 4 channels in the last dimension."
+            check_raise_error(params.raise_error, msg)
             return image_data
         try:
             if params.keep_alpha and image_data.shape[-1] == NUM_CHANNELS_RGBA:
                 alpha_channel = image_data[..., NUM_CHANNELS_RGBA - 1]
                 image_data = image_data[..., :NUM_CHANNELS_RGB]
-            image_data = self._apply_grayscale_conversion(image_data, params)
+            image_data = ColourLayer._apply_grayscale_conversion(image_data, params)
 
             if params.invert_colours:
                 image_data = 255 - image_data
@@ -162,15 +164,14 @@ class ColourLayer(Paidiverpy):
             if params.keep_alpha and "alpha_channel" in locals():
                 image_data = np.dstack([image_data, alpha_channel])
 
-        except Exception as e:
-            self.logger.exception("Error converting image to grayscale: %s", e)
-            if self.raise_error:
-                msg = f"Error converting image to grayscale: {e}"
-                raise ValueError(msg) from e
+        except Exception as e:  # noqa: BLE001
+            msg = f"Error converting image to grayscale: {e}"
+            check_raise_error(params.raise_error, msg)
 
         return image_data
 
-    def gaussian_blur(self, image_data: np.ndarray, params: GaussianBlurParams = None) -> np.ndarray:
+    @staticmethod
+    def gaussian_blur(image_data: np.ndarray, params: GaussianBlurParams = None) -> np.ndarray:
         """Gaussian blur.
 
         Method to apply Gaussian blur to the image.
@@ -189,15 +190,15 @@ class ColourLayer(Paidiverpy):
         if params is None:
             params = GaussianBlurParams()
         try:
-            image_data = cv2.GaussianBlur(image_data, (0, 0), params.sigma)
-        except Exception as e:
-            self.logger.exception("Error applying Gaussian blur: %s", e)
-            if self.raise_error:
-                msg = f"Error applying Gaussian blur: {e}"
-                raise ValueError(msg) from e
+            with contextlib.suppress(Exception):
+                image_data = cv2.GaussianBlur(image_data, (0, 0), params.sigma)
+        except Exception as e:  # noqa: BLE001
+            msg = f"Error applying Gaussian blur: {e}"
+            check_raise_error(params.raise_error, msg)
         return image_data
 
-    def sharpen(self, image_data: np.ndarray, params: SharpenParams = None) -> np.ndarray:
+    @staticmethod
+    def sharpen(image_data: np.ndarray, params: SharpenParams = None) -> np.ndarray:
         """Sharpening.
 
         Method to apply sharpening to the image.
@@ -221,15 +222,13 @@ class ColourLayer(Paidiverpy):
             image_data = np.clip(image_data * multiply_factor, 0, multiply_factor).astype(
                 np.uint8 if bits == DEFAULT_BITS else np.uint16,
             )
-        except Exception as e:
-            self.logger.exception("Error applying sharpening: %s", e)
-            if self.raise_error:
-                msg = f"Error applying sharpening: {e}"
-                raise ValueError(msg) from e
+        except Exception as e:  # noqa: BLE001
+            msg = f"Error applying sharpening: {e}"
+            check_raise_error(params.raise_error, msg)
         return image_data
 
+    @staticmethod
     def contrast_adjustment(
-        self,
         image_data: np.ndarray,
         params: ContrastAdjustmentParams = None,
     ) -> np.ndarray:
@@ -264,16 +263,14 @@ class ColourLayer(Paidiverpy):
             image_data = np.clip(image_data * multiply_factor, 0, multiply_factor).astype(
                 np.uint8 if bits == DEFAULT_BITS else np.uint16,
             )
-        except Exception as e:
-            self.logger.exception("Error applying contrast adjustment: %s", e)
-            if self.raise_error:
-                msg = f"Error applying contrast adjustment: {e}"
-                raise ValueError(msg) from e
+        except Exception as e:  # noqa: BLE001
+            msg = f"Error applying contrast adjustment: {e}"
+            check_raise_error(params.raise_error, msg)
 
         return image_data
 
+    @staticmethod
     def illumination_correction(
-        self,
         image_data: np.ndarray,
         params: IlluminationCorrectionParams = None,
     ) -> np.ndarray:
@@ -302,14 +299,13 @@ class ColourLayer(Paidiverpy):
                 background = rolling_ball(image_data, radius=radius)
                 image_data = image_data - background
 
-        except Exception as e:
-            self.logger.exception("Error applying contrast adjustment: %s", e)
-            if self.raise_error:
-                msg = f"Error applying contrast adjustment: {e}"
-                raise ValueError(msg) from e
+        except Exception as e:  # noqa: BLE001
+            msg = f"Error applying illumination correction: {e}"
+            check_raise_error(params.raise_error, msg)
         return image_data
 
-    def deblur(self, image_data: np.ndarray, params: DeblurParams = None) -> np.ndarray:
+    @staticmethod
+    def deblur(image_data: np.ndarray, params: DeblurParams = None) -> np.ndarray:
         """Deblurring.
 
         Method to apply deblurring to the image.
@@ -353,20 +349,16 @@ class ColourLayer(Paidiverpy):
                 )
 
             else:
-                self.logger.error("Unknown method type. Please use 'wiener'.")
-                if self.raise_error:
-                    msg = "Unknown method type. Please use 'wiener'."
-                    raise_value_error(msg)
+                msg = "Unknown method type. Please use 'wiener'."
+                check_raise_error(params.raise_error, msg)
 
-        except Exception as e:
-            self.logger.exception("Error applying contrast adjustment: %s", e)
-            if self.raise_error:
-                msg = f"Error applying contrast adjustment: {e}"
-                raise_value_error(msg)
+        except Exception as e:  # noqa: BLE001
+            msg = f"Error applying deblurring: {e}"
+            check_raise_error(params.raise_error, msg)
         return image_data
 
+    @staticmethod
     def edge_detection(
-        self,
         image_data: np.ndarray,
         params: EdgeDetectionParams = None,
     ) -> np.ndarray:
@@ -398,86 +390,8 @@ class ColourLayer(Paidiverpy):
                 image_data = np.dstack((image_data, image_data, image_data))
             filled_edges = ColourLayer.detect_edges(gray_image_data, params.method, params.blur_radius, params.threshold)
             label_image_data = morphology.label(filled_edges, connectivity=2, background=0)
-            props = measure.regionprops(label_image_data, gray_image_data)
 
-            valid_object = False
-            if len(props) > 0:
-                max_area = 0
-                max_area_ind = 0
-
-                area_list = []
-
-                for index, prop in enumerate(props):
-                    area_list.append(prop.axis_major_length)
-                    if prop.axis_major_length > max_area:
-                        max_area = prop.axis_major_length
-                        max_area_ind = index
-
-                area_list = sorted(area_list, reverse=True)
-
-                selected_index = max_area_ind
-
-                if params.object_selection != "full_ROI" and params.object_type != "aggregate":
-                    bw_image_data = label_image_data == props[selected_index].label
-                else:
-                    bw_image_data = label_image_data > 0
-                    # Recompute props on single mask
-                    props = measure.regionprops(bw_image_data.astype(np.uint8), gray_image_data)
-                    selected_index = 0
-
-                bw = bw_image_data if np.max(bw_image_data) == 0 else bw_image_data / np.max(bw_image_data)
-
-                features = {}
-                clip_frac = float(np.sum(bw[:, 1]) + np.sum(bw[:, -2]) + np.sum(bw[1, :]) + np.sum(bw[-2, :])) / (2 * bw.shape[0] + 2 * bw.shape[1])
-
-                # Save simple features of the object
-                if params.object_selection != "full_ROI":
-                    selected_prop = props[selected_index]
-                    features.update(
-                        {
-                            "area": selected_prop.area,
-                            "minor_axis_length": selected_prop.axis_minor_length,
-                            "major_axis_length": selected_prop.axis_major_length,
-                            "aspect_ratio": (
-                                (selected_prop.axis_minor_length / selected_prop.axis_major_length) if selected_prop.axis_major_length != 0 else 1
-                            ),
-                            "orientation": selected_prop.orientation,
-                        },
-                    )
-                else:
-                    features.update(
-                        {
-                            "area": bw.shape[0] * bw.shape[1],
-                            "minor_axis_length": min(bw.shape[0], bw.shape[1]),
-                            "major_axis_length": max(bw.shape[0], bw.shape[1]),
-                            "aspect_ratio": (
-                                (props[selected_index].axis_minor_length / props[selected_index].axis_major_length)
-                                if props[selected_index].axis_major_length != 0
-                                else 1
-                            ),
-                            "orientation": 0,
-                        },
-                    )
-
-                # save all features except for those with  pixel data
-                output_dict = {
-                    prop: props[selected_index][prop]
-                    for prop in props[selected_index]
-                    if prop not in ["convex_image", "filled_image", "image", "coords"]
-                }
-                features = output_dict
-                features["clipped_fraction"] = clip_frac
-                valid_object = True
-            else:
-                features = {
-                    "area": 0.0,
-                    "minor_axis_length": 0.0,
-                    "major_axis_length": 0.0,
-                    "aspect_ratio": 1,
-                    "orientation": 0.0,
-                    "clippped_fraction": 1.0,
-                }
-            features["valid_object"] = valid_object
+            features, bw_image_data = ColourLayer.get_object_features(gray_image_data, label_image_data, params)
 
             # sharpness analysis of the image using FFTs
             features = ColourLayer.sharpness_analysis(gray_image_data, image_data, features, params.estimate_sharpness)
@@ -502,17 +416,16 @@ class ColourLayer(Paidiverpy):
                 params.deconv_mask_weight,
                 params.small_float_val,
             )
-        except Exception as e:
-            self.logger.exception("Error applying edge detection: %s", e)
-            if self.raise_error:
-                msg = f"Error applying edge detection: {e}"
-                raise ValueError(msg) from e
-        results = self.step_metadata.get("results", [])
-        results.append(features)
-        self.step_metadata["results"] = results
+        except Exception as e:  # noqa: BLE001
+            msg = f"Error applying edge detection: {e}"
+            check_raise_error(params.raise_error, msg)
+        # results = self.step_metadata.get("results", [])
+        # results.append(features)
+        # self.step_metadata["results"] = results
         return image_data
 
-    def colour_alteration(self, image_data: np.ndarray, params: ColourAlterationParams = None) -> np.ndarray:
+    @staticmethod
+    def colour_alteration(image_data: np.ndarray, params: ColourAlterationParams = None) -> np.ndarray:
         """Apply colour alteration to the image.
 
         Args:
@@ -533,11 +446,104 @@ class ColourLayer(Paidiverpy):
             if method == "white_balance":
                 image_data = ColourLayer.white_balance(image_data)
 
-        except Exception as e:
-            self.logger.error("Error applying colour alteration: %s", e)
-            if self.raise_error:
-                raise
+        except Exception as e:  # noqa: BLE001
+            msg = f"Error applying colour alteration: {e}"
+            check_raise_error(params.raise_error, msg)
         return image_data
+
+    @staticmethod
+    def get_object_features(gray_image_data: np.ndarray, label_image_data: np.ndarray, params: EdgeDetectionParams) -> tuple[dict, np.ndarray]:
+        """Get object features.
+
+        Get the features of the object.
+
+        Args:
+            gray_image_data (np.ndarray): The grayscale image data.
+            label_image_data (np.ndarray): The label image data.
+            params (EdgeDetectionParams): The parameters for edge detection.
+
+        Returns:
+            tuple[dict, np.ndarray]: The features of the object and the binary image data.
+        """
+        props = measure.regionprops(label_image_data, gray_image_data)
+        valid_object = False
+        bw_image_data = None
+        if len(props) > 0:
+            max_area = 0
+            max_area_ind = 0
+
+            area_list = []
+
+            for index, prop in enumerate(props):
+                area_list.append(prop.axis_major_length)
+                if prop.axis_major_length > max_area:
+                    max_area = prop.axis_major_length
+                    max_area_ind = index
+
+            area_list = sorted(area_list, reverse=True)
+
+            selected_index = max_area_ind
+
+            if params.object_selection != "full_ROI" and params.object_type != "aggregate":
+                bw_image_data = label_image_data == props[selected_index].label
+            else:
+                bw_image_data = label_image_data > 0
+                # Recompute props on single mask
+                props = measure.regionprops(bw_image_data.astype(np.uint8), gray_image_data)
+                selected_index = 0
+
+            bw = bw_image_data if np.max(bw_image_data) == 0 else bw_image_data / np.max(bw_image_data)
+
+            features = {}
+            clip_frac = float(np.sum(bw[:, 1]) + np.sum(bw[:, -2]) + np.sum(bw[1, :]) + np.sum(bw[-2, :])) / (2 * bw.shape[0] + 2 * bw.shape[1])
+
+            # Save simple features of the object
+            if params.object_selection != "full_ROI":
+                selected_prop = props[selected_index]
+                features.update(
+                    {
+                        "area": selected_prop.area,
+                        "minor_axis_length": selected_prop.axis_minor_length,
+                        "major_axis_length": selected_prop.axis_major_length,
+                        "aspect_ratio": (
+                            (selected_prop.axis_minor_length / selected_prop.axis_major_length) if selected_prop.axis_major_length != 0 else 1
+                        ),
+                        "orientation": selected_prop.orientation,
+                    },
+                )
+            else:
+                features.update(
+                    {
+                        "area": bw.shape[0] * bw.shape[1],
+                        "minor_axis_length": min(bw.shape[0], bw.shape[1]),
+                        "major_axis_length": max(bw.shape[0], bw.shape[1]),
+                        "aspect_ratio": (
+                            (props[selected_index].axis_minor_length / props[selected_index].axis_major_length)
+                            if props[selected_index].axis_major_length != 0
+                            else 1
+                        ),
+                        "orientation": 0,
+                    },
+                )
+
+            # save all features except for those with  pixel data
+            output_dict = {
+                prop: props[selected_index][prop] for prop in props[selected_index] if prop not in ["convex_image", "filled_image", "image", "coords"]
+            }
+            features = output_dict
+            features["clipped_fraction"] = clip_frac
+            valid_object = True
+        else:
+            features = {
+                "area": 0.0,
+                "minor_axis_length": 0.0,
+                "major_axis_length": 0.0,
+                "aspect_ratio": 1,
+                "orientation": 0.0,
+                "clippped_fraction": 1.0,
+            }
+        features["valid_object"] = valid_object
+        return (features, bw_image_data)
 
     @staticmethod
     def gaussian_psf(size: list[int], sigma: float) -> np.ndarray:

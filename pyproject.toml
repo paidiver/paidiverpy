@@ -7,7 +7,14 @@ name = "Paidiverpy"
 description = "A library to preprocess image data."
 requires-python = ">=3.10"
 keywords = ["data", "paidiver", "noc"]
-authors = [{email = "tobias.ferreira@noc.ac.uk"},{name = "Tobias Ferreira"}]
+authors = [
+  {name = "Tobias Ferreira", email = "tobias.ferreira@noc.ac.uk"},
+  {name = "Mojtaba Masoudi", email = "mojtaba.masoudi@noc.ac.uk"},
+  {name = "Van Loïc Audenhaege", email = "loic.audenhaege@noc.ac.uk"},
+  {name = "Erik Orenstein", email = "erik.orenstein@noc.ac.uk"},
+  {name = "Colin Sauze", email = "colin.sauze@noc.ac.uk"},
+  {name = "Jennifer Durden", email = "jennifer.durden@noc.ac.uk"}
+]
 maintainers = [{name = "Tobias Ferreira", email = "tobias.ferreira@noc.ac.uk"}]
 classifiers = [
   "Programming Language :: Python :: 3",
@@ -24,7 +31,7 @@ dependencies = [
   "scipy>=1.13.1",
   "tqdm>=4.66.4",
   "PyYAML>=6.0.1",
-  "mariqt>=0.6.12",
+  "mariqt>=1.0.0",
   "openpyxl>=3.0.9",
   "shapely>=2.0.5",
   "geopy>=2.4.1",
@@ -37,10 +44,12 @@ dependencies = [
   "jsonschema>=4.23.0",
   "matplotlib>=3.5.0",
   "ipython>=8.26.0",
-  "dask_jobqueue>=0.9.0"
+  "dask_jobqueue>=0.9.0",
+  "python-dotenv>=1.0.1",
+  "boto3>=1.35.92"
   ]
 license = {file = "LICENSE"}
-version = "0.0.2"
+version = "0.1.0"
 readme = {file = "README.md", content-type = "text/markdown"}
 
 [project.optional-dependencies]
@@ -50,7 +59,7 @@ dev = [
     "coverage [toml]",
     "pytest",
     "pytest-cov",
-    "ruff",
+    "ruff==0.9.5",
     "sphinx",
     "sphinx_rtd_theme",
     "sphinx-autoapi",
@@ -131,8 +140,6 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 # Enable Pyflakes `E` and `F` codes by default.
 select = ["ALL"]
 ignore = [
-    "ANN101", # Missing type annotation for `self` in method
-    "ANN102", # Missing type annotation for `cls` in classmethod
     "ANN204", # Missing return type annotation for special (dunder) method
     "FBT",    # Using boolean function arguments
     "TD",     # TODOs
@@ -140,16 +147,15 @@ ignore = [
     "FIX002", # Resolve TODOs
     "B028",   # No explicit `stacklevel` keyword argument found in warning
     # No docstrings required in the following cases
-    "D100", # Missing module docstring
-    "D104", # Missing public package docstring
     "D105", # Missing docstring in magic method
     "D107", # Missing docstring in `__init__`
-    "TRY401", # No exception type(s) specified in `except`
     "S324", # Probable use of insecure hash functions in `hashlib`
     "TRY400",
     "COM812",
     "ISC001",
-    "PLR0913"
+    "PLR0913",
+    "ERA001",  # Commented code
+
 ]
 pydocstyle.convention = "google"
 
@@ -167,7 +173,7 @@ force-single-line = true
 no-lines-before = ["future","standard-library","third-party","first-party","local-folder"]
 
 [tool.bumpversion]
-current_version = "0.0.2"
+current_version = "0.1.0"
 
 [[tool.bumpversion.files]]
 filename = "src/paidiverpy/__init__.py"

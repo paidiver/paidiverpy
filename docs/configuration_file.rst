@@ -1,14 +1,14 @@
-.. _package-organisation:
+.. _configuration_file:
 
 Configuration File
-====================
+==================
 
 The configuration file is a crucial component of the Paidiverpy package. It defines the pipeline you want to run, specifying the input data, processing steps, and output data. Although it is possible to run or create a pipeline without a configuration file, using one is highly recommended to ensure reproducibility and simplify modifications.
 
 Format and Schema
-------------------
+-----------------
 
-The configuration file is written in YAML format and should adhere to the schema detailed in the `configuration file schema <https://github.com/paidiver/paidiverpy/blob/develop/src/paidiverpy/configuration-schema.json>`_. Below is an example of a configuration file:
+The configuration file is written in YAML format and should adhere to the schema detailed in the `configuration file schema <https://github.com/paidiver/paidiverpy/blob/dev/src/paidiverpy/configuration-schema.json>`_. Below is an example of a configuration file:
 
 .. code-block:: yaml
 
@@ -56,23 +56,61 @@ The configuration file is written in YAML format and should adhere to the schema
             beta: -0.5
 
 Explanation of the Configuration File
-------------------
+-------------------------------------
 
 In the example above, the configuration file outlines a pipeline with the following steps:
 
-- Step 0. **Input Processing**: Open the images in the specified input path. The raw images will be converted to 8-bit, and only 10% of the images will be processed.
+
+**General Section (Step 0)**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Contains the general information about the pipeline, such as the input and output paths, metadata path, metadata type, image type, and sampling parameters.
+
+- `input_path`: The path to the input images. It can be a local or remote path (e.g., S3 bucket). If it is a private path, you may need to provide object storage credentials. More information on working with remote data, please refer to the :ref:`guide_remote_data`.
+- `output_path`: The path to save the output images. It can be a local or remote path (e.g., S3 bucket). You need to have write permissions to this path. More information on working with remote data, please refer to the :ref:`guide_remote_data`.
+- `metadata_path`: The path to the metadata file. It needs to be in IFDO standard file (JSON) or CSV file with collumns similar to the IFDO standard. More information on working with metadata, please refer to the :ref:`images_metadata`. It can be a local or remote path (e.g., S3 bucket). If it is a private path, you may need to provide object storage credentials. More information on working with remote data, please refer to the :ref:`guide_remote_data`.
+- `metadata_type`: The type of metadata file. It can be either 'IFDO' or 'CSV'. New types can be added to the package in the future. More information on working with metadata, please refer to the :ref:`images_metadata`.
+- `image_type`: The type of images to process. It can be 'JPG', 'PNG', 'TIFF', 'RAW', etc. New types can be added to the package in the future.
+- `sampling`: Apply resample to the images in the first step (openning images). In this example, the sampling is set to 10% of the images. More information on sampling images, please refer to the :ref:`step_sampling`.
+- `convert`: Apply conversion to the images in the first step (openning images). In this example, the images are converted to 8-bit and grayscale. More information on converting images, please refer to the :ref:`step_convert`.
+
+You can also pass the following parameters to the `general` section:
+
+- `n_jobs`: The number of parallel jobs to run. By default, it is set to 1. If you have a multi-core machine, you can increase this number to speed up the processing. If set to -1, it will use all available cores. More information on parallel processing, please refer to the :ref:`guide_performance`.
+- `client`: The Dask client to use for parallel processing. If not provided, it will use the default client. More information on parallel processing, please refer to the :ref:`guide_performance`.
+- `track_changes`: If set to `True`, the pipeline will track the changes made to the images at each step. This can be useful for debugging or understanding the processing steps. By default, it is set to `True`.
+- `rename`: If set to a value, the output images will be renamed using the specified type. This can be useful for organizing the output images. By default, it is set to `None`. More information on renaming images, please refer to the :ref:`guide_rename_images`.
+- `append_data_to_metadata`: It is related to a path of a file with additional metadata to be appended to the metadata file. More information on appending metadata, please refer to the :ref:`images_metadata`.
+
+**Steps Section**
+^^^^^^^^^^^^^^^^^
+
+Contains the processing steps to be applied to the images. Each step is defined by a dictionary with the following keys:
+
+- `name`: The name of the processing step. It should correspond to the name of the function in the Paidiverpy package.
+- `mode`: The mode of the processing step. It should correspond to the mode of the function in the Paidiverpy package.
+- `params`: The parameters to be passed to the processing function. These parameters are specific to each function and mode.
+
+In the example above, the pipeline consists of the following steps:
+
 - Step 1. **Colour Conversion**: Convert the images to grayscale.
 - Step 2. **Datetime Sampling**: Sample the images based on the datetime metadata.
 - Step 3. **Gaussian Blur**: Apply a Gaussian blur with a sigma of 1.0.
 - Step 4. **Sharpening**: Sharpen the images using an alpha of 1.5 and a beta of -0.5.
 
 Example Configuration Files
-------------------
+---------------------------
 
-Example configuration files for processing the sample datasets can be found in the `example/config_files <https://github.com/paidiver/paidiverpy/tree/develop/examples/config_files>`_ directory of the repository. These files can be used to test the example notebooks described in the :doc:`gallery examples <gallery>`. Running the examples will automatically download the sample data.
+Example configuration files for processing the sample datasets can be found in the `example/config_files <https://github.com/paidiver/paidiverpy/tree/dev/examples/config_files>`_ directory of the repository. These files can be used to test the example notebooks described in the :doc:`gallery examples <gallery>`. Running the examples will automatically download the sample data.
+
+
+.. admonition:: Note
+
+  Some of the examples of configuration file have the flag "sample_data", which is used to indicate that the pipeline will use the sample data. This flag is used in the example notebooks to download the sample data automatically. If you are using your own data, you can remove this flag from the configuration file and update the input path accordingly.
+
 
 Validation Tools
-------------------
+----------------
 
 To validate your configuration files, you can use the following resources:
 

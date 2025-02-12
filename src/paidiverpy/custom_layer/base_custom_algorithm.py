@@ -9,7 +9,7 @@ class BaseCustomAlgorithm:
     """Base class for custom algorithms.
 
     Args:
-        image_data (Union[np.ndarray, dask.array.core.Array]): The image data to process
+        image_data (np.ndarray | dask.array.core.Array): The image data to process
         params (DynamicConfig): The parameters for the custom algorithm
     """
 
@@ -21,7 +21,7 @@ class BaseCustomAlgorithm:
         """Process the image data.
 
         Returns:
-            Union[np.ndarray, dask.array.core.Array]: The processed image data
+            np.ndarray | dask.array.core.Array: The processed image data
         """
         # You must implement this method in your custom algorithm
         msg = "The process method must be implemented"

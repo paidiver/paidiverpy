@@ -6,7 +6,7 @@ import zipfile
 from pathlib import Path
 import requests
 from tqdm import tqdm
-from paidiverpy.utils.logging import initialise_logging
+from paidiverpy.utils.logging_functions import initialise_logging
 
 NUM_CHANNELS_GREY = 2
 NUM_CHANNELS_RGB = 3
@@ -120,14 +120,20 @@ def unzip_file(zip_path: Path, dataset_name: str, extract_dir: Path = CACHE_DIR)
         dataset_name (str): The name of the dataset.
     """
     if not extract_dir.exists():
-        with zipfile.ZipFile(zip_path, "r") as zip_ref:
-            total_files = len(zip_ref.infolist())
-            # Progress bar for extraction
-            with tqdm(total=total_files, unit="file", desc=f"Extracting {dataset_name} files") as bar:
-                for file_info in zip_ref.infolist():
-                    zip_ref.extract(file_info, extract_dir)
-                    bar.update(1)
-        logger.info("Extracted files to %s", extract_dir)
+        try:
+            with zipfile.ZipFile(zip_path, "r") as zip_ref:
+                total_files = len(zip_ref.infolist())
+                # Progress bar for extraction
+                with tqdm(total=total_files, unit="file", desc=f"Extracting {dataset_name} files") as bar:
+                    for file_info in zip_ref.infolist():
+                        zip_ref.extract(file_info, extract_dir)
+                        bar.update(1)
+            logger.info("Extracted files to %s", extract_dir)
+        except Exception as e:  # noqa: BLE001
+            logger.error("Failed to extract files to %s: %s", extract_dir, e)
+            logger.error("Removing the zip file at %s", zip_path)
+            logger.error("Please try again.")
+            zip_path.unlink()
     else:
         logger.info("Using cached extraction at %s", extract_dir)
 

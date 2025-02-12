@@ -8,12 +8,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from dask.diagnostics import ProgressBar
+from dask.distributed import Client
+from tqdm import tqdm
 from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.utils.dynamic_classes import DynamicConfig
-from paidiverpy.utils.logging import initialise_logging
+from paidiverpy.utils.logging_functions import initialise_logging
 from paidiverpy.utils.parallellisation import get_client
 from paidiverpy.utils.parallellisation import get_n_jobs
 
@@ -22,7 +24,7 @@ class Paidiverpy:
     """Main class for the paidiverpy package.
 
     Args:
-        config_params (Union[Dict, ConfigParams], optional): The configuration parameters.
+        config_params (dict | ConfigParams, optional): The configuration parameters.
             It can contain the following keys / attributes:
             - input_path (str): The path to the input files.
             - output_path (str): The path to the output files.
@@ -34,6 +36,7 @@ class Paidiverpy:
         config (Configuration, optional): The configuration object.
         metadata (MetadataParser, optional): The metadata object.
         images (ImagesLayer, optional): The images object.
+        client (Client, optional): The Dask client object.
         paidiverpy (Paidiverpy, optional): The paidiverpy object.
         track_changes (bool): Whether to track changes. Defaults to None, which means
             it will be set to the value of the configuration file.
@@ -49,6 +52,7 @@ class Paidiverpy:
         config: Configuration = None,
         metadata: MetadataParser = None,
         images: ImagesLayer = None,
+        client: Client | None = None,
         paidiverpy: "Paidiverpy" = None,
         track_changes: bool | None = None,
         logger: logging.Logger | None = None,
@@ -66,7 +70,16 @@ class Paidiverpy:
             self.images = images or ImagesLayer(
                 output_path=self.config.general.output_path,
             )
-            self.client = get_client(self.config.general.client)
+            if not client:
+                result = get_client(self.config.general.client, self.config.general.n_jobs)
+                if isinstance(result, tuple):
+                    self.client, self.job_id = result
+                else:
+                    self.client = result
+                    self.job_id = None
+            else:
+                self.client = client
+                self.job_id = None
             self.n_jobs = get_n_jobs(self.config.general.n_jobs)
             self.track_changes = self.config.general.track_changes
         if track_changes is not None:
@@ -119,7 +132,7 @@ class Paidiverpy:
         Returns:
             List[np.ndarray]: The list of processed images.
         """
-        return [method(img, params=params) for img in images]
+        return [method(img, params=params) for img in tqdm(images, total=len(images), desc="Processing images")]
 
     def process_parallel(
         self,
@@ -140,16 +153,21 @@ class Paidiverpy:
             List[da.core.Array]: The list of processed images.
         """
         if self.client:
-            with self.client:
+            if isinstance(self.client.cluster, dask.distributed.LocalCluster):
                 delayed_images = [dask.delayed(method)(img, params) for img in images]
+                futures = self.client.compute(delayed_images)
                 with ProgressBar():
-                    delayed_images = dask.compute(*delayed_images)
-                return [da.from_array(img) for img in delayed_images]
-        else:
-            delayed_images = [dask.delayed(method)(img, params) for img in images]
-            with dask.config.set(scheduler="threads", num_workers=self.n_jobs), ProgressBar():
-                delayed_images = dask.compute(*delayed_images)
-            return [da.from_array(img) for img in delayed_images]
+                    results = self.client.gather(futures)
+                return [da.from_array(img) for img in results]
+            futures = []
+            for img in images:
+                futures.append(self.client.submit(method, img, params))
+            results = self.client.gather(futures)
+            return [da.from_array(img) for img in results]
+        delayed_images = [dask.delayed(method)(img, params) for img in images]
+        with dask.config.set(scheduler="threads", num_workers=self.n_jobs), ProgressBar():
+            delayed_images = dask.compute(*delayed_images)
+        return [da.from_array(img) for img in delayed_images]
 
     def _set_variables_from_paidiverpy(self, paidiverpy: "Paidiverpy") -> None:
         """Set the variables from the paidiverpy object.
@@ -166,6 +184,7 @@ class Paidiverpy:
         self.n_jobs = paidiverpy.n_jobs
         self.track_changes = paidiverpy.track_changes
         self.client = paidiverpy.client
+        self.job_id = paidiverpy.job_id
 
     def _initialise_config(
         self,
@@ -176,7 +195,7 @@ class Paidiverpy:
 
         Args:
             config_file_path (str): Configuration file path.
-            config_params (Union[ConfigParams, dict]): Configuration parameters.
+            config_params (ConfigParams | dict): Configuration parameters.
 
         Returns:
             Configuration: The configuration object.
@@ -287,7 +306,7 @@ class Paidiverpy:
         """Save the images.
 
         Args:
-            step (Union[str, int], optional): The step name or order. Defaults to None.
+            step (str | int, optional): The step name or order. Defaults to None.
             by_order (bool, optional): Whether to save by order. Defaults to False.
             image_format (str, optional): The image format. Defaults to "png".
         """
@@ -302,6 +321,9 @@ class Paidiverpy:
             last=last,
             output_path=output_path,
             image_format=image_format,
+            client=self.client,
+            n_jobs=self.n_jobs,
+            logger=self.logger,
         )
         self.logger.info("Images are saved to: %s", output_path)
 
@@ -334,7 +356,7 @@ class Paidiverpy:
         """Clear steps from the images and metadata.
 
         Args:
-            value (Union[int, str]): Step name or order.
+            value (int | str): Step name or order.
             by_order (bool, optional): Whether to remove by order. Defaults to True.
         """
         if by_order:
@@ -361,6 +383,7 @@ class Paidiverpy:
         params: DynamicConfig,
         method_dict: dict,
         mode: str,
+        class_method: bool = True,
     ) -> tuple:
         """Get the method by mode.
 
@@ -368,6 +391,8 @@ class Paidiverpy:
             params (DynamicConfig): The parameters.
             method_dict (dict): The method dictionary.
             mode (str): The mode.
+            class_method (bool, optional): Whether the method is a class method.
+                Defaults to True.
 
         Raises:
             ValueError: Unsupported mode.
@@ -382,6 +407,6 @@ class Paidiverpy:
         if not isinstance(params, method_info["params"]):
             params = method_info["params"](**params)
         method_name = method_info["method"]
-        method = getattr(self, method_name)
+        method = getattr(self.__class__, method_name) if class_method else getattr(self, method_name)
 
         return method, params
