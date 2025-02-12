@@ -1,40 +1,107 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+## [Unreleased](https://github.com/paidiver/paidiverpy/tree/HEAD)
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.0.2...HEAD)
 
-## [Unreleased]
+**Closed issues:**
 
-## [1.0.0] - 2025-02-12
+- Link Checker Report - 2025-02-07 [\#120](https://github.com/paidiver/paidiverpy/issues/120)
+- Link Checker Report - 2025-02-07 [\#119](https://github.com/paidiver/paidiverpy/issues/119)
+- Link Checker Report - 2025-02-07 [\#118](https://github.com/paidiver/paidiverpy/issues/118)
+- Link Checker Report - 2025-02-07 [\#117](https://github.com/paidiver/paidiverpy/issues/117)
+- Link Checker Report - 2025-02-07 [\#116](https://github.com/paidiver/paidiverpy/issues/116)
+- Link Checker Report - 2025-02-07 [\#115](https://github.com/paidiver/paidiverpy/issues/115)
+- Correct logs and error handler for methods [\#114](https://github.com/paidiver/paidiverpy/issues/114)
+- Link Checker Report - 2025-02-06 [\#113](https://github.com/paidiver/paidiverpy/issues/113)
+- Link Checker Report - 2025-02-06 [\#112](https://github.com/paidiver/paidiverpy/issues/112)
+- Link Checker Report - 2025-02-05 [\#111](https://github.com/paidiver/paidiverpy/issues/111)
+- Link Checker Report - 2025-02-04 [\#109](https://github.com/paidiver/paidiverpy/issues/109)
+- Link Checker Report - 2025-02-04 [\#108](https://github.com/paidiver/paidiverpy/issues/108)
+- Link Checker Report - 2025-02-01 [\#105](https://github.com/paidiver/paidiverpy/issues/105)
+- Link Checker Report - 2025-01-30 [\#104](https://github.com/paidiver/paidiverpy/issues/104)
+- Code review [\#87](https://github.com/paidiver/paidiverpy/issues/87)
+- Create github actions and add runner [\#32](https://github.com/paidiver/paidiverpy/issues/32)
+- Lazy load catalog [\#24](https://github.com/paidiver/paidiverpy/issues/24)
+- Add feature to work with images in the cloud/lazy load [\#23](https://github.com/paidiver/paidiverpy/issues/23)
 
-### Added
+**Merged pull requests:**
 
-- Lazy load catalog ([#107](https://github.com/paidiver/paidiverpy/pull/107))
-- Read and upload files on object stores ([#107](https://github.com/paidiver/paidiverpy/pull/107))
-- GitHub Actions setup and runner ([#127](https://github.com/
-paidiver/paidiverpy/pull/127))
-- Add benchmark tests ([#110](https://github.com/paidiver/paidiverpy/pull/110)) by @soutobias
+- 32 create GitHub actions and add runner [\#127](https://github.com/paidiver/paidiverpy/pull/127) ([soutobias](https://github.com/soutobias))
+- 87 code review [\#110](https://github.com/paidiver/paidiverpy/pull/110) ([soutobias](https://github.com/soutobias))
+- 24 lazy load catalog [\#107](https://github.com/paidiver/paidiverpy/pull/107) ([soutobias](https://github.com/soutobias))
 
-### Changed
+## [v0.0.2](https://github.com/paidiver/paidiverpy/tree/v0.0.2) (2025-01-14)
 
-None
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.0.1...v0.0.2)
 
-### Full Changelog
+**Closed issues:**
 
-[Compare v0.0.2...v1.0.0](https://github.com/paidiver/paidiverpy/compare/v0.0.2...v1.0.0)
+- Link Checker Report - 2025-01-13 [\#101](https://github.com/paidiver/paidiverpy/issues/101)
+- Link Checker Report - 2025-01-13 [\#99](https://github.com/paidiver/paidiverpy/issues/99)
+- Link Checker Report - 2025-01-01 [\#88](https://github.com/paidiver/paidiverpy/issues/88)
+- Release the first version of the package on pypi [\#65](https://github.com/paidiver/paidiverpy/issues/65)
+- Next step: Citation data [\#42](https://github.com/paidiver/paidiverpy/issues/42)
 
-## [0.0.2] - 2025-01-14
+**Merged pull requests:**
 
-### Added
+- docs : prepare for the first release [\#103](https://github.com/paidiver/paidiverpy/pull/103) ([soutobias](https://github.com/soutobias))
+- feat : correct citation [\#90](https://github.com/paidiver/paidiverpy/pull/90) ([soutobias](https://github.com/soutobias))
 
-First release of the package.
+## [v0.0.1](https://github.com/paidiver/paidiverpy/tree/v0.0.1) (2025-01-13)
 
-### Removed
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/43a603ff9e0615cffd59cec8d7b117610f9f332e...v0.0.1)
 
-First release of the package.
+**Closed issues:**
 
-### Changed
+- Link Checker Report - 2025-01-13 [\#98](https://github.com/paidiver/paidiverpy/issues/98)
+- Link Checker Report - 2025-01-13 [\#97](https://github.com/paidiver/paidiverpy/issues/97)
+- Link Checker Report - 2025-01-13 [\#96](https://github.com/paidiver/paidiverpy/issues/96)
+- Link Checker Report - 2025-01-13 [\#95](https://github.com/paidiver/paidiverpy/issues/95)
+- Link Checker Report - 2025-01-13 [\#94](https://github.com/paidiver/paidiverpy/issues/94)
+- Link Checker Report - 2025-01-13 [\#93](https://github.com/paidiver/paidiverpy/issues/93)
+- Link Checker Report - 2025-01-13 [\#92](https://github.com/paidiver/paidiverpy/issues/92)
+- Link Checker Report - 2025-01-13 [\#91](https://github.com/paidiver/paidiverpy/issues/91)
+- Create a Marimba and Paidiverpy Integration Example [\#81](https://github.com/paidiver/paidiverpy/issues/81)
+- Link Checker Report - 2024-12-01 [\#79](https://github.com/paidiver/paidiverpy/issues/79)
+- Correct documentation autoapi [\#77](https://github.com/paidiver/paidiverpy/issues/77)
+- Correct json schema to be non case sensitive [\#72](https://github.com/paidiver/paidiverpy/issues/72)
+- user guide documentation from best practice [\#70](https://github.com/paidiver/paidiverpy/issues/70)
+- Link Checker Report - 2024-11-01 [\#66](https://github.com/paidiver/paidiverpy/issues/66)
+- Allow Users to Integrate Custom Algorithms into the pipeline [\#63](https://github.com/paidiver/paidiverpy/issues/63)
+- Create a config schema, config validator and a website for creating config files [\#57](https://github.com/paidiver/paidiverpy/issues/57)
+- Link Checker Report - 2024-10-01 [\#56](https://github.com/paidiver/paidiverpy/issues/56)
+- Create  sample dataset methods to download sample data [\#53](https://github.com/paidiver/paidiverpy/issues/53)
+- Test IFDO file as metadata file [\#51](https://github.com/paidiver/paidiverpy/issues/51)
+- Next step: Sonarcloud integration [\#46](https://github.com/paidiver/paidiverpy/issues/46)
+- Next step: Enable Zenodo integration [\#45](https://github.com/paidiver/paidiverpy/issues/45)
+- Next step: Read the Docs [\#44](https://github.com/paidiver/paidiverpy/issues/44)
+- Next step: Linting [\#43](https://github.com/paidiver/paidiverpy/issues/43)
+- Create an example pipeline for benthos images [\#41](https://github.com/paidiver/paidiverpy/issues/41)
+- Create an example pipeline for pelagic [\#40](https://github.com/paidiver/paidiverpy/issues/40)
+- Next step: Sonarcloud integration [\#39](https://github.com/paidiver/paidiverpy/issues/39)
+- Next step: Enable Zenodo integration [\#38](https://github.com/paidiver/paidiverpy/issues/38)
+- Next step: Read the Docs [\#36](https://github.com/paidiver/paidiverpy/issues/36)
+- Next step: Linting [\#35](https://github.com/paidiver/paidiverpy/issues/35)
+- Next step: Citation data [\#34](https://github.com/paidiver/paidiverpy/issues/34)
+- Create documentation [\#33](https://github.com/paidiver/paidiverpy/issues/33)
+- Create first tests [\#31](https://github.com/paidiver/paidiverpy/issues/31)
+- Add docstring to functions [\#30](https://github.com/paidiver/paidiverpy/issues/30)
+- Add parallelisation to the code [\#28](https://github.com/paidiver/paidiverpy/issues/28)
+- Rename catalog name?  [\#21](https://github.com/paidiver/paidiverpy/issues/21)
+- British or USA english? [\#20](https://github.com/paidiver/paidiverpy/issues/20)
+- Vignette removal  [\#16](https://github.com/paidiver/paidiverpy/issues/16)
+- Create a rename step [\#3](https://github.com/paidiver/paidiverpy/issues/3)
 
-First release of the package.
+**Merged pull requests:**
+
+- style: correct styling" [\#86](https://github.com/paidiver/paidiverpy/pull/86) ([soutobias](https://github.com/soutobias))
+- style: correct names [\#85](https://github.com/paidiver/paidiverpy/pull/85) ([soutobias](https://github.com/soutobias))
+- 31 create first tests [\#83](https://github.com/paidiver/paidiverpy/pull/83) ([soutobias](https://github.com/soutobias))
+- 64 add slurm job submission for pipeline runs on hpc systems [\#82](https://github.com/paidiver/paidiverpy/pull/82) ([soutobias](https://github.com/soutobias))
+- 77 correct documentation autoapi [\#80](https://github.com/paidiver/paidiverpy/pull/80) ([soutobias](https://github.com/soutobias))
+- feat: add environment.yml fiile and update docs [\#1](https://github.com/paidiver/paidiverpy/pull/1) ([soutobias](https://github.com/soutobias))
+
+
+
+\* *This Changelog was automatically generated by [github_changelog_generator](https://github.com/github-changelog-generator/github-changelog-generator)*
