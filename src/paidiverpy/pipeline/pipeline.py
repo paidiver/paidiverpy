@@ -18,7 +18,7 @@ class Pipeline(Paidiverpy):
     """Pipeline builder class for image preprocessing.
 
     Args:
-        config_params (Union[Dict, ConfigParams], optional): The configuration parameters.
+        config_params (dict | ConfigParams, optional): The configuration parameters.
             It can contain the following keys / attributes:
             - input_path (str): The path to the input files.
             - output_path (str): The path to the output files.
@@ -75,12 +75,13 @@ class Pipeline(Paidiverpy):
         self.steps = steps
         self.runned_steps = -1
 
-    def run(self, from_step: int | None = None) -> None:
+    def run(self, from_step: int | None = None, close_client: bool = True) -> None:
         """Run the pipeline.
 
         Args:
             from_step (int, optional): The step to start from. Defaults to None,
-        which means the pipeline will start from the last runned step.
+                which means the pipeline will start from the last runned step.
+            close_client (bool, optional): Whether to close the client. Defaults to True.
 
         Raises:
             ValueError: No steps defined for the pipeline
@@ -92,7 +93,7 @@ class Pipeline(Paidiverpy):
         if not self.client:
             self.logger.info("Processing images using %s cores", self.n_jobs)
         else:
-            self.logger.info("Processing images using Dask client using the " "following dashboard link: %s", self.client.dashboard_link)
+            self.logger.info("Processing images using Dask client using the following dashboard link: %s", self.client.dashboard_link)
         for index, step in enumerate(self.steps):
             if index > self.runned_steps:
                 step_name, step_class, step_params = self._get_steps_params(step)
@@ -126,6 +127,8 @@ class Pipeline(Paidiverpy):
 
                 del step_instance
                 gc.collect()
+        if self.client and close_client:
+            self.client.close()
 
     def _validate_pipeline(self) -> None:
         """Validate the pipeline.
@@ -146,7 +149,7 @@ class Pipeline(Paidiverpy):
                 self.clear_steps(from_step + 1)
             else:
                 self.logger.warning(
-                    "Step %s does not exist. Run the pipeline from" "the beginning",
+                    "Step %s does not exist. Run the pipeline fromthe beginning",
                     from_step,
                 )
 
@@ -189,12 +192,12 @@ class Pipeline(Paidiverpy):
 
         Args:
             step_name (str): Name of the step.
-            step_class (Union[str, type]): Class of the step.
+            step_class (str | type): Class of the step.
             parameters (dict): Parameters for the step.
             index (int, optional): Index of the step. It is only used when you
-        want to add a step in a specific position. Defaults to None.
+                want to add a step in a specific position. Defaults to None.
             substitute (bool, optional): Whether to substitute the step in the
-        specified index. Defaults to False.
+                specified index. Defaults to False.
         """
         if not parameters.get("name"):
             parameters["name"] = step_name
@@ -257,8 +260,7 @@ class Pipeline(Paidiverpy):
                     margin: 10px; border: 1px solid #000; text-align: center;
                     line-height: 80px;" onclick="showParameters('step_{i}')">
                     <h2 style="font-size:20px;">{step.name.capitalize()}</h2>
-                    <h2 style="font-size:13px;">Type: {
-                        step.step_name.capitalize()}</h2>
+                    <h2 style="font-size:13px;">Type: {step.step_name.capitalize()}</h2>
                 </div>
             """
             if i < len(self.config.steps) - 1:
@@ -281,10 +283,8 @@ class Pipeline(Paidiverpy):
             width: max-content; height: 80px; margin: 10px;
             border: 1px solid #000; text-align: center; line-height: 80px;"
             onclick="showParameters('general')">
-            <h2 style="font-size:20px;">{
-                self.config.general.name.capitalize()}</h2>
-            <h2 style="font-size:13px;">Type: {
-                self.config.general.step_name.capitalize()}</h2>
+            <h2 style="font-size:20px;">{self.config.general.name.capitalize()}</h2>
+            <h2 style="font-size:13px;">Type: {self.config.general.step_name.capitalize()}</h2>
         </div>
         """
 
@@ -293,11 +293,15 @@ class Pipeline(Paidiverpy):
                 <pre>{json.dumps(self.config.general.to_dict(), indent=4)}</pre>
             </div>
         """
+        part_text = ""
+        if len(self.steps) > 1:
+            part_text = (
+                f'<div style="float:left; width: 50px; height: 80px; margin: 10px; text-align: center; line-height: 80px;">&#10132;</div>{steps_html}'
+            )
 
         return f"""
         <div style="display: flex; flex-wrap: wrap; align-items: center;">
-            {general_html}
-            {f'<div style="float:left; width: 50px; height: 80px; margin: 10px; text-align: center; line-height: 80px;">&#10132;</div>{steps_html}' if len(self.steps) > 1 else ''}
+            {general_html}{part_text}
         </div>
         <div id="parameters" style="padding: 10px; margin: 10px;">{parameters_html}</div>
         <script>

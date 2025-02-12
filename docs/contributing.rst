@@ -1,6 +1,6 @@
-**********************
+**************************
 Contributing to paidiverpy
-**********************
+**************************
 
 .. contents:: Table of contents:
    :local:
@@ -29,10 +29,6 @@ and `Good first issues
 <https://github.com/paidiver/paidiverpy/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22>`_
 where you could start out. Once you've found an interesting issue, you can
 return here to get your development environment setup.
-
-Please don't file an issue to ask a question, instead `visit our Discussion forum <https://github.com/paidiver/paidiverpy/discussions>`_.
-where a number of items are listed under `Documentation <https://github.com/paidiver/paidiverpy/discussions?discussions_q=label%3Adocumentation+>`_
-and `Good first issue <https://github.com/paidiver/paidiverpy/discussions?discussions_q=label%3A%22good+first+issue%22++>`_
 
 .. _contributing.bug_reports:
 
@@ -82,12 +78,12 @@ experts. If something in the docs doesn't make sense to you, updating the
 relevant section after you figure it out is a great way to ensure it will help
 the next person.
 
-.. contents:: Documentation:
+.. contents:: Paidiverpy Docs:
    :local:
 
 
 About the *paidiverpy* documentation
---------------------------------
+------------------------------------
 
 The documentation is written in **reStructuredText**, which is almost like writing
 in plain English, and built using `Sphinx <http://sphinx-doc.org/>`__. The
@@ -135,7 +131,7 @@ Some other important things to know about the docs:
 
 
 How to build the *paidiverpy* documentation
----------------------------------------
+-------------------------------------------
 
 Requirements
 ^^^^^^^^^^^^

@@ -1,8 +1,21 @@
-# Paidiverpy
+[![DOI][zenodo-badge]][zenodo-link]
+[![Documentation][rtd-badge]][rtd-link]
+[![Pypi][pip-badge]][pip-link]
+
+[zenodo-badge]: https://zenodo.org/badge/DOI/10.5281/zenodo.14644007.svg
+[zenodo-link]: https://doi.org/10.5281/zenodo.14644007
+[rtd-badge]: https://img.shields.io/readthedocs/paidiverpy?logo=readthedocs
+[rtd-link]: https://paidiverpy.readthedocs.io/en/latest/?badge=latest
+[pip-badge]: https://img.shields.io/pypi/v/paidiverpy
+[pip-link]: https://pypi.org/project/paidiverpy/
+
+
+![Logo](docs/_static/logo_paidiver_docs.png)
 
 **Paidiverpy** is a Python package designed to create pipelines for preprocessing image data for biodiversity analysis.
 
 > **Note:** This package is still in active development, and frequent updates and changes are expected. The API and features may evolve as we continue improving it.
+
 
 ## Documentation
 
@@ -84,7 +97,7 @@ Examples of CSV and IFDO metadata files are in the `example/metadata` directory.
 
 The package is organised into multiple layers:
 
-![Package Organisation](docs/_static/paidiver_organisation.png)
+![Package Organisation](docs/_static/paidiver_organisation.jpg)
 
 The `Paidiverpy` class serves as the main container for image processing functions. It manages several subclasses for specific processing tasks: `OpenLayer`, `ConvertLayer`, `PositionLayer`, `ResampleLayer`, and `ColourLayer`.
 
@@ -107,7 +120,10 @@ While comprehensive documentation is forthcoming, you can explore various use ca
 - [Create pipelines programmatically](examples/example_notebooks/pipeline_generation.ipynb)
 - [Rerun pipeline steps with modified configurations](examples/example_notebooks/pipeline_interaction.ipynb)
 - [Use parallelization with Dask](examples/example_notebooks/pipeline_dask.ipynb)
+- [Create a LocalCluster and run a pipeline](examples/example_notebooks/pipeline_cluster.ipynb)
 - [Run a pipeline using a public dataset with IFDO metadata](examples/example_notebooks/pipeline_ifdo.ipynb)
+- [Run a pipeline using a data on a object store](examples/example_notebooks/pipeline_remote_data.ipynb)
+- [Add a custom algorithm to a pipeline](examples/example_notebooks/pipeline_custom_algorithm.ipynb)
 
 ### Example Data
 
@@ -136,41 +152,81 @@ paidiverpy -c examples/config_files/config_simple.yaml
 
 This runs the pipeline according to the configuration file, saving output images to the directory defined in the `output_path`.
 
-### Docker Command
+## Docker
 
-You can also run Paidiverpy using Docker. You can either build the container locally or pull it from Docker Hub.
+You can run **Paidiverpy** using Docker by either building the container locally or pulling a pre-built image from **GitHub Container Registry (GHCR)** or **Docker Hub**.
 
-1. **Build the container locally**:
+### Build or Pull the Docker Image
 
-   ```bash
-   git clone git@github.com:paidiver/paidiverpy.git
-   cd paidiverpy
-   docker build -t paidiverpy .
-   ```
+You have three options to obtain the Paidiverpy Docker image:
 
-2. **Pull the image from Docker Hub**:
+#### **Option 1: Build the container locally**
+Clone the repository and build the image:
 
-   ```bash
-   docker pull soutobias/paidiverpy:latest
-   docker tag soutobias/paidiverpy:latest paidiverpy:latest
-   ```
+```bash
+git clone git@github.com:paidiver/paidiverpy.git
+cd paidiverpy
+docker build -t paidiverpy .
+```
 
-Run the container with:
+#### **Option 2: Pull from Docker Hub**
+Fetch the latest image from Docker Hub:
+
+```bash
+docker pull soutobias/paidiverpy:latest
+docker tag soutobias/paidiverpy:latest paidiverpy:latest
+```
+
+#### **Option 3: Pull from GitHub Container Registry (GHCR)**
+Fetch the latest image from GitHub:
+
+```bash
+docker pull ghcr.io/paidiver/paidiverpy:latest
+docker tag ghcr.io/paidiver/paidiverpy:latest paidiverpy:latest
+```
+
+### Running the Container
+
+To run the container with local input, output, and metadata directories, use the following command:
 
 ```bash
 docker run --rm \
--v <INPUT_PATH>:/app/input/ \
--v <OUTPUT_PATH>:/app/output/ \
--v <FULL_PATH_OF_CONFIGURATION_FILE_WITHOUT_FILENAME>:/app/config_files \
-paidiverpy \
-paidiverpy -c /app/examples/config_files/<CONFIGURATION_FILE_FILENAME>
+  -v <INPUT_PATH>:/app/input/ \
+  -v <OUTPUT_PATH>:/app/output/ \
+  -v <METADATA_PATH>:/app/metadata/ \
+  -v <CONFIG_DIR>:/app/config_files/ \
+  paidiverpy -c /app/examples/config_files/<CONFIG_FILE>
 ```
 
-In this command:
+#### **Arguments Explained**
+- `<INPUT_PATH>`: Local directory containing input images (as defined in the configuration file).
+- `<OUTPUT_PATH>`: Local directory where processed images will be saved.
+- `<METADATA_PATH>`: Local directory containing the metadata file.
+- `<CONFIG_DIR>`: Local directory containing the configuration file.
+- `<CONFIG_FILE>`: Name of the configuration file.
 
-- `<INPUT_PATH>`: The input path defined in your configuration file, where the input images are located.
-- `<OUTPUT_PATH>`: The output path defined in your configuration file.
-- `<FULL_PATH_OF_CONFIGURATION_FILE_WITHOUT_FILENAME>`: The local directory of your configuration file.
-- `<CONFIGURATION_FILE_FILENAME>`: The name of the configuration file.
+The processed images will be saved in the `output_path` specified in the configuration file.
 
-The output images will be saved to the specified `output_path`.
+### Running with Remote Data (Object Store)
+
+If your input data is stored remotely (e.g., in an object store), you **do not** need to mount local volumes for input data. However, to upload processed images to an object store, you must provide authentication credentials via an environment file.
+
+Use the following command:
+
+```bash
+docker run --rm \
+  -v <CONFIG_DIR>:/app/config_files/ \
+  --env-file .env \
+  paidiverpy -c /app/examples/config_files/<CONFIG_FILE>
+```
+
+#### **Environment File (`.env`)**
+Create a `.env` file with your object store credentials:
+
+```bash
+OS_SECRET=your_secret
+OS_TOKEN=your_token
+OS_ENDPOINT=your_endpoint
+```
+
+This will allow Paidiverpy to authenticate and interact with the remote storage system.

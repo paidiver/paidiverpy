@@ -1,8 +1,6 @@
 Installation
 ============
 
-|License|
-
 Instructions
 ------------
 
@@ -45,13 +43,7 @@ You can also build the package from source. To do so, you need to clone the repo
   conda env create -f environment.yml
   conda activate Paidiverpy
 
-3. (Optional) For notebooks servers, like JASMIN or DSP users, you also need to install the environment in the Jupyter IPython kernel. Execute the following command:
-
-.. code-block:: text
-
-  python -m ipykernel install --user --name Paidiverpy
-
-4. Install the paidiverpy package:
+3. Install the paidiverpy package:
 
 Finally, you can install the paidiverpy package:
 
@@ -61,10 +53,11 @@ Finally, you can install the paidiverpy package:
 
 - **Use the Docker image**:
 
+You can run **Paidiverpy** using Docker by either building the container locally or pulling a pre-built image from **GitHub Container Registry (GHCR)** or **Docker Hub**.
 
-You can also run Paidiverpy using Docker. You can either build the container locally or pull it from Docker Hub.
+1. **Option 1: Build the container locally**:
 
-1. **Build the container locally**:
+Clone the repository and build the image:
 
 .. code-block:: text
 
@@ -72,55 +65,37 @@ You can also run Paidiverpy using Docker. You can either build the container loc
   cd paidiverpy
   docker build -t paidiverpy .
 
-2. **Pull the image from Docker Hub**:
+2. **Option 2: Pull the image from Docker Hub**:
+
+Fetch the latest image from Docker Hub:
 
 .. code-block:: text
 
   docker pull soutobias/paidiverpy:latest
   docker tag soutobias/paidiverpy:latest paidiverpy:latest
 
-Required dependencies
----------------------
+3. **Option 3: Pull from GitHub Container Registry (GHCR)**:
 
-- jsonschema
-- mariqt
-- opencv
-- pillow
-- PyYAML
-- scikit-image
-- scipy
-- xarray
+Fetch the latest image from GitHub:
 
-Requirement dependencies details can be found `here <https://github.com/paidiver/paidiverpy/blob/develop/pyproject.toml>`_.
+.. code-block:: text
 
-These dependencies will be installed automatically when you install the package.
+  docker pull ghcr.io/paidiver/paidiverpy:latest
+  docker tag ghcr.io/paidiver/paidiverpy:latest paidiverpy:latest
 
-Optional dependencies
----------------------
+Required and additional dependencies
+------------------------------------
 
-For a complete **paidiverpy** experience, you may also consider to install the following packages:
+Requirement dependencies details can be found `here <https://github.com/paidiver/paidiverpy/blob/dev/pyproject.toml>`_. These dependencies will be installed automatically when you install the package.
 
-**Utilities**
+You may also need to install the following packages (required by opencv-python):
 
-- shapely
-- geopy
-- geopandas
-- tqdm
+- libgl
+- libegl
+- libopengl
 
-**Performances**
+On Ubuntu/Debian, you can install these packages using the following command:
 
-- dask
-- distributed
-- dask-image
+.. code-block:: text
 
-**Visualisation**
-
-- IPython
-- graphviz
-- ipykernel
-- ipywidgets
-- matplotlib
-
-
-.. |License| image:: https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square
-    :target: https://www.apache.org/licenses/
+  sudo apt install -y libgl1 libegl1 libopengl0

@@ -34,8 +34,12 @@ class BaseTestClass(unittest.TestCase):
             try:
                 shutil.rmtree(path_dir)
                 cls.logger.info("Removed cache directory: %s", path_dir)
-            except Exception as e:
-                cls.logger.error("Error removing cache directory: %s", e)
+            except FileNotFoundError:
+                cls.logger.warning("Directory not found: %s", path_dir)
+            except PermissionError:
+                cls.logger.error("Permission denied while removing: %s", path_dir)
+            except OSError as e:
+                cls.logger.error("OS error while removing directory %s: %s", path_dir, e)
 
     @classmethod
     def remove_custom_packages(cls) -> None:
@@ -45,8 +49,12 @@ class BaseTestClass(unittest.TestCase):
             try:
                 shutil.rmtree(path_dir)
                 cls.logger.info("Removed custom packages directory: %s", path_dir)
-            except Exception as e:
-                cls.logger.error("Error removing custom packages directory: %s", e)
+            except FileNotFoundError:
+                cls.logger.warning("Directory not found: %s", path_dir)
+            except PermissionError:
+                cls.logger.error("Permission denied while removing: %s", path_dir)
+            except OSError as e:
+                cls.logger.error("OS error while removing directory %s: %s", path_dir, e)
 
 
 if __name__ == "__main__":

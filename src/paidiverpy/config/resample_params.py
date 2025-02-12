@@ -14,6 +14,7 @@ class ResampleDatetimeParams(DynamicConfig):
 
     min: str = None
     max: str = None
+    raise_error: bool = False
 
 
 @dataclass
@@ -22,6 +23,7 @@ class ResampleDepthParams(DynamicConfig):
 
     by: str = "lower"
     value: float = None
+    raise_error: bool = False
 
 
 @dataclass
@@ -29,6 +31,7 @@ class ResampleAltitudeParams(DynamicConfig):
     """This class contains the parameters for the altitude resampling."""
 
     value: float = None
+    raise_error: bool = False
 
 
 @dataclass
@@ -37,6 +40,7 @@ class ResamplePitchRollParams(DynamicConfig):
 
     pitch: float = None
     roll: float = None
+    raise_error: bool = False
 
 
 @dataclass
@@ -47,6 +51,7 @@ class ResampleOverlappingParams(DynamicConfig):
     theta: float = 0.5
     threshold: float = None
     camera_distance: float = 1.12
+    raise_error: bool = False
 
 
 @dataclass
@@ -54,6 +59,7 @@ class ResampleFixedParams(DynamicConfig):
     """This class contains the parameters for the fixed resampling."""
 
     value: int = 10
+    raise_error: bool = False
 
 
 @dataclass
@@ -61,6 +67,7 @@ class ResamplePercentParams(DynamicConfig):
     """This class contains the parameters for the percent resampling."""
 
     value: float = 0.1
+    raise_error: bool = False
 
 
 @dataclass
@@ -69,6 +76,7 @@ class ResampleRegionParams(DynamicConfig):
 
     file: str = None
     limits: list[str] = None
+    raise_error: bool = False
 
 
 @dataclass
@@ -77,6 +85,7 @@ class ResampleObscureParams(DynamicConfig):
 
     min: int = 0
     max: int = 1
+    raise_error: bool = False
 
 
 RESAMPLE_LAYER_METHODS = {

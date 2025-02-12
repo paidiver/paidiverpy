@@ -3,14 +3,17 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Paidiverpy package documentation
-====================
+.. image:: _static/logo_paidiver_docs.png
+    :alt: Paidiverpy
+
+|lifecycle| |License| |Documentation| |DOI| |Pypi|
+
+
+Paidiverpy Docs
+===============
 
 **Paidiverpy** is a Python package designed to create pipelines for preprocessing image data for biodiversity analysis.
 
-|lifecycle|
-
-|License|
 
 .. admonition:: Note
 
@@ -34,17 +37,28 @@ Documentation
     images_metadata
     example_data
     gallery
+    scientific_background
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Preprocessing Steps
+
+    steps/introduction
+    steps/colour
+    steps/sampling
+    steps/convert
+    steps/position
+    steps/custom
+
 
 .. toctree::
     :maxdepth: 2
     :caption: User Guide
 
-    user-guide/guide1/index
-    user-guide/guide2/index
-    user-guide/guide3/index
-    user-guide/guide4/index
-    performances
-    custom_algorithms
+    guide/performance/index
+    guide/custom_algorithms/index
+    guide/rename_images/index
+    guide/remote_data/index
 
 .. toctree::
     :maxdepth: 2
@@ -63,13 +77,17 @@ Documentation
 
 
 
-.. |Documentation| image:: https://img.shields.io/static/v1?label=&message=Read%20the%20documentation&color=blue&logo=read-the-docs&logoColor=white
-   :target: https://argopy.readthedocs.io
 .. |License| image:: https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square
     :target: https://www.apache.org/licenses/
 .. .. |Python version| image:: https://img.shields.io/pypi/pyversions/argopy
 ..    :target: //pypi.org/project/argopy/
 .. .. |Anaconda-Server Badge| image:: https://anaconda.org/conda-forge/argopy/badges/platforms.svg
 ..    :target: https://anaconda.org/conda-forge/argopy
-.. |lifecycle| image:: https://img.shields.io/badge/lifecycle-stable-green.svg
+.. |lifecycle| image:: https://img.shields.io/badge/lifecycle-experimental-green.svg
    :target: https://www.tidyverse.org/lifecycle/#stable
+.. |DOI| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.14644007.svg
+   :target: https://doi.org/10.5281/zenodo.14644007
+.. |Documentation| image:: https://img.shields.io/readthedocs/paidiverpy?logo=readthedocs
+    :target: https://paidiverpy.readthedocs.io/en/latest/?badge=latest
+.. |Pypi| image:: https://img.shields.io/pypi/v/paidiverpy
+    :target: https://pypi.org/project/paidiverpy/
