@@ -105,6 +105,9 @@ class ConvertLayer(Paidiverpy):
         """
         if params is None:
             params = BitParams()
+
+        image_data = ConvertLayer.normalize_image(image_data)
+
         if params.output_bits == EIGHT_BITS:
             image_data = np.uint8(image_data * 255)
         elif params.output_bits == SIXTEEN_BITS:
