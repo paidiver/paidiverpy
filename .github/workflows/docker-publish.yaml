@@ -2,8 +2,8 @@ name: Build and Publish Docker Image
 
 on:
   push:
-    branches:
-      - dev
+    # branches:
+    #   - dev
   release:
     types: [published]
 
