@@ -29,7 +29,7 @@ jobs:
         run: |
           IMAGE_NAME="${{ github.repository }}"
           IMAGE_NAME_LOWER=$(echo "$IMAGE_NAME" | tr '[:upper:]' '[:lower:]')
-          IMAGE_NAME_LOWER_DOCKERHUB=$(echo "$IMAGE_NAME_LOWER" | cut -d '/' -f 2)
+          IMAGE_NAME_LOWER_DOCKERHUB=$(basename "$IMAGE_NAME_LOWER")
           echo "IMAGE_NAME_LOWER=$IMAGE_NAME_LOWER" >> $GITHUB_ENV
           echo "IMAGE_TAG=${{ github.sha }}" >> $GITHUB_ENV
           echo "LATEST_TAG=latest" >> $GITHUB_ENV
@@ -37,7 +37,7 @@ jobs:
       - name: Build and Tag Image
         run: |
           docker build -t ghcr.io/${{ env.IMAGE_NAME_LOWER }}:${{ env.IMAGE_TAG }} -t ghcr.io/${{ env.IMAGE_NAME_LOWER }}:${{ env.LATEST_TAG }} .
-          # tag the image for Docker Hub
+          # tag the image for Docker Hub (instead of paidiver/paidiverpy:latest, it will be paidiverpy:latest)
           docker tag ghcr.io/${{ env.IMAGE_NAME_LOWER }}:${{ env.IMAGE_TAG }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME_LOWER_DOCKERHUB }}:${{ env.IMAGE_TAG }}
           docker tag ghcr.io/${{ env.IMAGE_NAME_LOWER }}:${{ env.LATEST_TAG }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME_LOWER_DOCKERHUB }}:${{ env.LATEST_TAG }}
           # docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME_LOWER }}:${{ env.IMAGE_TAG }} -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME_LOWER }}:${{ env.LATEST_TAG }} .
