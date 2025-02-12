@@ -31,9 +31,9 @@ Example:
 .. code-block:: yaml
 
     general:
-      input_path: 'https://public-url/input/data/path/'
+      input_path: 'https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/lazy_load_benthic/'
       output_path: 's3://bucket-name/output/data/path/'
-      metadata_path: 'https://public-url/metadata/path/metadata.json'
+      metadata_path: "https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/lazy_load_benthic/metadata_ifdo_hf.json"
       metadata_type: 'IFDO'
       image_type: 'JPG'
 

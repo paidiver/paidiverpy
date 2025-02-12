@@ -9,15 +9,15 @@
 |lifecycle| |License| |Documentation| |DOI| |Pypi|
 
 
-Paidiverpy package documentation
-================================
+Paidiverpy Docs
+===============
 
 **Paidiverpy** is a Python package designed to create pipelines for preprocessing image data for biodiversity analysis.
 
 
 .. admonition:: Note
 
-  This package is still in active devment, and frequent updates and changes are expected. The API and features may evolve as we continue improving it.
+  This package is still in active development, and frequent updates and changes are expected. The API and features may evolve as we continue improving it.
 
   Comprehensive documentation is forthcoming.
 
@@ -77,8 +77,6 @@ Documentation
 
 
 
-.. |Documentation| image:: https://img.shields.io/static/v1?label=&message=Read%20the%20documentation&color=blue&logo=read-the-docs&logoColor=white
-   :target: https://argopy.readthedocs.io
 .. |License| image:: https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square
     :target: https://www.apache.org/licenses/
 .. .. |Python version| image:: https://img.shields.io/pypi/pyversions/argopy
