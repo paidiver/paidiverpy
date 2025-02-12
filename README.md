@@ -150,59 +150,81 @@ paidiverpy -c examples/config_files/config_simple.yaml
 
 This runs the pipeline according to the configuration file, saving output images to the directory defined in the `output_path`.
 
-### Docker Command
+## Docker
 
-You can also run Paidiverpy using Docker. You can either build the container locally or pull it from Docker Hub.
+You can run **Paidiverpy** using Docker by either building the container locally or pulling a pre-built image from **GitHub Container Registry (GHCR)** or **Docker Hub**.
 
-1. **Build the container locally**:
+### Build or Pull the Docker Image
 
-   ```bash
-   git clone git@github.com:paidiver/paidiverpy.git
-   cd paidiverpy
-   docker build -t paidiverpy .
-   ```
+You have three options to obtain the Paidiverpy Docker image:
 
-2. **Pull the image from Docker Hub**:
+#### **Option 1: Build the container locally**
+Clone the repository and build the image:
 
-   ```bash
-   docker pull soutobias/paidiverpy:latest
-   docker tag soutobias/paidiverpy:latest paidiverpy:latest
-   ```
+```bash
+git clone git@github.com:paidiver/paidiverpy.git
+cd paidiverpy
+docker build -t paidiverpy .
+```
 
-Run the container with:
+#### **Option 2: Pull from Docker Hub**
+Fetch the latest image from Docker Hub:
+
+```bash
+docker pull soutobias/paidiverpy:latest
+docker tag soutobias/paidiverpy:latest paidiverpy:latest
+```
+
+#### **Option 3: Pull from GitHub Container Registry (GHCR)**
+Fetch the latest image from GitHub:
+
+```bash
+docker pull ghcr.io/paidiver/paidiverpy:latest
+docker tag ghcr.io/paidiver/paidiverpy:latest paidiverpy:latest
+```
+
+### Running the Container
+
+To run the container with local input, output, and metadata directories, use the following command:
 
 ```bash
 docker run --rm \
--v <INPUT_PATH>:/app/input/ \
--v <OUTPUT_PATH>:/app/output/ \
--v <METADATA_PATH_WITHOUT_FILENAME>:/app/metadata/ \
--v <FULL_PATH_OF_CONFIGURATION_FILE_WITHOUT_FILENAME>:/app/config_files/ \
-paidiverpy -c /app/examples/config_files/<CONFIGURATION_FILE_FILENAME>
+  -v <INPUT_PATH>:/app/input/ \
+  -v <OUTPUT_PATH>:/app/output/ \
+  -v <METADATA_PATH>:/app/metadata/ \
+  -v <CONFIG_DIR>:/app/config_files/ \
+  paidiverpy -c /app/examples/config_files/<CONFIG_FILE>
 ```
 
-In this command:
+#### **Arguments Explained**
+- `<INPUT_PATH>`: Local directory containing input images (as defined in the configuration file).
+- `<OUTPUT_PATH>`: Local directory where processed images will be saved.
+- `<METADATA_PATH>`: Local directory containing the metadata file.
+- `<CONFIG_DIR>`: Local directory containing the configuration file.
+- `<CONFIG_FILE>`: Name of the configuration file.
 
-- `<INPUT_PATH>`: The input path defined in your configuration file, where the input images are located.
-- `<OUTPUT_PATH>`: The output path defined in your configuration file.
-- `<METADATA_PATH_WITHOUT_FILENAME>`: The local directory containing your metadata file.
-- `<FULL_PATH_OF_CONFIGURATION_FILE_WITHOUT_FILENAME>`: The local directory containing your configuration file.
-- `<CONFIGURATION_FILE_FILENAME>`: The name of the configuration file.
+The processed images will be saved in the `output_path` specified in the configuration file.
 
-The output images will be saved to the specified `output_path`.
+### Running with Remote Data (Object Store)
 
-If you are using remote data from an object store, it is not necessary to create volumes for the remote data. However, if you want to upload images to an object store, you need to pass an environment file in the `docker run` command, as shown below:
+If your input data is stored remotely (e.g., in an object store), you **do not** need to mount local volumes for input data. However, to upload processed images to an object store, you must provide authentication credentials via an environment file.
+
+Use the following command:
 
 ```bash
 docker run --rm \
--v <FULL_PATH_OF_CONFIGURATION_FILE_WITHOUT_FILENAME>:/app/config_files/ \
---env-file .env \
-paidiverpy -c /app/examples/config_files/<CONFIGURATION_FILE_FILENAME>
+  -v <CONFIG_DIR>:/app/config_files/ \
+  --env-file .env \
+  paidiverpy -c /app/examples/config_files/<CONFIG_FILE>
 ```
 
-In this command, you are passing a `.env` that contains the following environment variables:
+#### **Environment File (`.env`)**
+Create a `.env` file with your object store credentials:
 
 ```bash
 OS_SECRET=your_secret
 OS_TOKEN=your_token
 OS_ENDPOINT=your_endpoint
 ```
+
+This will allow Paidiverpy to authenticate and interact with the remote storage system.

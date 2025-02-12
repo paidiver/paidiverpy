@@ -53,10 +53,11 @@ Finally, you can install the paidiverpy package:
 
 - **Use the Docker image**:
 
+You can run **Paidiverpy** using Docker by either building the container locally or pulling a pre-built image from **GitHub Container Registry (GHCR)** or **Docker Hub**.
 
-You can also run Paidiverpy using Docker. You can either build the container locally or pull it from Docker Hub.
+1. **Option 1: Build the container locally**:
 
-1. **Build the container locally**:
+Clone the repository and build the image:
 
 .. code-block:: text
 
@@ -64,12 +65,23 @@ You can also run Paidiverpy using Docker. You can either build the container loc
   cd paidiverpy
   docker build -t paidiverpy .
 
-2. **Pull the image from Docker Hub**:
+2. **Option 2: Pull the image from Docker Hub**:
+
+Fetch the latest image from Docker Hub:
 
 .. code-block:: text
 
   docker pull soutobias/paidiverpy:latest
   docker tag soutobias/paidiverpy:latest paidiverpy:latest
+
+3. **Option 3: Pull from GitHub Container Registry (GHCR)**:
+
+Fetch the latest image from GitHub:
+
+.. code-block:: text
+
+  docker pull ghcr.io/paidiver/paidiverpy:latest
+  docker tag ghcr.io/paidiver/paidiverpy:latest paidiverpy:latest
 
 Required and additional dependencies
 ------------------------------------
