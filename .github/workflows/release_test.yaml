@@ -23,9 +23,8 @@ jobs:
     - name: Create conda environment
       run: |
         conda env create -f environment.yml
-        conda init
+        echo "conda activate Paidiverpy" >> ~/.bashrc
         source ~/.bashrc
-        conda activate Paidiverpy
         pip install --upgrade pip
         pip install .
         pip install build twine wheel
