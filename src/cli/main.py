@@ -32,7 +32,8 @@ def process_action(parser: argparse.ArgumentParser) -> None:
     is_docker = is_running_in_docker()
     if is_docker:
         config_filename = args.configuration_file.split("/")[-1]
-        args.configuration_file = f"/app/output/{config_filename}"
+        args.configuration_file = f"/app/config_files/{config_filename}"
+
     pipeline = Pipeline(
         config_file_path=args.configuration_file,
         logger=logger,
