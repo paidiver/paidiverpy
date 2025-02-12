@@ -31,6 +31,7 @@ jobs:
           IMAGE_NAME_LOWER=$(echo "$IMAGE_NAME" | tr '[:upper:]' '[:lower:]')
           IMAGE_NAME_LOWER_DOCKERHUB=$(basename "$IMAGE_NAME_LOWER")
           echo "IMAGE_NAME_LOWER=$IMAGE_NAME_LOWER" >> $GITHUB_ENV
+          echo "IMAGE_NAME_LOWER_DOCKERHUB=$IMAGE_NAME_LOWER_DOCKERHUB" >> $GITHUB_ENV
           echo "IMAGE_TAG=${{ github.sha }}" >> $GITHUB_ENV
           echo "LATEST_TAG=latest" >> $GITHUB_ENV
 
