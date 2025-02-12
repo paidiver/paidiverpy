@@ -238,6 +238,58 @@ Notebook Examples
 
                     :fas:`file-arrow-down` Download notebook
 
+    .. grid-item-card:: Use remote data
+        :img-top: _static/nb_examples_10.png
+
+        |mode_expert|
+        ^^^
+        A notebook to show how to use remote data in the pipeline
+        +++
+        .. grid:: 2 2 2 2
+
+            .. grid-item::
+
+                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/dev/examples/example_notebooks/pipeline_remote_data.ipynb
+                    :color: primary
+                    :outline:
+
+                    :fas:`eye` Online viewer
+
+            .. grid-item::
+
+                .. button-link:: https://github.com/paidiver/paidiverpy/blob/dev/examples/example_notebooks/pipeline_remote_data.ipynb
+                    :color: primary
+                    :outline:
+
+                    :fas:`file-arrow-down` Download notebook
+
+
+    .. grid-item-card:: Create a LocalCluster with Dask
+        :img-top: _static/nb_examples_11.png
+
+        |mode_expert|
+        ^^^
+        A notebook to show how to create a LocalCluster with Dask and run an entire pipeline with parallelisation using Dask
+        +++
+        .. grid:: 2 2 2 2
+
+            .. grid-item::
+
+                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/dev/examples/example_notebooks/pipeline_cluster.ipynb
+                    :color: primary
+                    :outline:
+
+                    :fas:`eye` Online viewer
+
+            .. grid-item::
+
+                .. button-link:: https://github.com/paidiver/paidiverpy/blob/dev/examples/example_notebooks/pipeline_cluster.ipynb
+                    :color: primary
+                    :outline:
+
+                    :fas:`file-arrow-down` Download notebook
+
+
 
 .. dropdown:: Notebook tags Legend
     :open:

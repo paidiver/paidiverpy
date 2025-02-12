@@ -118,6 +118,7 @@ To pass the custom algorithm to the Docker container, you need to mount the cust
   -v <INPUT_PATH>:/app/input/ \
   -v <OUTPUT_PATH>:/app/output/ \
   -v <FULL_PATH_OF_CONFIGURATION_FILE_WITHOUT_FILENAME>:/app/config_files \
+  -v <METADATA_PATH_WITHOUT_FILENAME>:/app/metadata/ \
   -v <FULL_PATH_OF_CUSTOM_ALGORITHM_FILE_AND_REQUIREMENTS_FILE>:/app/custom_algorithms \
   paidiverpy \
   paidiverpy -c /app/examples/config_files/<CONFIGURATION_FILE_FILENAME>

@@ -1,6 +1,6 @@
 general:
   input_path: "s3://paidiverpy/data/lazy_load_benthic/"
-  output_path: "s3://paidiverpy-test/data/lazy_load_benthic/output/"
+  output_path: "s3://paidiverpy/data/lazy_load_benthic/output2/"
   metadata_path: "s3://paidiverpy/data/lazy_load_benthic/metadata_ifdo_hf.json"
   metadata_type: "IFDO"
   image_type: "JPG"

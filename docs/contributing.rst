@@ -30,10 +30,6 @@ and `Good first issues
 where you could start out. Once you've found an interesting issue, you can
 return here to get your development environment setup.
 
-Please don't file an issue to ask a question, instead `visit our Discussion forum <https://github.com/paidiver/paidiverpy/discussions>`_.
-where a number of items are listed under `Documentation <https://github.com/paidiver/paidiverpy/discussions?discussions_q=label%3Adocumentation+>`_
-and `Good first issue <https://github.com/paidiver/paidiverpy/discussions?discussions_q=label%3A%22good+first+issue%22++>`_
-
 .. _contributing.bug_reports:
 
 Bug reports and enhancement requests
@@ -82,7 +78,7 @@ experts. If something in the docs doesn't make sense to you, updating the
 relevant section after you figure it out is a great way to ensure it will help
 the next person.
 
-.. contents:: Paidiverpy Documentation:
+.. contents:: Paidiverpy Docs:
    :local:
 
 

@@ -175,8 +175,8 @@ Run the container with:
 docker run --rm \
 -v <INPUT_PATH>:/app/input/ \
 -v <OUTPUT_PATH>:/app/output/ \
--v <FULL_PATH_OF_CONFIGURATION_FILE_WITHOUT_FILENAME>:/app/config_files \
-paidiverpy \
+-v <METADATA_PATH_WITHOUT_FILENAME>:/app/metadata/ \
+-v <FULL_PATH_OF_CONFIGURATION_FILE_WITHOUT_FILENAME>:/app/config_files/ \
 paidiverpy -c /app/examples/config_files/<CONFIGURATION_FILE_FILENAME>
 ```
 
@@ -184,7 +184,25 @@ In this command:
 
 - `<INPUT_PATH>`: The input path defined in your configuration file, where the input images are located.
 - `<OUTPUT_PATH>`: The output path defined in your configuration file.
-- `<FULL_PATH_OF_CONFIGURATION_FILE_WITHOUT_FILENAME>`: The local directory of your configuration file.
+- `<METADATA_PATH_WITHOUT_FILENAME>`: The local directory containing your metadata file.
+- `<FULL_PATH_OF_CONFIGURATION_FILE_WITHOUT_FILENAME>`: The local directory containing your configuration file.
 - `<CONFIGURATION_FILE_FILENAME>`: The name of the configuration file.
 
 The output images will be saved to the specified `output_path`.
+
+If you are using remote data from an object store, it is not necessary to create volumes for the remote data. However, if you want to upload images to an object store, you need to pass an environment file in the `docker run` command, as shown below:
+
+```bash
+docker run --rm \
+-v <FULL_PATH_OF_CONFIGURATION_FILE_WITHOUT_FILENAME>:/app/config_files/ \
+--env-file .env \
+paidiverpy -c /app/examples/config_files/<CONFIGURATION_FILE_FILENAME>
+```
+
+In this command, you are passing a `.env` that contains the following environment variables:
+
+```bash
+OS_SECRET=your_secret
+OS_TOKEN=your_token
+OS_ENDPOINT=your_endpoint
+```
