@@ -35,9 +35,7 @@ jobs:
         pip install --upgrade pip
         pip install .
         pip install build twine wheel requests
-
-    - name: Extract Package Version
-      run: echo "PACKAGE_VERSION=$(python -c 'import paidiverpy; print(paidiverpy.__version__)')" >> $GITHUB_ENV
+        echo "PACKAGE_VERSION=$(python -c 'import paidiverpy; print(paidiverpy.__version__)')" >> $GITHUB_ENV
 
     - name: Check if version exists on Test PyPI
       run: |
