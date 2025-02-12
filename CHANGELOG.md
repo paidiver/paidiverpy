@@ -6,7 +6,17 @@
 
 **Closed issues:**
 
+- Link Checker Report - 2025-02-12 [\#134](https://github.com/paidiver/paidiverpy/issues/134)
 - Link Checker Report - 2025-02-11 [\#132](https://github.com/paidiver/paidiverpy/issues/132)
+- Link Checker Report - 2025-02-10 [\#131](https://github.com/paidiver/paidiverpy/issues/131)
+- Link Checker Report - 2025-02-10 [\#130](https://github.com/paidiver/paidiverpy/issues/130)
+- Link Checker Report - 2025-02-10 [\#129](https://github.com/paidiver/paidiverpy/issues/129)
+- Link Checker Report - 2025-02-10 [\#128](https://github.com/paidiver/paidiverpy/issues/128)
+- Link Checker Report - 2025-02-10 [\#126](https://github.com/paidiver/paidiverpy/issues/126)
+- Link Checker Report - 2025-02-10 [\#125](https://github.com/paidiver/paidiverpy/issues/125)
+- Link Checker Report - 2025-02-10 [\#124](https://github.com/paidiver/paidiverpy/issues/124)
+- Link Checker Report - 2025-02-07 [\#123](https://github.com/paidiver/paidiverpy/issues/123)
+- Link Checker Report - 2025-02-07 [\#122](https://github.com/paidiver/paidiverpy/issues/122)
 - Link Checker Report - 2025-02-07 [\#120](https://github.com/paidiver/paidiverpy/issues/120)
 - Link Checker Report - 2025-02-07 [\#119](https://github.com/paidiver/paidiverpy/issues/119)
 - Link Checker Report - 2025-02-07 [\#118](https://github.com/paidiver/paidiverpy/issues/118)
@@ -19,6 +29,7 @@
 - Link Checker Report - 2025-02-05 [\#111](https://github.com/paidiver/paidiverpy/issues/111)
 - Link Checker Report - 2025-02-04 [\#109](https://github.com/paidiver/paidiverpy/issues/109)
 - Link Checker Report - 2025-02-04 [\#108](https://github.com/paidiver/paidiverpy/issues/108)
+- Update documentation [\#106](https://github.com/paidiver/paidiverpy/issues/106)
 - Link Checker Report - 2025-02-01 [\#105](https://github.com/paidiver/paidiverpy/issues/105)
 - Link Checker Report - 2025-01-30 [\#104](https://github.com/paidiver/paidiverpy/issues/104)
 - Code review [\#87](https://github.com/paidiver/paidiverpy/issues/87)
