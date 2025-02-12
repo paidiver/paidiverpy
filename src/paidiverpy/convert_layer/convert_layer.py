@@ -106,13 +106,16 @@ class ConvertLayer(Paidiverpy):
         if params is None:
             params = BitParams()
 
-        image_data = ConvertLayer.normalize_image(image_data)
+        bit = image_data.dtype.itemsize
 
-        if params.output_bits == EIGHT_BITS:
+        if params.output_bits == EIGHT_BITS and bit != 1:
+            image_data = ConvertLayer.normalize_image(image_data)
             image_data = np.uint8(image_data * 255)
-        elif params.output_bits == SIXTEEN_BITS:
+        elif params.output_bits == SIXTEEN_BITS and bit != 2:
+            image_data = ConvertLayer.normalize_image(image_data)
             image_data = np.uint16(image_data * 65535)
-        elif params.output_bits == THIRTY_TWO_BITS:
+        elif params.output_bits == THIRTY_TWO_BITS and bit != 2:
+            image_data = ConvertLayer.normalize_image(image_data)
             image_data = np.float32(image_data)
         else:
             msg = f"Unsupported output bits: {params.output_bits}"
