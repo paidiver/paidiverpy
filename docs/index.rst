@@ -77,8 +77,6 @@ Documentation
 
 
 
-.. |Documentation| image:: https://img.shields.io/static/v1?label=&message=Read%20the%20documentation&color=blue&logo=read-the-docs&logoColor=white
-   :target: https://argopy.readthedocs.io
 .. |License| image:: https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square
     :target: https://www.apache.org/licenses/
 .. .. |Python version| image:: https://img.shields.io/pypi/pyversions/argopy
