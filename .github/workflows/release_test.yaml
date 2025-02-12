@@ -1,9 +1,7 @@
-name: Release Package
+name: Release Package (Test PyPI)
 
 on:
   push:
-    # branches:
-    #   - main
 
 jobs:
   release:
@@ -28,24 +26,24 @@ jobs:
         conda init
         source ~/.bashrc
         conda activate Paidiverpy
-        pip install upgrade pip
+        pip install --upgrade pip
         pip install .
         pip install build twine wheel
 
     - name: Build Package
       run: python -m build
 
-    - name: Publish to PyPI
+    - name: Publish to Test PyPI
       env:
         TWINE_USERNAME: "__token__"
-        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-      run: python -m twine upload dist/*
+        TWINE_PASSWORD: ${{ secrets.TEST_PYPI_PASSWORD }}
+      run: python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
   zenodo:
     needs: release
     runs-on: ubuntu-latest
 
     steps:
-    - name: Trigger Zenodo Archival
+    - name: Simulate Zenodo Archival (Test Mode)
       if: success()
-      run: echo "Zenodo archival handled automatically by GitHub release."
+      run: echo "Zenodo archival would be triggered here. (TEST MODE)"
