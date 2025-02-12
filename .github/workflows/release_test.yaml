@@ -40,24 +40,23 @@ jobs:
       run: echo "PACKAGE_VERSION=$(python -c 'import paidiverpy; print(paidiverpy.__version__)')" >> $GITHUB_ENV
 
     - name: Check if version exists on Test PyPI
-      env:
-        TEST_PYPI_USERNAME: "__token__"
-        TEST_PYPI_PASSWORD: ${{ secrets.TEST_PYPI_PASSWORD }}
       run: |
-        PACKAGE_NAME="paidiverpy"  # Replace with your package name
+        PACKAGE_NAME="paidiverpy"
         RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://test.pypi.org/pypi/$PACKAGE_NAME/${{ env.PACKAGE_VERSION }}/json)
 
         if [ "$RESPONSE" -eq 200 ]; then
-          echo "Version exists, attempting deletion..."
-          curl -X DELETE -u "$TEST_PYPI_USERNAME:$TEST_PYPI_PASSWORD" "https://test.pypi.org/manage/project/$PACKAGE_NAME/release/${{ env.PACKAGE_VERSION }}/"
+          echo "Version $PACKAGE_VERSION already exists on Test PyPI. Skipping upload."
+          echo "SKIP_UPLOAD=true" >> $GITHUB_ENV
         else
-          echo "Version does not exist, proceeding with upload."
-        fi
+          echo "Version $PACKAGE_VERSION does not exist. Proceeding with upload."
+          echo "SKIP_UPLOAD=false" >> $GITHUB_ENV
 
     - name: Build Package
+      if: env.SKIP_UPLOAD == 'false'
       run: python -m build
 
     - name: Publish to Test PyPI
+      if: env.SKIP_UPLOAD == 'false'
       env:
         TWINE_USERNAME: "__token__"
         TWINE_PASSWORD: ${{ secrets.TEST_PYPI_PASSWORD }}
