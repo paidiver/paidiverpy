@@ -120,8 +120,10 @@ While comprehensive documentation is forthcoming, you can explore various use ca
 - [Create pipelines programmatically](examples/example_notebooks/pipeline_generation.ipynb)
 - [Rerun pipeline steps with modified configurations](examples/example_notebooks/pipeline_interaction.ipynb)
 - [Use parallelization with Dask](examples/example_notebooks/pipeline_dask.ipynb)
+- [Create a LocalCluster and run a pipeline](examples/example_notebooks/pipeline_cluster.ipynb)
 - [Run a pipeline using a public dataset with IFDO metadata](examples/example_notebooks/pipeline_ifdo.ipynb)
 - [Run a pipeline using a data on a object store](examples/example_notebooks/pipeline_remote_data.ipynb)
+- [Add a custom algorithm to a pipeline](examples/example_notebooks/pipeline_custom_algorithm.ipynb)
 
 ### Example Data
 
