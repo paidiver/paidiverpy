@@ -25,6 +25,7 @@ jobs:
     - name: Create conda environment
       run: |
         conda env create -f environment.yml
+        conda init
         source ~/.bashrc
         conda activate Paidiverpy
         pip install upgrade pip

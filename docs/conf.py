@@ -35,7 +35,7 @@ release = version
 # extensions coming with Sphinx (named "sphinx.ext.*") or your custom
 # ones.
 extensions = [
-    "sphinx.ext.autodoc",
+    # "sphinx.ext.autodoc",
     "sphinx.ext.coverage",
     "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
@@ -71,7 +71,7 @@ todo_include_todos = False
 autoapi_dirs = ["../src/paidiverpy"]
 autoapi_root = 'api'
 
-autoapi_keep_files = False
+autoapi_keep_files = True
 autoapi_options = [
     # "members",
     # "undoc-members",
