@@ -64,7 +64,6 @@ class MetadataParser:
 
         self.metadata = self.open_metadata()
         self.dataset_metadata = None
-        self.is_docker = is_running_in_docker()
 
     def _build_config(self, metadata_path: str, metadata_type: str, append_data_to_metadata: str) -> Configuration:
         """Build a configuration object.
@@ -205,7 +204,7 @@ class MetadataParser:
             file_bytes = get_file_from_bucket(metadata_path, self.storage_options)
             metadata = json.loads(file_bytes.decode("utf-8"))
         else:
-            if self.is_docker:
+            if is_running_in_docker():
                 metadata_filename = Path(metadata_path).name
                 metadata_path = f"/app/metadata/{metadata_filename}"
             with Path(metadata_path).open() as file:
@@ -235,7 +234,7 @@ class MetadataParser:
             df_pandas = pd.read_csv(file_bytes)
             metadata = dd.from_pandas(df_pandas)
         else:
-            if self.is_docker:
+            if is_running_in_docker():
                 metadata_filename = Path(self.metadata_path).name
                 self.metadata_path = f"/app/metadata/{metadata_filename}"
 
