@@ -61,7 +61,7 @@ jobs:
       env:
         TWINE_USERNAME: "__token__"
         TWINE_PASSWORD: ${{ secrets.TEST_PYPI_PASSWORD }}
-      run: python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+      run: python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/* --verbose
 
   zenodo:
     needs: release
