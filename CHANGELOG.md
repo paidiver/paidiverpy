@@ -6,6 +6,9 @@
 
 **Closed issues:**
 
+- Link Checker Report - 2025-02-12 [\#139](https://github.com/paidiver/paidiverpy/issues/139)
+- Link Checker Report - 2025-02-12 [\#138](https://github.com/paidiver/paidiverpy/issues/138)
+- Link Checker Report - 2025-02-12 [\#135](https://github.com/paidiver/paidiverpy/issues/135)
 - Link Checker Report - 2025-02-12 [\#134](https://github.com/paidiver/paidiverpy/issues/134)
 - Link Checker Report - 2025-02-11 [\#132](https://github.com/paidiver/paidiverpy/issues/132)
 - Link Checker Report - 2025-02-10 [\#131](https://github.com/paidiver/paidiverpy/issues/131)
