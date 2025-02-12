@@ -1,7 +1,12 @@
 {
   "title": "Paidiverpy",
   "creators": [
-      {"name": "Ferreira, Tobias", "affiliation": "NOC"}
+      {"name": "Ferreira, Tobias", "affiliation": "NOC"},
+      {"name": "Mojtaba Masoudi", "affiliation": "NOC"},
+      {"name": "Van Loïc Audenhaege", "affiliation": "NOC"},
+      {"name": "Erik Orenstein", "affiliation": "NOC"},
+      {"name": "Colin Sauze", "affiliation": "NOC"},
+      {"name": "Jennifer Durden", "affiliation": "NOC"}
   ],
   "description": "A library to preprocess image data.",
   "keywords": ["data", "paidiver", "noc"],
