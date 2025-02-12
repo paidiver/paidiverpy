@@ -3,7 +3,7 @@ name: Build and Publish Docker Image
 on:
   push:
     # branches:
-    #   - dev
+    #   - main
   release:
     types: [published]
 
@@ -27,26 +27,41 @@ jobs:
 
       - name: Set image tags
         run: |
-          IMAGE_NAME="${{ github.repository }}"
-          IMAGE_NAME_LOWER=$(echo "$IMAGE_NAME" | tr '[:upper:]' '[:lower:]')
-          echo "IMAGE_NAME_LOWER=$IMAGE_NAME_LOWER" >> $GITHUB_ENV
-          echo "IMAGE_TAG=${{ github.sha }}" >> $GITHUB_ENV
-          echo "LATEST_TAG=latest" >> $GITHUB_ENV
+          IMAGE_NAME="paidiver/paidiverpy"  # Remove the GitHub username for Docker Hub
+          IMAGE_NAME_LOWER=$(echo "$IMAGE_NAME" | tr '[:upper:]' '[:lower:]')  # Convert to lowercase
+          IMAGE_TAG=${{ github.sha }}  # Unique tag for commit
+          LATEST_TAG="latest"
 
-      - name: Build and Tag Image
+          # Define separate names for GHCR and Docker Hub
+          GHCR_IMAGE="ghcr.io/${{ github.repository }}"
+          DOCKERHUB_IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/paidiverpy"  # Set correct Docker Hub image name
+
+          echo "GHCR_IMAGE=$GHCR_IMAGE" >> $GITHUB_ENV
+          echo "DOCKERHUB_IMAGE=$DOCKERHUB_IMAGE" >> $GITHUB_ENV
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+
+
+      - name: Build Docker Image
         run: |
-          docker build -t ghcr.io/${{ env.IMAGE_NAME_LOWER }}:${{ env.IMAGE_TAG }} -t ghcr.io/${{ env.IMAGE_NAME_LOWER }}:${{ env.LATEST_TAG }} .
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME_LOWER }}:${{ env.IMAGE_TAG }} -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME_LOWER }}:${{ env.LATEST_TAG }} .
+          docker build -t ${{ env.IMAGE_NAME_LOWER }} .
+
+      - name: Tag Image for GHCR and Docker Hub
+        run: |
+          docker tag ${{ env.IMAGE_NAME_LOWER }} ${{ env.GHCR_IMAGE }}:${{ env.IMAGE_TAG }}
+          docker tag ${{ env.IMAGE_NAME_LOWER }} ${{ env.GHCR_IMAGE }}:${{ env.LATEST_TAG }}
+          docker tag ${{ env.IMAGE_NAME_LOWER }} ${{ env.DOCKERHUB_IMAGE }}:${{ env.IMAGE_TAG }}
+          docker tag ${{ env.IMAGE_NAME_LOWER }} ${{ env.DOCKERHUB_IMAGE }}:${{ env.LATEST_TAG }}
 
       - name: Push to GitHub Container Registry
         run: |
-          docker push ghcr.io/${{ env.IMAGE_NAME_LOWER }}:${{ env.IMAGE_TAG }}
-          docker push ghcr.io/${{ env.IMAGE_NAME_LOWER }}:${{ env.LATEST_TAG }}
+          docker push ${{ env.GHCR_IMAGE }}:${{ env.IMAGE_TAG }}
+          docker push ${{ env.GHCR_IMAGE }}:${{ env.LATEST_TAG }}
 
       - name: Push to Docker Hub
         run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME_LOWER }}:${{ env.IMAGE_TAG }}
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME_LOWER }}:${{ env.LATEST_TAG }}
+          docker push ${{ env.DOCKERHUB_IMAGE }}:${{ env.IMAGE_TAG }}
+          docker push ${{ env.DOCKERHUB_IMAGE }}:${{ env.LATEST_TAG }}
 
       - name: Log out from Registries
         run: |
