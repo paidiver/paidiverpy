@@ -114,11 +114,11 @@ class ConvertLayer(Paidiverpy):
         elif params.output_bits == SIXTEEN_BITS and bit != 2:
             image_data = ConvertLayer.normalize_image(image_data)
             image_data = np.uint16(image_data * 65535)
-        elif params.output_bits == THIRTY_TWO_BITS and bit != 2:
+        elif params.output_bits == THIRTY_TWO_BITS and bit != 3:
             image_data = ConvertLayer.normalize_image(image_data)
             image_data = np.float32(image_data)
         else:
-            msg = f"Unsupported output bits: {params.output_bits}"
+            msg = f"Unsupported output bits or image already within provided format: {params.output_bits}"
             check_raise_error(params.raise_error, msg)
 
         return image_data
