@@ -15,6 +15,7 @@ from dask.diagnostics import ProgressBar
 from dask.distributed import Client
 from IPython.display import HTML
 from PIL import Image
+import cv2
 from paidiverpy.utils.docker import is_running_in_docker
 from paidiverpy.utils.logging_functions import initialise_logging
 from paidiverpy.utils.object_store import check_create_bucket_exists
@@ -296,13 +297,31 @@ class ImagesLayer:
             s3_client (boto3.client, optional): The S3 client. Defaults to None.
         """
         saved_image, cmap = self.calculate_image(image)
-        if s3_client:
-            buffer = io.BytesIO()
-            plt.imsave(buffer, saved_image, cmap=cmap, format=image_format)
-            buffer.seek(0)
-            upload_file_to_bucket(buffer, img_path, s3_client)
+
+        if saved_image.dtype == np.uint16:
+            if image_format.lower() in ["tiff", "png"]:
+                if s3_client:
+                    buffer = io.BytesIO()
+                    img_pil = Image.fromarray(saved_image)
+                    img_pil.save(buffer, format=image_format.upper())
+                    buffer.seek(0)
+                    upload_file_to_bucket(buffer, img_path, s3_client)
+                else:
+                    cv2.imwrite(img_path, saved_image)
+            else:
+                raise ValueError(f"16-bit images can only be saved as TIFF or PNG, not {image_format}")
+
+        elif saved_image.dtype in [np.uint8, np.float32]:
+            if s3_client:
+                buffer = io.BytesIO()
+                plt.imsave(buffer, saved_image, cmap=cmap, format=image_format)
+                buffer.seek(0)
+                upload_file_to_bucket(buffer, img_path, s3_client)
+            else:
+                plt.imsave(img_path, saved_image, cmap=cmap, format=image_format)
+
         else:
-            plt.imsave(img_path, saved_image, cmap=cmap, format=image_format)
+            raise ValueError(f"Unsupported image dtype: {saved_image.dtype}. Expected uint8, uint16, or float32.")
 
     def calculate_image(self, image: np.ndarray | da.core.Array) -> tuple:
         """Calculate the image.
