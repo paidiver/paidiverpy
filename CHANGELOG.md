@@ -1,5 +1,30 @@
 # Changelog
 
+## [Unreleased](https://github.com/paidiver/paidiverpy/tree/HEAD)
+
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.1.1...HEAD)
+
+**Closed issues:**
+
+- Link Checker Report - 2025-02-12 [\#155](https://github.com/paidiver/paidiverpy/issues/155)
+- Link Checker Report - 2025-02-12 [\#154](https://github.com/paidiver/paidiverpy/issues/154)
+- Link Checker Report - 2025-02-12 [\#152](https://github.com/paidiver/paidiverpy/issues/152)
+- Link Checker Report - 2025-02-12 [\#151](https://github.com/paidiver/paidiverpy/issues/151)
+- Link Checker Report - 2025-02-12 [\#150](https://github.com/paidiver/paidiverpy/issues/150)
+- Link Checker Report - 2025-02-12 [\#149](https://github.com/paidiver/paidiverpy/issues/149)
+- Link Checker Report - 2025-02-12 [\#148](https://github.com/paidiver/paidiverpy/issues/148)
+- Link Checker Report - 2025-02-12 [\#147](https://github.com/paidiver/paidiverpy/issues/147)
+- Link Checker Report - 2025-02-12 [\#146](https://github.com/paidiver/paidiverpy/issues/146)
+- Link Checker Report - 2025-02-12 [\#145](https://github.com/paidiver/paidiverpy/issues/145)
+- Link Checker Report - 2025-02-12 [\#144](https://github.com/paidiver/paidiverpy/issues/144)
+- Link Checker Report - 2025-02-12 [\#143](https://github.com/paidiver/paidiverpy/issues/143)
+- Link Checker Report - 2025-02-12 [\#141](https://github.com/paidiver/paidiverpy/issues/141)
+- Image converting issue [\#137](https://github.com/paidiver/paidiverpy/issues/137)
+
+**Merged pull requests:**
+
+- 137 image converting issue [\#159](https://github.com/paidiver/paidiverpy/pull/159) ([Mojtabamsd](https://github.com/Mojtabamsd))
+
 ## [v0.1.1](https://github.com/paidiver/paidiverpy/tree/v0.1.1) (2025-02-12)
 
 [Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.1.0...v0.1.1)
