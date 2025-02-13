@@ -217,14 +217,16 @@ class ConvertLayer(Paidiverpy):
         if params is None:
             params = NormalizeParams()
         try:
-            return cv2.normalize(
-                image_data,
-                image_data,
+            normalized_image = cv2.normalize(
+                image_data.astype(np.float32),
+                None,
                 params.min,
                 params.max,
                 cv2.NORM_MINMAX,
                 dtype=cv2.CV_32F,
             )
+            normalized_image = np.clip(normalized_image, params.min,params.max)
+            return normalized_image
         except Exception as e:  # noqa: BLE001
             msg = f"Failed to normalize the image: {e!s}"
             check_raise_error(params.raise_error, msg)
