@@ -2,8 +2,8 @@
 [![Documentation][rtd-badge]][rtd-link]
 [![Pypi][pip-badge]][pip-link]
 
-[zenodo-badge]: https://zenodo.org/badge/DOI/10.5281/zenodo.14644007.svg
-[zenodo-link]: https://doi.org/10.5281/zenodo.14644007
+[zenodo-badge]: https://zenodo.org/badge/DOI/10.5281/zenodo.14641878.svg
+[zenodo-link]: https://doi.org/10.5281/zenodo.14641878
 [rtd-badge]: https://img.shields.io/readthedocs/paidiverpy?logo=readthedocs
 [rtd-link]: https://paidiverpy.readthedocs.io/en/latest/?badge=latest
 [pip-badge]: https://img.shields.io/pypi/v/paidiverpy
@@ -50,22 +50,10 @@ You can install `paidiverpy` locally or on a notebook server such as JASMIN or t
 2. (Optional) Create a Python virtual environment to manage dependencies separately from other projects. For example, using `conda`:
 
    ```bash
-   conda init
-
-   # Command to restart the terminal. This command may not be necessary if mamba init has already been successfully run before
-   exec bash
-
    conda env create -f environment.yml
    conda activate Paidiverpy
    ```
-
-3. (Optional) For JASMIN or DSP users, you also need to install the environment in the Jupyter IPython kernel. Execute the following command:
-
-   ```bash
-   python -m ipykernel install --user --name Paidiverpy
-   ```
-
-4. Install the paidiverpy package:
+3. Install the paidiverpy package:
 
    Finally, you can install the paidiverpy package:
 

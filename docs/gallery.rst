@@ -16,7 +16,7 @@ Notebook Examples
     .. grid-item-card:: Parse configuration and metadata files
         :img-top: _static/nb_examples_1.png
 
-        |mode_expert|
+        |mode_standard|
         ^^^
         A notebook to show how to open and parse configuration and metadata files
         +++
@@ -294,20 +294,8 @@ Notebook Examples
 .. dropdown:: Notebook tags Legend
     :open:
 
-    :Data selection: |select_region| : region, |select_float| : float, |select_profile| : profile
-    :Dataset: |ds_phy| : core+deep, |ds_bgc| : BGC
     :User mode: |mode_expert| : expert, |mode_standard| : standard, |mode_research| : research
-    :Data sources: |src_erddap| : erddap, |src_gdac| : gdac, |src_argovis| : argovis
 
-
-.. |src_erddap| replace:: ⭐
-.. |src_gdac| replace:: 🌐
-.. |src_argovis| replace:: 👁
-.. |ds_phy| replace:: 🟡+🔵
-.. |ds_bgc| replace:: 🟢
 .. |mode_expert| replace:: 🏄
 .. |mode_standard| replace:: 🏊
 .. |mode_research| replace:: 🚣
-.. |select_region| replace:: 🗺
-.. |select_float| replace:: 🤖
-.. |select_profile| replace:: ⚓
