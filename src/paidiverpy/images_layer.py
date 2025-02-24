@@ -213,7 +213,7 @@ class ImagesLayer:
             logger.info("Uploading images to S3 using Dask")
             delayed_tasks = [
                 dask.delayed(self.process_and_upload)(
-                    image, output_path + f"{self.filenames[step_order][idx]}.{image_format.lower()}", image_format, s3_client
+                    image, output_path + f"{self.filenames[step_order][idx]}", image_format, s3_client
                 )
                 for idx, image in enumerate(images)
             ]
@@ -224,7 +224,7 @@ class ImagesLayer:
             logger.info("Uploading images to S3 using Dask")
             delayed_tasks = [
                 dask.delayed(self.process_and_upload)(
-                    image, output_path + f"{self.filenames[step_order][idx]}.{image_format.lower()}", image_format, s3_client
+                    image, output_path + f"{self.filenames[step_order][idx]}", image_format, s3_client
                 )
                 for idx, image in enumerate(images)
             ]
@@ -233,7 +233,7 @@ class ImagesLayer:
         else:
             logger.info("Uploading images to S3")
             for idx, image in enumerate(images):
-                img_path = output_path + f"{self.filenames[step_order][idx]}.{image_format.lower()}"
+                img_path = output_path + f"{self.filenames[step_order][idx]}"
                 self.process_and_upload(image, img_path, image_format, s3_client)
 
     def save_local(
@@ -267,7 +267,7 @@ class ImagesLayer:
         if client:
             logger.info("Saving images using Dask")
             delayed_tasks = [
-                dask.delayed(self.process_and_upload)(image, output_path / f"{self.filenames[step_order][idx]}.{image_format.lower()}", image_format)
+                dask.delayed(self.process_and_upload)(image, output_path / f"{self.filenames[step_order][idx]}", image_format)
                 for idx, image in enumerate(images)
             ]
             with ProgressBar():
@@ -276,7 +276,7 @@ class ImagesLayer:
         elif n_jobs > 1:
             logger.info("Saving images using Dask")
             delayed_tasks = [
-                dask.delayed(self.process_and_upload)(image, output_path / f"{self.filenames[step_order][idx]}.{image_format.lower()}", image_format)
+                dask.delayed(self.process_and_upload)(image, output_path / f"{self.filenames[step_order][idx]}", image_format)
                 for idx, image in enumerate(images)
             ]
             with dask.config.set(scheduler="threads", num_workers=n_jobs), ProgressBar():
@@ -284,7 +284,8 @@ class ImagesLayer:
         else:
             logger.info("Saving images")
             for idx, image in enumerate(images):
-                img_path = output_path / f"{self.filenames[step_order][idx]}.{image_format.lower()}"
+                # remove extension from name if exist and then add the new extension
+                img_path = output_path / f"{self.filenames[step_order][idx]}"
                 self.process_and_upload(image, img_path, image_format)
 
     def process_and_upload(self, image: np.ndarray | da.core.Array, img_path: str | Path, image_format: str, s3_client: Client | None = None) -> None:
@@ -297,7 +298,12 @@ class ImagesLayer:
             s3_client (boto3.client, optional): The S3 client. Defaults to None.
         """
         saved_image, cmap = self.calculate_image(image)
-
+        if isinstance(img_path, str):
+            if "." in img_path:
+                img_path = img_path.split(".")[0]
+            img_path = f"{img_path}.{image_format.lower()}"
+        else:
+            img_path = img_path.with_suffix(f".{image_format}")
         if saved_image.dtype == np.uint16:
             if image_format.lower() in ["tiff", "png"]:
                 if s3_client:
