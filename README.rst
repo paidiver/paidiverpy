@@ -1,17 +1,13 @@
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.14641878.svg
-   :target: https://doi.org/10.5281/zenodo.14641878
-
-.. image:: https://img.shields.io/readthedocs/paidiverpy?logo=readthedocs
-   :target: https://paidiverpy.readthedocs.io/en/latest/?badge=latest
-
-.. image:: https://img.shields.io/pypi/v/paidiverpy
-   :target: https://pypi.org/project/paidiverpy/
-
 .. image:: https://raw.githubusercontent.com/paidiver/paidiverpy/main/docs/_static/logo_paidiver_docs.png
+    :alt: Paidiverpy
+
+|lifecycle| |License| |Documentation| |DOI| |Pypi|
+
 
 **Paidiverpy** is a Python package designed to create pipelines for preprocessing image data for biodiversity analysis.
 
-.. note::
+.. admonition:: Note
+
    This package is still in active development, and frequent updates and changes are expected. The API and features may evolve as we continue improving it.
 
 Documentation
@@ -19,7 +15,8 @@ Documentation
 
 The official documentation is hosted on ReadTheDocs.org: https://paidiverpy.readthedocs.io/
 
-.. note::
+.. admonition:: Note
+
    Comprehensive documentation is under construction.
 
 Installation
@@ -33,8 +30,6 @@ To install paidiverpy, run:
 
 Build from Source
 -----------------
-
-You can install `paidiverpy` locally or on a notebook server such as JASMIN or the NOC Data Science Platform (DSP). The following steps are applicable to both environments, but steps 2 and 3 are required if you are using a notebook server.
 
 1. Clone the repository:
 
@@ -61,15 +56,47 @@ You can install `paidiverpy` locally or on a notebook server such as JASMIN or t
 
       pip install -e .
 
+Usage
+=====
+
+You can run your preprocessing pipeline using **Paidiverpy** in several ways, typically requiring just one to three lines of code:
+
+Python Package
+--------------
+
+Install the package and utilize it in your Python scripts.
+
+.. code-block:: text
+
+  # Import the Pipeline class
+  from paidiverpy.pipeline import Pipeline
+
+  # Instantiate the Pipeline class with the configuration file path
+  # Please refer to the documentation for the configuration file format
+  pipeline = Pipeline(config_file_path="../examples/config_files/config_simple2.yaml")
+
+  # Run the pipeline
+  pipeline.run()
+
+.. code-block:: text
+
+  # You can export the output images to the specified output directory
+  pipeline.save_images(image_format="png")
+
+
+Command Line Interface (CLI)
+----------------------------
+
+Execute the package via the command line.
+
+.. code-block:: bash
+
+    paidiverpy -c "../examples/config_files/config_simple2.yaml"
+
 Docker
-======
+------
 
 You can run **Paidiverpy** using Docker by either building the container locally or pulling a pre-built image from **GitHub Container Registry (GHCR)** or **Docker Hub**.
-
-Build or Pull the Docker Image
-------------------------------
-
-Three options are available:
 
 1. Build the container locally:
 
@@ -93,8 +120,8 @@ Three options are available:
       docker pull soutobias/paidiverpy:latest
       docker tag soutobias/paidiverpy:latest paidiverpy:latest
 
-Running the Container
----------------------
+
+To run the container, use the following command:
 
 .. code-block:: bash
 
@@ -104,3 +131,20 @@ Running the Container
      -v <METADATA_PATH>:/app/metadata/ \
      -v <CONFIG_DIR>:/app/config_files/ \
      paidiverpy -c /app/examples/config_files/<CONFIG_FILE>
+
+
+
+.. |License| image:: https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square
+    :target: https://www.apache.org/licenses/
+.. .. |Python version| image:: https://img.shields.io/pypi/pyversions/argopy
+..    :target: //pypi.org/project/argopy/
+.. .. |Anaconda-Server Badge| image:: https://anaconda.org/conda-forge/argopy/badges/platforms.svg
+..    :target: https://anaconda.org/conda-forge/argopy
+.. |lifecycle| image:: https://img.shields.io/badge/lifecycle-experimental-green.svg
+   :target: https://www.tidyverse.org/lifecycle/#stable
+.. |DOI| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.14641878.svg
+   :target: https://doi.org/10.5281/zenodo.14641878
+.. |Documentation| image:: https://img.shields.io/readthedocs/paidiverpy?logo=readthedocs
+    :target: https://paidiverpy.readthedocs.io/en/latest/?badge=latest
+.. |Pypi| image:: https://img.shields.io/pypi/v/paidiverpy
+    :target: https://pypi.org/project/paidiverpy/
