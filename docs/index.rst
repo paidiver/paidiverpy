@@ -47,7 +47,7 @@ Documentation
     guide/performance/index
     guide/custom_algorithms/index
     guide/rename_images/index
-    guide/remote_data/index
+    guide/remote_data
 
 .. toctree::
     :maxdepth: 2

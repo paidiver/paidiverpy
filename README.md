@@ -61,45 +61,48 @@ You can install `paidiverpy` locally or on a notebook server such as JASMIN or t
    pip install -e .
    ```
 
-## Package Organisation
-
-### Configuration File
-
-First, create a configuration file. Example configuration files for processing the sample datasets are available in the `example/config` directory. You can use these files to test the example notebooks described in the [Usage section](#usage). Note that running the examples will automatically download the sample data.
-
-The configuration file should follow the JSON schema described in the [configuration file schema](src/paidiverpy/configuration-schema.json). An online tool to validate configuration files is available [here](https://paidiver.github.io/paidiverpy/config_check.html).
-
-### Metadata
-
-To use this package, you may need a metadata file, which can be an IFDO.json file (following the IFDO standard) or a CSV file. For CSV files, ensure the `filename` column uses one of the following headers: `['image-filename', 'filename', 'file_name', 'FileName', 'File Name']`.
-
-Other columns like datetime, latitude, and longitude should follow these conventions:
-
-- Datetime: `['image-datetime', 'datetime', 'date_time', 'DateTime', 'Datetime']`
-- Latitude: `['image-latitude', 'lat', 'latitude_deg', 'latitude', 'Latitude', 'Latitude_deg', 'Lat']`
-- Longitude: `['image-longitude', 'lon', 'longitude_deg', 'longitude', 'Longitude', 'Longitude_deg', 'Lon']`
-
-Examples of CSV and IFDO metadata files are in the `example/metadata` directory.
-
-### Layers
-
-The package is organised into multiple layers:
-
-![Package Organisation](docs/_static/paidiver_organisation.jpg)
-
-The `Paidiverpy` class serves as the main container for image processing functions. It manages several subclasses for specific processing tasks: `OpenLayer`, `ConvertLayer`, `PositionLayer`, `ResampleLayer`, and `ColourLayer`.
-
-Supporting classes include:
-
-- `Configuration`: Parses and manages configuration files.
-- `Metadata`: Handles metadata.
-- `ImagesLayer`: Stores outputs from each image processing step.
-
-The `Pipeline` class integrates all processing steps defined in the configuration file.
 
 ## Usage
 
-While comprehensive documentation is forthcoming, you can explore various use cases through sample notebooks in the `examples/example_notebooks` directory:
+You can run your preprocessing pipeline using **Paidiverpy** in several ways, typically requiring just one to three lines of code:
+
+
+### Python Package
+
+Install the package and utilize it in your Python scripts.
+
+```python
+# Import the Pipeline class
+from paidiverpy.pipeline import Pipeline
+
+# Instantiate the Pipeline class with the configuration file path
+# Please refer to the documentation for the configuration file format
+pipeline = Pipeline(config_file_path="../examples/config_files/config_simple2.yaml")
+
+# Run the pipeline
+pipeline.run()
+```
+
+```python
+# You can export the output images to the specified output directory
+pipeline.save_images(image_format="png")
+```
+
+
+### Command-Line Arguments
+
+Pipelines can be executed via command-line arguments. For example:
+
+```bash
+paidiverpy -c examples/config_files/config_simple.yaml
+```
+
+This runs the pipeline according to the configuration file, saving output images to the directory defined in the `output_path`.
+
+
+### Gallery
+
+Together with the documentation, you can explore various use cases through sample notebooks in the `examples/example_notebooks` directory:
 
 - [Open and display a configuration file and a metadata file](examples/example_notebooks/config_metadata_example.ipynb)
 - [Run processing steps without creating a pipeline](examples/example_notebooks/simple_processing.ipynb)
@@ -130,15 +133,43 @@ Available datasets:
 
 Example data will be automatically downloaded when running the example notebooks.
 
-### Command-Line Arguments
+## Package Organisation
 
-Pipelines can be executed via command-line arguments. For example:
+### Configuration File
 
-```bash
-paidiverpy -c examples/config_files/config_simple.yaml
-```
+The configuration file is a crucial component of the Paidiverpy package. It defines the pipeline you want to run, specifying the input data, processing steps, and output data. Although it is possible to run or create a pipeline without a configuration file, using one is highly recommended to ensure reproducibility and simplify modifications.
 
-This runs the pipeline according to the configuration file, saving output images to the directory defined in the `output_path`.
+Example configuration files for processing the sample datasets are available in the `example/config` directory. You can use these files to test the example notebooks described in the [Usage section](#usage). Note that running the examples will automatically download the sample data.
+
+The configuration file should follow the JSON schema described in the [configuration file schema](src/paidiverpy/configuration-schema.json). An online tool to validate configuration files is available [here](https://paidiver.github.io/paidiverpy/config_check.html).
+
+### Metadata
+
+To use this package, you may need a metadata file, which can be an IFDO.json file (following the IFDO standard) or a CSV file. For CSV files, ensure the `filename` column uses one of the following headers: `['image-filename', 'filename', 'file_name', 'FileName', 'File Name']`.
+
+Other columns like datetime, latitude, and longitude should follow these conventions:
+
+- Datetime: `['image-datetime', 'datetime', 'date_time', 'DateTime', 'Datetime']`
+- Latitude: `['image-latitude', 'lat', 'latitude_deg', 'latitude', 'Latitude', 'Latitude_deg', 'Lat']`
+- Longitude: `['image-longitude', 'lon', 'longitude_deg', 'longitude', 'Longitude', 'Longitude_deg', 'Lon']`
+
+Examples of CSV and IFDO metadata files are in the `example/metadata` directory.
+
+### Layers
+
+The package is organised into multiple layers:
+
+![Package Organisation](docs/_static/paidiver_organisation.jpg)
+
+The `Paidiverpy` class serves as the main container for image processing functions. It manages several subclasses for specific processing tasks: `OpenLayer`, `ConvertLayer`, `PositionLayer`, `ResampleLayer`, and `ColourLayer`.
+
+Supporting classes include:
+
+- `Configuration`: Parses and manages configuration files.
+- `Metadata`: Handles metadata.
+- `ImagesLayer`: Stores outputs from each image processing step.
+
+The `Pipeline` class integrates all processing steps defined in the configuration file.
 
 ## Docker
 
