@@ -35,21 +35,10 @@ Documentation
     package_organisation
     configuration_file
     images_metadata
+    preprocessing_steps
     example_data
     gallery
     scientific_background
-
-.. toctree::
-    :maxdepth: 2
-    :caption: Preprocessing Steps
-
-    steps/introduction
-    steps/colour
-    steps/sampling
-    steps/convert
-    steps/position
-    steps/custom
-
 
 .. toctree::
     :maxdepth: 2
@@ -58,7 +47,7 @@ Documentation
     guide/performance/index
     guide/custom_algorithms/index
     guide/rename_images/index
-    guide/remote_data/index
+    guide/remote_data
 
 .. toctree::
     :maxdepth: 2
@@ -85,8 +74,8 @@ Documentation
 ..    :target: https://anaconda.org/conda-forge/argopy
 .. |lifecycle| image:: https://img.shields.io/badge/lifecycle-experimental-green.svg
    :target: https://www.tidyverse.org/lifecycle/#stable
-.. |DOI| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.14644007.svg
-   :target: https://doi.org/10.5281/zenodo.14644007
+.. |DOI| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.14641878.svg
+   :target: https://doi.org/10.5281/zenodo.14641878
 .. |Documentation| image:: https://img.shields.io/readthedocs/paidiverpy?logo=readthedocs
     :target: https://paidiverpy.readthedocs.io/en/latest/?badge=latest
 .. |Pypi| image:: https://img.shields.io/pypi/v/paidiverpy
