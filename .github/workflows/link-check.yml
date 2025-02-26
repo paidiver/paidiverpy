@@ -28,12 +28,18 @@ jobs:
         uses: lycheeverse/lychee-action@v1
         with:
           args: --timeout 40
+
+
+      - name: Capture Exit Code
+        run: echo "LYCHEE_EXIT_CODE=$?" >> $GITHUB_ENV
+
+
       - name: Set Issue Title
         id: set_title
         run: echo "ISSUE_TITLE=Link Checker Report - $(date '+%Y-%m-%d')" >> $GITHUB_ENV
 
       - name: Create Issue From File
-        if: env.lychee_exit_code != 0
+        if: env.LYCHEE_EXIT_CODE != '0'
         uses: peter-evans/create-issue-from-file@v5
         with:
           title: ${{ env.ISSUE_TITLE }}
