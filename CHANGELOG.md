@@ -6,9 +6,15 @@
 
 **Closed issues:**
 
+- Link Checker Report - 2025-02-26 [\#178](https://github.com/paidiver/paidiverpy/issues/178)
+- Link Checker Report - 2025-02-26 [\#177](https://github.com/paidiver/paidiverpy/issues/177)
+- Link Checker Report - 2025-02-25 [\#176](https://github.com/paidiver/paidiverpy/issues/176)
+- Link Checker Report - 2025-02-24 [\#173](https://github.com/paidiver/paidiverpy/issues/173)
+- Link Checker Report - 2025-02-24 [\#172](https://github.com/paidiver/paidiverpy/issues/172)
 - image file extension bug \(using pipeline.save\_images\) [\#170](https://github.com/paidiver/paidiverpy/issues/170)
 - Link Checker Report - 2025-02-13 [\#161](https://github.com/paidiver/paidiverpy/issues/161)
 - Link Checker Report - 2025-02-13 [\#160](https://github.com/paidiver/paidiverpy/issues/160)
+- Update documentation gallery symbols and zenodo link to lastest version [\#158](https://github.com/paidiver/paidiverpy/issues/158)
 - Remove double image extension when exporting images [\#157](https://github.com/paidiver/paidiverpy/issues/157)
 - Link Checker Report - 2025-02-12 [\#155](https://github.com/paidiver/paidiverpy/issues/155)
 - Link Checker Report - 2025-02-12 [\#154](https://github.com/paidiver/paidiverpy/issues/154)
@@ -28,6 +34,7 @@
 
 **Merged pull requests:**
 
+- 158 update documentation gallery symbols and zenodo link to lastest version [\#175](https://github.com/paidiver/paidiverpy/pull/175) ([soutobias](https://github.com/soutobias))
 - 157 remove double image extension when exporting images [\#171](https://github.com/paidiver/paidiverpy/pull/171) ([soutobias](https://github.com/soutobias))
 - 137 image converting issue [\#159](https://github.com/paidiver/paidiverpy/pull/159) ([Mojtabamsd](https://github.com/Mojtabamsd))
 
