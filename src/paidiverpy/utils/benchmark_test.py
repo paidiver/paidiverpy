@@ -138,7 +138,7 @@ def benchmark_threads(benchmark_params: dict, configuration_file: str, logger: l
     benchmark_results = []
     n_jobs = benchmark_params.get("n_jobs", [1])
     for n_job in n_jobs:
-        output_file = f"config_threads_{n_job}.yaml"
+        output_file = f"config_threads_{n_job}yml"
 
         updated_config_file = update_yaml(
             file_path=configuration_file,
@@ -179,7 +179,7 @@ def benchmark_local(benchmark_params: dict, configuration_file: str, logger: log
     memory_limit = benchmark_params.get("memory_limit", [1])
     n_jobs = benchmark_params.get("n_jobs", [2])
     for workers, threads, memory, n_job in itertools.product(n_workers, threads_per_worker, memory_limit, n_jobs):
-        output_file = f"config_{cluster_type}_{workers}_{threads}_{memory}_{n_jobs}.yaml"
+        output_file = f"config_{cluster_type}_{workers}_{threads}_{memory}_{n_jobs}yml"
 
         updated_config_file = update_yaml(
             file_path=configuration_file,
@@ -228,7 +228,7 @@ def benchmark_slurm(benchmark_params: dict, configuration_file: str, logger: log
     queue = benchmark_params.get("queue", "par-single")
     n_jobs = benchmark_params.get("n_jobs", [2])
     for core, proc, mem, n_job in itertools.product(cores, processes, memory, n_jobs):
-        output_file = f"config_{cluster_type}_{core}_{proc}_{mem}_{n_job}.yaml"
+        output_file = f"config_{cluster_type}_{core}_{proc}_{mem}_{n_job}yml"
 
         updated_config_file = update_yaml(
             file_path=configuration_file,

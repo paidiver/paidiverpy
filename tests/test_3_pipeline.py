@@ -22,7 +22,7 @@ class TestSimplePipeline(BaseTestClass):
         """Test generating a Simple Pipeline."""
         number_images = 7
         number_output_files = 0
-        pipeline = Pipeline(config_file_path="examples/config_files/config_benthic.yaml")
+        pipeline = Pipeline(config_file_path="examples/config_files/config_benthicyml")
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
         assert isinstance(pipeline.config.general, GeneralConfig)
