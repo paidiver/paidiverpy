@@ -319,12 +319,15 @@ class ImagesLayer:
 
         elif saved_image.dtype in [np.uint8, np.float32]:
             if s3_client:
-                buffer = io.BytesIO()
-                plt.imsave(buffer, saved_image, cmap=cmap, format=image_format)
-                buffer.seek(0)
+                _, encoded_image = cv2.imencode(f".{image_format}", saved_image)
+                buffer = io.BytesIO(encoded_image.tobytes())
+                # buffer = io.BytesIO()
+                # plt.imsave(buffer, saved_image, cmap=cmap, format=image_format)
+                # buffer.seek(0)
                 upload_file_to_bucket(buffer, img_path, s3_client)
             else:
-                plt.imsave(img_path, saved_image, cmap=cmap, format=image_format)
+                cv2.imwrite(img_path, saved_image)
+                # plt.imsave(img_path, saved_image, cmap=cmap, format=image_format)
 
         else:
             raise ValueError(f"Unsupported image dtype: {saved_image.dtype}. Expected uint8, uint16, or float32.")
@@ -606,6 +609,7 @@ class ImagesLayer:
         elif image_array.shape[-1] == NUM_CHANNELS_RGBA:
             if image_array[:, :, 3].max() <= 1:
                 image_array[:, :, 3] = (image_array[:, :, 3] * 255).astype(np.uint8)
+            image_array = cv2.cvtColor(image_array, cv2.COLOR_BGRA2RGBA)
             pil_img = Image.fromarray(image_array, mode="RGBA")
         else:
             pil_img = Image.fromarray(image_array, mode="RGB")

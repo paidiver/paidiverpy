@@ -1,6 +1,6 @@
-# Pre-event
+# WORKSHOP
 
-This page contains all the pre-event setup required to prepare you to make the most of the workshop.
+This page contains all the workshop setup required to prepare you to make the most of the it. It also includes information about the dataset that we are going to use and the example notebooks that we are planning to use
 
 ## Run the codes
 
@@ -20,37 +20,17 @@ To login into the DSP, you may use your NOCS linux credentials (username and pas
 
 If you are not NOC staff, you need to create a JASMIN account. To create this, use this link: https://accounts.jasmin.ac.uk/application/new/ .
 
-After create an account, please sent to the email tobias.ferreira@noc.ac.uk your email and password registered on JASMIN. This will be necessary to add you to ourt workspace and give you access to the environments and datasets.
+After create an account, please sent to the email tobias.ferreira@noc.ac.uk your email and password registered on JASMIN. This will be necessary to add you to our workspace and give you access to the environments and datasets.
 
 Now you can access the JASMIN notebook service through this link:
 
-1. Sign-up for the event to make sure you are kept in the loop with the last information and see potential collaborators on the spreadsheet.
+ADD THE LINK HERE
 
-Slack Workspace
 
-Make sure you can sign into the CANARI Slack workspace. If you don't have access to the CANARI slack space please contact Ben Harvey (b.j.harvey@ncas.ac.uk) or Jenny Mecking (jmecki@noc.ac.uk) to send you an invite.
+### CREATE THE
 
-Join the appropriate channels on the CANARI Slack workspace, all channels relevant to the sprint will be prefaced with the word 'sprint'. There are channels setup where you can get help for the sprint which will be monitored, they will be labeled starting 'sprint-help'.
 
-Feel free to add channels to help collaborate your analysis during the sprint and make sure to label them with 'sprint'.
 
-JASMIN - keep in mind it might take a few days to get your accounts approved
-
-Make sure you have a JASMIN account. If you are new to JASMIN please mention the CANARI-LE sprint in your application. Instructions on signing up for an account can be found here. If you are only planning on using JASMIN for the sprint and don't have an account please contact Jenny Mecking (jmecki@noc.ac.uk) and a temporary account can be setup.
-
-Sign-up for the required JASMIN services through the accounts portal.
-
-JASMIN log-in account
-
-CANARI group workspace (gws)
-
-(optional) Link your JASMIN account with a CEDA account. This will provide you with access to several datasets including ERA5 and CMIP data.
-
-(optional) If you want to give the dask gateway a try during the sprint you can signup on the JASMIN dask gateway page.
-
-(optional) If you want to try processing of data using GPUs you need to signup for the additional service, orchid through the JASMIN accounts portal.
-
-ZOOM - communication during the sprint will be done via zoom, please make sure you are able to connect
 
 Plan your analysis
 

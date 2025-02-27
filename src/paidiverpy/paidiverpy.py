@@ -139,6 +139,7 @@ class Paidiverpy:
         Returns:
             List[np.ndarray]: The list of processed images.
         """
+
         func = partial(method, params=params)
         return [func(img).process() if custom else func(img) for img in tqdm(images, desc="Processing images")]
 
