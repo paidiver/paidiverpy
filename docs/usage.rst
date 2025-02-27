@@ -11,7 +11,7 @@ You can run your preprocessing pipeline using **Paidiverpy** in several ways, ty
 
       In [1]: from paidiverpy.pipeline import Pipeline
 
-      In [2]: pipeline = Pipeline(config_file_path="../examples/config_files/config_simple2.yaml")
+      In [2]: pipeline = Pipeline(config_file_path="../examples/config_files/config_simple2.yml")
 
       In [3]: pipeline.run()
       ☁ paidiverpy ☁  |       INFO | 2024-11-04 17:49:24 | Running step 0: raw - OpenLayer
@@ -55,7 +55,7 @@ You can run your preprocessing pipeline using **Paidiverpy** in several ways, ty
 
    .. code-block:: bash
 
-       paidiverpy -c "../examples/config_files/config_simple2.yaml"
+       paidiverpy -c "../examples/config_files/config_simple2.yml"
 
 3. **Docker**: Use the Docker image to run the package.
 

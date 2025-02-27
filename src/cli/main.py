@@ -58,8 +58,8 @@ def add_arguments(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         "-c",
         "--configuration_file",
         type=str,
-        default="./config/config.yaml",
-        help="Path to the configuration file 'config.yaml'",
+        default="./config/configyml",
+        help="Path to the configuration file 'configyml'",
     )
 
     parser.add_argument(

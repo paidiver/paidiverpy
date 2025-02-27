@@ -50,7 +50,7 @@ Bug reports must:
 
       ```python
       >>> from paidiverpy.pipeline import Pipeline
-      >>> pipeline = Pipeline(config_file_path="../examples/config_files/config_simple2.yaml")
+      >>> pipeline = Pipeline(config_file_path="../examples/config_files/config_simple2.yml")
       ...
       ```
 

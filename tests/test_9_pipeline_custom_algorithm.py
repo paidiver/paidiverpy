@@ -21,7 +21,7 @@ class TestPipelineCustomAlgorithm(BaseTestClass):
         number_pipeline_steps = 3
         number_images = 3
 
-        pipeline = Pipeline(config_file_path="examples/config_files/config_custom_algorithm.yaml", verbose=1)
+        pipeline = Pipeline(config_file_path="examples/config_files/config_custom_algorithmyml", verbose=1)
 
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)

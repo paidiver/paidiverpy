@@ -20,7 +20,7 @@ class TestDaskCluster(BaseTestClass):
         """Test generating a Pipeline with Custom Algorithm."""
         number_images = 5
 
-        pipeline = Pipeline(config_file_path="examples/config_files/config_benthic_client.yaml", verbose=2)
+        pipeline = Pipeline(config_file_path="examples/config_files/config_benthic_clientyml", verbose=2)
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
         assert isinstance(pipeline.config.general, GeneralConfig)

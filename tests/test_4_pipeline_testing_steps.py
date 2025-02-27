@@ -23,7 +23,7 @@ class TestPipelineTestSteps(BaseTestClass):
         """Test the Pipeline Testing Steps."""
         number_images = 1
         number_calls = 2
-        pipeline = Pipeline(config_file_path="examples/config_files/config_benthic_test_steps.yaml")
+        pipeline = Pipeline(config_file_path="examples/config_files/config_benthic_test_stepsyml")
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
         assert isinstance(pipeline.config.general, GeneralConfig)

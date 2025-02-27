@@ -7,6 +7,8 @@ output/
 examples/examples_notebooks/output/*
 examples/examples_notebooks/*.yaml
 config_*.yaml
+examples/examples_notebooks/*.yml
+config_*.yml
 benchmark_*.json
 benchmark_*.png
 test_examples/*
