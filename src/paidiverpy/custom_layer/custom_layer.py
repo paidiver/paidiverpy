@@ -126,44 +126,6 @@ class CustomLayer(Paidiverpy):
             return self.images
         return None
 
-    def process_sequentially(self, images: list[np.ndarray], method: callable, params: dict) -> list[np.ndarray]:
-        """Process the images sequentially.
-
-        Method to process the images sequentially.
-
-        Args:
-            images (List[np.ndarray]): The list of images to process.
-            method (callable): The method to apply to the images.
-            params (dict): The parameters for the method.
-
-        Returns:
-            List[np.ndarray]: The list of processed images.
-        """
-        return [method(img, params=params).process() for img in images]
-
-    def process_parallel(
-        self,
-        images: list[da.core.Array],
-        method: callable,
-        params: DynamicConfig,
-    ) -> list[np.ndarray]:
-        """Process the images in parallel.
-
-        Method to process the images in parallel.
-
-        Args:
-            images (List[da.core.Array]): The list of images to process.
-            method (callable): The method to apply to the images.
-            params (DynamicConfig): The parameters for the method.
-
-        Returns:
-            List[da.core.Array]: The list of processed images.
-        """
-        delayed_images = [dask.delayed(lambda img: method(img, params=params).process())(img) for img in images]
-        with dask.config.set(scheduler="threads", num_workers=self.n_jobs), ProgressBar():
-            delayed_images = compute(*delayed_images)
-        return [da.from_array(img) for img in delayed_images]
-
     def load_custom_algorithm(self, file_path: str, class_name: str, algorithm_name: str) -> callable:
         """Load a custom algorithm class.
 

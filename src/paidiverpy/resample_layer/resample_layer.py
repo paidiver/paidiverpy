@@ -260,11 +260,11 @@ class ResampleLayer(Paidiverpy):
         if params is None:
             params = ResampleDepthParams()
         metadata = self.get_metadata()
-        metadata.loc[:, "depth_m"] = metadata["depth_m"].abs()
+        metadata.loc[:, "image-altitude-meters"] = metadata["image-altitude-meters"].abs()
         if params.by == "lower":
-            metadata.loc[metadata["depth_m"] < params.value, "flag"] = step_order
+            metadata.loc[metadata["image-altitude-meters"] < params.value, "flag"] = step_order
         else:
-            metadata.loc[metadata["depth_m"] > params.value, "flag"] = step_order
+            metadata.loc[metadata["image-altitude-meters"] > params.value, "flag"] = step_order
         self.logger.info(
             "Number of photos to be removed: %s",
             metadata.flag[metadata.flag == step_order].count(),

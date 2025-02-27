@@ -90,7 +90,6 @@ def download_file(url: str, dataset_name: str, cache_dir: Path = CACHE_DIR) -> P
         response = requests.get(url, stream=True, timeout=30)
         response.raise_for_status()
 
-        # Progress bar for downloading
         total_size = int(response.headers.get("content-length", 0))
         block_size = 1024  # 1 KB
         with (
@@ -123,7 +122,6 @@ def unzip_file(zip_path: Path, dataset_name: str, extract_dir: Path = CACHE_DIR)
         try:
             with zipfile.ZipFile(zip_path, "r") as zip_ref:
                 total_files = len(zip_ref.infolist())
-                # Progress bar for extraction
                 with tqdm(total=total_files, unit="file", desc=f"Extracting {dataset_name} files") as bar:
                     for file_info in zip_ref.infolist():
                         zip_ref.extract(file_info, extract_dir)

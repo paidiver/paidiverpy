@@ -23,7 +23,7 @@ index_columns = ["id", "index", "ID", "Index", "Id"]
 datetime_columns = ["image-datetime", "datetime", "date_time", "DateTime", "Datetime"]
 lat_columns = ["image-latitude", "lat", "latitude_deg", "latitude", "Latitude", "Latitude_deg", "Lat"]
 lon_columns = ["image-longitude", "lon", "longitude_deg", "longitude", "Longitude", "Longitude_deg", "Lon"]
-
+depth_columns = ["image-altitude-meters", "depth", "depth_m", "depth_metres", "depth_metre", "depth_meters", "depth_meter"]
 
 class MetadataParser:
     """Class for parsing metadata files.
@@ -108,6 +108,7 @@ class MetadataParser:
             metadata = self._add_data_to_metadata(metadata)
 
         metadata["flag"] = 0
+        metadata = self._rename_columns(metadata, depth_columns)
         return self._process_coordinates(metadata)
 
     def _process_coordinates(self, metadata: dd.DataFrame) -> dd.DataFrame:

@@ -22,6 +22,7 @@ class TestPipelineIfdo(BaseTestClass):
         """Test generating a Pipeline with IFDO metadata."""
         number_images = 6
         number_output_files = 0
+
         pipeline = Pipeline(config_file_path="tests/config_files/config_benthic_ifdo.yml")
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)

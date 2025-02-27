@@ -275,12 +275,14 @@ class ConvertLayer(Paidiverpy):
         if params is None:
             params = CropParams()
         try:
-            start_x, end_x = params.x[0]
-            start_y, end_y = params.y[1]
-            if start_x < 0 or end_x > image_data.shape[1] or start_y < 0 or end_y > image_data.shape[2]:
+            start_x, end_x = params.x
+            start_y, end_y = params.y
+            if start_x < 0 or end_x > image_data.shape[0] or start_y < 0 or end_y > image_data.shape[1]:
                 msg = "Crop range is out of bounds."
                 raise_value_error(msg)
-            return image_data[:, start_x:end_x, start_y:end_y, :]
+            if len(image_data.shape) == 2:
+                return image_data[start_y:end_y, start_x:end_x]
+            return image_data[start_y:end_y, start_x:end_x  :]
         except Exception as e:  # noqa: BLE001
             msg = f"Failed to crop the image: {e!s}"
             check_raise_error(params.raise_error, msg)
