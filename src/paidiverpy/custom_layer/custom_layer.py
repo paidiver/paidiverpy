@@ -110,7 +110,7 @@ class CustomLayer(Paidiverpy):
         params = CustomParams(**params)
         method = self.load_custom_algorithm(file_path, class_name, algorithm_name)
         images = self.images.get_step(step=len(self.images.images) - 1, by_order=True)
-        image_list = self.process_sequentially(images, method, params) if self.n_jobs == 1 else self.process_parallel(images, method, params)
+        image_list = self.process_sequentially(images, method, params, custom=True) if self.n_jobs == 1 else self.process_parallel(images, method, params, custom=True)
         if not test:
             self.step_name = algorithm_name if not self.step_name else self.step_name
             if add_new_step:

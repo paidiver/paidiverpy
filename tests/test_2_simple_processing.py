@@ -21,7 +21,7 @@ class TestSimpleProcessing(BaseTestClass):
         """Test the OpenLayer class."""
         number_images = 2
 
-        open_layer = OpenLayer(config_file_path="examples/config_files/config_simpleyml")
+        open_layer = OpenLayer(config_file_path="tests/config_files/config_simple.yml")
         assert isinstance(open_layer, OpenLayer)
         open_layer_config = open_layer.config
         assert isinstance(open_layer_config, Configuration)
