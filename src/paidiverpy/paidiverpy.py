@@ -2,8 +2,10 @@
 
 import logging
 from pathlib import Path
+from functools import partial
 import dask
 import dask.array as da
+from distributed import LocalCluster
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -119,7 +121,11 @@ class Paidiverpy:
             return self.images
         return None
 
-    def process_sequentially(self, images: list[np.ndarray], method: callable, params: dict) -> list[np.ndarray]:
+    def process_sequentially(self,
+                             images: list[np.ndarray],
+                             method: callable,
+                             params: dict,
+                             custom: bool = False) -> list[np.ndarray]:
         """Process the images sequentially.
 
         Method to process the images sequentially.
@@ -128,17 +134,20 @@ class Paidiverpy:
             images (List[np.ndarray]): The list of images to process.
             method (callable): The method to apply to the images.
             params (dict): The parameters for the method.
+            custom (bool, optional): Whether the method is a custom method. Defaults to False.
 
         Returns:
             List[np.ndarray]: The list of processed images.
         """
-        return [method(img, params=params) for img in tqdm(images, total=len(images), desc="Processing images")]
+        func = partial(method, params=params)
+        return [func(img).process() if custom else func(img) for img in tqdm(images, desc="Processing images")]
 
     def process_parallel(
         self,
         images: list[da.core.Array],
         method: callable,
         params: DynamicConfig,
+        custom: bool = False,
     ) -> list[np.ndarray]:
         """Process the images in parallel.
 
@@ -148,26 +157,29 @@ class Paidiverpy:
             images (List[da.core.Array]): The list of images to process.
             method (callable): The method to apply to the images.
             params (DynamicConfig): The parameters for the method.
+            custom (bool, optional): Whether the method is a custom method. Defaults to False.
 
         Returns:
             List[da.core.Array]: The list of processed images.
         """
+        func = partial(method, params=params)
         if self.client:
-            if isinstance(self.client.cluster, dask.distributed.LocalCluster):
-                delayed_images = [dask.delayed(method)(img, params) for img in images]
+            if isinstance(self.client.cluster, LocalCluster):
+                delayed_images = [dask.delayed(func)(img) for img in images]
                 futures = self.client.compute(delayed_images)
-                with ProgressBar():
-                    results = self.client.gather(futures)
-                return [da.from_array(img) for img in results]
-            futures = []
-            for img in images:
-                futures.append(self.client.submit(method, img, params))
-            results = self.client.gather(futures)
-            return [da.from_array(img) for img in results]
-        delayed_images = [dask.delayed(method)(img, params) for img in images]
+            else:
+                futures = [self.client.submit(func, img) for img in images]
+
+            with ProgressBar():
+                results = self.client.gather(futures)
+            return [da.from_array(img.process() if custom else img) for img in results]
+
+        delayed_images = [dask.delayed(func)(img) for img in images]
+
         with dask.config.set(scheduler="threads", num_workers=self.n_jobs), ProgressBar():
-            delayed_images = dask.compute(*delayed_images)
-        return [da.from_array(img) for img in delayed_images]
+            results = dask.compute(*delayed_images)
+
+        return [da.from_array(img.process() if custom else img) for img in results]
 
     def _set_variables_from_paidiverpy(self, paidiverpy: "Paidiverpy") -> None:
         """Set the variables from the paidiverpy object.

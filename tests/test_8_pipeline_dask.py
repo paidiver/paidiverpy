@@ -21,7 +21,7 @@ class TestPipelineDask(BaseTestClass):
         """Test generating a Pipeline with Parallel Processing using dask."""
         number_images = 7
 
-        pipeline = Pipeline(config_file_path="examples/config_files/config_benthic_daskyml", verbose=0)
+        pipeline = Pipeline(config_file_path="tests/config_files/config_benthic_dask.yml", verbose=0)
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
         assert isinstance(pipeline.config.general, GeneralConfig)

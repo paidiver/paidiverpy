@@ -19,7 +19,7 @@ class TestConfigMetadataClass(BaseTestClass):
 
     def test_config_class(self):
         """Test the Config class."""
-        config = Configuration(config_file_path="examples/config_files/config_simpleyml")
+        config = Configuration(config_file_path="tests/config_files/config_simple.yml")
         config_dict = config.to_dict()
         assert isinstance(config_dict, dict)
 
@@ -27,12 +27,12 @@ class TestConfigMetadataClass(BaseTestClass):
         """Test the parsing of the configuration file."""
         classes = [Paidiverpy, OpenLayer]
         for class_name in classes:
-            paidiver = class_name(config_file_path="examples/config_files/config_simpleyml")
+            paidiver = class_name(config_file_path="tests/config_files/config_simple.yml")
             self.check_config(paidiver)
 
     def test_parsing_metadata(self):
         """Test the parsing of the configuration file."""
-        config = Configuration(config_file_path="examples/config_files/config_simpleyml")
+        config = Configuration(config_file_path="tests/config_files/config_simple.yml")
         metadata = MetadataParser(config=config)
         assert isinstance(metadata, MetadataParser)
 
