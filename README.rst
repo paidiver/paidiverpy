@@ -73,7 +73,7 @@ Install the package and utilize it in your Python scripts.
 
   # Instantiate the Pipeline class with the configuration file path
   # Please refer to the documentation for the configuration file format
-  pipeline = Pipeline(config_file_path="../examples/config_files/config_simple2.yaml")
+  pipeline = Pipeline(config_file_path="../examples/config_files/config_simple2.yml")
 
   # Run the pipeline
   pipeline.run()
@@ -91,7 +91,7 @@ Execute the package via the command line.
 
 .. code-block:: bash
 
-    paidiverpy -c "../examples/config_files/config_simple2.yaml"
+    paidiverpy -c "../examples/config_files/config_simple2.yml"
 
 Docker
 ------

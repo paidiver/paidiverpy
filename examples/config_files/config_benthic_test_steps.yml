@@ -1,0 +1,18 @@
+general:
+  sample_data: 'benthic_csv'
+  output_path: './output'
+  sampling:
+    - mode: 'percent'
+      params:
+        value: 1
+
+steps:
+  - sampling:
+      name: 'overlapping'
+      mode: 'overlapping'
+      test: True
+      params:
+        theta: 40
+        omega: 57
+        camera_distance: 1.12
+        threshold: 0.5
