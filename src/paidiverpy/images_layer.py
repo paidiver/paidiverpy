@@ -6,16 +6,15 @@ import io
 import logging
 from io import BytesIO
 from pathlib import Path
+import cv2
 import dask
 import dask.array as da
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from dask.diagnostics import ProgressBar
 from dask.distributed import Client
 from IPython.display import HTML
 from PIL import Image
-import cv2
 from paidiverpy.utils.docker import is_running_in_docker
 from paidiverpy.utils.logging_functions import initialise_logging
 from paidiverpy.utils.object_store import check_create_bucket_exists
@@ -315,7 +314,8 @@ class ImagesLayer:
                 else:
                     cv2.imwrite(img_path, saved_image)
             else:
-                raise ValueError(f"16-bit images can only be saved as TIFF or PNG, not {image_format}")
+                msg = f"16-bit images can only be saved as TIFF or PNG, not {image_format}"
+                raise ValueError(msg)
 
         elif saved_image.dtype in [np.uint8, np.float32]:
             if s3_client:
@@ -330,7 +330,8 @@ class ImagesLayer:
                 # plt.imsave(img_path, saved_image, cmap=cmap, format=image_format)
 
         else:
-            raise ValueError(f"Unsupported image dtype: {saved_image.dtype}. Expected uint8, uint16, or float32.")
+            msg = f"Unsupported image dtype: {saved_image.dtype}. Expected uint8, uint16, or float32."
+            raise ValueError(msg)
 
     def calculate_image(self, image: np.ndarray | da.core.Array) -> tuple:
         """Calculate the image.

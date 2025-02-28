@@ -1,16 +1,16 @@
 """Main class for the paidiverpy package."""
 
 import logging
-from pathlib import Path
 from functools import partial
+from pathlib import Path
 import dask
 import dask.array as da
-from distributed import LocalCluster
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from dask.diagnostics import ProgressBar
 from dask.distributed import Client
+from distributed import LocalCluster
 from tqdm import tqdm
 from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
@@ -139,7 +139,6 @@ class Paidiverpy:
         Returns:
             List[np.ndarray]: The list of processed images.
         """
-
         func = partial(method, params=params)
         return [func(img).process() if custom else func(img) for img in tqdm(images, desc="Processing images")]
 
