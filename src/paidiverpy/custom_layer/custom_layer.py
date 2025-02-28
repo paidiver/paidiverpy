@@ -7,11 +7,6 @@ color layer.
 import importlib.util
 import logging
 from importlib.resources import files
-import dask
-import dask.array as da
-import numpy as np
-from dask import compute
-from dask.diagnostics import ProgressBar
 from paidiverpy import Paidiverpy
 from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
@@ -19,7 +14,6 @@ from paidiverpy.config.custom_params import CustomParams
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.utils.docker import is_running_in_docker
-from paidiverpy.utils.dynamic_classes import DynamicConfig
 from paidiverpy.utils.install_packages import check_and_install_dependencies
 
 
@@ -110,7 +104,13 @@ class CustomLayer(Paidiverpy):
         params = CustomParams(**params)
         method = self.load_custom_algorithm(file_path, class_name, algorithm_name)
         images = self.images.get_step(step=len(self.images.images) - 1, by_order=True)
-        image_list = self.process_sequentially(images, method, params, custom=True) if self.n_jobs == 1 else self.process_parallel(images, method, params, custom=True)
+        if self.n_jobs == 1:
+            image_list = self.process_sequentially(images,
+                                                   method,
+                                                   params,
+                                                   custom=True)
+        else:
+            self.process_parallel(images, method, params, custom=True)
         if not test:
             self.step_name = algorithm_name if not self.step_name else self.step_name
             if add_new_step:

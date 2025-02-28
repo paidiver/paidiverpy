@@ -21,8 +21,12 @@ from paidiverpy.config.convert_params import ToParams
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.utils.data import EIGHT_BITS
+from paidiverpy.utils.data import EIGHT_BITS_SIZE
+from paidiverpy.utils.data import NUM_CHANNELS_GREY
 from paidiverpy.utils.data import SIXTEEN_BITS
+from paidiverpy.utils.data import SIXTEEN_BITS_SIZE
 from paidiverpy.utils.data import THIRTY_TWO_BITS
+from paidiverpy.utils.data import THIRTY_TWO_BITS_SIZE
 from paidiverpy.utils.exceptions import raise_value_error
 from paidiverpy.utils.logging_functions import check_raise_error
 
@@ -108,13 +112,13 @@ class ConvertLayer(Paidiverpy):
 
         bit = image_data.dtype.itemsize
 
-        if params.output_bits == EIGHT_BITS and bit != 1:
+        if params.output_bits == EIGHT_BITS and bit != EIGHT_BITS_SIZE:
             image_data = ConvertLayer.normalize_image(image_data)
             image_data = np.uint8(image_data * 255)
-        elif params.output_bits == SIXTEEN_BITS and bit != 2:
+        elif params.output_bits == SIXTEEN_BITS and bit != SIXTEEN_BITS_SIZE:
             image_data = ConvertLayer.normalize_image(image_data)
             image_data = np.uint16(image_data * 65535)
-        elif params.output_bits == THIRTY_TWO_BITS and bit != 3:
+        elif params.output_bits == THIRTY_TWO_BITS and bit != THIRTY_TWO_BITS_SIZE:
             image_data = ConvertLayer.normalize_image(image_data)
             image_data = np.float32(image_data)
         else:
@@ -225,8 +229,7 @@ class ConvertLayer(Paidiverpy):
                 cv2.NORM_MINMAX,
                 dtype=cv2.CV_32F,
             )
-            normalized_image = np.clip(normalized_image, params.min,params.max)
-            return normalized_image
+            return np.clip(normalized_image, params.min,params.max)
         except Exception as e:  # noqa: BLE001
             msg = f"Failed to normalize the image: {e!s}"
             check_raise_error(params.raise_error, msg)
@@ -280,7 +283,7 @@ class ConvertLayer(Paidiverpy):
             if start_x < 0 or end_x > image_data.shape[0] or start_y < 0 or end_y > image_data.shape[1]:
                 msg = "Crop range is out of bounds."
                 raise_value_error(msg)
-            if len(image_data.shape) == 2:
+            if len(image_data.shape) == NUM_CHANNELS_GREY:
                 return image_data[start_y:end_y, start_x:end_x]
             return image_data[start_y:end_y, start_x:end_x  :]
         except Exception as e:  # noqa: BLE001
