@@ -211,9 +211,7 @@ class ImagesLayer:
         if client:
             logger.info("Uploading images to S3 using Dask")
             delayed_tasks = [
-                dask.delayed(self.process_and_upload)(
-                    image, output_path + f"{self.filenames[step_order][idx]}", image_format, s3_client
-                )
+                dask.delayed(self.process_and_upload)(image, output_path + f"{self.filenames[step_order][idx]}", image_format, s3_client)
                 for idx, image in enumerate(images)
             ]
             with ProgressBar():
@@ -222,9 +220,7 @@ class ImagesLayer:
         elif n_jobs > 1:
             logger.info("Uploading images to S3 using Dask")
             delayed_tasks = [
-                dask.delayed(self.process_and_upload)(
-                    image, output_path + f"{self.filenames[step_order][idx]}", image_format, s3_client
-                )
+                dask.delayed(self.process_and_upload)(image, output_path + f"{self.filenames[step_order][idx]}", image_format, s3_client)
                 for idx, image in enumerate(images)
             ]
             with dask.config.set(scheduler="threads", num_workers=n_jobs), ProgressBar():

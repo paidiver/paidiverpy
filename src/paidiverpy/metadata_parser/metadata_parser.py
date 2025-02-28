@@ -25,6 +25,7 @@ lat_columns = ["image-latitude", "lat", "latitude_deg", "latitude", "Latitude", 
 lon_columns = ["image-longitude", "lon", "longitude_deg", "longitude", "Longitude", "Longitude_deg", "Lon"]
 depth_columns = ["image-altitude-meters", "depth", "depth_m", "depth_metres", "depth_metre", "depth_meters", "depth_meter"]
 
+
 class MetadataParser:
     """Class for parsing metadata files.
 

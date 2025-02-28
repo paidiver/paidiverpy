@@ -121,11 +121,7 @@ class Paidiverpy:
             return self.images
         return None
 
-    def process_sequentially(self,
-                             images: list[np.ndarray],
-                             method: callable,
-                             params: dict,
-                             custom: bool = False) -> list[np.ndarray]:
+    def process_sequentially(self, images: list[np.ndarray], method: callable, params: dict, custom: bool = False) -> list[np.ndarray]:
         """Process the images sequentially.
 
         Method to process the images sequentially.
