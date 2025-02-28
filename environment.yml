@@ -1,4 +1,4 @@
-name: Paidiverpy8
+name: Paidiverpy
 channels:
   - conda-forge
 dependencies:
@@ -27,6 +27,7 @@ dependencies:
   - python-dotenv>=1.0.1
   - boto3>=1.35.92
   - botocore>=1.35.92
+  - ipykernel>=6.29.5
   - unzip=6.0
   - libgl
   - libegl
