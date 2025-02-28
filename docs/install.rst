@@ -34,12 +34,6 @@ You can also build the package from source. To do so, you need to clone the repo
 
 .. code-block:: text
 
-  conda init
-
-  # Command to restart the terminal. This command may not be necessary
-  # if conda init has already been successfully run before
-  exec bash
-
   conda env create -f environment.yml
   conda activate Paidiverpy
 

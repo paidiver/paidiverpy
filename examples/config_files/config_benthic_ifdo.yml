@@ -22,14 +22,6 @@ steps:
         min: "2016-05-11 04:14:00"
         max: "2016-05-11 09:27:00"
 
-  - sampling:
-      name: "overlapping"
-      mode: "overlapping"
-      params:
-        theta: 40
-        omega: 57
-        threshold: 0.5
-
   - colour:
       name: "colour_correction"
       mode: "gaussian_blur"

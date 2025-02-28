@@ -16,7 +16,7 @@ Notebook Examples
     .. grid-item-card:: Parse configuration and metadata files
         :img-top: _static/nb_examples_1.png
 
-        |mode_expert|
+        |mode_standard|
         ^^^
         A notebook to show how to open and parse configuration and metadata files
         +++
@@ -24,7 +24,7 @@ Notebook Examples
 
             .. grid-item::
 
-                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/dev/examples/example_notebooks/config_metadata_example.ipynb
+                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/main/examples/example_notebooks/config_metadata_example.ipynb
                     :color: primary
                     :outline:
 
@@ -32,7 +32,7 @@ Notebook Examples
 
             .. grid-item::
 
-                .. button-link:: https://github.com/paidiver/paidiverpy/blob/dev/examples/example_notebooks/config_metadata_example.ipynb
+                .. button-link:: https://github.com/paidiver/paidiverpy/blob/main/examples/example_notebooks/config_metadata_example.ipynb
                     :color: primary
                     :outline:
 
@@ -49,7 +49,7 @@ Notebook Examples
 
             .. grid-item::
 
-                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/dev/examples/example_notebooks/simple_processing.ipynb
+                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/main/examples/example_notebooks/simple_processing.ipynb
                     :color: primary
                     :outline:
 
@@ -57,7 +57,7 @@ Notebook Examples
 
             .. grid-item::
 
-                .. button-link:: https://github.com/paidiver/paidiverpy/blob/dev/examples/example_notebooks/simple_processing.ipynb
+                .. button-link:: https://github.com/paidiver/paidiverpy/blob/main/examples/example_notebooks/simple_processing.ipynb
                     :color: primary
                     :outline:
 
@@ -74,7 +74,7 @@ Notebook Examples
 
             .. grid-item::
 
-                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/dev/examples/example_notebooks/pipeline.ipynb
+                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/main/examples/example_notebooks/pipeline.ipynb
                     :color: primary
                     :outline:
 
@@ -82,7 +82,7 @@ Notebook Examples
 
             .. grid-item::
 
-                .. button-link:: https://github.com/paidiver/paidiverpy/blob/dev/examples/example_notebooks/pipeline.ipynb
+                .. button-link:: https://github.com/paidiver/paidiverpy/blob/main/examples/example_notebooks/pipeline.ipynb
                     :color: primary
                     :outline:
 
@@ -99,7 +99,7 @@ Notebook Examples
 
             .. grid-item::
 
-                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/dev/examples/example_notebooks/pipeline_testing_steps.ipynb
+                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/main/examples/example_notebooks/pipeline_testing_steps.ipynb
                     :color: primary
                     :outline:
 
@@ -107,7 +107,7 @@ Notebook Examples
 
             .. grid-item::
 
-                .. button-link:: https://github.com/paidiver/paidiverpy/blob/dev/examples/example_notebooks/pipeline_testing_steps.ipynb
+                .. button-link:: https://github.com/paidiver/paidiverpy/blob/main/examples/example_notebooks/pipeline_testing_steps.ipynb
                     :color: primary
                     :outline:
 
@@ -124,7 +124,7 @@ Notebook Examples
 
             .. grid-item::
 
-                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/dev/examples/example_notebooks/pipeline_generation.ipynb
+                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/main/examples/example_notebooks/pipeline_generation.ipynb
                     :color: primary
                     :outline:
 
@@ -132,7 +132,7 @@ Notebook Examples
 
             .. grid-item::
 
-                .. button-link:: https://github.com/paidiver/paidiverpy/blob/dev/examples/example_notebooks/pipeline_generation.ipynb
+                .. button-link:: https://github.com/paidiver/paidiverpy/blob/main/examples/example_notebooks/pipeline_generation.ipynb
                     :color: primary
                     :outline:
 
@@ -149,7 +149,7 @@ Notebook Examples
 
             .. grid-item::
 
-                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/dev/examples/example_notebooks/pipeline_interaction.ipynb
+                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/main/examples/example_notebooks/pipeline_interaction.ipynb
                     :color: primary
                     :outline:
 
@@ -157,7 +157,7 @@ Notebook Examples
 
             .. grid-item::
 
-                .. button-link:: https://github.com/paidiver/paidiverpy/blob/dev/examples/example_notebooks/pipeline_interaction.ipynb
+                .. button-link:: https://github.com/paidiver/paidiverpy/blob/main/examples/example_notebooks/pipeline_interaction.ipynb
                     :color: primary
                     :outline:
 
@@ -174,7 +174,7 @@ Notebook Examples
 
             .. grid-item::
 
-                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/dev/examples/example_notebooks/pipeline_dask.ipynb
+                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/main/examples/example_notebooks/pipeline_dask.ipynb
                     :color: primary
                     :outline:
 
@@ -182,7 +182,7 @@ Notebook Examples
 
             .. grid-item::
 
-                .. button-link:: https://github.com/paidiver/paidiverpy/blob/dev/examples/example_notebooks/pipeline_dask.ipynb
+                .. button-link:: https://github.com/paidiver/paidiverpy/blob/main/examples/example_notebooks/pipeline_dask.ipynb
                     :color: primary
                     :outline:
 
@@ -199,7 +199,7 @@ Notebook Examples
 
             .. grid-item::
 
-                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/dev/examples/example_notebooks/pipeline_ifdo.ipynb
+                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/main/examples/example_notebooks/pipeline_ifdo.ipynb
                     :color: primary
                     :outline:
 
@@ -207,7 +207,7 @@ Notebook Examples
 
             .. grid-item::
 
-                .. button-link:: https://github.com/paidiver/paidiverpy/blob/dev/examples/example_notebooks/pipeline_ifdo.ipynb
+                .. button-link:: https://github.com/paidiver/paidiverpy/blob/main/examples/example_notebooks/pipeline_ifdo.ipynb
                     :color: primary
                     :outline:
 
@@ -224,7 +224,7 @@ Notebook Examples
 
             .. grid-item::
 
-                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/dev/examples/example_notebooks/pipeline_custom_algorithm.ipynb
+                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/main/examples/example_notebooks/pipeline_custom_algorithm.ipynb
                     :color: primary
                     :outline:
 
@@ -232,7 +232,7 @@ Notebook Examples
 
             .. grid-item::
 
-                .. button-link:: https://github.com/paidiver/paidiverpy/blob/dev/examples/example_notebooks/pipeline_custom_algorithm.ipynb
+                .. button-link:: https://github.com/paidiver/paidiverpy/blob/main/examples/example_notebooks/pipeline_custom_algorithm.ipynb
                     :color: primary
                     :outline:
 
@@ -249,7 +249,7 @@ Notebook Examples
 
             .. grid-item::
 
-                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/dev/examples/example_notebooks/pipeline_remote_data.ipynb
+                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/main/examples/example_notebooks/pipeline_remote_data.ipynb
                     :color: primary
                     :outline:
 
@@ -257,7 +257,7 @@ Notebook Examples
 
             .. grid-item::
 
-                .. button-link:: https://github.com/paidiver/paidiverpy/blob/dev/examples/example_notebooks/pipeline_remote_data.ipynb
+                .. button-link:: https://github.com/paidiver/paidiverpy/blob/main/examples/example_notebooks/pipeline_remote_data.ipynb
                     :color: primary
                     :outline:
 
@@ -275,7 +275,7 @@ Notebook Examples
 
             .. grid-item::
 
-                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/dev/examples/example_notebooks/pipeline_cluster.ipynb
+                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/main/examples/example_notebooks/pipeline_cluster.ipynb
                     :color: primary
                     :outline:
 
@@ -283,7 +283,7 @@ Notebook Examples
 
             .. grid-item::
 
-                .. button-link:: https://github.com/paidiver/paidiverpy/blob/dev/examples/example_notebooks/pipeline_cluster.ipynb
+                .. button-link:: https://github.com/paidiver/paidiverpy/blob/main/examples/example_notebooks/pipeline_cluster.ipynb
                     :color: primary
                     :outline:
 
@@ -294,20 +294,8 @@ Notebook Examples
 .. dropdown:: Notebook tags Legend
     :open:
 
-    :Data selection: |select_region| : region, |select_float| : float, |select_profile| : profile
-    :Dataset: |ds_phy| : core+deep, |ds_bgc| : BGC
     :User mode: |mode_expert| : expert, |mode_standard| : standard, |mode_research| : research
-    :Data sources: |src_erddap| : erddap, |src_gdac| : gdac, |src_argovis| : argovis
 
-
-.. |src_erddap| replace:: ⭐
-.. |src_gdac| replace:: 🌐
-.. |src_argovis| replace:: 👁
-.. |ds_phy| replace:: 🟡+🔵
-.. |ds_bgc| replace:: 🟢
 .. |mode_expert| replace:: 🏄
 .. |mode_standard| replace:: 🏊
 .. |mode_research| replace:: 🚣
-.. |select_region| replace:: 🗺
-.. |select_float| replace:: 🤖
-.. |select_profile| replace:: ⚓

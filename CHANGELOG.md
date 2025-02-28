@@ -1,5 +1,45 @@
 # Changelog
 
+## [Unreleased](https://github.com/paidiver/paidiverpy/tree/HEAD)
+
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.1.1...HEAD)
+
+**Closed issues:**
+
+- Link Checker Report - 2025-02-26 [\#178](https://github.com/paidiver/paidiverpy/issues/178)
+- Link Checker Report - 2025-02-26 [\#177](https://github.com/paidiver/paidiverpy/issues/177)
+- Link Checker Report - 2025-02-25 [\#176](https://github.com/paidiver/paidiverpy/issues/176)
+- Link Checker Report - 2025-02-24 [\#173](https://github.com/paidiver/paidiverpy/issues/173)
+- Link Checker Report - 2025-02-24 [\#172](https://github.com/paidiver/paidiverpy/issues/172)
+- image file extension bug \(using pipeline.save\_images\) [\#170](https://github.com/paidiver/paidiverpy/issues/170)
+- Run sequential and parallel in custom layer is not standardised with the code [\#163](https://github.com/paidiver/paidiverpy/issues/163)
+- Link Checker Report - 2025-02-13 [\#161](https://github.com/paidiver/paidiverpy/issues/161)
+- Link Checker Report - 2025-02-13 [\#160](https://github.com/paidiver/paidiverpy/issues/160)
+- Update documentation gallery symbols and zenodo link to lastest version [\#158](https://github.com/paidiver/paidiverpy/issues/158)
+- Remove double image extension when exporting images [\#157](https://github.com/paidiver/paidiverpy/issues/157)
+- Link Checker Report - 2025-02-12 [\#155](https://github.com/paidiver/paidiverpy/issues/155)
+- Link Checker Report - 2025-02-12 [\#154](https://github.com/paidiver/paidiverpy/issues/154)
+- Link Checker Report - 2025-02-12 [\#152](https://github.com/paidiver/paidiverpy/issues/152)
+- Link Checker Report - 2025-02-12 [\#151](https://github.com/paidiver/paidiverpy/issues/151)
+- Link Checker Report - 2025-02-12 [\#150](https://github.com/paidiver/paidiverpy/issues/150)
+- Link Checker Report - 2025-02-12 [\#149](https://github.com/paidiver/paidiverpy/issues/149)
+- Link Checker Report - 2025-02-12 [\#148](https://github.com/paidiver/paidiverpy/issues/148)
+- Link Checker Report - 2025-02-12 [\#147](https://github.com/paidiver/paidiverpy/issues/147)
+- Link Checker Report - 2025-02-12 [\#146](https://github.com/paidiver/paidiverpy/issues/146)
+- Link Checker Report - 2025-02-12 [\#145](https://github.com/paidiver/paidiverpy/issues/145)
+- Link Checker Report - 2025-02-12 [\#144](https://github.com/paidiver/paidiverpy/issues/144)
+- Link Checker Report - 2025-02-12 [\#143](https://github.com/paidiver/paidiverpy/issues/143)
+- Link Checker Report - 2025-02-12 [\#141](https://github.com/paidiver/paidiverpy/issues/141)
+- Image converting issue [\#137](https://github.com/paidiver/paidiverpy/issues/137)
+- Glossary documentation  [\#22](https://github.com/paidiver/paidiverpy/issues/22)
+
+**Merged pull requests:**
+
+- 163 run sequential and parallel in custom layer is not standardised with the code [\#180](https://github.com/paidiver/paidiverpy/pull/180) ([soutobias](https://github.com/soutobias))
+- 158 update documentation gallery symbols and zenodo link to lastest version [\#175](https://github.com/paidiver/paidiverpy/pull/175) ([soutobias](https://github.com/soutobias))
+- 157 remove double image extension when exporting images [\#171](https://github.com/paidiver/paidiverpy/pull/171) ([soutobias](https://github.com/soutobias))
+- 137 image converting issue [\#159](https://github.com/paidiver/paidiverpy/pull/159) ([Mojtabamsd](https://github.com/Mojtabamsd))
+
 ## [v0.1.1](https://github.com/paidiver/paidiverpy/tree/v0.1.1) (2025-02-12)
 
 [Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.1.0...v0.1.1)
