@@ -23,7 +23,6 @@ classifiers = [
 
 dependencies = [
   "numpy>=2.0",
-  "opencv-python>=4.10.0.84",
   "pandas>=2.2.2",
   "pathlib>=1.0.1",
   "pillow>=10.4.0",
@@ -31,7 +30,6 @@ dependencies = [
   "scipy>=1.14",
   "tqdm>=4.66.4",
   "PyYAML>=6.0",
-  "mariqt>=1.0.0",
   "openpyxl>=3.1",
   "shapely>=2.0.5",
   "geopy>=2.4.1",
@@ -44,10 +42,12 @@ dependencies = [
   "jsonschema>=4.23.0",
   "matplotlib>=3.5.0",
   "ipython>=8.26.0",
-  "dask_jobqueue>=0.9.0",
+  "dask-jobqueue>=0.9.0",
   "python-dotenv>=1.0.1",
   "boto3>=1.35.92",
-  "botocore>=1.35.92"
+  "botocore>=1.35.92",
+  "opencv-python>=4.10.0.84",
+  "mariqt>=1.0.0",
   ]
 license = {file = "LICENSE"}
 version = "0.1.2"
