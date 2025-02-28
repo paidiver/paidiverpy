@@ -140,7 +140,7 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: process_sequentially(images: list[numpy.ndarray], method: callable, params: dict) -> list[numpy.ndarray]
+   .. py:method:: process_sequentially(images: list[numpy.ndarray], method: callable, params: dict, custom: bool = False) -> list[numpy.ndarray]
 
       
       Process the images sequentially.
@@ -153,6 +153,8 @@ Package Contents
       :type method: callable
       :param params: The parameters for the method.
       :type params: dict
+      :param custom: Whether the method is a custom method. Defaults to False.
+      :type custom: bool, optional
 
       :returns: The list of processed images.
       :rtype: List[np.ndarray]
@@ -175,7 +177,7 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: process_parallel(images: list[dask.array.core.Array], method: callable, params: paidiverpy.utils.dynamic_classes.DynamicConfig) -> list[numpy.ndarray]
+   .. py:method:: process_parallel(images: list[dask.array.core.Array], method: callable, params: paidiverpy.utils.dynamic_classes.DynamicConfig, custom: bool = False) -> list[numpy.ndarray]
 
       
       Process the images in parallel.
@@ -188,6 +190,8 @@ Package Contents
       :type method: callable
       :param params: The parameters for the method.
       :type params: DynamicConfig
+      :param custom: Whether the method is a custom method. Defaults to False.
+      :type custom: bool, optional
 
       :returns: The list of processed images.
       :rtype: List[da.core.Array]
