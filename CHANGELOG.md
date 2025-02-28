@@ -12,6 +12,7 @@
 - Link Checker Report - 2025-02-24 [\#173](https://github.com/paidiver/paidiverpy/issues/173)
 - Link Checker Report - 2025-02-24 [\#172](https://github.com/paidiver/paidiverpy/issues/172)
 - image file extension bug \(using pipeline.save\_images\) [\#170](https://github.com/paidiver/paidiverpy/issues/170)
+- Run sequential and parallel in custom layer is not standardised with the code [\#163](https://github.com/paidiver/paidiverpy/issues/163)
 - Link Checker Report - 2025-02-13 [\#161](https://github.com/paidiver/paidiverpy/issues/161)
 - Link Checker Report - 2025-02-13 [\#160](https://github.com/paidiver/paidiverpy/issues/160)
 - Update documentation gallery symbols and zenodo link to lastest version [\#158](https://github.com/paidiver/paidiverpy/issues/158)
@@ -34,6 +35,7 @@
 
 **Merged pull requests:**
 
+- 163 run sequential and parallel in custom layer is not standardised with the code [\#180](https://github.com/paidiver/paidiverpy/pull/180) ([soutobias](https://github.com/soutobias))
 - 158 update documentation gallery symbols and zenodo link to lastest version [\#175](https://github.com/paidiver/paidiverpy/pull/175) ([soutobias](https://github.com/soutobias))
 - 157 remove double image extension when exporting images [\#171](https://github.com/paidiver/paidiverpy/pull/171) ([soutobias](https://github.com/soutobias))
 - 137 image converting issue [\#159](https://github.com/paidiver/paidiverpy/pull/159) ([Mojtabamsd](https://github.com/Mojtabamsd))
