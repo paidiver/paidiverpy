@@ -1,17 +1,15 @@
 general:
-  sample_data: "benthic_csv"
+  sample_data: "benthic_ifdo"
   output_path: "./output"
-  n_jobs: 1
-  image_type: "JPG"
-  # sampling:
-  #   - mode: "fixed"
-  #     params:
-  #       value: 20
+  n_jobs: 8
+  sampling:
+    - mode: "fixed"
+      params:
+        value: 5
   convert:
     - mode: "bits"
       params:
         output_bits: 8
-
 steps:
   - colour:
       name: "colour_correction"
@@ -21,16 +19,8 @@ steps:
       name: "datetime"
       mode: "datetime"
       params:
-        min: "2018-06-11 04:14:00"
-        max: "2018-06-11 04:20:00"
-
-  - sampling:
-      name: "overlapping"
-      mode: "overlapping"
-      params:
-        theta: 40
-        omega: 57
-        threshold: 0.5
+        min: "2016-05-11 04:14:00"
+        max: "2016-05-11 09:27:00"
 
   - colour:
       name: "colour_correction"

@@ -21,8 +21,12 @@ from paidiverpy.config.convert_params import ToParams
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.utils.data import EIGHT_BITS
+from paidiverpy.utils.data import EIGHT_BITS_SIZE
+from paidiverpy.utils.data import NUM_CHANNELS_GREY
 from paidiverpy.utils.data import SIXTEEN_BITS
+from paidiverpy.utils.data import SIXTEEN_BITS_SIZE
 from paidiverpy.utils.data import THIRTY_TWO_BITS
+from paidiverpy.utils.data import THIRTY_TWO_BITS_SIZE
 from paidiverpy.utils.exceptions import raise_value_error
 from paidiverpy.utils.logging_functions import check_raise_error
 
@@ -105,14 +109,20 @@ class ConvertLayer(Paidiverpy):
         """
         if params is None:
             params = BitParams()
-        if params.output_bits == EIGHT_BITS:
+
+        bit = image_data.dtype.itemsize
+
+        if params.output_bits == EIGHT_BITS and bit != EIGHT_BITS_SIZE:
+            image_data = ConvertLayer.normalize_image(image_data)
             image_data = np.uint8(image_data * 255)
-        elif params.output_bits == SIXTEEN_BITS:
+        elif params.output_bits == SIXTEEN_BITS and bit != SIXTEEN_BITS_SIZE:
+            image_data = ConvertLayer.normalize_image(image_data)
             image_data = np.uint16(image_data * 65535)
-        elif params.output_bits == THIRTY_TWO_BITS:
+        elif params.output_bits == THIRTY_TWO_BITS and bit != THIRTY_TWO_BITS_SIZE:
+            image_data = ConvertLayer.normalize_image(image_data)
             image_data = np.float32(image_data)
         else:
-            msg = f"Unsupported output bits: {params.output_bits}"
+            msg = f"Unsupported output bits or image already within provided format: {params.output_bits}"
             check_raise_error(params.raise_error, msg)
 
         return image_data
@@ -211,14 +221,15 @@ class ConvertLayer(Paidiverpy):
         if params is None:
             params = NormalizeParams()
         try:
-            return cv2.normalize(
-                image_data,
-                image_data,
+            normalized_image = cv2.normalize(
+                image_data.astype(np.float32),
+                None,
                 params.min,
                 params.max,
                 cv2.NORM_MINMAX,
                 dtype=cv2.CV_32F,
             )
+            return np.clip(normalized_image, params.min, params.max)
         except Exception as e:  # noqa: BLE001
             msg = f"Failed to normalize the image: {e!s}"
             check_raise_error(params.raise_error, msg)
@@ -267,12 +278,14 @@ class ConvertLayer(Paidiverpy):
         if params is None:
             params = CropParams()
         try:
-            start_x, end_x = params.x[0]
-            start_y, end_y = params.y[1]
-            if start_x < 0 or end_x > image_data.shape[1] or start_y < 0 or end_y > image_data.shape[2]:
+            start_x, end_x = params.x
+            start_y, end_y = params.y
+            if start_x < 0 or end_x > image_data.shape[0] or start_y < 0 or end_y > image_data.shape[1]:
                 msg = "Crop range is out of bounds."
                 raise_value_error(msg)
-            return image_data[:, start_x:end_x, start_y:end_y, :]
+            if len(image_data.shape) == NUM_CHANNELS_GREY:
+                return image_data[start_y:end_y, start_x:end_x]
+            return image_data[start_y:end_y, start_x:end_x:]
         except Exception as e:  # noqa: BLE001
             msg = f"Failed to crop the image: {e!s}"
             check_raise_error(params.raise_error, msg)
