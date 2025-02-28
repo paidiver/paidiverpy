@@ -252,7 +252,7 @@ class OpenLayer(Paidiverpy):
             duplicate_mask = metadata.duplicated(subset="image-filename", keep=False)
             if duplicate_mask.any():
                 duplicates = metadata[duplicate_mask]
-                duplicates["duplicate_number"] = duplicates.groupby("image-filename").cumcount() + 1
+                duplicates.loc[:, "duplicate_number"] = duplicates.groupby("image-filename").cumcount() + 1
                 metadata.loc[duplicate_mask, "image-filename"] = duplicates.apply(
                     lambda row: f"{row['image-filename'][:-1]}_{row['duplicate_number']}",
                     axis=1,

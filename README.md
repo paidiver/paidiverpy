@@ -77,7 +77,7 @@ from paidiverpy.pipeline import Pipeline
 
 # Instantiate the Pipeline class with the configuration file path
 # Please refer to the documentation for the configuration file format
-pipeline = Pipeline(config_file_path="../examples/config_files/config_simple2.yaml")
+pipeline = Pipeline(config_file_path="../examples/config_files/config_simple2.yml")
 
 # Run the pipeline
 pipeline.run()
@@ -94,7 +94,7 @@ pipeline.save_images(image_format="png")
 Pipelines can be executed via command-line arguments. For example:
 
 ```bash
-paidiverpy -c examples/config_files/config_simple.yaml
+paidiverpy -c examples/config_files/config_simple.yml
 ```
 
 This runs the pipeline according to the configuration file, saving output images to the directory defined in the `output_path`.

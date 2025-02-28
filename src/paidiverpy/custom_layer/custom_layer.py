@@ -110,7 +110,7 @@ class CustomLayer(Paidiverpy):
         params = CustomParams(**params)
         method = self.load_custom_algorithm(file_path, class_name, algorithm_name)
         images = self.images.get_step(step=len(self.images.images) - 1, by_order=True)
-        image_list = self.process_sequentially(images, method, params) if self.n_jobs == 1 else self.process_parallel(images, method, params)
+        image_list = self.process_sequentially(images, method, params, custom=True) if self.n_jobs == 1 else self.process_parallel(images, method, params, custom=True)
         if not test:
             self.step_name = algorithm_name if not self.step_name else self.step_name
             if add_new_step:
@@ -125,44 +125,6 @@ class CustomLayer(Paidiverpy):
             self.images.images[-1] = image_list
             return self.images
         return None
-
-    def process_sequentially(self, images: list[np.ndarray], method: callable, params: dict) -> list[np.ndarray]:
-        """Process the images sequentially.
-
-        Method to process the images sequentially.
-
-        Args:
-            images (List[np.ndarray]): The list of images to process.
-            method (callable): The method to apply to the images.
-            params (dict): The parameters for the method.
-
-        Returns:
-            List[np.ndarray]: The list of processed images.
-        """
-        return [method(img, params=params).process() for img in images]
-
-    def process_parallel(
-        self,
-        images: list[da.core.Array],
-        method: callable,
-        params: DynamicConfig,
-    ) -> list[np.ndarray]:
-        """Process the images in parallel.
-
-        Method to process the images in parallel.
-
-        Args:
-            images (List[da.core.Array]): The list of images to process.
-            method (callable): The method to apply to the images.
-            params (DynamicConfig): The parameters for the method.
-
-        Returns:
-            List[da.core.Array]: The list of processed images.
-        """
-        delayed_images = [dask.delayed(lambda img: method(img, params=params).process())(img) for img in images]
-        with dask.config.set(scheduler="threads", num_workers=self.n_jobs), ProgressBar():
-            delayed_images = compute(*delayed_images)
-        return [da.from_array(img) for img in delayed_images]
 
     def load_custom_algorithm(self, file_path: str, class_name: str, algorithm_name: str) -> callable:
         """Load a custom algorithm class.

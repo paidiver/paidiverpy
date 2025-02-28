@@ -35,7 +35,7 @@ class TestPipelineGenerator(BaseTestClass):
         }
         pipeline_steps = [("raw", OpenLayer, open_layer_params)]
         pipeline = Pipeline(
-            config_file_path="examples/config_files/config_simple.yaml",
+            config_file_path="tests/config_files/config_simple.yml",
             steps=pipeline_steps,
         )
         assert len(pipeline.steps) == number_pipeline_steps
@@ -68,7 +68,7 @@ class TestPipelineGenerator(BaseTestClass):
             ("gray", ColourLayer, {"mode": "grayscale"}),
         ]
         pipeline = Pipeline(
-            config_file_path="examples/config_files/config_simple.yaml",
+            config_file_path="tests/config_files/config_simple.yml",
             steps=pipeline_steps,
         )
         assert len(pipeline.steps) == number_pipeline_steps
@@ -77,11 +77,11 @@ class TestPipelineGenerator(BaseTestClass):
         images = pipeline.images.images
         assert isinstance(images[0][0], np.ndarray)
         assert len(images) == number_images
-        pipeline.export_config("new_config.yaml")
-        config_output_path = Path("./new_config.yaml")
+        pipeline.export_config("new_config.yml")
+        config_output_path = Path("./new_config.yml")
         output_files = list(config_output_path.parent.glob(config_output_path.name))
         assert len(output_files) == number_output_files
-        pipeline = Pipeline(config_file_path="new_config.yaml")
+        pipeline = Pipeline(config_file_path="new_config.yml")
         pipeline.run()
         images = pipeline.images.images
         assert isinstance(images[0][0], np.ndarray)
