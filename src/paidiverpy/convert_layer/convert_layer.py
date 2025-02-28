@@ -229,7 +229,7 @@ class ConvertLayer(Paidiverpy):
                 cv2.NORM_MINMAX,
                 dtype=cv2.CV_32F,
             )
-            return np.clip(normalized_image, params.min,params.max)
+            return np.clip(normalized_image, params.min, params.max)
         except Exception as e:  # noqa: BLE001
             msg = f"Failed to normalize the image: {e!s}"
             check_raise_error(params.raise_error, msg)
@@ -285,7 +285,7 @@ class ConvertLayer(Paidiverpy):
                 raise_value_error(msg)
             if len(image_data.shape) == NUM_CHANNELS_GREY:
                 return image_data[start_y:end_y, start_x:end_x]
-            return image_data[start_y:end_y, start_x:end_x  :]
+            return image_data[start_y:end_y, start_x:end_x:]
         except Exception as e:  # noqa: BLE001
             msg = f"Failed to crop the image: {e!s}"
             check_raise_error(params.raise_error, msg)
