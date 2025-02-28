@@ -1,0 +1,42 @@
+general:
+  input_path: "/input/data/path/"
+  output_path: "/output/data/path/"
+  metadata_path: "/metadata/path/metadata.json"
+  metadata_type: "IFDO"
+  image_type: "JPG"
+  sampling:
+    - mode: "percent"
+      params:
+        value: 0.1
+  convert:
+    - mode: "bits"
+      params:
+        output_bits: 8
+    - mode: "to"
+      params:
+        to: "gray"
+
+steps:
+  - colour:
+      name: "colour_correction"
+      mode: "grayscale"
+
+  - sampling:
+      name: "datetime"
+      mode: "datetime"
+      params:
+        min: "2016-05-11 04:14:00"
+        max: "2016-05-11 09:27:00"
+
+  - colour:
+      name: "colour_correction"
+      mode: "gaussian_blur"
+      params:
+        sigma: 1.0
+
+  - colour:
+      name: "sharpen"
+      mode: "sharpen"
+      params:
+        alpha: 1.5
+        beta: -0.5
