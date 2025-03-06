@@ -27,8 +27,8 @@ CACHE_DIR.mkdir(parents=True, exist_ok=True)
 PERSISTENCE_FILE = CACHE_DIR / "datasets.json"
 
 DATASET_URLS = {
-    "pelagic_csv": {
-        "url": "https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/pelagic_csv.zip",
+    "plankton_csv": {
+        "url": "https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/plankton_csv.zip",
         "metadata_type": "CSV_FILE",
         "image_type": "BMP",
     },
@@ -45,7 +45,9 @@ DATASET_URLS = {
     },
 }
 
+
 class PaidiverpyData:
+    """A class to download and load datasets."""
 
     def __init__(self):
         self.logger = logging.getLogger("paidiverpy") or initialise_logging()
@@ -84,7 +86,6 @@ class PaidiverpyData:
 
         return self.calculate_information(dataset_name, extract_dir, dataset_information)
 
-
     def load_persistent_paths(self) -> dict:
         """Load the persistent paths from the cache directory.
 
@@ -96,7 +97,6 @@ class PaidiverpyData:
                 return json.load(f)
         return {}
 
-
     def save_persistent_paths(self, paths: dict) -> None:
         """Save the persistent paths to the cache directory.
 
@@ -106,11 +106,7 @@ class PaidiverpyData:
         with PERSISTENCE_FILE.open("w", encoding="UTF-8") as f:
             json.dump(paths, f)
 
-
-    def download_file(self,
-                      url: str,
-                      dataset_name: str,
-                      cache_dir: Path = CACHE_DIR) -> Path:
+    def download_file(self, url: str, dataset_name: str, cache_dir: Path = CACHE_DIR) -> Path:
         """Download dataset file from the given URL.
 
         Download the file from the given URL and cache it locally to avoid redundant downloads.
@@ -152,11 +148,7 @@ class PaidiverpyData:
 
         return zip_path
 
-
-    def unzip_file(self,
-                   zip_path: Path,
-                   dataset_name: str,
-                   extract_dir: Path = CACHE_DIR) -> None:
+    def unzip_file(self, zip_path: Path, dataset_name: str, extract_dir: Path = CACHE_DIR) -> None:
         """Unzip the file to the specified directory.
 
         Args:
@@ -181,11 +173,7 @@ class PaidiverpyData:
         else:
             self.logger.info("Using cached extraction at %s", extract_dir)
 
-
-    def calculate_information(self,
-                              dataset_name: str,
-                              extract_dir: Path,
-                              dataset_information: dict) -> dict:
+    def calculate_information(self, dataset_name: str, extract_dir: Path, dataset_information: dict) -> dict:
         """Calculate the information for the dataset.
 
         Args:

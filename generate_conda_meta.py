@@ -1,16 +1,10 @@
 """Generate the meta.yaml file for the conda recipe."""
 
-import os
 from pathlib import Path
 import toml
 from jinja2 import Template
 
 TEMPLATE_STR = """
-{% set name = name %}
-{% set version = version %}
-{% set python_min = python_min %}
-{% set description = description %}
-{% set license_file = license_file %}
 package:
     name: {{ name|lower }}
     version: {{ version }}
@@ -65,6 +59,7 @@ extra:
 
 """
 
+
 def load_toml() -> dict:
     """Load the pyproject.toml file.
 
@@ -88,26 +83,37 @@ def create_meta_yaml(pyproject_data: dict) -> str:
         str: The content of the meta.yaml file.
     """
     project = pyproject_data["project"]
+    python_min = project["requires-python"].replace(">", "").replace("<", "").replace("=", "")
     version = project["version"]
     name = project["name"]
     description = project["description"]
     license_file = project["license"]["file"]
 
     dependencies = project["dependencies"]
-    dependencies = [" <".join(item.split("<")) if "<" in item else
-                            " >".join(item.split(">")) if ">" in item else
-                            " ==".join(item.split("==")) if "==" in item else item
-                            for item in dependencies]
+    dependencies = [
+        " <".join(item.split("<"))
+        if "<" in item
+        else " >".join(item.split(">"))
+        if ">" in item
+        else " ==".join(item.split("=="))
+        if "==" in item
+        else item
+        for item in dependencies
+    ]
 
     template = Template(TEMPLATE_STR, trim_blocks=True, lstrip_blocks=True)
 
-    return template.render(
-        name=name,
-        version=version,
-        description=description,
-        license_file=license_file,
-        dependencies=dependencies
+    template_without_header = template.render(
+        name=name, version=version, description=description, license_file=license_file, dependencies=dependencies
     )
+
+    header_str = """
+    {% set python_min = {{ python_min }} %}
+    """
+    header_str = header_str.replace("{{ python_min }}", f'"{python_min}"').strip()
+    template_text = header_str + template_without_header
+    return template_text.replace("opencv-python", "opencv")
+
 
 def save_meta_yaml(meta_yaml_content: str) -> None:
     """Save the meta.yaml content to the repository.
@@ -115,10 +121,10 @@ def save_meta_yaml(meta_yaml_content: str) -> None:
     Args:
         meta_yaml_content (str): The content of the meta.yaml file.
     """
-    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "conda_recipes"))
-    meta_yaml_path = os.path.join(repo_root, "meta.yaml")
+    repo_root = Path.resolve(Path(__file__).parent)
+    meta_yaml_path = repo_root / "conda_recipes" / "meta.yaml"
 
-    with open(meta_yaml_path, "w") as file:
+    with meta_yaml_path.open("w") as file:
         file.write(meta_yaml_content)
 
 

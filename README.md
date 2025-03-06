@@ -127,7 +127,7 @@ PaidiverpyData().load(DATASET_NAME)
 
 Available datasets:
 
-- pelagic_csv
+- plankton_csv
 - benthic_csv
 - benthic_ifdo
 
