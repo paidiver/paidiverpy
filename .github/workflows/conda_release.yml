@@ -3,10 +3,12 @@ name: Create Conda Meta File
 on:
   push:
     branches:
+      - dev
       - main
   pull_request:
     branches:
       - main
+      - dev
 
 jobs:
   build-and-publish:
