@@ -112,7 +112,8 @@ def create_meta_yaml(pyproject_data: dict) -> str:
     """
     header_str = header_str.replace("{{ python_min }}", f'"{python_min}"').strip()
     template_text = header_str + template_without_header
-    return template_text.replace("opencv-python", "opencv")
+    template_text = template_text.replace("opencv-python", "opencv")
+    return template_text.replace("matplotlib", "matplotlib-base")
 
 
 def save_meta_yaml(meta_yaml_content: str) -> None:
