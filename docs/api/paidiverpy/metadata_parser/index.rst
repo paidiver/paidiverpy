@@ -137,3 +137,34 @@ Package Contents
           !! processed by numpydoc !!
 
 
+   .. py:method:: format_error(text: list) -> str
+      :staticmethod:
+
+
+      
+      Format error message.
+
+      :param text: List of error messages.
+      :type text: list
+
+      :returns: Formatted error message.
+      :rtype: str
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
