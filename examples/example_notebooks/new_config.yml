@@ -1,0 +1,29 @@
+general:
+  append_data_to_metadata: /home/tobfer/.paidiverpy_cache/benthic_csv/metadata/appended_metadata_benthic_csv.csv
+  client: null
+  convert:
+  - mode: bits
+    params:
+      output_bits: 8
+  image_type: PNG
+  input_path: /home/tobfer/.paidiverpy_cache/benthic_csv/images
+  is_remote: false
+  metadata_path: /home/tobfer/.paidiverpy_cache/benthic_csv/metadata/metadata_benthic_csv.csv
+  metadata_type: CSV_FILE
+  n_jobs: 1
+  name: raw
+  output_is_remote: false
+  output_path: output
+  rename: datetime
+  sample_data: benthic_csv
+  sampling:
+  - mode: percent
+    params:
+      value: 0.1
+  step_name: raw
+  track_changes: true
+steps:
+- colour:
+    mode: grayscale
+    name: gray
+    test: false
