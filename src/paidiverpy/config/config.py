@@ -5,13 +5,13 @@ from importlib.resources import files
 from pathlib import Path
 import jsonschema
 import yaml
-from jsonschema import validate
+from jsonschema import Draft202012Validator, validate
 from paidiverpy.config.colour_params import COLOUR_LAYER_METHODS
 from paidiverpy.config.convert_params import CONVERT_LAYER_METHODS
 from paidiverpy.config.custom_params import CustomParams
 from paidiverpy.config.position_params import POSITION_LAYER_METHODS
 from paidiverpy.config.resample_params import RESAMPLE_LAYER_METHODS
-from paidiverpy.utils import data
+from paidiverpy.utils.data import PaidiverpyData
 from paidiverpy.utils.dynamic_classes import DynamicConfig
 from paidiverpy.utils.install_packages import check_and_install_dependencies
 
@@ -37,8 +37,6 @@ class GeneralConfig(DynamicConfig):
             if input_path:
                 self.input_path = Path(input_path) if not self.is_remote else input_path
             self.metadata_path = kwargs.get("metadata_path")
-            if self.metadata_path == "SAMPLE_DATA_BENTHIC":
-                self.metadata_path = Path(data.load("benthic_metadata"))
             self.metadata_type = kwargs.get("metadata_type")
             self.image_type = kwargs.get("image_type")
             self.append_data_to_metadata = kwargs.get("append_data_to_metadata", False)
@@ -70,6 +68,7 @@ class GeneralConfig(DynamicConfig):
         Args:
             sample_data (str): The sample data type
         """
+        data = PaidiverpyData()
         information = data.load(sample_data)
         self.input_path = Path(information["input_path"])
         self.metadata_path = Path(information["metadata_path"])
@@ -109,7 +108,6 @@ class ConvertConfig(DynamicConfig):
         params = kwargs.get("params")
         if params:
             self.params = CONVERT_LAYER_METHODS[self.mode]["params"](**params)
-
 
 class ColourConfig(DynamicConfig):
     """Colour configuration class."""
@@ -214,7 +212,7 @@ class Configuration:
             msg = f"Failed to load the configuration file: {e!s}"
             raise FileNotFoundError(msg) from e
         except jsonschema.exceptions.ValidationError as e:
-            msg = f"Failed to validate the configuration file: {e!s}"
+            msg = f"{e!s}"
             raise jsonschema.exceptions.ValidationError(msg) from e
         except yaml.YAMLError as e:
             msg = f"Failed to load the configuration file: {e!s}"
@@ -235,7 +233,13 @@ class Configuration:
         schema_file_path = files("paidiverpy").joinpath("configuration-schema.json")
         with schema_file_path.open("r", encoding="utf-8") as schema_file:
             schema = json.load(schema_file)
-        validate(instance=config, schema=schema)
+        validator = Draft202012Validator(schema)
+        errors = sorted(validator.iter_errors(config), key=lambda e: e.path)
+        if errors:
+            msg = f"Failed to validate the configuration file.\n"
+            for error in errors:
+                msg += f"{error}: {error.message}\n"
+            raise jsonschema.exceptions.ValidationError(msg)
 
     def _validate_general_config(self, config_data: dict) -> GeneralConfig:
         """Validate the general configuration.

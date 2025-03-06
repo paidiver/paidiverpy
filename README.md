@@ -121,8 +121,8 @@ Together with the documentation, you can explore various use cases through sampl
 If you'd like to manually download example data for testing, you can use the following command:
 
 ```python
-from paidiverpy import data
-data.load(DATASET_NAME)
+from paidiverpy.utils.data import PaidiverpyData
+PaidiverpyData().load(DATASET_NAME)
 ```
 
 Available datasets:
