@@ -109,7 +109,6 @@ def create_meta_yaml(pyproject_data: dict) -> str:
         dependencies=dependencies
     )
 
-
 def save_meta_yaml(meta_yaml_content: str) -> None:
     """Save the meta.yaml content to the repository.
 
