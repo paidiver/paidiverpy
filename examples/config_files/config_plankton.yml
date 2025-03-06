@@ -1,0 +1,33 @@
+general:
+  sample_data: "plankton_csv"
+  output_path: "./output"
+  image_type: "BMP"
+  sampling:
+    - mode: "percent"
+      params:
+        value: 0.9
+
+steps:
+  - colour:
+      name: "deblur"
+      mode: "deblur"
+      params:
+        method: "wiener"
+        psf_type: "gaussian"
+        sigma: 1
+        angle: 45
+  - colour:
+      name: "edge_detection"
+      mode: "edge_detection"
+      params:
+        method: "scharr"
+        object_type: "isolated"
+        object_selection: "largest_area"
+        blur_radius: 3
+        threshold: [2.5, 3.0]
+        deconv: True
+        deconv_method: "LR"
+        deconv_iter: 7
+        deconv_mask_weight: 0.5
+        estimate_sharpness: True
+        small_float_val: 0.0001

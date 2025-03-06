@@ -4,11 +4,12 @@ import json
 import logging
 import warnings
 from io import BytesIO
+from json import JSONDecodeError
 from pathlib import Path
 import dask.dataframe as dd
-import mariqt.tests as miqtt
+import jsonschema
 import pandas as pd
-from mariqt.core import IfdoException
+from jsonschema import Draft202012Validator
 from shapely.geometry import Point
 from paidiverpy.config.config import Configuration
 from paidiverpy.utils.docker import is_running_in_docker
@@ -209,8 +210,16 @@ class MetadataParser:
             if is_running_in_docker():
                 metadata_filename = Path(metadata_path).name
                 metadata_path = f"/app/metadata/{metadata_filename}"
-            with Path(metadata_path).open() as file:
-                metadata = json.load(file)
+            try:
+                with Path(metadata_path).open() as file:
+                    metadata = json.load(file)
+            except FileNotFoundError as error:
+                msg = f"Metadata file not found: {metadata_path}"
+                raise FileNotFoundError(msg) from error
+            except JSONDecodeError as error:
+                msg = f"Metadata file is not a valid JSON file: {metadata_path}. Please check the file"
+                self.logger.error("%s: line %s, column %s", msg, error.lineno, error.colno)
+                raise JSONDecodeError(msg, doc=error.doc, pos=error.pos) from error
         self._validate_ifdo(metadata)
         self.dataset_metadata = metadata["image-set-header"]
         metadata = dd.from_dict(metadata["image-set-items"], orient="index", npartitions=2)
@@ -253,8 +262,7 @@ class MetadataParser:
 
         return metadata.compute()
 
-    @staticmethod
-    def _validate_ifdo(ifdo_data: dict) -> None:
+    def _validate_ifdo(self, ifdo_data: dict) -> None:
         """validate_ifdo method.
 
         Validates input data against iFDO scheme. Raises an exception if the
@@ -263,10 +271,25 @@ class MetadataParser:
         Args:
             ifdo_data (Dict): parsed iFDO data.
         """
-        miqtt.areValidIfdoFields(ifdo_data["image-set-header"])
-        unique_names = miqtt.filesHaveUniqueName(ifdo_data["image-set-items"].keys())
-        if not unique_names:
-            raise IfdoException({"Validation error": f"Duplicate filenames found: {unique_names}"})
+        ifdo_version = ifdo_data.get("image-set-header", {}).get("image-set-ifdo-version", None)
+        if not ifdo_version:
+            msg = "No iFDO version found in metadata."
+            raise jsonschema.exceptions.ValidationError(msg)
+        schema_file_path = f"https://www.marine-imaging.com/fair/schemas/ifdo-{ifdo_version}.json"
+        schema = json.loads(get_file_from_bucket(schema_file_path))
+        validator = Draft202012Validator(schema)
+        errors = sorted(validator.iter_errors(ifdo_data), key=lambda e: e.path)
+        if errors:
+            msg_warn = "Failed to validate the IFDO metadata.\n"
+            msg_warn += "You can continue, but some functions may not work properly.\n"
+            msg_warn += "Please set verbose to 3 (DEBUG) to see the validation errors."
+            self.logger.warning(msg_warn)
+            msg_debug = "Validation errors with the metadata:\n"
+            for error in errors:
+                msg_debug += f"{MetadataParser.format_error(error.path)}: {error.message}\n"
+            self.logger.debug(msg_debug)
+        else:
+            self.logger.info("Metadata file is valid.")
 
     def __repr__(self) -> str:
         """Return the string representation of the metadata.
@@ -286,3 +309,17 @@ class MetadataParser:
         metadata = self.metadata
 
         return message + metadata._repr_html_()
+
+    @staticmethod
+    def format_error(text: list) -> str:
+        """Format error message.
+
+        Args:
+            text (list): List of error messages.
+
+        Returns:
+            str: Formatted error message.
+        """
+        if len(text) > 3:  # noqa: PLR2004
+            return f"...{'.'.join(map(str, text[-3:]))}"
+        return ".".join(map(str, text))

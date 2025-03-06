@@ -42,12 +42,13 @@ class ColorFormatter(logging.Formatter):
         return f"{color}{message}{self.RESET}"
 
 
-def initialise_logging(verbose: int = 2) -> logging.Logger:
+def initialise_logging(verbose: int = 2, logger_name: str = "paidiverpy") -> logging.Logger:
     """Initialise logging configuration.
 
     Args:
         verbose (int): Verbose level (0 = NONE, 1 = ERRORS_WARNINGS, 2 = INFO, 3 = DEBUG).
             Defaults to 2.
+        logger_name (str): The name of the logger. Defaults to "paidiverpy".
 
     Returns:
         logging.Logger: The logger object.
@@ -62,7 +63,6 @@ def initialise_logging(verbose: int = 2) -> logging.Logger:
     except ValueError as err:
         msg = f"Invalid verbose level: {verbose}. Choose from {list(VerboseLevel)}."
         raise ValueError(msg) from err
-
     handler = logging.StreamHandler(sys.stdout)
     formatter = ColorFormatter(
         "☁ paidiverpy ☁  | %(levelname)10s | %(asctime)s | %(message)s",
@@ -70,9 +70,12 @@ def initialise_logging(verbose: int = 2) -> logging.Logger:
     )
     handler.setFormatter(formatter)
 
-    logging.basicConfig(handlers=[handler], level=log_level)
+    logger = logging.getLogger(logger_name)
+    logger.setLevel(log_level)
+    if not logger.hasHandlers():
+        logger.addHandler(handler)
 
-    return logging.getLogger(__name__)
+    return logger
 
 
 def check_raise_error(raise_error: bool, message: str) -> None:

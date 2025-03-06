@@ -81,3 +81,7 @@ credentials.json
 
 # ruff
 .ruff_cache/
+
+# pixi environments
+.pixi
+*.egg-info
