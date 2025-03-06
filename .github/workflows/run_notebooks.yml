@@ -38,5 +38,10 @@ jobs:
         run: |
           for notebook in examples/example_notebooks/*.ipynb; do
             echo "Running $notebook..."
-            (cd examples/example_notebooks && jupyter nbconvert --to notebook --execute "$(basename "$notebook")" --output executed_$(basename "$notebook")") || exit 1
+            notebook_name=$(basename "$notebook")
+            executed_notebook="executed_$notebook_name"
+            # Execute the notebook and save it as executed_<name>
+            (cd examples/example_notebooks && jupyter nbconvert --to notebook --execute "$notebook_name" --output "$executed_notebook") || exit 1
+            # Rename the executed notebook to the original notebook name, overwriting it if necessary
+            mv -f examples/example_notebooks/"$executed_notebook" examples/example_notebooks/"$notebook_name"
           done
