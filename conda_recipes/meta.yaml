@@ -1,6 +1,6 @@
 {% set python_min = "3.10" %}
 {% set version = "0.1.3" %}
-{% set name = "Paidiverpy" %}
+{% set name = "paidiverpy" %}
 package:
   name: {{ name|lower }}
   version: {{ version }}
@@ -10,7 +10,7 @@ source:
 
 build:
   entry_points:
-    - {{ name|lower }} = cli.main:main
+    - paidiverpy = cli.main:main
   noarch: python
   script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
   number: 0
@@ -50,10 +50,10 @@ requirements:
 test:
   imports:
     - cli
-    -
+    - paidiverpy
   commands:
     - pip check
-    -  --help
+    - paidiverpy --help
   requires:
     - python {{ python_min }}
     - pip
