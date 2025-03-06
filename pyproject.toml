@@ -46,7 +46,7 @@ dependencies = [
   "opencv-python>=4.10.0.84",
   ]
 license = {file = "LICENSE"}
-version = "0.1.3"
+version = "0.1.2"
 readme = {file = "README.rst", content-type = "text/x-rst"}
 
 [project.optional-dependencies]
@@ -170,7 +170,7 @@ force-single-line = true
 no-lines-before = ["future","standard-library","third-party","first-party","local-folder"]
 
 [tool.bumpversion]
-current_version = "0.1.3"
+current_version = "0.1.2"
 
 [[tool.bumpversion.files]]
 filename = "src/paidiverpy/__init__.py"
