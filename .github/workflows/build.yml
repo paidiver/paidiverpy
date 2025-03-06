@@ -36,18 +36,18 @@ jobs:
         run: |
           conda env create -f environment.yml
           conda activate Paidiverpy
-          pip install .
-          pip install .[test]
-          pip install .[dev,publishing]
+          conda run -n Paidiverpy pip install .
+          conda run -n Paidiverpy pip install .[test]
+          conda run -n Paidiverpy pip install .[dev,publishing]
+
       - name: Test with pytest
         run: |
           conda run -n Paidiverpy pytest tests/
+
       - name: Verify that we can build the package
         run:  |
-          source ~/.bashrc
-          conda activate Paidiverpy
-          pip install build twine wheel
-          python -m build
+          conda run -n Paidiverpy pip install build twine wheel
+          conda run -n Paidiverpy python -m build
   lint:
     name: Linting build
     runs-on: ubuntu-latest
