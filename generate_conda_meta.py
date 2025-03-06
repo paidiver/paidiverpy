@@ -17,7 +17,7 @@ source:
 
 build:
   entry_points:
-    - {% raw %}{{ name|lower }}{% endraw %} = cli.main:main
+    - {{ name|lower }} = cli.main:main
   noarch: python
   script: {% raw %}{{ PYTHON }}{% endraw %} -m pip install . -vv --no-deps --no-build-isolation
   number: 0
@@ -106,7 +106,7 @@ def create_meta_yaml(pyproject_data: dict) -> str:
     template = Template(TEMPLATE_STR, trim_blocks=True, lstrip_blocks=True)
 
     template_without_header = template.render(
-        description=description, license_file=license_file, dependencies=dependencies
+        description=description, license_file=license_file, dependencies=dependencies, name=name
     )
     header_str = "{% set python_min = {{ python_min }} %}\n{% set version = {{ version }} %}\n{% set name = {{ name }} %}\n"
     header_str = header_str.replace("{{ python_min }}", f'"{python_min}"').strip()
