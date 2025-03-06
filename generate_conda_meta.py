@@ -6,55 +6,57 @@ from jinja2 import Template
 
 TEMPLATE_STR = """
 package:
-    name: {{ name|lower }}
-    version: {{ version }}
+  name: {% raw %}{{ name|lower }}{% endraw %}
+
+  version: {% raw %}{{ version }}{% endraw %}
 
 source:
-    url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-    sha256: 9b4145561e05ffb854dca446da8490cbf2705a214b7d1ebeed16983c052512a0
+  url: https://pypi.org/packages/source/{% raw %}{{ name[0] }}{% endraw %}/{% raw %}{{ name }}{% endraw %}/{% raw %}{{ name }}{% endraw %}-{% raw %}{{ version }}{% endraw %}.tar.gz
+  sha256: {% raw %}{{ sha256 }}{% endraw %}
+
 
 build:
-    entry_points:
-    - {{ name|lower }} = cli.main:main
-    noarch: python
-    script: {% raw %}{{ PYTHON }}{% endraw %} -m pip install . -vv --no-deps --no-build-isolation
-    number: 0
+  entry_points:
+    - {% raw %}{{ name|lower }}{% endraw %} = cli.main:main
+  noarch: python
+  script: {% raw %}{{ PYTHON }}{% endraw %} -m pip install . -vv --no-deps --no-build-isolation
+  number: 0
 
 requirements:
-    host:
+  host:
     - python {% raw %}{{ python_min }}{% endraw %}
 
     - setuptools >=64.0.0
     - setuptools-scm
     - wheel
     - pip
-    run:
+  run:
     - python >={% raw %}{{ python_min }}{% endraw %}
 
-    {% for dep in dependencies %}
+  {% for dep in dependencies %}
     - {{ dep }}
-    {% endfor %}
+  {% endfor %}
 
 test:
-    imports:
+  imports:
     - cli
     - {{ name|lower }}
-    commands:
+  commands:
     - pip check
     - {{ name|lower }} --help
-    requires:
+  requires:
     - python {% raw %}{{ python_min }}{% endraw %}
 
     - pip
 
 about:
-    summary: {{ description }}
-    home: https://github.com/paidiver/paidiverpy
-    license: Apache-2.0
-    license_file: {{ license_file }}
+  summary: {{ description }}
+  home: https://github.com/paidiver/paidiverpy
+  license: Apache-2.0
+  license_file: {{ license_file }}
 
 extra:
-    recipe-maintainers:
+  recipe-maintainers:
     - soutobias
 
 """
@@ -104,13 +106,13 @@ def create_meta_yaml(pyproject_data: dict) -> str:
     template = Template(TEMPLATE_STR, trim_blocks=True, lstrip_blocks=True)
 
     template_without_header = template.render(
-        name=name, version=version, description=description, license_file=license_file, dependencies=dependencies
+        description=description, license_file=license_file, dependencies=dependencies
     )
-
-    header_str = """
-    {% set python_min = {{ python_min }} %}
-    """
+    header_str = "{% set python_min = {{ python_min }} %}\n{% set version = {{ version }} %}\n{% set name = {{ name }} %}\n"
     header_str = header_str.replace("{{ python_min }}", f'"{python_min}"').strip()
+    header_str = header_str.replace("{{ version }}", f'"{version}"').strip()
+    header_str = header_str.replace("{{ name }}", f'"{name.lower()}"').strip()
+
     template_text = header_str + template_without_header
     template_text = template_text.replace("opencv-python", "opencv")
     return template_text.replace("matplotlib", "matplotlib-base")
@@ -132,3 +134,4 @@ def save_meta_yaml(meta_yaml_content: str) -> None:
 pyproject_data = load_toml()
 meta_yaml_content = create_meta_yaml(pyproject_data)
 save_meta_yaml(meta_yaml_content)
+print("meta.yaml file generated successfully.")
