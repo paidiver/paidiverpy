@@ -32,9 +32,9 @@ jobs:
           conda init bash
 
       - name: Create conda environment
+        shell: bash -l {0}
         run: |
           conda env create -f environment.yml
-          source ~/.bashrc
           conda activate Paidiverpy
           pip install .
           pip install .[test]
