@@ -1,11 +1,11 @@
 name: Run Jupyter Notebooks
 
-# on:
-#   push:
-#     branches:
-#       - main
-#       - dev
-#   pull_request:
+on:
+  push:
+    # branches:
+    #   - main
+    #   - dev
+  pull_request:
 
 jobs:
   run-notebooks:
