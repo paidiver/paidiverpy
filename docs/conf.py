@@ -25,7 +25,7 @@ author = "Paidiver Developers"
 # built documents.
 #
 # The short X.Y version.
-version = "0.1.2"
+version = "0.1.3"
 # The full version, including alpha/beta/rc tags.
 release = version
 
@@ -83,6 +83,10 @@ autoapi_options = [
     "no-inherited-members",
     "no-class-attributes",
 ]
+
+# autoapi_ignore = [
+#     "paidiverpy.metadata_parser.metadata_parser",  # Exclude it as a submodule
+# ]
 
 # -- Options for HTML output ----------------------------------------------
 

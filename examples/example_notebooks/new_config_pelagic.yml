@@ -1,0 +1,61 @@
+general:
+  client: null
+  convert:
+  - mode: bits
+    name: convert
+    params:
+      output_bits: 8
+      raise_error: false
+    step_name: convert
+    test: false
+  image_type: BMP
+  input_path: /home/tobfer/.paidiverpy_cache/plankton_csv/images
+  is_remote: false
+  metadata_path: /home/tobfer/.paidiverpy_cache/plankton_csv/metadata/metadata_plankton_csv.csv
+  metadata_type: CSV_FILE
+  n_jobs: 1
+  name: raw
+  output_is_remote: false
+  output_path: output
+  rename: null
+  sample_data: plankton_csv
+  sampling:
+  - mode: percent
+    name: sampling
+    params:
+      raise_error: false
+      value: 0.9
+    step_name: sampling
+    test: false
+  step_name: raw
+  track_changes: true
+steps:
+- sampling:
+    mode: fixed
+    name: Area1
+    params:
+      value: 10
+    test: false
+- colour:
+    mode: edge_detection
+    name: edge_detection
+    params:
+      blur_radius: 3
+      deconv: true
+      deconv_iter: 7
+      deconv_mask_weight: 0.5
+      deconv_method: LR
+      estimate_sharpness: true
+      method: scharr
+      object_selection: largest_area
+      object_type: isolated
+      raise_error: false
+      small_float_val: 0.0001
+      threshold:
+      - 2.5
+      - 3.0
+    test: false
+- colour:
+    mode: contrast
+    name: contrast
+    test: false

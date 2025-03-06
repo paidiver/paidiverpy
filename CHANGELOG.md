@@ -2,10 +2,28 @@
 
 ## [Unreleased](https://github.com/paidiver/paidiverpy/tree/HEAD)
 
-[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.1.1...HEAD)
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.1.3...HEAD)
 
 **Closed issues:**
 
+- Rename pelagic to plankton [\#188](https://github.com/paidiver/paidiverpy/issues/188)
+- Create a conda distribution and add build for mac and windows [\#174](https://github.com/paidiver/paidiverpy/issues/174)
+
+**Merged pull requests:**
+
+- 174 create a conda distribution [\#192](https://github.com/paidiver/paidiverpy/pull/192) ([soutobias](https://github.com/soutobias))
+
+## [v0.1.3](https://github.com/paidiver/paidiverpy/tree/v0.1.3) (2025-03-06)
+
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.1.2...v0.1.3)
+
+## [v0.1.2](https://github.com/paidiver/paidiverpy/tree/v0.1.2) (2025-03-06)
+
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.1.1...v0.1.2)
+
+**Closed issues:**
+
+- Create a ci/cd that runs the notebook automatically [\#190](https://github.com/paidiver/paidiverpy/issues/190)
 - Link Checker Report - 2025-02-26 [\#178](https://github.com/paidiver/paidiverpy/issues/178)
 - Link Checker Report - 2025-02-26 [\#177](https://github.com/paidiver/paidiverpy/issues/177)
 - Link Checker Report - 2025-02-25 [\#176](https://github.com/paidiver/paidiverpy/issues/176)

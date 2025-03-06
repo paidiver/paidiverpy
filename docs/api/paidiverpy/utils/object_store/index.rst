@@ -54,14 +54,14 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: get_file_from_bucket(file_path: str, storage_options: dict) -> bytes
+.. py:function:: get_file_from_bucket(file_path: str, storage_options: dict | None = None) -> bytes
 
    
    Get a file from an object store bucket.
 
    :param file_path: Full S3 path (e.g., "s3://my-bucket/path/to/image.png").
    :type file_path: str
-   :param storage_options: Storage options for reading metadata file.
+   :param storage_options: Storage options for reading metadata file. Defaults to None.
    :type storage_options: dict
 
    :returns: The file content.

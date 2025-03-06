@@ -3,7 +3,7 @@
 Example Data
 ====================
 
-The Paidiverpy package includes a selection of example datasets designed for testing and demonstration purposes. These datasets encompass both pelagic and benthic data types, each accompanied by their respective metadata files. The metadata files are formatted according to the IFDO standard as well as in CSV format.
+The Paidiverpy package includes a selection of example datasets designed for testing and demonstration purposes. These datasets encompass both plankton and benthic data types, each accompanied by their respective metadata files. The metadata files are formatted according to the IFDO standard as well as in CSV format.
 
 Automatic Download
 ------------------
@@ -17,15 +17,15 @@ If you prefer to manually download the example data for testing, you can do so u
 
 .. code-block:: python
 
-    from paidiverpy.utils import data
-    data.load(DATASET_NAME)
+    from paidiverpy.utils.data import PaidiverpyData
+    PaidiverpyData().load(DATASET_NAME)
 
 Available Datasets
 ------------------
 
 The following datasets are available for use:
 
-- **pelagic_csv**: Contains pelagic dataset in CSV format.
+- **plankton_csv**: Contains plankton dataset in CSV format.
 - **benthic_csv**: Contains benthic dataset in CSV format.
 - **benthic_ifdo**: Contains benthic dataset formatted as IFDO.
 
