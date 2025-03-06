@@ -113,7 +113,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-.. py:function:: initialise_logging(verbose: int = 2) -> logging.Logger
+.. py:function:: initialise_logging(verbose: int = 2, logger_name: str = 'paidiverpy') -> logging.Logger
 
    
    Initialise logging configuration.
@@ -121,6 +121,8 @@ Module Contents
    :param verbose: Verbose level (0 = NONE, 1 = ERRORS_WARNINGS, 2 = INFO, 3 = DEBUG).
                    Defaults to 2.
    :type verbose: int
+   :param logger_name: The name of the logger. Defaults to "paidiverpy".
+   :type logger_name: str
 
    :returns: The logger object.
    :rtype: logging.Logger

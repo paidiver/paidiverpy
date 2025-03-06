@@ -84,6 +84,10 @@ autoapi_options = [
     "no-class-attributes",
 ]
 
+# autoapi_ignore = [
+#     "paidiverpy.metadata_parser.metadata_parser",  # Exclude it as a submodule
+# ]
+
 # -- Options for HTML output ----------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
