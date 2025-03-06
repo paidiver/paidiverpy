@@ -40,12 +40,12 @@ def define_storage_options(path: str | Path) -> dict:
     return storage_options
 
 
-def get_file_from_bucket(file_path: str, storage_options: dict) -> bytes:
+def get_file_from_bucket(file_path: str, storage_options: dict | None = None) -> bytes:
     """Get a file from an object store bucket.
 
     Args:
         file_path (str): Full S3 path (e.g., "s3://my-bucket/path/to/image.png").
-        storage_options (dict): Storage options for reading metadata file.
+        storage_options (dict): Storage options for reading metadata file. Defaults to None.
 
     Returns:
         bytes: The file content.
