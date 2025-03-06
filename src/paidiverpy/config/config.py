@@ -5,7 +5,7 @@ from importlib.resources import files
 from pathlib import Path
 import jsonschema
 import yaml
-from jsonschema import Draft202012Validator, validate
+from jsonschema import Draft202012Validator
 from paidiverpy.config.colour_params import COLOUR_LAYER_METHODS
 from paidiverpy.config.convert_params import CONVERT_LAYER_METHODS
 from paidiverpy.config.custom_params import CustomParams
@@ -236,7 +236,7 @@ class Configuration:
         validator = Draft202012Validator(schema)
         errors = sorted(validator.iter_errors(config), key=lambda e: e.path)
         if errors:
-            msg = f"Failed to validate the configuration file.\n"
+            msg = "Failed to validate the configuration file.\n"
             for error in errors:
                 msg += f"{error}: {error.message}\n"
             raise jsonschema.exceptions.ValidationError(msg)

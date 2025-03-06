@@ -45,7 +45,7 @@ DATASET_URLS = {
     },
 }
 
-class PaidiverpyData():
+class PaidiverpyData:
 
     def __init__(self):
         self.logger = logging.getLogger("paidiverpy") or initialise_logging()

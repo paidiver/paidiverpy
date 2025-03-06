@@ -72,7 +72,7 @@ class Paidiverpy:
             except Exception as error:
                 msg = f"{error}"
                 self.logger.error(msg)
-                raise error
+                raise
             self.metadata = metadata or self._initialize_metadata()
             self.images = images or ImagesLayer(
                 output_path=self.config.general.output_path,

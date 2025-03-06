@@ -1,15 +1,15 @@
 """Module for parsing metadata files."""
 
 import json
-from json import JSONDecodeError
 import logging
 import warnings
 from io import BytesIO
+from json import JSONDecodeError
 from pathlib import Path
-from jsonschema import Draft202012Validator, validate
 import dask.dataframe as dd
 import jsonschema
 import pandas as pd
+from jsonschema import Draft202012Validator
 from shapely.geometry import Point
 from paidiverpy.config.config import Configuration
 from paidiverpy.utils.docker import is_running_in_docker
@@ -285,7 +285,7 @@ class MetadataParser:
         validator = Draft202012Validator(schema)
         errors = sorted(validator.iter_errors(ifdo_data), key=lambda e: e.path)
         if errors:
-            msg_warn = f"Failed to validate the IFDO metadata.\n"
+            msg_warn = "Failed to validate the IFDO metadata.\n"
             msg_warn += "You can continue, but some functions may not work properly.\n"
             msg_warn += "Please set verbose to 3 (DEBUG) to see the validation errors."
             self.logger.warning(msg_warn)

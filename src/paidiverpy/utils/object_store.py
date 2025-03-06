@@ -40,7 +40,7 @@ def define_storage_options(path: str | Path) -> dict:
     return storage_options
 
 
-def get_file_from_bucket(file_path: str, storage_options: dict = None) -> bytes:
+def get_file_from_bucket(file_path: str, storage_options: dict | None = None) -> bytes:
     """Get a file from an object store bucket.
 
     Args:

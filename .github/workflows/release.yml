@@ -40,11 +40,6 @@ jobs:
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: python -m twine upload dist/* --verbose
 
-    - name: Generate Conda Metadata
-      run: |
-        python conda/generate_conda_meta.py
-        cat conda/meta.yaml
-
   zenodo:
     needs: release
     runs-on: ubuntu-latest
