@@ -1,26 +1,26 @@
-name: Publish to Conda Forge
+name: Create Conda Meta File
 
 on:
   push:
-  #   branches:
-  #     - main
-  # pull_request:
-  #   branches:
-  #     - main
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build-and-publish:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-
     - name: Set up Miniconda
       uses: conda-incubator/setup-miniconda@v3
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: 3.9
 
     - name: Initialize Conda
       run: |
@@ -41,22 +41,19 @@ jobs:
       run: |
         source ~/.bashrc
         conda-smithy recipe-lint --conda-forge conda_recipes/
-        # Check if there are linting issues
         if [ $? -ne 0 ]; then
           echo "Linting failed due to validation problems."
           exit 1
         fi
 
-    # - name: Build Conda package with Conda Forge recipe
-    #   run: |
-    #     conda build --output-folder conda-build .  # Build the package from meta.yml
+    - name: Commit and Push Changes
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-    # - name: Push changes to Conda Forge feedstock
-    #   uses: ad-m/github-push-action@v0.6
-    #   with:
-    #     github_token: ${{ secrets.GITHUB_TOKEN }}  # Automatically pushes to the feedstock repo
-
-    # # Step 7: Trigger the Conda Forge build for your package
-    # - name: Trigger Conda Forge build
-    #   run: |
-    #     echo "Your changes are now pushed to Conda Forge, triggering a build."
+        # Check for changes before committing
+        git diff --quiet conda_recipes/meta.yml || (
+          git add conda_recipes/meta.yml
+          git commit -m "chore: update conda recipe"
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
+        )
