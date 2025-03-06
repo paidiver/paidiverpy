@@ -1,4 +1,7 @@
+"""Generate the meta.yaml file for the conda recipe."""
+
 import os
+from pathlib import Path
 import toml
 from jinja2 import Template
 
@@ -62,12 +65,16 @@ extra:
 
 """
 
-def load_toml():
-    """Load the pyproject.toml file."""
-    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__)))
-    toml_path = os.path.join(repo_root, "pyproject.toml")
+def load_toml() -> dict:
+    """Load the pyproject.toml file.
 
-    with open(toml_path) as file:
+    Returns:
+        dict: The pyproject.toml data.
+    """
+    repo_root = Path.resolve(Path(__file__).parent)
+    toml_path = repo_root / "pyproject.toml"
+
+    with toml_path.open() as file:
         return toml.load(file)
 
 
