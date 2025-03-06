@@ -1,15 +1,11 @@
 general:
-  sample_data: "pelagic_csv"
+  sample_data: "plankton_csv"
   output_path: "./output"
   image_type: "BMP"
   sampling:
     - mode: "percent"
       params:
         value: 0.9
-  convert:
-    - mode: "bits"
-      params:
-        output_bits: 8
 
 steps:
   - colour:

@@ -42,9 +42,7 @@ class ColorFormatter(logging.Formatter):
         return f"{color}{message}{self.RESET}"
 
 
-def initialise_logging(verbose: int = 2,
-                       logger_name: str = "paidiverpy"
-                       ) -> logging.Logger:
+def initialise_logging(verbose: int = 2, logger_name: str = "paidiverpy") -> logging.Logger:
     """Initialise logging configuration.
 
     Args:
@@ -78,6 +76,7 @@ def initialise_logging(verbose: int = 2,
         logger.addHandler(handler)
 
     return logger
+
 
 def check_raise_error(raise_error: bool, message: str) -> None:
     """Check if an error should be raised and raise it if necessary.

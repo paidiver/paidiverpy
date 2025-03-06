@@ -9,16 +9,16 @@ general:
     step_name: convert
     test: false
   image_type: BMP
-  input_path: /home/tobfer/.paidiverpy_cache/pelagic_csv/images
+  input_path: /home/tobfer/.paidiverpy_cache/plankton_csv/images
   is_remote: false
-  metadata_path: /home/tobfer/.paidiverpy_cache/pelagic_csv/metadata/metadata_pelagic_csv.csv
+  metadata_path: /home/tobfer/.paidiverpy_cache/plankton_csv/metadata/metadata_plankton_csv.csv
   metadata_type: CSV_FILE
   n_jobs: 1
   name: raw
   output_is_remote: false
   output_path: output
   rename: null
-  sample_data: pelagic_csv
+  sample_data: plankton_csv
   sampling:
   - mode: percent
     name: sampling

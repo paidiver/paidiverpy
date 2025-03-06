@@ -109,6 +109,7 @@ class ConvertConfig(DynamicConfig):
         if params:
             self.params = CONVERT_LAYER_METHODS[self.mode]["params"](**params)
 
+
 class ColourConfig(DynamicConfig):
     """Colour configuration class."""
 

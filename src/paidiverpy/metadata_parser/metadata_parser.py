@@ -85,8 +85,7 @@ class MetadataParser:
             "metadata_type": metadata_type,
             "append_data_to_metadata": append_data_to_metadata,
         }
-        config = Configuration(input_path="placeholder",
-                               output_path="placeholder")
+        config = Configuration(input_path="placeholder", output_path="placeholder")
         config.add_config("general", general_params)
         return config
 
@@ -214,13 +213,13 @@ class MetadataParser:
             try:
                 with Path(metadata_path).open() as file:
                     metadata = json.load(file)
-            except FileNotFoundError:
+            except FileNotFoundError as error:
                 msg = f"Metadata file not found: {metadata_path}"
-                raise FileNotFoundError(msg)
+                raise FileNotFoundError(msg) from error
             except JSONDecodeError as error:
                 msg = f"Metadata file is not a valid JSON file: {metadata_path}. Please check the file"
-                self.logger.error(f"{msg}: line {error.lineno}, column {error.colno}")
-                raise JSONDecodeError(msg, doc=error.doc, pos=error.pos)
+                self.logger.error("%s: line %s, column %s", msg, error.lineno, error.colno)
+                raise JSONDecodeError(msg, doc=error.doc, pos=error.pos) from error
         self._validate_ifdo(metadata)
         self.dataset_metadata = metadata["image-set-header"]
         metadata = dd.from_dict(metadata["image-set-items"], orient="index", npartitions=2)
@@ -272,10 +271,6 @@ class MetadataParser:
         Args:
             ifdo_data (Dict): parsed iFDO data.
         """
-        def format_error(text):
-            if len(text) > 3:
-                return f"...{'.'.join(map(str, text[-3:]))}"
-            return ".".join(map(str, text))
         ifdo_version = ifdo_data.get("image-set-header", {}).get("image-set-ifdo-version", None)
         if not ifdo_version:
             msg = "No iFDO version found in metadata."
@@ -291,7 +286,7 @@ class MetadataParser:
             self.logger.warning(msg_warn)
             msg_debug = "Validation errors with the metadata:\n"
             for error in errors:
-                msg_debug += f"{format_error(error.path)}: {error.message}\n"
+                msg_debug += f"{MetadataParser.format_error(error.path)}: {error.message}\n"
             self.logger.debug(msg_debug)
         else:
             self.logger.info("Metadata file is valid.")
@@ -314,3 +309,17 @@ class MetadataParser:
         metadata = self.metadata
 
         return message + metadata._repr_html_()
+
+    @staticmethod
+    def format_error(text: list) -> str:
+        """Format error message.
+
+        Args:
+            text (list): List of error messages.
+
+        Returns:
+            str: Formatted error message.
+        """
+        if len(text) > 3:  # noqa: PLR2004
+            return f"...{'.'.join(map(str, text[-3:]))}"
+        return ".".join(map(str, text))
