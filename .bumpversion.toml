@@ -1,5 +1,5 @@
 [tool.bumpversion]
-current_version = "0.1.4"
+current_version = "0.1.2"  # Current version
 parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
 serialize = ["{major}.{minor}.{patch}"]
 search = "{current_version}"
@@ -7,14 +7,23 @@ replace = "{new_version}"
 regex = false
 ignore_missing_version = false
 ignore_missing_files = false
-tag = false
+tag = true  # Automatically tag the commit with the new version
 sign_tags = false
-tag_name = "v{new_version}"
+tag_name = "v{new_version}"  # Tag format (e.g., v0.1.2)
 tag_message = "Bump version: {current_version} → {new_version}"
 allow_dirty = false
-commit = false
+commit = true  # Automatically commit the changes
 message = "Bump version: {current_version} → {new_version}"
-commit_args = ""
+commit_args = "--no-verify"  # Optional: prevent pre-commit hooks from running during version bump
 setup_hooks = []
 pre_commit_hooks = []
 post_commit_hooks = []
+
+[[tool.bumpversion.files]]
+filename = "src/paidiverpy/__init__.py"  # File to update the version
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"  # File to update the version in the [project] section
+[[tool.bumpversion.files]]
+filename = "CITATION.cff"  # Optional, if you want to include this
+[[tool.bumpversion.files]]
+filename = "docs/conf.py"  # Optional, if you want to include this
