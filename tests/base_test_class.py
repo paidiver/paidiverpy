@@ -16,7 +16,7 @@ class BaseTestClass(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         """Set up the test class."""
-        cls.logger = logging.getLogger(cls.__name__)
+        cls.logger = logging.getLogger("paidiverpy")
         cls.remove_datasets()
         cls.remove_custom_packages()
 

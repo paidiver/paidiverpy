@@ -67,7 +67,12 @@ class Paidiverpy:
             self.raise_error = raise_error
             self.verbose = verbose
             self.logger = logger or initialise_logging(verbose=self.verbose)
-            self.config = config or self._initialise_config(config_file_path, config_params)
+            try:
+                self.config = config or self._initialise_config(config_file_path, config_params)
+            except Exception as error:
+                msg = f"{error}"
+                self.logger.error(msg)
+                raise error
             self.metadata = metadata or self._initialize_metadata()
             self.images = images or ImagesLayer(
                 output_path=self.config.general.output_path,
@@ -224,7 +229,7 @@ class Paidiverpy:
             general_config["track_changes"] = config_params.track_changes
         if config_params.n_jobs:
             general_config["n_jobs"] = config_params.n_jobs
-        config = Configuration()
+        config = Configuration(logger=self.logger)
         config.add_config("general", general_config)
         return config
 

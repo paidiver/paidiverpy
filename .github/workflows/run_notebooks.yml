@@ -1,0 +1,42 @@
+name: Run Jupyter Notebooks
+
+# on:
+#   push:
+#     branches:
+#       - main
+#       - dev
+#   pull_request:
+
+jobs:
+  run-notebooks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Initialize Conda
+        run: |
+          conda init bash
+
+      - name: Create conda environment
+        run: |
+          conda env create -f environment.yml
+          source ~/.bashrc
+          conda activate Paidiverpy
+          pip install --upgrade pip
+          pip install nbconvert nbclient
+          pip install .
+
+      - name: Run Notebooks in "examples/example_notebooks"
+        run: |
+          for notebook in examples/example_notebooks/*.ipynb; do
+            echo "Running $notebook..."
+            (cd examples/example_notebooks && jupyter nbconvert --to notebook --execute "$(basename "$notebook")" --output executed_$(basename "$notebook")") || exit 1
+          done
