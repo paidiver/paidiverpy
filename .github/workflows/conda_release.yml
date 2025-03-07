@@ -6,7 +6,6 @@ on:
       - dev
   pull_request:
     branches:
-      - main
       - dev
 
 jobs:
@@ -37,6 +36,7 @@ jobs:
       run: |
         source ~/.bashrc
         python generate_conda_meta.py
+        python generate_conda_meta.py --bioconda
 
     - name: Validate Conda recipe
       run: |
@@ -51,9 +51,9 @@ jobs:
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-        git diff --quiet -- conda_recipes/meta.yml || (
-          git add conda_recipes/meta.yml
+        git config pull.rebase false
+        git diff --quiet -- conda_recipes/meta_bioconda.yaml conda_recipes/meta.yaml || (
+          git add conda_recipes/meta_bioconda.yaml conda_recipes/meta.yaml
           git commit -m "chore: update conda recipe"
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }}
         )
