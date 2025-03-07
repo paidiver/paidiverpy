@@ -6,11 +6,13 @@
 
 **Closed issues:**
 
+- Deploy code on bioconda [\#194](https://github.com/paidiver/paidiverpy/issues/194)
 - Rename pelagic to plankton [\#188](https://github.com/paidiver/paidiverpy/issues/188)
 - Create a conda distribution and add build for mac and windows [\#174](https://github.com/paidiver/paidiverpy/issues/174)
 
 **Merged pull requests:**
 
+- 194 deploy code on bioconda [\#195](https://github.com/paidiver/paidiverpy/pull/195) ([soutobias](https://github.com/soutobias))
 - 174 create a conda distribution [\#192](https://github.com/paidiver/paidiverpy/pull/192) ([soutobias](https://github.com/soutobias))
 
 ## [v0.1.3](https://github.com/paidiver/paidiverpy/tree/v0.1.3) (2025-03-06)
