@@ -51,7 +51,6 @@ jobs:
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
         git diff --quiet -- conda_recipes/meta.yaml || (
           git add conda_recipes/meta.yaml
           git commit -m "chore: update conda recipe"
