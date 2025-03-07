@@ -7,6 +7,7 @@ on:
 
 jobs:
   release:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
 
     permissions:
@@ -39,6 +40,13 @@ jobs:
         TWINE_USERNAME: "__token__"
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: python -m twine upload dist/* --verbose
+
+    - name: calculate sha256 and add to meta file
+      run: |
+        sha256=$(sha256sum dist/*.tar.gz | cut -d ' ' -f 1)
+        sed -i "s/{{ sha256 }}/$sha256/" conda_recipes/meta.yaml
+
+    - name: Commit and Push Changes
 
   zenodo:
     needs: release

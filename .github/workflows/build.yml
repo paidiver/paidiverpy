@@ -11,6 +11,7 @@ on:
 jobs:
 
   build:
+    if: github.actor != 'github-actions[bot]'
     name: Build for (${{ matrix.python-version }}, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
@@ -49,6 +50,7 @@ jobs:
           conda run -n Paidiverpy pip install build twine wheel
           conda run -n Paidiverpy python -m build
   lint:
+    if: github.actor != 'github-actions[bot]'
     name: Linting build
     runs-on: ubuntu-latest
     strategy:

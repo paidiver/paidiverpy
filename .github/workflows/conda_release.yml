@@ -10,7 +10,7 @@ on:
       - dev
 
 jobs:
-  build-and-publish:
+  build:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
 
@@ -52,8 +52,7 @@ jobs:
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-        # Check for changes before committing
-        git diff --quiet conda_recipes/meta.yml || (
+        git diff --quiet -- conda_recipes/meta.yml || (
           git add conda_recipes/meta.yml
           git commit -m "chore: update conda recipe"
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
