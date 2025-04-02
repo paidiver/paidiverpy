@@ -78,6 +78,7 @@ class GeneralConfig(DynamicConfig):
         if information.get("append_data_to_metadata"):
             self.append_data_to_metadata = information["append_data_to_metadata"]
 
+
 class PositionConfig(DynamicConfig):
     """Position configuration class."""
 
@@ -373,7 +374,6 @@ class Configuration:
                 allow_unicode=True,
             )
 
-
     def get_output_path(self, output_path: str | None = None) -> tuple[Path | str, bool]:
         """Get the output path.
 
@@ -395,7 +395,6 @@ class Configuration:
             if not output_path.exists():
                 output_path.mkdir(parents=True, exist_ok=True)
         return output_path, is_remote
-
 
     def to_dict(self, yaml_convert: bool = False) -> dict:
         """Convert the configuration to a dictionary.
