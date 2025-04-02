@@ -9,9 +9,12 @@
 - Deploy code on bioconda [\#194](https://github.com/paidiver/paidiverpy/issues/194)
 - Rename pelagic to plankton [\#188](https://github.com/paidiver/paidiverpy/issues/188)
 - Create a conda distribution and add build for mac and windows [\#174](https://github.com/paidiver/paidiverpy/issues/174)
+- Add data investigation feature [\#26](https://github.com/paidiver/paidiverpy/issues/26)
+- Create a simple frontend using streamlit for pipeline management [\#25](https://github.com/paidiver/paidiverpy/issues/25)
 
 **Merged pull requests:**
 
+- update tests [\#197](https://github.com/paidiver/paidiverpy/pull/197) ([soutobias](https://github.com/soutobias))
 - 194 deploy code on bioconda [\#195](https://github.com/paidiver/paidiverpy/pull/195) ([soutobias](https://github.com/soutobias))
 - 174 create a conda distribution [\#192](https://github.com/paidiver/paidiverpy/pull/192) ([soutobias](https://github.com/soutobias))
 
