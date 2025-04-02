@@ -18,11 +18,11 @@ class TestPipelineTestSteps(BaseTestClass):
         unittest (BaseTestClass): The unittest class.
     """
 
-    @patch("matplotlib.pyplot.show")
+    @patch("paidiverpy.investigation_layer.investigation_layer.InvestigationLayer.run")
     def test_pipeline_testing_steps(self, mock_show: MagicMock):
         """Test the Pipeline Testing Steps."""
         number_images = 1
-        number_calls = 2
+        number_calls = 1
         pipeline = Pipeline(config_file_path="tests/config_files/config_benthic_test_steps.yml")
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
