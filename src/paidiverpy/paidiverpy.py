@@ -5,7 +5,6 @@ from functools import partial
 from pathlib import Path
 import dask
 import dask.array as da
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from dask.diagnostics import ProgressBar
@@ -334,6 +333,7 @@ class Paidiverpy:
             last=last,
             output_path=output_path,
             image_format=image_format,
+            config=self.config,
             client=self.client,
             n_jobs=self.n_jobs,
             logger=self.logger,
@@ -345,25 +345,6 @@ class Paidiverpy:
         output_path = self.config.general.output_path
         self.logger.info("Removing images from the output path: %s", output_path)
         self.images.remove(output_path)
-
-    def plot_trimmed_photos(self, new_metadata: pd.DataFrame) -> None:
-        """Plot the trimmed photos.
-
-        Args:
-            new_metadata (pd.DataFrame): The new metadata.
-        """
-        metadata = self.get_metadata()
-        if "image-longitude" not in metadata.columns or "image-longitude" not in new_metadata.columns:
-            self.logger.warning(
-                "Longitude and Latitude columns are not found in the metadata.",
-            )
-            self.logger.warning("Plotting will not be performed.")
-            return
-        plt.figure(figsize=(20, 10))
-        plt.plot(metadata["image-longitude"], metadata["image-latitude"], ".k")
-        plt.plot(new_metadata["image-longitude"], new_metadata["image-latitude"], "or")
-        plt.legend(["Original", "After Trim"])
-        plt.show(block=False)
 
     def clear_steps(self, value: int | str, by_order: bool = True) -> None:
         """Clear steps from the images and metadata.

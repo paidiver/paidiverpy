@@ -12,6 +12,7 @@ from paidiverpy.config.custom_params import CustomParams
 from paidiverpy.config.position_params import POSITION_LAYER_METHODS
 from paidiverpy.config.resample_params import RESAMPLE_LAYER_METHODS
 from paidiverpy.utils.data import PaidiverpyData
+from paidiverpy.utils.docker import is_running_in_docker
 from paidiverpy.utils.dynamic_classes import DynamicConfig
 from paidiverpy.utils.install_packages import check_and_install_dependencies
 
@@ -372,6 +373,28 @@ class Configuration:
                 default_flow_style=False,
                 allow_unicode=True,
             )
+
+    def get_output_path(self, output_path: str | None = None) -> tuple[Path | str, bool]:
+        """Get the output path.
+
+        Args:
+            output_path (str, optional): The output path. Defaults to None.
+
+        Returns:
+            tuple[Path | str, bool]: The output path and whether it is remote.
+        """
+        if not output_path:
+            output_path = self.general.output_path
+        is_remote = str(output_path).startswith("s3://")
+        if not is_remote:
+            is_docker = is_running_in_docker()
+            if is_docker:
+                output_path = Path("/app/output/")
+            if not output_path:
+                output_path = self.output_path
+            if not output_path.exists():
+                output_path.mkdir(parents=True, exist_ok=True)
+        return output_path, is_remote
 
     def to_dict(self, yaml_convert: bool = False) -> dict:
         """Convert the configuration to a dictionary.

@@ -96,6 +96,7 @@ class Pipeline(Paidiverpy):
             self.logger.info("Processing images using Dask client using the following dashboard link: %s", self.client.dashboard_link)
         for index, step in enumerate(self.steps):
             if index > self.runned_steps:
+                # TODO - add default params if not all params are provided
                 step_name, step_class, step_params = self._get_steps_params(step)
                 self.logger.info(
                     "Running step %s: %s - %s",
