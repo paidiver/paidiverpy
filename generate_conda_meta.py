@@ -24,11 +24,8 @@ build:
   number: 0
   {% if bioconda %}
   run_exports:
-    - python >={% raw %}{{ python_min }}{% endraw %}
+    - {% raw %}{{ pin_subpackage('paidiverpy', max_pin="x.x") }}{% endraw %}
 
-  {% for dep in dependencies %}
-    - {{ dep }}
-  {% endfor %}
   {% endif %}
 
 requirements:
@@ -42,9 +39,9 @@ requirements:
   run:
     - python >={% raw %}{{ python_min }}{% endraw %}
 
-  {% for dep in dependencies %}
-    - {{ dep }}
-  {% endfor %}
+{% for item in dependencies %}
+    - {{ item }}
+{% endfor %}
 
 test:
   imports:
@@ -68,7 +65,7 @@ extra:
   recipe-maintainers:
     - soutobias
 
-"""
+"""  # noqa: E501
 
 
 def load_toml() -> dict:
@@ -82,6 +79,7 @@ def load_toml() -> dict:
 
     with toml_path.open() as file:
         return toml.load(file)
+
 
 def create_meta_yaml(pyproject_data: dict, bioconda: bool = False) -> str:
     """Create the meta.yaml file content.
@@ -113,6 +111,10 @@ def create_meta_yaml(pyproject_data: dict, bioconda: bool = False) -> str:
     ]
 
     template = Template(TEMPLATE_STR, trim_blocks=True, lstrip_blocks=True)
+
+    # template_without_header = template.render(
+    #     description=description, license_file=license_file, name=name, bioconda=bioconda
+    # )
 
     template_without_header = template.render(
         description=description, license_file=license_file, dependencies=dependencies, name=name, bioconda=bioconda
@@ -148,8 +150,7 @@ def save_meta_yaml(meta_yaml_content: str, bioconda: bool = False) -> str:
 
 
 if __name__ == "__main__":
-    bioconda_flag = '--bioconda' in sys.argv
+    bioconda_flag = "--bioconda" in sys.argv
     pyproject_data = load_toml()
     meta_yaml_content = create_meta_yaml(pyproject_data, bioconda=bioconda_flag)
     output_file = save_meta_yaml(meta_yaml_content, bioconda=bioconda_flag)
-    print(f"{output_file} file generated successfully.")

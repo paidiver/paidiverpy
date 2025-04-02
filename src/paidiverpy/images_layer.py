@@ -15,6 +15,7 @@ from dask.diagnostics import ProgressBar
 from dask.distributed import Client
 from IPython.display import HTML
 from PIL import Image
+from paidiverpy.config.config import Configuration
 from paidiverpy.utils.docker import is_running_in_docker
 from paidiverpy.utils.logging_functions import initialise_logging
 from paidiverpy.utils.object_store import check_create_bucket_exists
@@ -152,6 +153,7 @@ class ImagesLayer:
         last: bool = False,
         output_path: str | None = None,
         image_format: str = "png",
+        config: Configuration | None = None,
         client: Client = None,
         n_jobs: int = 1,
         logger: logging.Logger | None = None,
@@ -164,12 +166,13 @@ class ImagesLayer:
             last (bool, optional): If True, save the last step. Defaults to False.
             output_path (str, optional): The output path to save the images. Defaults to None.
             image_format (str, optional): The image format to save. Defaults to "png".
+            config (Configuration, optional): The configuration object. Defaults to None.
             client (Client, optional): The Dask client. Defaults to None.
             n_jobs (int, optional): The number of jobs to use. Defaults to 1.
             logger (logging.Logger, optional): The logger to log messages. Defaults to None.
         """
         images = self.get_step(step, by_order, last)
-        is_remote = str(output_path).startswith("s3://")
+        output_path, is_remote = config.get_output_path(output_path)
         if not logger:
             logger = initialise_logging()
 
@@ -252,13 +255,6 @@ class ImagesLayer:
             step_order (int): The step order.
             logger (logging.Logger): The logger to log messages.
         """
-        is_docker = is_running_in_docker()
-        if is_docker:
-            output_path = Path("/app/output/")
-        if not output_path:
-            output_path = self.output_path
-        if not output_path.exists():
-            output_path.mkdir(parents=True, exist_ok=True)
         if client:
             logger.info("Saving images using Dask")
             delayed_tasks = [

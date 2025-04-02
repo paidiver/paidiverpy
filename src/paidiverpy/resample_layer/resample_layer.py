@@ -25,6 +25,7 @@ from paidiverpy.config.resample_params import ResamplePercentParams
 from paidiverpy.config.resample_params import ResamplePitchRollParams
 from paidiverpy.config.resample_params import ResampleRegionParams
 from paidiverpy.images_layer import ImagesLayer
+from paidiverpy.investigation_layer.investigation_layer import InvestigationLayer
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.utils.exceptions import raise_value_error
 
@@ -155,7 +156,7 @@ class ResampleLayer(Paidiverpy):
         if step_order == 0:
             return new_metadata
         if test:
-            self.plot_trimmed_photos(new_metadata)
+            InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="all").run()
             return None
         metadata.loc[~metadata.index.isin(new_metadata.index), "flag"] = step_order
         return metadata
@@ -188,7 +189,7 @@ class ResampleLayer(Paidiverpy):
         if step_order == 0:
             return new_metadata
         if test:
-            self.plot_trimmed_photos(new_metadata)
+            InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="all").run()
             return None
         metadata.loc[~metadata.index.isin(new_metadata.index), "flag"] = step_order
         return metadata
@@ -236,7 +237,7 @@ class ResampleLayer(Paidiverpy):
             metadata.flag[metadata.flag == step_order].count(),
         )
         if test:
-            self.plot_trimmed_photos(metadata[metadata.flag == 0])
+            InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="all").run()
             return None
         return metadata
 
@@ -270,7 +271,7 @@ class ResampleLayer(Paidiverpy):
             metadata.flag[metadata.flag == step_order].count(),
         )
         if test:
-            self.plot_trimmed_photos(metadata[metadata.flag == 0])
+            InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="all").run()
             return None
         return metadata
 
@@ -301,7 +302,7 @@ class ResampleLayer(Paidiverpy):
             metadata.flag[metadata.flag == step_order].count(),
         )
         if test:
-            self.plot_trimmed_photos(metadata[metadata.flag == 0])
+            InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="all").run()
             return None
         return metadata
 
@@ -336,7 +337,7 @@ class ResampleLayer(Paidiverpy):
             metadata.flag[metadata.flag == step_order].count(),
         )
         if test:
-            self.plot_trimmed_photos(metadata[metadata.flag == 0])
+            InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="all").run()
             return None
         return metadata
 
@@ -389,7 +390,7 @@ class ResampleLayer(Paidiverpy):
             metadata.flag[metadata.flag == step_order].count(),
         )
         if test:
-            self.plot_trimmed_photos(metadata[metadata.flag == 0])
+            InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="all").run()
             return None
         return metadata
 
@@ -545,27 +546,14 @@ class ResampleLayer(Paidiverpy):
                 coordsn = coordsm
                 metadata.loc[i, "overlap"] = 0
         self.logger.info("Number of photos to be removed: %s", int(metadata["overlap"].sum()))
-        new_metadata = self.get_metadata()
-        new_metadata.loc[metadata["overlap"] == 1, "flag"] = step_order
+        # new_metadata = self.get_metadata()
+        # new_metadata.loc[metadata["overlap"] == 1, "flag"] = step_order
+        metadata.loc[metadata["overlap"] == 1, "flag"] = step_order
         if test:
-            ResampleLayer.plot_polygons(metadata)
-            self.plot_trimmed_photos(new_metadata[new_metadata.flag == 0])
+            InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="resample").run()
             return None
-        return new_metadata
-
-    @staticmethod
-    def plot_polygons(metadata: pd.DataFrame) -> None:
-        """Plot the polygons.
-
-        Args:
-            metadata (pd.DataFrame): The metadata with the polygons.
-        """
-        gdf = gpd.GeoDataFrame(metadata, geometry="polygon_m")
-        _, ax = plt.subplots(figsize=(15, 15))
-
-        gdf[gdf.overlap == 0].plot(ax=ax, facecolor="none", edgecolor="black", label="No Overlap")
-        gdf[gdf.overlap == 1].plot(ax=ax, facecolor="none", edgecolor="red", label="Overlap")
-        plt.show(block=False)
+        # return new_metadata
+        return metadata
 
     @staticmethod
     def calculate_corners(metadata: pd.DataFrame) -> pd.DataFrame:
