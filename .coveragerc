@@ -4,6 +4,8 @@ source =
     src/paidiverpy
 omit =
     src/paidiverpy/utils/benchmark_test.py
+    generate_conda_meta.py
+    tests/*
 
 [report]
 show_missing = True
