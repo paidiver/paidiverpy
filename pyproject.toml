@@ -114,7 +114,6 @@ addopts = """
 --cov-report=xml:coverage.xml
 --cov-report=html:coverage_html
 --cov-report=term-missing
---cov-branch
 --cov-config=.coveragerc
 -vv
 """
