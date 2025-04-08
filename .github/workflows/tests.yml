@@ -30,7 +30,7 @@ jobs:
 
       - name: Test with pytest
         run: |
-          conda run -n Paidiverpy pytest tests/
+          conda run -n Paidiverpy pytest -ra -v -s --cov=./ --cov-config=.coveragerc --cov-report xml:cov.xml --cov-report term-missing --junitxml=junit.xml -o junit_family=legacy
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:

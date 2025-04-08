@@ -1,6 +1,7 @@
 [![DOI][zenodo-badge]][zenodo-link]
 [![Documentation][rtd-badge]][rtd-link]
 [![Pypi][pip-badge]][pip-link]
+[![codecov][cov-badge]][cov-link]
 
 [zenodo-badge]: https://zenodo.org/badge/DOI/10.5281/zenodo.14641878.svg
 [zenodo-link]: https://doi.org/10.5281/zenodo.14641878
