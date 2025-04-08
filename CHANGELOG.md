@@ -4,16 +4,29 @@
 
 [Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.1.3...HEAD)
 
+**Implemented enhancements:**
+
+- Feature to visualize images in low resolution [\#4](https://github.com/paidiver/paidiverpy/issues/4)
+
+**Fixed bugs:**
+
+- Clean the configuration parser and correct bug with the default params for each step [\#196](https://github.com/paidiver/paidiverpy/issues/196)
+- Correct resize function [\#182](https://github.com/paidiver/paidiverpy/issues/182)
+
 **Closed issues:**
 
+- Raise error is not been added per step \(it is only added in the beginning of the pipeline\) [\#201](https://github.com/paidiver/paidiverpy/issues/201)
 - Deploy code on bioconda [\#194](https://github.com/paidiver/paidiverpy/issues/194)
 - Rename pelagic to plankton [\#188](https://github.com/paidiver/paidiverpy/issues/188)
+- Enhance crop function [\#183](https://github.com/paidiver/paidiverpy/issues/183)
 - Create a conda distribution and add build for mac and windows [\#174](https://github.com/paidiver/paidiverpy/issues/174)
+- Increase test coverage [\#84](https://github.com/paidiver/paidiverpy/issues/84)
 - Add data investigation feature [\#26](https://github.com/paidiver/paidiverpy/issues/26)
 - Create a simple frontend using streamlit for pipeline management [\#25](https://github.com/paidiver/paidiverpy/issues/25)
 
 **Merged pull requests:**
 
+- 84 increase test coverage [\#202](https://github.com/paidiver/paidiverpy/pull/202) ([soutobias](https://github.com/soutobias))
 - update tests [\#197](https://github.com/paidiver/paidiverpy/pull/197) ([soutobias](https://github.com/soutobias))
 - 194 deploy code on bioconda [\#195](https://github.com/paidiver/paidiverpy/pull/195) ([soutobias](https://github.com/soutobias))
 - 174 create a conda distribution [\#192](https://github.com/paidiver/paidiverpy/pull/192) ([soutobias](https://github.com/soutobias))
