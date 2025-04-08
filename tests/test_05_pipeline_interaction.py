@@ -98,5 +98,6 @@ class TestPipelineInteraction(BaseTestClass):
             pipeline.run()
         assert "Error applying sharpening:" in str(cm.value)
 
+
 if __name__ == "__main__":
     unittest.main()

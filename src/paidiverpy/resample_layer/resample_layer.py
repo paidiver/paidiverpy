@@ -2,6 +2,7 @@
 
 Resample the images based on the configuration file.
 """
+
 import copy
 import logging
 import geopandas as gpd
@@ -382,35 +383,35 @@ class ResampleLayer(Paidiverpy):
         if params.max < params.min:
             self.logger.error("Max value cannot be less than min value.")
             self.logger.error("No images will be removed.")
+            return metadata
+        images = self.images.get_step(step=self.config_index)
+        bits = images[0].dtype.itemsize
+        if self.n_jobs == 1:
+            brightness = ResampleLayer._compute_mean(images, bits)
         else:
-            images = self.images.get_step(step=self.config_index)
-            bits = images[0].dtype.itemsize
-            if self.n_jobs == 1:
-                brightness = ResampleLayer._compute_mean(images, bits)
-            else:
-                images.map_blocks(ResampleLayer._compute_mean, bits=bits, meta=np.float32)
-            if brightness.ndim == 1:
-                brightness = np.expand_dims(brightness, axis=1)
-            brightness = brightness[:, :3] if brightness.shape[1] > NUM_CHANNELS_RGB else brightness
-            if brightness.shape[1] == 1:
-                brightness = brightness[:, 0]
-                metadata["brightness"] = brightness
-            elif params.channel == "mean":
-                metadata["brightness"] = np.mean(brightness, axis=1)
-                metadata = metadata.loc[(metadata["brightness"] > params.min) & (metadata["brightness"] < params.max)]
-            else:
+            images.map_blocks(ResampleLayer._compute_mean, bits=bits, meta=np.float32)
+        if brightness.ndim == 1:
+            brightness = np.expand_dims(brightness, axis=1)
+        brightness = brightness[:, :3] if brightness.shape[1] > NUM_CHANNELS_RGB else brightness
+        if brightness.shape[1] == 1:
+            brightness = brightness[:, 0]
+            metadata["brightness"] = brightness
+        elif params.channel == "mean":
+            metadata["brightness"] = np.mean(brightness, axis=1)
+            metadata = metadata.loc[(metadata["brightness"] > params.min) & (metadata["brightness"] < params.max)]
+        else:
+            for channel in range(brightness.shape[1]):
+                metadata[f"brightness_{channel + 1}"] = brightness[:, channel]
+            if params.channel == "all":
                 for channel in range(brightness.shape[1]):
-                    metadata[f"brightness_{channel + 1}"] = brightness[:, channel]
-                if params.channel == "all":
-                    for channel in range(brightness.shape[1]):
-                        metadata = metadata.loc[
-                            (metadata[f"brightness_{channel + 1}"] > params.min) & (metadata[f"brightness_{channel + 1}"] < params.max)
-                        ]
-                else:
                     metadata = metadata.loc[
-                        (metadata[f"brightness_{params.channel}"] > params.min) & (metadata[f"brightness_{params.channel}"] < params.max)
+                        (metadata[f"brightness_{channel + 1}"] > params.min) & (metadata[f"brightness_{channel + 1}"] < params.max)
                     ]
-            self.set_metadata(metadata)
+            else:
+                metadata = metadata.loc[
+                    (metadata[f"brightness_{params.channel}"] > params.min) & (metadata[f"brightness_{params.channel}"] < params.max)
+                ]
+        self.set_metadata(metadata)
         if test:
             InvestigationLayer(
                 paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="resample-obscure"
@@ -451,7 +452,7 @@ class ResampleLayer(Paidiverpy):
                     "theta": theta,
                     "omega": omega,
                     "camera_distance": camera_distance,
-                }
+                },
             }
             self.set_metadata(
                 PositionLayer(

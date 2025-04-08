@@ -121,10 +121,7 @@ class PositionLayer(Paidiverpy):
             )
         return None
 
-    def calculate_corners(self,
-                          step_order: int | None = None,
-                          params: CalculateCornersParams = None,
-                          test: bool = False) -> pd.DataFrame:
+    def calculate_corners(self, step_order: int | None = None, params: CalculateCornersParams = None, test: bool = False) -> pd.DataFrame:
         """Calculate the corners of the images.
 
         Args:
@@ -206,12 +203,9 @@ class PositionLayer(Paidiverpy):
             metadata.loc[i, "polygon_m"] = polygon_m
         self.set_metadata(metadata)
         if test:
-            InvestigationLayer(
-                paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="polygon"
-            ).run()
+            InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="polygon").run()
             return None
         return metadata
-
 
     @staticmethod
     def calculate_limits(metadata: pd.DataFrame) -> pd.DataFrame:

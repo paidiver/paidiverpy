@@ -38,7 +38,6 @@ class TestPipelineCustomAlgorithm(BaseTestClass):
         assert isinstance(images[0][0], np.ndarray)
         assert len(images) == number_images
 
-
     def test_custom_algorithm2(self):
         """Test generating a Pipeline with Custom Algorithm."""
         number_pipeline_steps = 3
@@ -78,6 +77,7 @@ class TestPipelineCustomAlgorithm(BaseTestClass):
             Pipeline(config_file_path=output_file_path, verbose=1)
         assert "Invalid package name or version" in str(cm.value)
         Path(output_file_path).unlink(missing_ok=True)
+
 
 if __name__ == "__main__":
     unittest.main()

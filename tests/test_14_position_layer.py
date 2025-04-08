@@ -2,7 +2,6 @@
 
 import unittest
 from pathlib import Path
-import dask.array as da
 import numpy as np
 import pytest
 from paidiverpy.config.config import Configuration
@@ -11,6 +10,8 @@ from paidiverpy.pipeline import Pipeline
 from tests.base_test_class import BaseTestClass
 
 number_graphs = 1
+
+
 class TestPositionLayer(BaseTestClass):
     """Tests Simple Pipeline.
 
@@ -46,6 +47,7 @@ class TestPositionLayer(BaseTestClass):
         with pytest.raises(ValueError) as cm:
             pipeline.run()
         assert str(cm.value) == "Position layer step failed."
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,5 +1,6 @@
 """Exception classes."""
 
+
 def raise_value_error(message: str) -> None:
     """Raise a ValueError with the given message.
 
