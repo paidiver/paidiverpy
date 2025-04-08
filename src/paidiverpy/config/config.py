@@ -229,7 +229,7 @@ class Configuration:
                     step_instance = StepConfig(**step_config)
                     self.steps.append(step_instance)
 
-    def add_general(self, config: dict, validate: bool =False) -> None:
+    def add_general(self, config: dict, validate: bool = False) -> None:
         """Add a configuration.
 
         Args:
@@ -299,7 +299,6 @@ class Configuration:
                 raise
         return config_index
 
-
     def export(self, output_path: str) -> None:
         """Export the configuration to a file.
 
@@ -351,10 +350,7 @@ class Configuration:
             result["general"] = self.general.to_dict()
         if yaml_convert:
             result["steps"] = [
-                {step_info.pop("step_name"): step_info}
-                for step in self.steps
-                for step_info in [step.to_dict()]
-                if step_info is not None
+                {step_info.pop("step_name"): step_info} for step in self.steps for step_info in [step.to_dict()] if step_info is not None
             ]
         else:
             result["steps"] = [step.to_dict() for step in self.steps]

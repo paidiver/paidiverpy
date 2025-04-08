@@ -1,8 +1,6 @@
 """Tests for the Dask Cluster."""
 
-import shutil
 import unittest
-from pathlib import Path
 import pytest
 from paidiverpy.utils.data import PaidiverpyData
 from tests.base_test_class import BaseTestClass

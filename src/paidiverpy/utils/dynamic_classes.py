@@ -56,11 +56,7 @@ class DynamicConfig:
         ):
             result[key] = value.to_dict()
         elif isinstance(value, list):
-            result[key] = [
-                v.to_dict() if isinstance(v, DynamicConfig) else v
-                for v in value
-                if v is not None
-            ]
+            result[key] = [v.to_dict() if isinstance(v, DynamicConfig) else v for v in value if v is not None]
         else:
             result[key] = value
         return result
