@@ -38,8 +38,8 @@ class ResampleAltitudeParams(DynamicConfig):
 class ResamplePitchRollParams(DynamicConfig):
     """This class contains the parameters for the pitch and roll res."""
 
-    pitch: float = None
-    roll: float = None
+    pitch: float = 9999
+    roll: float = 9999
     raise_error: bool = False
 
 
@@ -85,6 +85,7 @@ class ResampleObscureParams(DynamicConfig):
 
     min: int = 0
     max: int = 1
+    channel: str = "mean"
     raise_error: bool = False
 
 
@@ -97,5 +98,5 @@ RESAMPLE_LAYER_METHODS = {
     "fixed": {"params": ResampleFixedParams, "method": "_by_fixed_number"},
     "percent": {"params": ResamplePercentParams, "method": "_by_percent"},
     "region": {"params": ResampleRegionParams, "method": "_by_region"},
-    "obscure": {"params": ResampleObscureParams, "method": "_by_obscure_photos"},
+    "obscure": {"params": ResampleObscureParams, "method": "_by_obscure_images"},
 }

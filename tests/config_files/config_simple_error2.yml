@@ -1,0 +1,12 @@
+general
+sample_data: 'benthic_csv'
+      output_path: './output'
+  rename: 'datetime'
+  sampling:
+    - mode: 'percent'
+      params:
+        value: 0.1
+  convert:
+    - mode: 'to'
+      params:
+        to: 'gray'

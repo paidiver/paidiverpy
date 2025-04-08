@@ -1,0 +1,20 @@
+general:
+  sample_data: 'plankton_csv'
+  output_path: './output'
+
+steps:
+  - position:
+      name: 'calculate_corners'
+      mode: 'calculate_corners'
+      params:
+        theta: 40
+        omega: 57
+        camera_distance: 1.12
+  - position:
+      name: 'calculate_corners'
+      mode: 'calculate_corners'
+      params:
+        theta: 40
+        omega: 57
+        camera_distance: 1.12
+        raise_error: True

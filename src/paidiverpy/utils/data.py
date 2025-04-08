@@ -9,17 +9,19 @@ import requests
 from tqdm import tqdm
 from paidiverpy.utils.logging_functions import initialise_logging
 
-NUM_CHANNELS_GREY = 2
+NUM_CHANNELS_GREY = 1
 NUM_CHANNELS_RGB = 3
 NUM_CHANNELS_RGBA = 4
-NUM_IMAGE_DIMS = 2
+NUM_DIMENSIONS_GREY = 2
+NUM_DIMENSIONS = 3
 DEFAULT_BITS = 8
 EIGHT_BITS = 8
 SIXTEEN_BITS = 16
 THIRTY_TWO_BITS = 32
 EIGHT_BITS_SIZE = 1
 SIXTEEN_BITS_SIZE = 2
-THIRTY_TWO_BITS_SIZE = 3
+THIRTY_TWO_BITS_SIZE = 4
+EIGHT_BITS_MAX = 255
 
 # Define a base directory for caching
 CACHE_DIR = Path.home() / ".paidiverpy_cache"
@@ -74,11 +76,8 @@ class PaidiverpyData:
             raise ValueError(msg)
         url = dataset_information["url"]
         zip_path = self.download_file(url, dataset_name)
+
         self.unzip_file(zip_path, dataset_name, extract_dir)
-
-        if zip_path.exists():
-            zip_path.unlink()
-
         paths[dataset_name] = str(extract_dir)
         self.save_persistent_paths(paths)
 
@@ -123,28 +122,27 @@ class PaidiverpyData:
         file_hash = hashlib.sha256(url.encode()).hexdigest()
         zip_path = cache_dir / f"{file_hash}.zip"
 
-        if not zip_path.exists():
-            cache_dir.mkdir(parents=True, exist_ok=True)
-            self.logger.info("Downloading %s files...", dataset_name)
-            response = requests.get(url, stream=True, timeout=30)
-            response.raise_for_status()
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        self.logger.info("Downloading %s files...", dataset_name)
+        response = requests.get(url, stream=True, timeout=30)
+        response.raise_for_status()
 
-            total_size = int(response.headers.get("content-length", 0))
-            block_size = 1024  # 1 KB
-            with (
-                Path.open(zip_path, "wb") as f,
-                tqdm(
-                    total=total_size,
-                    unit="B",
-                    unit_scale=True,
-                    desc=f"Downloading {dataset_name} files",
-                ) as bar,
-            ):
-                for data in response.iter_content(block_size):
-                    f.write(data)
-                    bar.update(len(data))
+        total_size = int(response.headers.get("content-length", 0))
+        block_size = 1024  # 1 KB
+        with (
+            Path.open(zip_path, "wb") as f,
+            tqdm(
+                total=total_size,
+                unit="B",
+                unit_scale=True,
+                desc=f"Downloading {dataset_name} files",
+            ) as bar,
+        ):
+            for data in response.iter_content(block_size):
+                f.write(data)
+                bar.update(len(data))
 
-            self.logger.info("Downloaded and cached at %s", zip_path)
+        self.logger.info("Downloaded and cached at %s", zip_path)
 
         return zip_path
 
@@ -165,9 +163,9 @@ class PaidiverpyData:
                             zip_ref.extract(file_info, extract_dir)
                             bar.update(1)
                 self.logger.info("Extracted files to %s", extract_dir)
+                zip_path.unlink()
             except Exception as e:  # noqa: BLE001
                 self.logger.error("Failed to extract files to %s: %s", extract_dir, e)
-                self.logger.error("Removing the zip file at %s", zip_path)
                 self.logger.error("Please try again.")
                 zip_path.unlink()
         else:

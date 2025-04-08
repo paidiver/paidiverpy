@@ -12,7 +12,6 @@ from paidiverpy.utils.dynamic_classes import DynamicConfig
 class GrayScaleParams(DynamicConfig):
     """This class contains the parameters for the grayscale conversion."""
 
-    keep_alpha: bool = False
     method: str = "opencv"
     invert_colours: bool = False
     raise_error: bool = False
@@ -23,24 +22,6 @@ class GaussianBlurParams(DynamicConfig):
     """This class contains the parameters for the Gaussian blur."""
 
     sigma: float = 1.0
-    raise_error: bool = False
-
-
-@dataclass
-class EdgeDetectionParams(DynamicConfig):
-    """This class contains the parameters for the edge detection."""
-
-    method: str = "sobel"
-    blur_radius: float = 1.0
-    threshold: float = 0.1
-    object_type: str = "bright"
-    object_selection: str = "largest"
-    estimate_sharpness: bool = False
-    deconv: bool = False
-    deconv_method: str = "LR"
-    deconv_iter: int = 10
-    deconv_mask_weight: float = 0.03
-    small_float_val: float = 1e-6
     raise_error: bool = False
 
 
@@ -69,7 +50,7 @@ class IlluminationCorrectionParams(DynamicConfig):
     """This class contains the parameters for the illumination correction."""
 
     method: str = "rolling"
-    radius: int = 100
+    radius: int = 5
     raise_error: bool = False
 
 
@@ -83,7 +64,6 @@ class DeblurParams(DynamicConfig):
     angle: int = 45
     raise_error: bool = False
 
-
 @dataclass
 class ColourAlterationParams(DynamicConfig):
     """This class contains the parameters for the colour alteration."""
@@ -91,6 +71,22 @@ class ColourAlterationParams(DynamicConfig):
     method: str = "white_balance"
     raise_error: bool = False
 
+@dataclass
+class EdgeDetectionParams(DynamicConfig):
+    """This class contains the parameters for the edge detection."""
+
+    method: str = "sobel"
+    blur_radius: float = 1.0
+    threshold: float = 0.1
+    object_type: str = "bright"
+    object_selection: str = "largest"
+    estimate_sharpness: bool = False
+    deconv: bool = False
+    deconv_method: str = "LR"
+    deconv_iter: int = 10
+    deconv_mask_weight: float = 0.03
+    small_float_val: float = 1e-6
+    raise_error: bool = False
 
 COLOUR_LAYER_METHODS = {
     "grayscale": {"params": GrayScaleParams, "method": "grayscale"},

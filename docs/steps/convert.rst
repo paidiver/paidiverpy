@@ -16,11 +16,6 @@ The convert layer is responsible for transforming images by changing their bit d
   - `channel_selector` (int): Selected channel index (default: 0).
   - `raise_error` (bool): Whether to raise an error if conversion fails (default: False).
 
-- **Bayer Pattern Conversion (bayer_pattern)**: Converts the image based on a specified Bayer pattern.
-
-  - `bayer_pattern` (str): The Bayer pattern (default: "BGGR").
-  - `raise_error` (bool): Whether to raise an error if conversion fails (default: False).
-
 - **Normalization (normalize)**: Normalizes pixel values to a specified range.
 
   - `min` (float): Minimum value for normalization (default: 0).

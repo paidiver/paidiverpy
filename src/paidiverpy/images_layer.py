@@ -16,6 +16,10 @@ from dask.distributed import Client
 from IPython.display import HTML
 from PIL import Image
 from paidiverpy.config.config import Configuration
+from paidiverpy.utils.data import NUM_CHANNELS_GREY
+from paidiverpy.utils.data import NUM_CHANNELS_RGBA
+from paidiverpy.utils.data import NUM_DIMENSIONS
+from paidiverpy.utils.data import NUM_DIMENSIONS_GREY
 from paidiverpy.utils.docker import is_running_in_docker
 from paidiverpy.utils.logging_functions import initialise_logging
 from paidiverpy.utils.object_store import check_create_bucket_exists
@@ -23,9 +27,6 @@ from paidiverpy.utils.object_store import create_client
 from paidiverpy.utils.object_store import upload_file_to_bucket
 
 MAX_IMAGES_TO_SHOW = 12
-NUM_CHANNELS_GRAY = 1
-NUM_CHANNELS_RGBA = 4
-NUM_DIMS_GRAY = 2
 
 
 class ImagesLayer:
@@ -84,21 +85,6 @@ class ImagesLayer:
         self.filenames.append(metadata["image-filename"].tolist())
         gc.collect()
 
-    def remove_steps_by_name(self, step: tuple) -> int:
-        """Remove steps by name.
-
-        Args:
-            step (str): The step to remove
-
-        Returns:
-            int: The index of the removed step
-        """
-        index = self.steps.index(step)
-        self.steps = self.steps[:index]
-        self.images = self.images[:index]
-        self.filenames = self.filenames[:index]
-        return index
-
     def remove_steps_by_order(self, step_order: int) -> None:
         """Remove steps by order.
 
@@ -109,25 +95,15 @@ class ImagesLayer:
         self.images = self.images[:step_order]
         self.filenames = self.filenames[:step_order]
 
-    def get_last_step_order(self) -> int:
-        """Get the last step order.
-
-        Returns:
-            int: The last step order
-        """
-        return len(self.steps) - 1
-
     def get_step(
         self,
         step: str | int | None = None,
-        by_order: bool = False,
         last: bool = False,
     ) -> list[np.ndarray | da.core.Array]:
         """Get a step by name or order.
 
         Args:
             step (str | int, optional): The step to get. Defaults to None.
-            by_order (bool, optional): If True, get the step by order. Defaults to False.
             last (bool, optional): If True, get the last step. Defaults to False.
 
         Returns:
@@ -135,8 +111,7 @@ class ImagesLayer:
         """
         if last:
             return self.images[-1]
-        index = step if by_order else self.steps.index(step)
-        return self.images[index]
+        return self.images[step]
 
     def show(self, image_number: int = 0) -> None:
         """Show the images in the pipeline.
@@ -149,8 +124,7 @@ class ImagesLayer:
     def save(
         self,
         step: str | int | None = None,
-        by_order: bool = False,
-        last: bool = False,
+        last: bool = True,
         output_path: str | None = None,
         image_format: str = "png",
         config: Configuration | None = None,
@@ -162,7 +136,6 @@ class ImagesLayer:
 
         Args:
             step (str| int, optional): The step to save. Defaults to None.
-            by_order (bool, optional): If True, save the step by order. Defaults to False.
             last (bool, optional): If True, save the last step. Defaults to False.
             output_path (str, optional): The output path to save the images. Defaults to None.
             image_format (str, optional): The image format to save. Defaults to "png".
@@ -171,17 +144,11 @@ class ImagesLayer:
             n_jobs (int, optional): The number of jobs to use. Defaults to 1.
             logger (logging.Logger, optional): The logger to log messages. Defaults to None.
         """
-        images = self.get_step(step, by_order, last)
+        images = self.get_step(step, last)
         output_path, is_remote = config.get_output_path(output_path)
-        if not logger:
-            logger = initialise_logging()
+        logger = logger if logger else initialise_logging()
 
-        if last:
-            step_order = len(self.steps) - 1
-        elif by_order:
-            step_order = step
-        else:
-            step_order = self.steps.index(step)
+        step_order = len(self.steps) - 1 if last else step
         if is_remote:
             self.save_remote(images, output_path, image_format, client, n_jobs, step_order, logger)
         else:
@@ -289,12 +256,7 @@ class ImagesLayer:
             s3_client (boto3.client, optional): The S3 client. Defaults to None.
         """
         saved_image, cmap = self.calculate_image(image)
-        if isinstance(img_path, str):
-            if "." in img_path:
-                img_path = img_path.split(".")[0]
-            img_path = f"{img_path}.{image_format.lower()}"
-        else:
-            img_path = img_path.with_suffix(f".{image_format}")
+        img_path = img_path.with_suffix(f".{image_format}")
         if saved_image.dtype == np.uint16:
             if image_format.lower() in ["tiff", "png"]:
                 if s3_client:
@@ -313,9 +275,6 @@ class ImagesLayer:
             if s3_client:
                 _, encoded_image = cv2.imencode(f".{image_format}", saved_image)
                 buffer = io.BytesIO(encoded_image.tobytes())
-                # buffer = io.BytesIO()
-                # plt.imsave(buffer, saved_image, cmap=cmap, format=image_format)
-                # buffer.seek(0)
                 upload_file_to_bucket(buffer, img_path, s3_client)
             else:
                 cv2.imwrite(img_path, saved_image)
@@ -334,12 +293,12 @@ class ImagesLayer:
         Returns:
             tuple[np.ndarray, str]: The saved image and the colormap.
         """
-        if image.shape[-1] == NUM_CHANNELS_GRAY:
-            saved_image = np.squeeze(image, axis=-1)
-            cmap = "gray"
-        elif len(image.shape) == NUM_DIMS_GRAY:
+        if len(image.shape) == NUM_DIMENSIONS_GREY:
             cmap = "gray"
             saved_image = image
+        elif image.shape[-1] == NUM_CHANNELS_GREY:
+            saved_image = np.squeeze(image, axis=-1)
+            cmap = "gray"
         else:
             saved_image = image
             cmap = None
@@ -352,10 +311,9 @@ class ImagesLayer:
             output_path (str, optional): The output path to save the images. Defaults to None.
         """
         is_docker = is_running_in_docker()
-        if is_docker:
-            output_path = Path("/app/output/")
         if not output_path:
             output_path = self.output_path
+        output_path = Path("/app/output/") if is_docker else output_path
         if output_path.exists():
             for file in output_path.iterdir():
                 file.unlink()
@@ -498,10 +456,8 @@ class ImagesLayer:
             html += f"<div id='metadata-{step_index}' class='metadata' style='display:block;'>"
             if image_number is not None:
                 images_to_show = [image_arrays[image_number]] if len(image_arrays) > image_number else []
-                second_set_images = 0
             else:
                 first_set_images = min(max_images, MAX_IMAGES_TO_SHOW)
-                second_set_images = max_images - first_set_images if max_images > MAX_IMAGES_TO_SHOW else 0
                 images_to_show = image_arrays[:first_set_images]
             html += "<div class='image-container'>"
             if len(images_to_show) == 0:
@@ -518,33 +474,6 @@ class ImagesLayer:
                         size,
                     )
                 html += "</div>"
-                if second_set_images > 0:
-                    html += f"""
-                        <button id='hide-button-{step_index}' class='hide-button'
-                            style='display:block;' onclick='hide({step_index})'>
-                            HIDE
-                        </button>
-                        """
-                    html += f"""<div id='more-images-{step_index}' class='image-container'
-                        style='display:block;'>
-                        """
-                    for image_index, image_array in enumerate(
-                        image_arrays[12:max_images],
-                        start=max_images,
-                    ):
-                        html += self._generate_single_image_html(
-                            image_array,
-                            step_index,
-                            image_index,
-                            size,
-                        )
-                    html += "</div>"
-                    html += f"""
-                        <button id='show-more-button-{step_index}' class='show-more-button'
-                            onclick='showMore({step_index})'>
-                            SHOW MORE
-                        </button>
-                        """
             html += "</div>"
         return html
 
@@ -593,23 +522,23 @@ class ImagesLayer:
         """
         if isinstance(image_array, da.core.Array):
             image_array = image_array.compute()
-        if image_array.shape[-1] == NUM_CHANNELS_GRAY:
-            image_array = np.squeeze(image_array, axis=-1)
         if image_array.dtype != np.uint8:
             image_array = image_array.astype(np.uint8)
-        if image_array.ndim == NUM_DIMS_GRAY:
+        if image_array.shape[-1] == NUM_CHANNELS_GREY:
+            image_array = np.squeeze(image_array, axis=-1)
+        if image_array.ndim == NUM_DIMENSIONS_GREY:
             pil_img = Image.fromarray(image_array, mode="L")
         elif image_array.shape[-1] == NUM_CHANNELS_RGBA:
             if image_array[:, :, 3].max() <= 1:
                 image_array[:, :, 3] = (image_array[:, :, 3] * 255).astype(np.uint8)
-            image_array = cv2.cvtColor(image_array, cv2.COLOR_BGRA2RGBA)
+            # image_array = cv2.cvtColor(image_array, cv2.COLOR_BGRA2RGBA)
             pil_img = Image.fromarray(image_array, mode="RGBA")
         else:
             pil_img = Image.fromarray(image_array, mode="RGB")
         if size:
             pil_img.thumbnail(size)
         buffer = BytesIO()
-        img_format = "PNG" if image_array.shape[-1] == NUM_CHANNELS_RGBA else "JPEG"
+        img_format = "PNG" if image_array.ndim == NUM_DIMENSIONS and image_array.shape[-1] == NUM_CHANNELS_RGBA else "JPEG"
         pil_img.save(buffer, format=img_format)
         img_str = base64.b64encode(buffer.getvalue()).decode("utf-8")
         return f"data:image/{img_format.lower()};base64,{img_str}"

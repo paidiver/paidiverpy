@@ -17,60 +17,32 @@ class BaseTestClass(unittest.TestCase):
     def setUpClass(cls) -> None:
         """Set up the test class."""
         cls.logger = logging.getLogger("paidiverpy")
-        cls.remove_datasets()
-        cls.remove_custom_packages()
+        cls.cleanup_directories()
 
     @classmethod
     def tearDownClass(cls) -> None:
         """Tear down the test class."""
         cls.cleanup_directories()
-        cls.remove_datasets()
-        cls.remove_custom_packages()
 
     @classmethod
     def cleanup_directories(cls) -> None:
         """Cleanup the directories."""
-        path_dir = Path("output")
-        if path_dir.exists():
-            try:
-                shutil.rmtree(path_dir)
-                cls.logger.info("Removed output directory: %s", path_dir)
-            except FileNotFoundError:
-                cls.logger.warning("Directory not found: %s", path_dir)
-            except PermissionError:
-                cls.logger.error("Permission denied while removing: %s", path_dir)
-            except OSError as e:
-                cls.logger.error("OS error while removing directory %s: %s", path_dir, e)
-
-    @classmethod
-    def remove_datasets(cls) -> None:
-        """Remove the datasets."""
-        path_dir = Path.home() / ".paidiverpy_cache"
-        if path_dir.exists():
-            try:
-                shutil.rmtree(path_dir)
-                cls.logger.info("Removed cache directory: %s", path_dir)
-            except FileNotFoundError:
-                cls.logger.warning("Directory not found: %s", path_dir)
-            except PermissionError:
-                cls.logger.error("Permission denied while removing: %s", path_dir)
-            except OSError as e:
-                cls.logger.error("OS error while removing directory %s: %s", path_dir, e)
-
-    @classmethod
-    def remove_custom_packages(cls) -> None:
-        """Remove the custom packages."""
-        path_dir = Path.cwd() / "custom_packages"
-        if path_dir.exists():
-            try:
-                shutil.rmtree(path_dir)
-                cls.logger.info("Removed custom packages directory: %s", path_dir)
-            except FileNotFoundError:
-                cls.logger.warning("Directory not found: %s", path_dir)
-            except PermissionError:
-                cls.logger.error("Permission denied while removing: %s", path_dir)
-            except OSError as e:
-                cls.logger.error("OS error while removing directory %s: %s", path_dir, e)
+        path_dirs = [
+            Path("output"),
+               Path.home() / ".paidiverpy_cache",
+            Path.cwd() / "custom_packages",
+        ]
+        for path_dir in path_dirs:
+            if path_dir.exists():
+                try:
+                    shutil.rmtree(path_dir)
+                    cls.logger.info("Removed directory: %s", path_dir)
+                except FileNotFoundError:
+                    cls.logger.warning("Directory not found: %s", path_dir)
+                except PermissionError:
+                    cls.logger.error("Permission denied while removing: %s", path_dir)
+                except OSError as e:
+                    cls.logger.error("OS error while removing directory %s: %s", path_dir, e)
 
 
 if __name__ == "__main__":
