@@ -16,6 +16,7 @@
 **Closed issues:**
 
 - Raise error is not been added per step \(it is only added in the beginning of the pipeline\) [\#201](https://github.com/paidiver/paidiverpy/issues/201)
+- Validate new config added when you add a new step in the pipeline [\#199](https://github.com/paidiver/paidiverpy/issues/199)
 - Deploy code on bioconda [\#194](https://github.com/paidiver/paidiverpy/issues/194)
 - Rename pelagic to plankton [\#188](https://github.com/paidiver/paidiverpy/issues/188)
 - Enhance crop function [\#183](https://github.com/paidiver/paidiverpy/issues/183)
@@ -26,6 +27,7 @@
 
 **Merged pull requests:**
 
+- update config validation [\#203](https://github.com/paidiver/paidiverpy/pull/203) ([soutobias](https://github.com/soutobias))
 - 84 increase test coverage [\#202](https://github.com/paidiver/paidiverpy/pull/202) ([soutobias](https://github.com/soutobias))
 - update tests [\#197](https://github.com/paidiver/paidiverpy/pull/197) ([soutobias](https://github.com/soutobias))
 - 194 deploy code on bioconda [\#195](https://github.com/paidiver/paidiverpy/pull/195) ([soutobias](https://github.com/soutobias))
