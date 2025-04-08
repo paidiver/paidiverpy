@@ -274,7 +274,7 @@ class TestPipelineTestSteps(BaseTestClass):
             ResampleLayer,
             {
                 "mode": "depth",
-                "params": {"value": 10, "by": "higher"},
+                "params": {"value": 10, "by": "upper"},
                 "test": True,
             },
             1,

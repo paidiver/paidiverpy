@@ -200,13 +200,13 @@ class Pipeline(Paidiverpy):
         if index:
             if substitute:
                 self.steps[index] = (step_name, step_class, parameters)
-                self.config.add_step(index - 1, parameters)
+                self.config.add_step(index - 1, parameters, validate=True)
             else:
                 self.steps.insert(index, (step_name, step_class, parameters))
-                self.config.add_step(index - 1, parameters, insert=True)
+                self.config.add_step(index - 1, parameters, insert=True, validate=True)
         else:
             self.steps.append((step_name, step_class, parameters))
-            self.config.add_step(None, parameters)
+            self.config.add_step(None, parameters, validate=True)
 
     def _get_step_name(self, step_class: type) -> str:
         """Get the name of the step class.
