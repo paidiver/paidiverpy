@@ -65,7 +65,6 @@ class TestSimplePipeline(BaseTestClass):
         assert isinstance(output_pipeline_str, str)
         assert "parameters" in output_pipeline_str
 
-
     def test_simple_pipeline_uint16(self):
         """Test generating a Simple Pipeline."""
         number_images = 7
@@ -118,6 +117,7 @@ class TestSimplePipeline(BaseTestClass):
         with pytest.raises(ValueError) as cm:
             Pipeline(config_file_path="tests/config_files/config_benthic.yml", verbose=20)
         assert "Invalid verbose level:" in str(cm.value)
+
 
 if __name__ == "__main__":
     unittest.main()

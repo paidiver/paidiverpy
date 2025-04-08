@@ -90,5 +90,6 @@ class TestPipelineGenerator(BaseTestClass):
         output_files = list(config_output_path.parent.glob(config_output_path.name))
         assert len(output_files) == 0
 
+
 if __name__ == "__main__":
     unittest.main()

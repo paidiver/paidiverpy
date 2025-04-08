@@ -51,5 +51,6 @@ class TestDaskCluster(BaseTestClass):
         assert isinstance(images[-1][0], dask.array.core.Array)
         assert len(images) == number_images
 
+
 if __name__ == "__main__":
     unittest.main()

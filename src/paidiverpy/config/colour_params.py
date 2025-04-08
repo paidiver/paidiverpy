@@ -64,12 +64,14 @@ class DeblurParams(DynamicConfig):
     angle: int = 45
     raise_error: bool = False
 
+
 @dataclass
 class ColourAlterationParams(DynamicConfig):
     """This class contains the parameters for the colour alteration."""
 
     method: str = "white_balance"
     raise_error: bool = False
+
 
 @dataclass
 class EdgeDetectionParams(DynamicConfig):
@@ -87,6 +89,7 @@ class EdgeDetectionParams(DynamicConfig):
     deconv_mask_weight: float = 0.03
     small_float_val: float = 1e-6
     raise_error: bool = False
+
 
 COLOUR_LAYER_METHODS = {
     "grayscale": {"params": GrayScaleParams, "method": "grayscale"},

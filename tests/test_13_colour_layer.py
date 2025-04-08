@@ -256,7 +256,6 @@ class TestColourLayer(BaseTestClass):
         # assert images[2][0].mean() != images[3][0].mean()
         assert images[3][0].mean() == images[4][0].mean()
 
-
     def test_colour_alteration_one(self):
         """Test the colour colour alteration step."""
         number_images = 7
@@ -290,7 +289,6 @@ class TestColourLayer(BaseTestClass):
         assert images[1][0].mean() != images[2][0].mean()
         assert images[2][0].mean() == images[3][0].mean()
         assert images[3][0].mean() == images[4][0].mean()
-
 
     def test_edge_one(self):
         """Test the colour edge step."""
@@ -329,6 +327,7 @@ class TestColourLayer(BaseTestClass):
         assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
         assert images[0][0].mean().compute() != images[1][0].mean().compute()
         assert images[1][0].mean().compute() != images[2][0].mean().compute()
+
 
 if __name__ == "__main__":
     unittest.main()

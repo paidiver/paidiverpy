@@ -26,11 +26,7 @@ class TestConfigMetadataClass(BaseTestClass):
         config = Configuration(config_file_path="tests/config_files/config_simple.yml")
         config_dict = config.to_dict()
         assert isinstance(config_dict, dict)
-        parameters = {
-            "name": "test",
-            "step_name": "sampling",
-            "mode": "overlapping"
-        }
+        parameters = {"name": "test", "step_name": "sampling", "mode": "overlapping"}
         config.add_step(parameters=parameters)
         with pytest.raises(ValueError) as cm:
             config.add_step(10, parameters=parameters)
@@ -42,18 +38,13 @@ class TestConfigMetadataClass(BaseTestClass):
         config_dict = config.to_dict()
         assert isinstance(config_dict, dict)
         assert config_dict == {"steps": []}
-        parameters = {
-            "name": "test",
-            "step_name": "sampling",
-            "mode": "overlapping"
-        }
+        parameters = {"name": "test", "step_name": "sampling", "mode": "overlapping"}
         config = Configuration(add_steps=[parameters])
         config_dict = config.to_dict()
         assert isinstance(config_dict, dict)
         assert len(config_dict["steps"]) == 1
         config_str = config.__repr__()
         assert isinstance(config_str, str)
-
 
     def test_config_class_errors(self):
         """Test the Config class."""
@@ -95,7 +86,6 @@ class TestConfigMetadataClass(BaseTestClass):
         assert len(steps) == 0
         metadata = paidiver.get_metadata()
         assert isinstance(metadata, pd.DataFrame)
-
 
     def test_metadata_conventions(self):
         """Test the metadata conventions."""

@@ -8,6 +8,7 @@ from paidiverpy.config.config import Configuration
 from paidiverpy.config.config import GeneralConfig
 from paidiverpy.pipeline import Pipeline
 from paidiverpy.resample_layer.resample_layer import ResampleLayer
+from paidiverpy.utils.data import NUM_DIMENSIONS
 from tests.base_test_class import BaseTestClass
 
 overlapping_number_graphs = 2
@@ -554,7 +555,6 @@ class TestPipelineTestSteps(BaseTestClass):
         assert pipeline.steps[-1][2]["params"]["limits"] == [-153.608, -153.605, 11.251, 11.253]
         assert pipeline.steps[-2][2]["params"]["limits"] == [-153.999, -153.605, 11.251, 11.253]
 
-
     def test_pipeline_testing_step_obscure_three_channels(self):
         """Test the Pipeline Testing Steps."""
         number_images = 1
@@ -656,7 +656,7 @@ class TestPipelineTestSteps(BaseTestClass):
         images = pipeline.images.images
         assert len(images) == number_images
         assert isinstance(images[0][0], np.ndarray)
-        assert len(images[-1][0].shape) == 3
+        assert len(images[-1][0].shape) == NUM_DIMENSIONS
         pipeline.add_step(
             "obscure",
             ResampleLayer,

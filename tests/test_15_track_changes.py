@@ -8,6 +8,8 @@ from paidiverpy.pipeline import Pipeline
 from tests.base_test_class import BaseTestClass
 
 number_graphs = 1
+
+
 class TestTrackChanges(BaseTestClass):
     """Tests Track Changes.
 
@@ -35,6 +37,7 @@ class TestTrackChanges(BaseTestClass):
         output_html = pipeline.images._repr_html_()
         assert isinstance(output_html, str)
         assert "No image to show" in output_html
+
 
 if __name__ == "__main__":
     unittest.main()
