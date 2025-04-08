@@ -1,5 +1,6 @@
 """Configuration module."""
 
+import copy
 import json
 import logging
 from importlib.resources import files
@@ -15,6 +16,7 @@ from paidiverpy.config.resample_params import RESAMPLE_LAYER_METHODS
 from paidiverpy.utils.data import PaidiverpyData
 from paidiverpy.utils.docker import is_running_in_docker
 from paidiverpy.utils.dynamic_classes import DynamicConfig
+from paidiverpy.utils.exceptions import raise_value_error
 from paidiverpy.utils.install_packages import check_and_install_dependencies
 
 steps_params_mapping = {
@@ -146,15 +148,18 @@ class Configuration:
 
         if config_file_path:
             self._load_config_from_file(config_file_path)
-        elif add_general or add_steps:
-            if add_general:
-                self.add_general(add_general)
-            if add_steps:
+        if add_general:
+            self.add_general(add_general, validate=True)
+        if add_steps:
+            if self.general is None:
+                msg = "General configuration is not defined. Please define it first."
+                logger.warning(msg)
+            else:
                 for step in add_steps:
-                    self.add_step(None, step)
-        else:
+                    self.add_step(None, step, validate=True)
+        if not self.general and not config_file_path:
             msg = "Configuration file path or configuration parameters are not specified."
-            msg = " You have to pass them manually using 'add_general' and 'add_step' functions"
+            msg += " You have to pass them manually using 'add_general' and 'add_step' functions"
             logger.warning(msg)
 
     def _load_config_from_file(self, config_file_path: str) -> None:
@@ -224,28 +229,40 @@ class Configuration:
                     step_instance = StepConfig(**step_config)
                     self.steps.append(step_instance)
 
-    def add_general(self, config: dict) -> None:
+    def add_general(self, config: dict, validate: bool =False) -> None:
         """Add a configuration.
 
         Args:
             config (dict): The configuration.
+            validate (bool, optional): Whether to validate the configuration. Defaults to False.
 
         Raises:
             ValueError: Invalid configuration name.
         """
-        current_config = self.general
-        if current_config is None:
+        general_copy = copy.copy(self.general)
+        if self.general is None:
             self.general = GeneralConfig(**config)
         else:
-            current_config.update(**config)
+            self.general.update(**config)
+        config_data = self.to_dict(yaml_convert=True)
+        if validate:
+            try:
+                self._validate_config(config_data)
+            except ValidationError as e:
+                self.general = general_copy
+                msg = f"Failed to validate the general config you just added: {e!s}"
+                msg += "\nPlease check the parameters and try again."
+                logger.error(msg)
+                raise
 
-    def add_step(self, config_index: int | None = None, parameters: dict | None = None, insert: bool = False) -> int:
+    def add_step(self, config_index: int | None = None, parameters: dict | None = None, insert: bool = False, validate: bool = False) -> int:
         """Add a step to the configuration.
 
         Args:
             config_index (int, optional): The configuration index. Defaults to None.
             parameters (dict, optional): The parameters for the step. Defaults to None.
             insert (bool, optional): Whether to insert the step at the given index. Defaults to False.
+            validate (bool, optional): Whether to validate the configuration. Defaults to True.
 
         Raises:
             ValueError: Invalid step index.
@@ -253,22 +270,35 @@ class Configuration:
         Returns:
             int: The step index.
         """
-        if len(self.steps) == 0:
+        if self.general is None:
+            msg = "General configuration is not defined. Please define it first."
+            logger.warning(msg)
+            raise_value_error(msg)
+        copy_steps = copy.copy(self.steps)
+        if len(self.steps) == 0 or config_index is None:
             self.steps.append(StepConfig(**parameters))
-            return len(self.steps) - 1
-        if config_index is None:
-            self.steps.append(StepConfig(**parameters))
-            return len(self.steps) - 1
-        if insert and config_index < len(self.steps):
+            config_index = len(self.steps) - 1
+        elif insert and config_index < len(self.steps):
             self.steps.insert(config_index, StepConfig(**parameters))
-            return config_index
-        if config_index < len(self.steps):
+        elif config_index < len(self.steps):
             if not parameters.get("params"):
                 parameters["params"] = {}
             self.steps[config_index].update(**parameters)
-            return config_index
-        msg = f"Invalid step index: {config_index}"
-        raise ValueError(msg)
+        else:
+            msg = f"Invalid step index: {config_index}"
+            raise_value_error(msg)
+        config_data = self.to_dict(yaml_convert=True)
+        if validate:
+            try:
+                self._validate_config(config_data)
+            except ValidationError as e:
+                msg = f"Failed to validate the step you just added: {e!s}"
+                msg += "\nPlease check the step parameters and try again."
+                logger.error(msg)
+                self.steps = copy_steps
+                raise
+        return config_index
+
 
     def export(self, output_path: str) -> None:
         """Export the configuration to a file.
@@ -320,7 +350,12 @@ class Configuration:
         if self.general:
             result["general"] = self.general.to_dict()
         if yaml_convert:
-            result["steps"] = [{step_info.pop("step_name"): step_info} for step in self.steps for step_info in [step.to_dict()]]
+            result["steps"] = [
+                {step_info.pop("step_name"): step_info}
+                for step in self.steps
+                for step_info in [step.to_dict()]
+                if step_info is not None
+            ]
         else:
             result["steps"] = [step.to_dict() for step in self.steps]
         return result

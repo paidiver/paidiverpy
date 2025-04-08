@@ -29,7 +29,7 @@ class BaseTestClass(unittest.TestCase):
         """Cleanup the directories."""
         path_dirs = [
             Path("output"),
-            Path.home() / ".paidiverpy_cache",
+            # Path.home() / ".paidiverpy_cache",
             Path.cwd() / "custom_packages",
         ]
         for path_dir in path_dirs:
