@@ -72,8 +72,6 @@ def initialise_logging(verbose: int = 2, logger_name: str = "paidiverpy") -> log
 
     logger = logging.getLogger(logger_name)
     logger.setLevel(log_level)
-    if not logger.hasHandlers():
-        logger.addHandler(handler)
 
     return logger
 

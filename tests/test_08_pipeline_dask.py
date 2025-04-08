@@ -1,6 +1,7 @@
 """Tests for Pipeline with Parallel Processing using dask."""
 
 import unittest
+from pathlib import Path
 import dask.array as da
 import pandas as pd
 from IPython.display import HTML
@@ -20,6 +21,7 @@ class TestPipelineDask(BaseTestClass):
     def test_parallel_processing_dask(self):
         """Test generating a Pipeline with Parallel Processing using dask."""
         number_images = 7
+        number_output_files = 0
 
         pipeline = Pipeline(config_file_path="tests/config_files/config_benthic_dask.yml", verbose=0)
         assert isinstance(pipeline, Pipeline)
@@ -33,6 +35,15 @@ class TestPipelineDask(BaseTestClass):
         assert len(images) == number_images
         html_image = pipeline.images.show(image_number=2)
         assert isinstance(html_image, HTML)
+        output_path = Path(pipeline.config.general.output_path)
+        output_files = list(output_path.glob("*.png"))
+        assert len(output_files) == number_output_files
+        pipeline.save_images(image_format="png")
+        output_files = list(output_path.glob("*.png"))
+        assert len(output_files) > number_output_files
+        pipeline.images.remove()
+        output_files = list(output_path.glob("*.png"))
+        assert len(output_files) == number_output_files
 
 
 if __name__ == "__main__":

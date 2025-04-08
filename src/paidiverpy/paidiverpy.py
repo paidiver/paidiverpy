@@ -29,6 +29,7 @@ class Paidiverpy:
             It can contain the following keys / attributes:
             - input_path (str): The path to the input files.
             - output_path (str): The path to the output files.
+            - image_type (str): The type of the images.
             - metadata_path (str): The path to the metadata file.
             - metadata_type (str): The type of the metadata file.
             - track_changes (bool): Whether to track changes.
@@ -88,8 +89,7 @@ class Paidiverpy:
                 self.job_id = None
             self.n_jobs = get_n_jobs(self.config.general.n_jobs)
             self.track_changes = self.config.general.track_changes
-        if track_changes is not None:
-            self.track_changes = track_changes
+        self.track_changes = self.track_changes if track_changes is None else track_changes
         self.layer_methods = None
 
     def run(self, add_new_step: bool = True) -> ImagesLayer | None:
@@ -102,13 +102,10 @@ class Paidiverpy:
             ImagesLayer | None: The images object.
         """
         mode = self.step_metadata.get("mode")
-        if not mode:
-            msg = "The mode is not defined in the configuration file."
-            raise ValueError(msg)
         test = self.step_metadata.get("test")
         params = self.step_metadata.get("params") or {}
         method, params = self._get_method_by_mode(params, self.layer_methods, mode)
-        images = self.images.get_step(step=len(self.images.images) - 1, by_order=True)
+        images = self.images.get_step(step=len(self.images.images) - 1)
         image_list = self.process_sequentially(images, method, params) if self.n_jobs == 1 else self.process_parallel(images, method, params)
         if not test:
             self.step_name = f"color_{self.config_index}" if not self.step_name else self.step_name
@@ -216,21 +213,10 @@ class Paidiverpy:
             return Configuration(config_file_path)
         general_config = {}
         config_params = ConfigParams(config_params) if isinstance(config_params, dict) else config_params
-        if config_params.input_path:
-            general_config["input_path"] = config_params.input_path
-        if config_params.output_path:
-            general_config["output_path"] = config_params.output_path
-        if config_params.metadata_path:
-            general_config["metadata_path"] = config_params.metadata_path
-        if config_params.metadata_type:
-            general_config["metadata_type"] = config_params.metadata_type
-        if config_params.track_changes:
-            general_config["track_changes"] = config_params.track_changes
-        if config_params.n_jobs:
-            general_config["n_jobs"] = config_params.n_jobs
-        config = Configuration(logger=self.logger)
-        config.add_config("general", general_config)
-        return config
+        config_params_keys = ["input_path", "output_path", "metadata_path", "metadata_type", "image_type", "track_changes", "n_jobs"]
+        for key in config_params_keys:
+            general_config[key] = getattr(config_params, key)
+        return Configuration(add_general=general_config)
 
     def _initialize_metadata(self) -> MetadataParser:
         """Initialize the metadata object.
@@ -264,16 +250,14 @@ class Paidiverpy:
         Returns:
             pd.DataFrame: The metadata object.
         """
-        if isinstance(self.metadata, MetadataParser):
-            flag = 0 if flag is None else flag
-            if flag == "all":
-                if "image-datetime" not in self.metadata.metadata.columns:
-                    return self.metadata.metadata.copy()
-                return self.metadata.metadata.sort_values("image-datetime").copy()
+        flag = 0 if flag is None else flag
+        if flag == "all":
             if "image-datetime" not in self.metadata.metadata.columns:
-                return self.metadata.metadata[self.metadata.metadata["flag"] <= flag].copy()
-            return self.metadata.metadata[self.metadata.metadata["flag"] <= flag].sort_values("image-datetime").copy()
-        return self.metadata
+                return self.metadata.metadata.copy()
+            return self.metadata.metadata.sort_values("image-datetime").copy()
+        if "image-datetime" not in self.metadata.metadata.columns:
+            return self.metadata.metadata[self.metadata.metadata["flag"] <= flag].copy()
+        return self.metadata.metadata[self.metadata.metadata["flag"] <= flag].sort_values("image-datetime").copy()
 
     def set_metadata(self, metadata: pd.DataFrame) -> None:
         """Set the metadata.
@@ -281,55 +265,29 @@ class Paidiverpy:
         Args:
             metadata (pd.DataFrame): The metadata object.
         """
-        if isinstance(self.metadata, MetadataParser):
-            self.metadata.metadata = metadata
-        else:
-            self.metadata = metadata
-
-    def get_waypoints(self) -> pd.DataFrame:
-        """Get the waypoints.
-
-        Raises:
-            ValueError: Waypoints are not loaded in the metadata.
-
-        Returns:
-            pd.DataFrame: The waypoints
-        """
-        if isinstance(self.metadata, MetadataParser):
-            return self.metadata.waypoints
-        msg = "Waypoints are not loaded in the metadata."
-        raise ValueError(msg)
-
-    def show_images(self, step_name: str) -> None:
-        """Show the images.
-
-        Args:
-            step_name (str): The step name.
-        """
-        for image in self.images[step_name]:
-            image.show_image()
+        self.metadata.metadata = metadata
 
     def save_images(
         self,
         step: str | int | None = None,
-        by_order: bool = False,
         image_format: str = "png",
+        output_path: str | Path | None = None,
     ) -> None:
         """Save the images.
 
         Args:
-            step (str | int, optional): The step name or order. Defaults to None.
-            by_order (bool, optional): Whether to save by order. Defaults to False.
+            step (int, optional): The step order. Defaults to None.
             image_format (str, optional): The image format. Defaults to "png".
+            output_path (str | Path, optional): The output path. Defaults to None.
         """
         last = False
         if step is None:
             last = True
-        output_path = self.config.general.output_path
+        if not output_path:
+            output_path = self.config.general.output_path
         self.logger.info("Saving images from step: %s", step if not last else "last")
         self.images.save(
             step,
-            by_order=by_order,
             last=last,
             output_path=output_path,
             image_format=image_format,
@@ -346,17 +304,13 @@ class Paidiverpy:
         self.logger.info("Removing images from the output path: %s", output_path)
         self.images.remove(output_path)
 
-    def clear_steps(self, value: int | str, by_order: bool = True) -> None:
+    def clear_steps(self, value: int | str) -> None:
         """Clear steps from the images and metadata.
 
         Args:
             value (int | str): Step name or order.
-            by_order (bool, optional): Whether to remove by order. Defaults to True.
         """
-        if by_order:
-            self.images.remove_steps_by_order(value)
-        else:
-            self.images.remove_steps_by_name(value)
+        self.images.remove_steps_by_order(value)
         metadata = self.get_metadata(flag="all")
         metadata.loc[metadata["flag"] >= value, "flag"] = 0
         self.set_metadata(metadata)
@@ -394,9 +348,9 @@ class Paidiverpy:
         Returns:
             tuple: The method and parameters.
         """
-        if mode not in method_dict:
-            msg = f"Unsupported mode: {mode}"
-            raise ValueError(msg)
+        # if mode not in method_dict:
+        #     msg = f"Unsupported mode: {mode}"
+        #     raise ValueError(msg)
         method_info = method_dict[mode]
         if not isinstance(params, method_info["params"]):
             params = method_info["params"](**params)
@@ -404,3 +358,17 @@ class Paidiverpy:
         method = getattr(self.__class__, method_name) if class_method else getattr(self, method_name)
 
         return method, params
+
+    def _calculate_raise_error(self) -> bool:
+        """Calculate whether to raise an error.
+
+        Returns:
+            bool: Whether to raise an error.
+        """
+        if self.raise_error:
+            return self.raise_error
+        if isinstance(self.step_metadata["params"], DynamicConfig):
+            raise_error = self.step_metadata["params"].raise_error
+        else:
+            raise_error = self.step_metadata["params"].get("raise_error", False)
+        return raise_error

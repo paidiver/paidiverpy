@@ -23,18 +23,19 @@ class DynamicConfig:
         """
         result = {}
         for key, value in self.__dict__.items():
-            if isinstance(value, Path):
-                if convert_path:
-                    result[key] = str(value)
+            if value != {}:
+                if isinstance(value, Path):
+                    if convert_path:
+                        result[key] = str(value)
+                    else:
+                        result[key] = value
+                elif isinstance(value, DynamicConfig) or issubclass(
+                    type(value),
+                    DynamicConfig,
+                ):
+                    result[key] = value.to_dict()
+                elif isinstance(value, list):
+                    result[key] = [v.to_dict() if isinstance(v, DynamicConfig) else v for v in value]
                 else:
                     result[key] = value
-            elif isinstance(value, DynamicConfig) or issubclass(
-                type(value),
-                DynamicConfig,
-            ):
-                result[key] = value.to_dict()
-            elif isinstance(value, list):
-                result[key] = [v.to_dict() if isinstance(v, DynamicConfig) else v for v in value]
-            else:
-                result[key] = value
         return result

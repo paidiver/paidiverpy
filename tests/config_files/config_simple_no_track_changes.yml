@@ -1,0 +1,34 @@
+general:
+  sample_data: "benthic_csv"
+  output_path: "./output"
+  rename: "datetime"
+  track_changes: False
+  sampling:
+    - mode: "percent"
+      params:
+        value: 0.1
+  convert:
+    - mode: "bits"
+      params:
+        output_bits: 8
+
+steps:
+  - colour:
+      name: "colour_correction"
+      mode: "grayscale"
+  - convert:
+      name: "to_rgb"
+      mode: "to"
+      params:
+        to: "RGB"
+  - convert:
+      name: "to_rgb"
+      mode: "to"
+      params:
+        to: "RGBA"
+  - sampling:
+      name: "overlapping"
+      mode: "overlapping"
+  - sampling:
+      name: "datetime"
+      mode: "datetime"

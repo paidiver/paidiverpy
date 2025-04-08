@@ -108,12 +108,23 @@ paidiverpy = ["*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--cov=src/paidiverpy --cov-report=xml:coverage.xml --cov-report=html:coverage_html --cov-report=term-missing -vv"
+
+addopts = """
+--cov=src/paidiverpy
+--cov-report=xml:coverage.xml
+--cov-report=html:coverage_html
+--cov-report=term-missing
+--cov-config=.coveragerc
+-vv
+"""
 
 [tool.coverage.run]
 branch = true
 source = ["src/paidiverpy"]
 command_line = "-m pytest"
+parallel = true
+concurrency = ["thread", "multiprocessing"]
+relative_files = true
 
 [tool.tox]
 legacy_tox_ini = """
