@@ -3,6 +3,7 @@
 import unittest
 from pathlib import Path
 import numpy as np
+import pytest
 from paidiverpy.colour_layer.colour_layer import ColourLayer
 from paidiverpy.config.config import Configuration
 from paidiverpy.config.config import GeneralConfig
@@ -83,6 +84,19 @@ class TestPipelineInteraction(BaseTestClass):
         output_files = list(config_output_path.parent.glob(config_output_path.name))
         assert len(output_files) == 0
 
+    def test_raise_error(self):
+        """Test the Pipeline Raise Error."""
+        pipeline = Pipeline(config_file_path="tests/config_files/config_plankton.yml")
+        pipeline.add_step(
+            "sharpen_error",
+            ColourLayer,
+            {"mode": "sharpen", "params": {"alpha": -10, "beta": 0.5, "raise_error": True}, "test": False},
+            1,
+            substitute=True,
+        )
+        with pytest.raises(ValueError) as cm:
+            pipeline.run()
+        assert "Error applying sharpening:" in str(cm.value)
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,39 @@
+general:
+  sample_data: "plankton_csv"
+  output_path: "./output"
+  image_type: "BMP"
+
+steps:
+  - convert:
+      mode: "resize"
+      params:
+        interpolation: "nearest"
+        scale: 0.5
+  - convert:
+      mode: "resize"
+      params:
+        interpolation: "linear"
+        scale: [0.5, 0.5]
+  - convert:
+      mode: "resize"
+      params:
+        interpolation: "cubic"
+  - convert:
+      mode: "resize"
+  - convert:
+      mode: "resize"
+      params:
+        interpolation: "lanczos"
+        size: [100, 100]
+  - convert:
+      mode: "resize"
+      params:
+        interpolation: "area"
+        size: [200, 200]
+        preserve_aspect: false
+  - convert:
+      mode: "resize"
+      params:
+        interpolation: "area"
+        size: [0, 0]
+        preserve_aspect: false

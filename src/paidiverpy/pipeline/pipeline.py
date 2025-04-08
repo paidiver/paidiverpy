@@ -69,7 +69,7 @@ class Pipeline(Paidiverpy):
                 step[2]["name"] = name
                 step[2]["step_name"] = step_name
                 if name == "raw":
-                    self.config.add_config("general", step[2])
+                    self.config.add_general(step[2])
                 else:
                     self.config.add_step(None, step[2])
         self.steps = steps
@@ -96,7 +96,6 @@ class Pipeline(Paidiverpy):
             self.logger.info("Processing images using Dask client using the following dashboard link: %s", self.client.dashboard_link)
         for index, step in enumerate(self.steps):
             if index > self.runned_steps:
-                # TODO - add default params if not all params are provided
                 step_name, step_class, step_params = self._get_steps_params(step)
                 self.logger.info(
                     "Running step %s: %s - %s",
@@ -150,7 +149,7 @@ class Pipeline(Paidiverpy):
                 self.clear_steps(from_step + 1)
             else:
                 self.logger.warning(
-                    "Step %s does not exist. Run the pipeline fromthe beginning",
+                    "Step %s does not exist. Run the pipeline from the beginning",
                     from_step,
                 )
 
@@ -165,12 +164,6 @@ class Pipeline(Paidiverpy):
             step_params = {}
         elif len(step) == STEP_WITH_PARAMS:
             step_name, step_class, step_params = step
-        else:
-            self.logger.error("Invalid step format: %s", step)
-            msg = f"Invalid step format: {step}"
-            raise ValueError(msg)
-        if isinstance(step_class, str):
-            step_class = globals()[step_class]
         return step_name, step_class, step_params
 
     def export_config(self, output_path: str) -> None:
@@ -203,14 +196,14 @@ class Pipeline(Paidiverpy):
         if not parameters.get("name"):
             parameters["name"] = step_name
         parameters["step_name"] = self._get_step_name(step_class)
-
+        parameters["test"] = parameters.get("test", False)
         if index:
             if substitute:
                 self.steps[index] = (step_name, step_class, parameters)
                 self.config.add_step(index - 1, parameters)
             else:
                 self.steps.insert(index, (step_name, step_class, parameters))
-                self.config.add_step(index - 1, parameters)
+                self.config.add_step(index - 1, parameters, insert=True)
         else:
             self.steps.append((step_name, step_class, parameters))
             self.config.add_step(None, parameters)

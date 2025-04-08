@@ -1,11 +1,12 @@
 """Configuration module."""
 
 import json
+import logging
 from importlib.resources import files
 from pathlib import Path
-import jsonschema
 import yaml
 from jsonschema import Draft202012Validator
+from jsonschema.exceptions import ValidationError
 from paidiverpy.config.colour_params import COLOUR_LAYER_METHODS
 from paidiverpy.config.convert_params import CONVERT_LAYER_METHODS
 from paidiverpy.config.custom_params import CustomParams
@@ -15,6 +16,17 @@ from paidiverpy.utils.data import PaidiverpyData
 from paidiverpy.utils.docker import is_running_in_docker
 from paidiverpy.utils.dynamic_classes import DynamicConfig
 from paidiverpy.utils.install_packages import check_and_install_dependencies
+
+steps_params_mapping = {
+    "colour": COLOUR_LAYER_METHODS,
+    "convert": CONVERT_LAYER_METHODS,
+    "position": POSITION_LAYER_METHODS,
+    "sampling": RESAMPLE_LAYER_METHODS,
+}
+
+config_class_mapping = ["general", "sampling", "convert", "position", "colour"]
+
+logger = logging.getLogger(__name__)
 
 
 class GeneralConfig(DynamicConfig):
@@ -41,6 +53,7 @@ class GeneralConfig(DynamicConfig):
             self.metadata_type = kwargs.get("metadata_type")
             self.image_type = kwargs.get("image_type")
             self.append_data_to_metadata = kwargs.get("append_data_to_metadata", False)
+        self.metadata_conventions = kwargs.get("metadata_conventions")
         output_path = kwargs.get("output_path")
         self.output_is_remote = str(output_path).startswith(("http://", "https://", "s3://"))
         if output_path:
@@ -54,12 +67,20 @@ class GeneralConfig(DynamicConfig):
         self.rename = kwargs.get("rename")
         samplings = kwargs.get("sampling")
         if samplings:
-            self.sampling = [SamplingConfig(**sampling) for sampling in samplings]
+            self.sampling = []
+            for sampling in samplings:
+                sampling["step_name"] = "sampling"
+                sampling["name"] = "sampling"
+                self.sampling.append(StepConfig(**sampling))
         else:
             self.sampling = None
         converts = kwargs.get("convert")
         if converts:
-            self.convert = [ConvertConfig(**convert) for convert in converts]
+            self.convert = []
+            for convert in converts:
+                convert["step_name"] = "convert"
+                convert["name"] = "convert"
+                self.convert.append(StepConfig(**convert))
         else:
             self.convert = None
 
@@ -79,96 +100,30 @@ class GeneralConfig(DynamicConfig):
             self.append_data_to_metadata = information["append_data_to_metadata"]
 
 
-class PositionConfig(DynamicConfig):
-    """Position configuration class."""
+class StepConfig(DynamicConfig):
+    """Step configuration class.
+
+    This class is used to define the step configuration from the configuration file
+
+    Args:
+        name (str): The name of the step.
+        step_name (str): The name of the step.
+        **kwargs (dict): The step configuration.
+    """
 
     def __init__(self, **kwargs: dict):
-        self.name = kwargs.get("name", "position")
-        self.step_name = kwargs.get("step_name", "position")
-        self.mode = kwargs.get("mode")
-        if not self.mode:
-            msg = "The mode is not defined in the configuration file."
-            raise ValueError(msg)
+        self.name = kwargs.get("name")
+        self.step_name = kwargs.get("step_name")
         self.test = kwargs.get("test", False)
-        params = kwargs.get("params")
-        if params:
-            self.params = POSITION_LAYER_METHODS[self.mode]["params"](**params)
-
-
-class ConvertConfig(DynamicConfig):
-    """Convert configuration class."""
-
-    def __init__(self, **kwargs: dict):
-        self.name = kwargs.get("name", "convert")
-        self.step_name = kwargs.get("step_name", "convert")
-        self.mode = kwargs.get("mode")
-        if not self.mode:
-            msg = "The mode is not defined in the configuration file."
-            raise ValueError(msg)
-        self.test = kwargs.get("test", False)
-        params = kwargs.get("params")
-        if params:
-            self.params = CONVERT_LAYER_METHODS[self.mode]["params"](**params)
-
-
-class ColourConfig(DynamicConfig):
-    """Colour configuration class."""
-
-    def __init__(self, **kwargs: dict):
-        self.name = kwargs.get("name", "colour")
-        self.step_name = kwargs.get("step_name", "colour")
-        self.mode = kwargs.get("mode")
-        if not self.mode:
-            msg = "The mode is not defined in the configuration file."
-            raise ValueError(msg)
-        self.test = kwargs.get("test", False)
-        params = kwargs.get("params")
-
-        if params:
-            self.params = COLOUR_LAYER_METHODS[self.mode]["params"](**params)
-
-
-class SamplingConfig(DynamicConfig):
-    """Sampling configuration class."""
-
-    def __init__(self, **kwargs: dict):
-        self.name = kwargs.get("name", "sampling")
-        self.step_name = kwargs.get("step_name", "sampling")
-        self.mode = kwargs.get("mode")
-        if not self.mode:
-            msg = "The mode is not defined in the configuration file."
-            raise ValueError(msg)
-        self.test = kwargs.get("test", False)
-        params = kwargs.get("params")
-        if params:
-            self.params = RESAMPLE_LAYER_METHODS[self.mode]["params"](**params)
-
-
-class CustomConfig(DynamicConfig):
-    """Sampling configuration class."""
-
-    def __init__(self, **kwargs: dict):
-        self.name = kwargs.get("name", "custom")
-        self.step_name = kwargs.get("step_name", "custom")
-        self.file_path = kwargs.get("file_path")
-        self.class_name = kwargs.get("class_name")
-        if not self.file_path or not self.class_name:
-            msg = "The file_path and the class_na,e is not defined in the configuration file."
-            raise ValueError(msg)
-        self.test = kwargs.get("test", False)
-        params = kwargs.get("params")
-        if params:
+        params = kwargs.get("params", {})
+        if self.step_name == "custom":
+            self.file_path = kwargs.get("file_path")
+            self.class_name = kwargs.get("class_name")
             self.params = CustomParams(**params)
-
-
-config_class_mapping = {
-    "general": GeneralConfig,
-    "position": PositionConfig,
-    "sampling": SamplingConfig,
-    "colour": ColourConfig,
-    "convert": ConvertConfig,
-    "custom": CustomConfig,
-}
+        else:
+            self.mode = kwargs.get("mode")
+            step_class = steps_params_mapping[self.step_name]
+            self.params = step_class[self.mode]["params"](**params)
 
 
 class Configuration:
@@ -176,24 +131,31 @@ class Configuration:
 
     Args:
         config_file_path (str, optional): The configuration file path. Defaults to None.
-        input_path (str, optional): The input path. Defaults to None.
-        output_path (str, optional): The output path. Defaults to None.
+        add_general (dict, optional): The general configuration. Defaults to None.
+        add_steps (dict, optional): The steps configuration. Defaults to None.
     """
 
     def __init__(
         self,
         config_file_path: str | None = None,
-        input_path: str | None = None,
-        output_path: str | None = None,
+        add_general: dict | None = None,
+        add_steps: list[dict] | None = None,
     ):
         self.general = None
         self.steps = []
 
         if config_file_path:
             self._load_config_from_file(config_file_path)
+        elif add_general or add_steps:
+            if add_general:
+                self.add_general(add_general)
+            if add_steps:
+                for step in add_steps:
+                    self.add_step(None, step)
         else:
-            self._validate_paths(input_path, output_path)
-            self.general = GeneralConfig(input_path=input_path, output_path=output_path)
+            msg = "Configuration file path or configuration parameters are not specified."
+            msg = " You have to pass them manually using 'add_general' and 'add_step' functions"
+            logger.warning(msg)
 
     def _load_config_from_file(self, config_file_path: str) -> None:
         """Load the configuration from a file.
@@ -213,17 +175,15 @@ class Configuration:
         except FileNotFoundError as e:
             msg = f"Failed to load the configuration file: {e!s}"
             raise FileNotFoundError(msg) from e
-        except jsonschema.exceptions.ValidationError as e:
+        except ValidationError as e:
             msg = f"{e!s}"
-            raise jsonschema.exceptions.ValidationError(msg) from e
-        except yaml.YAMLError as e:
+            raise ValidationError(msg) from e
+        except (yaml.YAMLError, yaml.parser.ParserError) as e:
             msg = f"Failed to load the configuration file: {e!s}"
             raise yaml.YAMLError(msg) from e
-        except yaml.parser.ParserError as e:
-            msg = f"Failed to parse the configuration file: {e!s}"
-            raise yaml.parser.ParserError(msg) from e
 
-        self.general = self._validate_general_config(config_data)
+        config_data["general"]["name"] = config_data["general"].get("name") or "raw"
+        self.general = GeneralConfig(**config_data["general"])
         self._load_steps(config_data)
 
     def _validate_config(self, config: dict) -> None:
@@ -241,52 +201,7 @@ class Configuration:
             msg = "Failed to validate the configuration file.\n"
             for error in errors:
                 msg += f"{error}: {error.message}\n"
-            raise jsonschema.exceptions.ValidationError(msg)
-
-    def _validate_general_config(self, config_data: dict) -> GeneralConfig:
-        """Validate the general configuration.
-
-        Args:
-            config_data (dict): The configuration data.
-
-        Raises:
-            ValueError: General configuration is not specified.
-            ValueError: General configuration is empty.
-            ValueError: Input and output paths are not specified.
-
-        Returns:
-            GeneralConfig: The general configuration.
-        """
-        if "general" not in config_data:
-            msg = "General configuration is not specified."
-            raise ValueError(msg)
-        if not config_data["general"]:
-            msg = "General configuration is empty."
-            raise ValueError(msg)
-        if not config_data["general"].get("input_path") and not config_data["general"].get("sample_data"):
-            msg = "Input path is not specified."
-            raise ValueError(msg)
-        if not config_data["general"].get("output_path"):
-            msg = "Output path is not specified."
-            raise ValueError(msg)
-        name = config_data["general"].get("name")
-        if not name:
-            config_data["general"]["name"] = "raw"
-        return GeneralConfig(**config_data["general"])
-
-    def _validate_paths(self, input_path: str, output_path: str) -> None:
-        """Validate the input and output paths.
-
-        Args:
-            input_path (str): Input path.
-            output_path (str): Output path.
-
-        Raises:
-            ValueError: Input and output paths are not specified.
-        """
-        if not input_path or not output_path:
-            msg = "Input and output paths are not specified."
-            raise ValueError(msg)
+            raise ValidationError(msg)
 
     def _load_steps(self, config_data: dict) -> None:
         """Load the steps from the configuration data.
@@ -300,46 +215,37 @@ class Configuration:
         if config_data.get("steps"):
             for step_order, step in enumerate(config_data["steps"]):
                 for step_name, step_config in step.items():
-                    if step_name in config_class_mapping:
-                        if step_name == "custom":
-                            check_and_install_dependencies(step_config.get("dependencies"), step_config.get("dependencies_path"))
-                        name = step_config.get("name")
-                        if not name:
-                            step_config["name"] = f"{step_name}_{step_order + 1}"
-                        step_config["step_name"] = step_name
-                        step_class = config_class_mapping[step_name]
-                        step_instance = step_class(**step_config)
-                        self.steps.append(step_instance)
-                    else:
-                        msg = f"Invalid step name: {step_name}"
-                        raise ValueError(msg)
+                    if step_name == "custom":
+                        check_and_install_dependencies(step_config.get("dependencies"), step_config.get("dependencies_path"))
+                    name = step_config.get("name")
+                    if not name:
+                        step_config["name"] = f"{step_name}_{step_order + 1}"
+                    step_config["step_name"] = step_name
+                    step_instance = StepConfig(**step_config)
+                    self.steps.append(step_instance)
 
-    def add_config(self, config_name: str, config: dict) -> None:
+    def add_general(self, config: dict) -> None:
         """Add a configuration.
 
         Args:
-            config_name (str): The configuration name.
             config (dict): The configuration.
 
         Raises:
             ValueError: Invalid configuration name.
         """
-        if config_name not in config_class_mapping:
-            msg = f"Invalid configuration name: {config_name}"
-            raise ValueError(msg)
-
-        current_config = getattr(self, config_name)
+        current_config = self.general
         if current_config is None:
-            setattr(self, config_name, config_class_mapping[config_name](**config))
+            self.general = GeneralConfig(**config)
         else:
             current_config.update(**config)
 
-    def add_step(self, config_index: int | None = None, parameters: dict | None = None) -> int:
+    def add_step(self, config_index: int | None = None, parameters: dict | None = None, insert: bool = False) -> int:
         """Add a step to the configuration.
 
         Args:
             config_index (int, optional): The configuration index. Defaults to None.
             parameters (dict, optional): The parameters for the step. Defaults to None.
+            insert (bool, optional): Whether to insert the step at the given index. Defaults to False.
 
         Raises:
             ValueError: Invalid step index.
@@ -348,12 +254,17 @@ class Configuration:
             int: The step index.
         """
         if len(self.steps) == 0:
-            self.steps.append(config_class_mapping[parameters["step_name"]](**parameters))
+            self.steps.append(StepConfig(**parameters))
             return len(self.steps) - 1
         if config_index is None:
-            self.steps.append(config_class_mapping[parameters["step_name"]](**parameters))
+            self.steps.append(StepConfig(**parameters))
             return len(self.steps) - 1
+        if insert and config_index < len(self.steps):
+            self.steps.insert(config_index, StepConfig(**parameters))
+            return config_index
         if config_index < len(self.steps):
+            if not parameters.get("params"):
+                parameters["params"] = {}
             self.steps[config_index].update(**parameters)
             return config_index
         msg = f"Invalid step index: {config_index}"
@@ -390,8 +301,8 @@ class Configuration:
             is_docker = is_running_in_docker()
             if is_docker:
                 output_path = Path("/app/output/")
-            if not output_path:
-                output_path = self.output_path
+            if isinstance(output_path, str):
+                output_path = Path(output_path)
             if not output_path.exists():
                 output_path.mkdir(parents=True, exist_ok=True)
         return output_path, is_remote

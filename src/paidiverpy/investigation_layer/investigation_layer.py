@@ -78,7 +78,7 @@ class InvestigationLayer(Paidiverpy):
 
     def run(self) -> None:
         """Run the investigation layer."""
-        self.logger.warning("As you are using the test mode, the investigation layer will not be executed.")
+        self.logger.warning("As you are using the test mode, the investigation layer will be executed.")
         if self.is_remote:
             self.logger.error("Output path is remote. Skipping investigation layer.")
             return
@@ -86,11 +86,13 @@ class InvestigationLayer(Paidiverpy):
         self.output_path.mkdir(parents=True, exist_ok=True)
         if self.plot_metadata is None:
             self.plot_metadata = self.get_metadata()
-        if self.plots == "resample":
+        if "resample" in self.plots:
             self.plot_trimmed_photos(self.plot_metadata[self.plot_metadata.flag == 0])
-            self.plot_polygons(self.plot_metadata)
-        if self.plots == "all":
-            self.plot_trimmed_photos(self.plot_metadata[self.plot_metadata.flag == 0])
+        if "polygon" in self.plots:
+            self.plot_polygons()
+        if self.plots == "resample-obscure":
+            self.plot_brightness_hist(self.plot_metadata)
+
         self.logger.warning("Plots generated and saved on the output folder: %s", self.output_path)
 
     def plot_trimmed_photos(self, new_metadata: pd.DataFrame) -> None:
@@ -106,30 +108,66 @@ class InvestigationLayer(Paidiverpy):
             )
             self.logger.warning("Plotting will not be performed.")
             return
-        plt.figure(figsize=(20, 10))
-        plt.plot(metadata["image-longitude"], metadata["image-latitude"], ".k")
-        plt.plot(new_metadata["image-longitude"], new_metadata["image-latitude"], "or")
-        plt.legend(["Original", "After Resample"])
-        plt.xlabel("Longitude")
-        plt.ylabel("Latitude")
-        plt.title("Comparison of Original and Resampled Photos")
-        plt.savefig(self.output_path / "trimmed_photos.png")
+        _, ax = plt.subplots(figsize=(20, 10))
+        ax.plot(metadata["image-longitude"], metadata["image-latitude"], ".k")
+        ax.plot(new_metadata["image-longitude"], new_metadata["image-latitude"], "xr")
+        ax.legend(["Original", "After Resample"])
+        ax.set_xlabel("Longitude")
+        ax.set_ylabel("Latitude")
+        ax.set_title("Comparison of Original and Resampled Images")
+        if hasattr(self.metadata, "trimmed_polygon") and self.metadata.trimmed_polygon is not None:
+            self.metadata.trimmed_polygon.plot(ax=ax, color="none", edgecolor="black", linewidth=2)
+        plt.savefig(self.output_path / "graph_trimmed_images.png")
         plt.close()
 
-    def plot_polygons(self, metadata: pd.DataFrame) -> None:
-        """Plot the polygons.
-
-        Args:
-            metadata (pd.DataFrame): The metadata with the polygons.
-        """
+    def plot_polygons(self) -> None:
+        """Plot the polygons."""
+        metadata = self.get_metadata()
         gdf = gpd.GeoDataFrame(metadata, geometry="polygon_m")
         _, ax = plt.subplots(figsize=(15, 15))
 
-        gdf[gdf.overlap == 0].plot(ax=ax, facecolor="none", edgecolor="black", label="No Overlap")
-        gdf[gdf.overlap == 1].plot(ax=ax, facecolor="none", edgecolor="red", label="Overlap")
-        plt.legend()
+        no_overlap = gdf[gdf.overlap == 0]
+        overlap = gdf[gdf.overlap == 1]
+        no_overlap.plot(ax=ax, facecolor="none", edgecolor="black", label="No Overlap")
+        overlap.plot(ax=ax, facecolor="none", edgecolor="red", label="Overlap")
+        if not no_overlap.empty or not overlap.empty:
+            plt.legend()
+
         plt.title("Overlap of Images")
         plt.xlabel("Longitude")
         plt.ylabel("Latitude")
-        plt.savefig(self.output_path / "polygons.png")
+        plt.savefig(self.output_path / "graph_polygons.png")
+        plt.close()
+
+    def plot_brightness_hist(self, metadata: pd.DataFrame) -> None:
+        """Plot the images.
+
+        Args:
+            metadata (pd.DataFrame): The metadata with the images.
+        """
+        # metadata can have brightness column or brightness_1, brightness_2, brightness_3
+        if "brightness" not in metadata.columns:
+            brightness_columns = [col for col in metadata.columns if col.startswith("brightness_")]
+            if len(brightness_columns) == 0:
+                self.logger.warning("No brightness column found in the metadata.")
+                return
+            for col in brightness_columns:
+                self._plot_individual_brightness(metadata, col)
+        else:
+            self._plot_individual_brightness(metadata, "brightness")
+
+    def _plot_individual_brightness(self, metadata: pd.DataFrame, col: str) -> None:
+        """Plot the individual brightness.
+
+        Args:
+            metadata (pd.DataFrame): The metadata with the images.
+            col (str): The column name for brightness.
+        """
+        channel = col.split("_")
+        channel = channel[-1] if len(channel) > 1 else "mean"
+        plt.hist(metadata[col], bins=30, edgecolor="black")
+        plt.xlabel("Mean Brightness")
+        plt.ylabel("Frequency")
+        plt.title("Distribution of Image Brightness - channel:" + channel)
+        plt.savefig(self.output_path / f"graph_{col}_hist.png")
         plt.close()

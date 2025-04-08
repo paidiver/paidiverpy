@@ -8,16 +8,6 @@ from importlib.metadata import version
 from pathlib import Path
 from paidiverpy.utils.docker import is_running_in_docker
 
-NUM_CHANNELS_GREY = 2
-NUM_CHANNELS_RGB = 3
-NUM_CHANNELS_RGBA = 4
-NUM_IMAGE_DIMS = 2
-DEFAULT_BITS = 8
-EIGHT_BITS = 8
-SIXTEEN_BITS = 16
-THIRTY_TWO_BITS = 32
-
-
 PACKAGE_REGEX = re.compile(r"^[a-zA-Z0-9_-]+(==[a-zA-Z0-9_.-]+)?$")
 
 
