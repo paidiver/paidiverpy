@@ -137,6 +137,7 @@ Example data will be automatically downloaded when running the example notebooks
 
 > **Note:** Please check the documentation for more information about Paidiverpy: https://paidiverpy.readthedocs.io/
 
+<!--
 ## 🌍📉 Environmental Impact Report for **paidiverpy**
 
 We care about the environmental footprint of our development process. That’s why we’ve integrated [Green Coding](https://www.green-coding.io/)’s [Green Metrics Tools](https://metrics.green-coding.io) to monitor and estimate the energy consumption and CO₂-equivalent emissions of our GitHub-based CI/CD workflows.
@@ -147,8 +148,7 @@ Below are the latest insights from our development activities:
 |----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
 | CI tests triggered on each commit  | [![CI Energy][ci-energy-badge]][ci-energy-link] [![CI CO₂][ci-energy-badge-co2]][ci-energy-link]                                           |
 | Upstream CI tests (daily runs)     | [![Upstream CI Energy][ci-energy-badge-upstream]][ci-energy-link-upstream] [![Upstream CI CO₂][ci-energy-badge-upstream-co2]][ci-energy-link-upstream] |
-
----
+-->
 
 ## 🤝 Contributing to **paidiverpy**
 
