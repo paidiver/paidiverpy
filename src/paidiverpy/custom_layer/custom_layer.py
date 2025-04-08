@@ -23,6 +23,7 @@ class CustomLayer(Paidiverpy):
     Process the images in the custom layer.
 
     Args:
+        parameters (dict): The parameters for the step.
         config_params (dict | ConfigParams, optional): The configuration parameters.
             It can contain the following keys / attributes:
             - input_path (str): The path to the input files.
@@ -37,7 +38,6 @@ class CustomLayer(Paidiverpy):
         images (ImagesLayer): The images object.
         paidiverpy (Paidiverpy): The paidiverpy object.
         step_name (str): The name of the step.
-        parameters (dict): The parameters for the step.
         config_index (int): The index of the configuration.
         logger (logging.Logger): The logger object.
         raise_error (bool): Whether to raise an error.
@@ -46,6 +46,7 @@ class CustomLayer(Paidiverpy):
 
     def __init__(
         self,
+        parameters: dict,
         config_params: dict | ConfigParams = None,
         config_file_path: str | None = None,
         config: Configuration = None,
@@ -53,7 +54,6 @@ class CustomLayer(Paidiverpy):
         images: ImagesLayer = None,
         paidiverpy: "Paidiverpy" = None,
         step_name: str | None = None,
-        parameters: dict | None = None,
         config_index: int | None = None,
         logger: logging.Logger | None = None,
         raise_error: bool = False,
@@ -72,11 +72,12 @@ class CustomLayer(Paidiverpy):
         )
 
         self.step_name = step_name
-        if parameters:
-            self.config_index = self.config.add_step(config_index, parameters)
-        self.step_metadata = self._calculate_steps_metadata(self.config.steps[self.config_index])
 
-    def run(self, add_new_step: bool = True) -> ImagesLayer | None:
+        self.config_index = self.config.add_step(config_index, parameters)
+        self.step_metadata = self._calculate_steps_metadata(self.config.steps[self.config_index])
+        self.raise_error = self._calculate_raise_error()
+
+    def run(self) -> ImagesLayer | None:
         """Custom Layer run method.
 
         Run the custom layer steps on the images based on the configuration
@@ -103,24 +104,21 @@ class CustomLayer(Paidiverpy):
         params = self.step_metadata.get("params") or {}
         params = CustomParams(**params)
         method = self.load_custom_algorithm(file_path, class_name, algorithm_name)
-        images = self.images.get_step(step=len(self.images.images) - 1, by_order=True)
+        images = self.images.get_step(step=len(self.images.images) - 1)
         if self.n_jobs == 1:
             image_list = self.process_sequentially(images, method, params, custom=True)
         else:
             self.process_parallel(images, method, params, custom=True)
         if not test:
             self.step_name = algorithm_name if not self.step_name else self.step_name
-            if add_new_step:
-                self.images.add_step(
-                    step=self.step_name,
-                    images=image_list,
-                    step_metadata=self.step_metadata,
-                    metadata=self.get_metadata(),
-                    track_changes=self.track_changes,
-                )
-                return None
-            self.images.images[-1] = image_list
-            return self.images
+            self.images.add_step(
+                step=self.step_name,
+                images=image_list,
+                step_metadata=self.step_metadata,
+                metadata=self.get_metadata(),
+                track_changes=self.track_changes,
+            )
+            return None
         return None
 
     def load_custom_algorithm(self, file_path: str, class_name: str, algorithm_name: str) -> callable:

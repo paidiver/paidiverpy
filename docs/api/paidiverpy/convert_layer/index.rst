@@ -5,7 +5,7 @@ paidiverpy.convert_layer
 
 .. autoapi-nested-parse::
 
-   
+
    __init__.py file for convert_layer module.
 
 
@@ -52,7 +52,7 @@ Package Contents
    Bases: :py:obj:`paidiverpy.Paidiverpy`
 
 
-   
+
    Process the images in the convert layer.
 
    This class provides various methods to convert images according to specified
@@ -113,7 +113,7 @@ Package Contents
       :staticmethod:
 
 
-      
+
       Convert the image to the specified number of bits.
 
       :param image_data: The image data.
@@ -148,7 +148,7 @@ Package Contents
       :staticmethod:
 
 
-      
+
       Convert the image to the specified channel.
 
       :param image_data: The image data.
@@ -183,11 +183,11 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: get_bayer_pattern(image_data: numpy.ndarray, params: paidiverpy.config.convert_params.BayerPatternParams = None) -> numpy.ndarray
+   .. py:method:: change_bayer_pattern(image_data: numpy.ndarray, params: paidiverpy.config.convert_params.BayerPatternParams = None) -> numpy.ndarray
       :staticmethod:
 
 
-      
+
       Convert the image to the specified Bayer pattern.
 
       :param image_data: The image data.
@@ -227,7 +227,7 @@ Package Contents
       :staticmethod:
 
 
-      
+
       Normalize the image data.
 
       :param image_data: The image data.
@@ -264,7 +264,7 @@ Package Contents
       :staticmethod:
 
 
-      
+
       Resize the image data.
 
       :param image_data: The image data.
@@ -301,7 +301,7 @@ Package Contents
       :staticmethod:
 
 
-      
+
       Crop the image data.
 
       :param image_data: The image data.
@@ -333,5 +333,3 @@ Package Contents
 
       ..
           !! processed by numpydoc !!
-
-

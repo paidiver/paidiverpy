@@ -1,0 +1,90 @@
+{
+  "image-set-header": {
+    "image-set-ifdo-version": "v2.1.0",
+    "image-copyright": "Open data - freely available for use under the Open Government Licence (OGL); see NERC Policy on Licensing and Charging for Information (v1.5; 30/09/2016)",
+    "image-coordinate-reference-system": "EPSG:32629",
+    "image-project": {
+      "name": "RRS Discovery III cruise 377/8 (BODC ship identifier 74E3)",
+      "uri": "https://www.bodc.ac.uk/resources/inventories/cruise_inventory/report/11411/"
+    },
+    "image-context": {
+      "name": "D377-062",
+      "uri": "https://eprints.soton.ac.uk/350696/1/NOC_CR_23.pdf"
+    },
+    "image-event": {
+      "name": "D377-062",
+      "uri": "https://eprints.soton.ac.uk/350696/1/NOC_CR_23.pdf"
+    },
+    "image-abstract": "This photographic survey was the first in a series of surveys conducted in the same location with a camera mounted on an autonomous underwater vehicle, initially when the Greater Haig Fras area was under consideration for Marine Conservation Zone (MCZ) status. The work was initially undertaken as a Defra-funded project 'Investigating the feasibility of utilizing AUV and Glider technology for mapping and monitoring of the UK MPA network (MB0118)', Case study 2: Shallow-water AUV mapping off SW UK; Cruise report: Ruhl, H., 2013. RRS Discovery cruise 377 & 378, 05-27 July 2012. Autonomous ecological surveying of the abyss: understanding mesoscale spatial heterogeneity at the Porcupine Abyssal Plain.  (73 pp.). Southampton, UK: National Oceanography Centre, Southampton. (National Oceanography Centre Cruise Report, 23). https://nora.nerc.ac.uk/id/eprint/500784/1/NOC_CR_23.pdf  See also: Wynn, R. B., B. J. Bett, A. J. Evans, G. Griffiths, V. A. I. Huvenne, A. R. Jones, M. R. Palmer, D. Dove, J. A. Howe, T. J. Boyd & B. J. Bett, 2012. Investigating the feasibility of utilizing AUV and Glider technology for mapping and monitoring of the UK MPA network., vol Final report for Defra project MB0118. National Oceanography Centre, Southampton. 244pp.  https://nora.nerc.ac.uk/id/eprint/500733/1/DEFRA_MB0118%28Wynn%29_FINAL.pdf",
+    "image-set-name": "Greater Haig Fras 2012 autonomous underwater vehicle image survey - mosaicked tiles used for quantifying benthic community and characterising seabed type",
+    "image-platform": {
+      "name": "Autosub6000",
+      "uri": "http://vocab.nerc.ac.uk/collection/B76/current/B7600031/"
+    },
+    "image-sensor": {
+      "name": "NOC AUV6000 camera system",
+      "uri": "http://vocab.nerc.ac.uk/collection/L22/current/TOOL1897/"
+    },
+    "image-set-uuid": "822731b4-a6b7-476f-887e-debf00bfa6ba",
+    "image-creators": [
+      {
+        "name": "Noelie Benoist",
+        "uri": "https://orcid.org/0000-0002-9079-593X"
+      },
+      {
+        "name": "Brian J Bett",
+        "uri": "https://orcid.org/0000-0002-9079-593X"
+      },
+      {
+        "name": "Kirsty Morris",
+        "uri": "https://orcid.org/0000-0002-9079-593X"
+      },
+      {
+        "name": "Henry A Ruhl",
+        "uri": "https://orcid.org/0000-0002-9079-593X"
+      }
+    ],
+    "image-pi": {
+      "name": "Henry Ruhl",
+      "uri": "https://orcid.org/0000-0002-9079-593X"
+    },
+    "image-license": {
+      "name": "Open Government License",
+      "uri": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+    },
+    "image-spatial-constraints": "Image tiles generated from four seabed photography survey lines within a bounding box of c. (50.35493999,- 7.720771485; 50.39472532, -7.720770658; 50.39472514, -7.712087057; 50.35493981, -7.712087884)",
+    "image-temporal-constraints": "Constituent images of the tiles were captured in a single dive of the Autosub6000 vehicle during its mission 58. The image acquisition period was c. 26/07/2012 02:53 - 26/07/2012 06:38",
+    "image-acquisition": "photo",
+    "image-quality": "product",
+    "image-deployment": "mapping",
+    "image-navigation": "reconstructed",
+    "image-scale-reference": "calibrated camera",
+    "image-illumination": "artificial light",
+    "image-resolution": "mm",
+    "image-marine-zone": "seafloor",
+    "image-spectral-resolution": "rgb",
+    "image-capture-mode": "timer",
+    "image-target-environment": "Constrained seabed area of near level-bottom terrain encompassing a range of seabed types. The specific location of the Autosub6000 mission was chosen to correspond with an area of ship-based multibeam echosounder seabed survey carried out from the RV Cefas Endeavour just prior to the arrival of RRS Discovery cruise 377/8.",
+    "image-objective": "The aim of the survey was to undertake high-resolution seabed mapping and colour photography in a recommended Marine Conservation Zone (rMCZ), to highlight the capability of AUV technology for high-resolution shallow-water mapping and benthic assemblage assessment.",
+    "image-item-identification-scheme": "<Autosub6000 mission number M##>_<8-digit downward camera ID>_<milliseconds since 01/01/1601>",
+    "image-curation-protocol": "Images were mosaicked in 'tiles' consisting of 5 consecutive images (each tile representing approximately 7.3 m2 of seabed). Images were orthorectified and scaled to a common altitude per tile. The average dimension of a pixel was 0.59 mm; this scaling (used in estimating the areas provided and in published analysis) is incorrect as it employed an incorrect camera magnification of 1.45, while the true magnification was likely 1.35. Further details of the mosaicking process are detailed in: Morris, K.J., Bett, B.J., Durden, J.M., Huvenne, V.A.I., Milligan, R., Jones, D.O.B., McPhail, S., Robert, K., Bailey, D., Ruhl, H.A., 2014. A new method for ecological surveying of the abyss using autonomous underwater vehicle photography. Limnology and Oceanography: Methods, 12, 795-809. 10.4319/lom.2014.12.795.",
+    "image-datetime": "2012-07-26 02:53:18.000000",
+    "image-latitude": 50.376,
+    "image-longitude": -7.7165
+  },
+  "image-set-items": {
+    "M58_10441297_12987744807147.jpg": {
+      "image-datetime": "2016-05-11 09:09:41.000000",
+      "image-longitude": -7.71210609,
+      "image-latitude": 50.39418572,
+      "image-uuid": "854D01B1-BA2E-487C-8B33-7C46AFD8F45F",
+      "image-area-square-meter": 9.944266443,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744811443.jpg": {
+      "image-datetime": "2016-05-11 09:26:08.000000",
+      "image-longitude": -7.71210988,
+      "image-latitude": 50.39413194,
+      "image-uuid": "5FC8AC68-3C0
+  }
+}

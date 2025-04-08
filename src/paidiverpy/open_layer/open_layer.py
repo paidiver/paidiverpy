@@ -24,6 +24,10 @@ from paidiverpy.convert_layer import ConvertLayer
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.resample_layer import ResampleLayer
+from paidiverpy.utils.data import NUM_CHANNELS_RGB
+from paidiverpy.utils.data import NUM_CHANNELS_RGBA
+from paidiverpy.utils.data import NUM_DIMENSIONS
+from paidiverpy.utils.data import NUM_DIMENSIONS_GREY
 from paidiverpy.utils.docker import is_running_in_docker
 from paidiverpy.utils.dynamic_classes import DynamicConfig
 from paidiverpy.utils.object_store import define_storage_options
@@ -82,7 +86,7 @@ class OpenLayer(Paidiverpy):
 
         self.step_name = step_name
         if parameters:
-            self.config.add_config("general", parameters)
+            self.config.add_general(parameters)
         is_docker = is_running_in_docker()
         self.storage_options = define_storage_options(self.config.general.input_path)
 
@@ -139,6 +143,7 @@ class OpenLayer(Paidiverpy):
                         metadata=self.metadata,
                         parameters=step_params,
                         client=self.client,
+                        add_new_step=False,
                     ).run(),
                 )
                 gc.collect()
@@ -259,11 +264,6 @@ class OpenLayer(Paidiverpy):
                 )
         elif rename == "UUID":
             metadata["image-filename"] = metadata["image-filename"].apply(lambda _: str(uuid.uuid4()) + image_type)
-        else:
-            self.logger.error("Unknown rename mode: %s", rename)
-            if self.raise_error:
-                msg = f"Unknown rename mode: {rename}"
-                raise ValueError(msg)
         self.set_metadata(metadata)
         return metadata
 
@@ -321,6 +321,12 @@ class OpenLayer(Paidiverpy):
             img = np.squeeze(img)
         else:
             img = cv2.imread(str(img_path), cv2.IMREAD_UNCHANGED)
+            if img.ndim == NUM_DIMENSIONS_GREY:
+                img = np.expand_dims(img, axis=-1)
+            elif img.ndim == NUM_DIMENSIONS and img.shape[2] == NUM_CHANNELS_RGBA:
+                img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
+            elif img.ndim == NUM_DIMENSIONS and img.shape[2] == NUM_CHANNELS_RGB:
+                img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         return img, exif
 
     @staticmethod

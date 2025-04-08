@@ -26,19 +26,12 @@ class ToParams(DynamicConfig):
 
 
 @dataclass
-class BayerPatternParams(DynamicConfig):
-    """This class contains the parameters for the Bayer pattern conversion."""
-
-    bayer_pattern: str = "BGGR"
-    raise_error: bool = False
-
-
-@dataclass
 class NormalizeParams(DynamicConfig):
     """This class contains the parameters for the image normalization."""
 
     min: float = 0
     max: float = 1
+    method: str = "minmax"
     raise_error: bool = False
 
 
@@ -46,8 +39,10 @@ class NormalizeParams(DynamicConfig):
 class ResizeParams(DynamicConfig):
     """This class contains the parameters for the image resizing."""
 
-    min: int = 256
-    max: int = 256
+    size: tuple = None
+    preserve_aspect: bool = True
+    scale: float = 1.0
+    interpolation: str = "linear"
     raise_error: bool = False
 
 
@@ -55,15 +50,16 @@ class ResizeParams(DynamicConfig):
 class CropParams(DynamicConfig):
     """This class contains the parameters for the image cropping."""
 
-    x: tuple = (0, -1)
-    y: tuple = (0, -1)
+    size: tuple | float = 1
+    size_type: str = "percent"
+    mode: str = "center"
+    top_left: tuple = (0, 0)
     raise_error: bool = False
 
 
 CONVERT_LAYER_METHODS = {
     "bits": {"params": BitParams, "method": "convert_bits"},
     "to": {"params": ToParams, "method": "channel_convert"},
-    "bayer_pattern": {"params": BayerPatternParams, "method": "get_bayer_pattern"},
     "normalize": {"params": NormalizeParams, "method": "normalize_image"},
     "resize": {"params": ResizeParams, "method": "resize"},
     "crop": {"params": CropParams, "method": "crop_images"},
