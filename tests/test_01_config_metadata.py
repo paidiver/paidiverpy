@@ -11,6 +11,7 @@ from paidiverpy import Paidiverpy
 from paidiverpy.config.config import Configuration
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.open_layer import OpenLayer
+from paidiverpy.utils.data import PaidiverpyData
 from tests.base_test_class import BaseTestClass
 
 
@@ -42,9 +43,14 @@ class TestConfigMetadataClass(BaseTestClass):
         config = Configuration(add_steps=[parameters])
         config_dict = config.to_dict()
         assert isinstance(config_dict, dict)
-        assert len(config_dict["steps"]) == 1
+        assert len(config_dict["steps"]) == 0
         config_str = config.__repr__()
         assert isinstance(config_str, str)
+        data = PaidiverpyData()
+        config_params = data.load("plankton_csv")
+        with pytest.raises(ValidationError) as cm:
+            config = Configuration(add_general=config_params)
+        assert "Failed to validate the configuration file" in str(cm.value)
 
     def test_config_class_errors(self):
         """Test the Config class."""
@@ -126,7 +132,7 @@ class TestConfigMetadataClass(BaseTestClass):
         config = Configuration(config_file_path="tests/config_files/config_simple.yml")
         config_dict_general = config.to_dict()["general"]
         metadata_params = {
-            "metadata_conventions": config_dict_general["metadata_conventions"],
+            "metadata_conventions": config_dict_general.get("metadata_conventions"),
             "metadata_path": config_dict_general["metadata_path"],
             "metadata_type": config_dict_general["metadata_type"],
             "append_data_to_metadata": config_dict_general["append_data_to_metadata"],
@@ -143,7 +149,7 @@ class TestConfigMetadataClass(BaseTestClass):
         config = Configuration(config_file_path="tests/config_files/config_simple.yml")
         config_dict_general = config.to_dict()["general"]
         metadata_params = {
-            "metadata_conventions": config_dict_general["metadata_conventions"],
+            "metadata_conventions": config_dict_general.get("metadata_conventions"),
             "metadata_path": "tests/example_files/metadata_error.csv",
             "metadata_type": config_dict_general["metadata_type"],
             "append_data_to_metadata": config_dict_general["append_data_to_metadata"],
@@ -153,7 +159,7 @@ class TestConfigMetadataClass(BaseTestClass):
         assert "Metadata does not have a" in str(cm.value)
 
         metadata_params = {
-            "metadata_conventions": config_dict_general["metadata_conventions"],
+            "metadata_conventions": config_dict_general.get("metadata_conventions"),
             "metadata_path": config_dict_general["metadata_path"],
             "metadata_type": config_dict_general["metadata_type"],
             "append_data_to_metadata": "tests/example_files/appended_metadata_benthic_csv_error.csv",
@@ -168,7 +174,7 @@ class TestConfigMetadataClass(BaseTestClass):
         config = Configuration(config_file_path="tests/config_files/config_benthic_ifdo.yml")
         config_dict_general = config.to_dict()["general"]
         metadata_params = {
-            "metadata_conventions": config_dict_general["metadata_conventions"],
+            "metadata_conventions": config_dict_general.get("metadata_conventions"),
             "metadata_path": "tests/example_files/metadata_no_exist.csv",
             "metadata_type": config_dict_general["metadata_type"],
         }
@@ -176,7 +182,7 @@ class TestConfigMetadataClass(BaseTestClass):
             MetadataParser(**metadata_params)
         assert "Metadata file not found" in str(cm.value)
         metadata_params = {
-            "metadata_conventions": config_dict_general["metadata_conventions"],
+            "metadata_conventions": config_dict_general.get("metadata_conventions"),
             "metadata_path": "tests/example_files/metadata_ifdo_error.json",
             "metadata_type": config_dict_general["metadata_type"],
         }
@@ -184,7 +190,7 @@ class TestConfigMetadataClass(BaseTestClass):
             MetadataParser(**metadata_params)
         assert "Metadata file is not a valid JSON file" in str(cm.value)
         metadata_params = {
-            "metadata_conventions": config_dict_general["metadata_conventions"],
+            "metadata_conventions": config_dict_general.get("metadata_conventions"),
             "metadata_path": "tests/example_files/metadata_ifdo_no_version.json",
             "metadata_type": config_dict_general["metadata_type"],
         }

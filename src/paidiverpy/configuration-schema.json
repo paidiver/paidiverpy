@@ -9,7 +9,10 @@
           "type": "string"
         },
         "sample_data": {
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "input_path": {
           "type": "string"
@@ -1397,7 +1400,7 @@
             "maximum": 1
           },
           "channel": {
-            "type": "str",
+            "type": "string",
             "enum": [
               "1",
               "2",
