@@ -38,10 +38,10 @@ jobs:
 
       - name: Test with pytest
         run: |
-          conda run -n Paidiverpy pytest -ra -v -s --cov=./ --cov-config=.coveragerc --cov-report xml:cov.xml --cov-report term-missing --junitxml=junit.xml -o junit_family=legacy
+          conda run -n Paidiverpy pytest -ra -v -s --cov=src/paidiverpy --cov-config=.coveragerc --cov-report xml:cov.xml --cov-report term-missing --junitxml=junit.xml -o junit_family=legacy
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./cov.xml
+          files: ./cov.xmlex
           fail_ci_if_error: true
