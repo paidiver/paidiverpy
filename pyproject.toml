@@ -115,7 +115,9 @@ addopts = """
 --cov-report=html:coverage_html
 --cov-report=term-missing
 --cov-config=.coveragerc
--vv
+-v
+-ra
+-s
 """
 
 [tool.coverage.run]
