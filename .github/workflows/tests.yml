@@ -33,12 +33,14 @@ jobs:
           conda env create -f environment.yml
           source ~/.bashrc
           conda activate Paidiverpy
-          pip install .
-          pip install ".[test]"
+          pip install -e .
+          pip install -e ".[test]"
 
       - name: Test with pytest
         run: |
-          conda run -n Paidiverpy pytest -ra -v -s --cov=src/paidiverpy --cov-config=.coveragerc --cov-report xml:cov.xml --cov-report term-missing --junitxml=junit.xml -o junit_family=legacy
+          source ~/.bashrc
+          conda activate Paidiverpy
+          pytest -ra -v -s --cov=src/paidiverpy --cov-config=.coveragerc --cov-report xml:cov.xml --cov-report term-missing --junitxml=junit.xml -o junit_family=legacy
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
