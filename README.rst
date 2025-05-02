@@ -129,6 +129,12 @@ To run the container, use the following command:
      paidiverpy -c /app/examples/config_files/<CONFIG_FILE>
 
 
+## Acknowledgements
+
+This project was supported by the UK Natural Environment Research Council (NERC)
+through the *Tools for automating image analysis for biodiversity monitoring (AIAB)*
+Funding Opportunity, reference code **UKRI052**.
+
 
 .. |License| image:: https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square
     :target: https://www.apache.org/licenses/

@@ -17,7 +17,7 @@ The configuration file is written in YAML format and should adhere to the schema
       output_path: '/output/data/path/'
       metadata_path: '/metadata/path/metadata.json'
       metadata_type: 'IFDO'
-      image_type: 'JPG'
+      image_open_args: 'JPG'
       sampling:
         - mode: 'percent'
           params:
@@ -70,7 +70,7 @@ Contains the general information about the pipeline, such as the input and outpu
 - `output_path`: The path to save the output images. It can be a local or remote path (e.g., S3 bucket). You need to have write permissions to this path. More information on working with remote data, please refer to the :ref:`guide_remote_data`.
 - `metadata_path`: The path to the metadata file. It needs to be in IFDO standard file (JSON) or CSV file with collumns similar to the IFDO standard. More information on working with metadata, please refer to the :ref:`images_metadata`. It can be a local or remote path (e.g., S3 bucket). If it is a private path, you may need to provide object storage credentials. More information on working with remote data, please refer to the :ref:`guide_remote_data`.
 - `metadata_type`: The type of metadata file. It can be either 'IFDO' or 'CSV'. New types can be added to the package in the future. More information on working with metadata, please refer to the :ref:`images_metadata`.
-- `image_type`: The type of images to process. It can be 'JPG', 'PNG', 'TIFF', 'RAW', etc. New types can be added to the package in the future.
+- `image_open_args`: The type of images to process. It can be 'JPG', 'PNG', 'TIFF', 'RAW', etc. New types can be added to the package in the future.
 - `sampling`: Apply resample to the images in the first step (openning images). In this example, the sampling is set to 10% of the images. More information on sampling images, please refer to the :ref:`step_sampling`.
 - `convert`: Apply conversion to the images in the first step (openning images). In this example, the images are converted to 8-bit and grayscale. More information on converting images, please refer to the :ref:`step_convert`.
 

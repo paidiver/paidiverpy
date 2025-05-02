@@ -33,8 +33,27 @@
             "null"
           ]
         },
-        "image_type": {
-          "type": "string"
+        "image_open_args": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object"
+                }
+              },
+              "required": [
+                "type"
+              ],
+              "additionalProperties": false
+            }
+          ]
         },
         "append_data_to_metadata": {
           "type": [

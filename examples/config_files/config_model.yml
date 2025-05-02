@@ -3,7 +3,7 @@ general:
   output_path: "/output/data/path/"
   metadata_path: "/metadata/path/metadata.json"
   metadata_type: "IFDO"
-  image_type: "JPG"
+  image_open_args: "JPG"
   sampling:
     - mode: "percent"
       params:
