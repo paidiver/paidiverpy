@@ -32,19 +32,43 @@ DATASET_URLS = {
     "plankton_csv": {
         "url": "https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/plankton_csv.zip",
         "metadata_type": "CSV_FILE",
-        "image_type": "BMP",
+        "image_open_args": "BMP",
     },
     "benthic_csv": {
         "url": "https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/benthic_csv.zip",
         "metadata_type": "CSV_FILE",
-        "image_type": "PNG",
+        "image_open_args": "PNG",
         "append_data_to_metadata": True,
     },
     "benthic_ifdo": {
         "url": "https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/benthic_ifdo.zip",
         "metadata_type": "IFDO",
-        "image_type": "JPG",
+        "image_open_args": "JPG",
     },
+    "nef_raw": {
+        "url": "https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/nef_raw.zip",
+        "metadata_type": "RAW_FILE",
+        "image_open_args": {
+            "type": "nef",
+        },
+    },
+    "benthic_raw_images": {
+        "url": "https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/benthic_raw_images.zip",
+        "metadata_type": "RAW_FILE",
+        "image_open_args": {
+            "type": "raw",
+            "params": {
+                "width": 6000,
+                "height": 4000,
+                "bit_depth": DEFAULT_BITS,
+                "bayer_pattern": None,
+                "endianness": None,
+                "file_header_size": 0,
+                "channels": NUM_CHANNELS_RGB,
+            }
+        },
+    }
+
 }
 
 
@@ -187,7 +211,7 @@ class PaidiverpyData:
             "input_path": str(extract_dir / "images"),
             "metadata_path": str(extract_dir / "metadata" / metadata_path),
             "metadata_type": dataset_information["metadata_type"],
-            "image_type": dataset_information["image_type"],
+            "image_open_args": dataset_information["image_open_args"],
         }
         if dataset_information.get("append_data_to_metadata"):
             information["append_data_to_metadata"] = str(extract_dir / "metadata" / f"appended_metadata_{dataset_name}.csv")

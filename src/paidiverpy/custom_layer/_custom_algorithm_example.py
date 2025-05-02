@@ -24,4 +24,4 @@ class MyMethod(BaseCustomAlgorithm):
         self.image_data = min_max_scaler.fit_transform(self.image_data)
         if len(self.image_data.shape) == NUM_DIMENSIONS_GREY:
             self.image_data = np.expand_dims(self.image_data, axis=-1)
-        return self.image_data
+        return self.image_data, self.metadata

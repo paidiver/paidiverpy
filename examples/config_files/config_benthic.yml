@@ -2,7 +2,11 @@ general:
   sample_data: "benthic_csv"
   output_path: "./output"
   n_jobs: 16
-  image_type: "JPG"
+  image_open_args:
+    type: "JPG"
+    params:
+  image_open_args:
+      value: 0.5
   sampling:
     - mode: "fixed"
       params:

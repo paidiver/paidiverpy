@@ -4,18 +4,12 @@ import copy
 import gc
 import logging
 import uuid
-from io import BytesIO
-import cv2
 import dask
-import dask.array as da
-import dask_image.imread
 import numpy as np
 import pandas as pd
 from dask import compute
 from dask import delayed
 from dask.diagnostics import ProgressBar
-from PIL import Image
-from PIL.ExifTags import TAGS
 from tqdm import tqdm
 from paidiverpy import Paidiverpy
 from paidiverpy.config.config import Configuration
@@ -23,15 +17,12 @@ from paidiverpy.config.config_params import ConfigParams
 from paidiverpy.convert_layer import ConvertLayer
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
+from paidiverpy.open_layer.utils import open_image_local
+from paidiverpy.open_layer.utils import open_image_remote
 from paidiverpy.resample_layer import ResampleLayer
-from paidiverpy.utils.data import NUM_CHANNELS_RGB
-from paidiverpy.utils.data import NUM_CHANNELS_RGBA
-from paidiverpy.utils.data import NUM_DIMENSIONS
-from paidiverpy.utils.data import NUM_DIMENSIONS_GREY
 from paidiverpy.utils.docker import is_running_in_docker
 from paidiverpy.utils.dynamic_classes import DynamicConfig
 from paidiverpy.utils.object_store import define_storage_options
-from paidiverpy.utils.object_store import get_file_from_bucket
 
 
 class OpenLayer(Paidiverpy):
@@ -95,6 +86,7 @@ class OpenLayer(Paidiverpy):
         else:
             self.correct_input_path = "/app/input/" if is_docker else self.config.general.input_path
         self.step_metadata = self._calculate_steps_metadata(self.config.general)
+        self.image_type, self.image_open_args = self._get_image_open_args(self.config.general.image_open_args)
 
     def run(self) -> None:
         """Run the open layer steps based on the configuration file or parameters."""
@@ -191,8 +183,12 @@ class OpenLayer(Paidiverpy):
         Returns:
             np.ndarray | dask.array.core.Array: The processed image data
         """
-        func = OpenLayer.open_image_remote if remote else OpenLayer.open_image_local
-        img, exif = func(img_path, storage_options=self.storage_options, parallel=False)
+        func = open_image_remote if remote else open_image_local
+        img, exif = func(img_path,
+                         image_type=self.image_type,
+                         image_open_args=self.image_open_args,
+                         storage_options=self.storage_options,
+                         parallel=False)
         return img, exif
 
     def _process_image_threads(self, img_path_list: list[str], remote: bool = False) -> list[np.ndarray]:
@@ -205,10 +201,14 @@ class OpenLayer(Paidiverpy):
         Returns:
             list[np.ndarray]: The list of processed images.
         """
-        func = OpenLayer.open_image_remote if remote else OpenLayer.open_image_local
+        func = open_image_remote if remote else open_image_local
         delayed_image_list = []
         for _, img_path in enumerate(img_path_list):
-            delayed_image_list.append(delayed(func)(img_path, storage_options=self.storage_options, parallel=True))
+            delayed_image_list.append(delayed(func)(img_path,
+                                                    image_type=self.image_type,
+                                                    image_open_args=self.image_open_args,
+                                                    storage_options=self.storage_options,
+                                                    parallel=True))
         with dask.config.set(scheduler="threads", num_workers=self.n_jobs):
             with ProgressBar():
                 computed_images = compute(*delayed_image_list)
@@ -224,17 +224,26 @@ class OpenLayer(Paidiverpy):
         Returns:
             list[np.ndarray]: The list of processed images.
         """
-        func = OpenLayer.open_image_remote if remote else OpenLayer.open_image_local
+        func = open_image_remote if remote else open_image_local
         delayed_image_list = []
         if isinstance(self.client.cluster, dask.distributed.LocalCluster):
             for _, img_path in enumerate(img_path_list):
-                delayed_image_list.append(delayed(func)(img_path, storage_options=self.storage_options, parallel=True))
+                delayed_image_list.append(delayed(func)(img_path,
+                                                        image_type=self.image_type,
+                                                        image_open_args=self.image_open_args,
+                                                        storage_options=self.storage_options,
+                                                        parallel=True))
             with ProgressBar():
                 futures = self.client.compute(delayed_image_list, sync=False)
         else:
             futures = []
             for _, img_path in enumerate(img_path_list):
-                futures.append(self.client.submit(func, img_path, storage_options=self.storage_options, parallel=True))
+                futures.append(self.client.submit(func,
+                                                  img_path,
+                                                  image_type=self.image_type,
+                                                  image_open_args=self.image_open_args,
+                                                  storage_options=self.storage_options,
+                                                  parallel=True))
         return self.client.gather(futures)
 
     def rename_images(self, rename: str, metadata: pd.DataFrame) -> pd.DataFrame:
@@ -250,9 +259,9 @@ class OpenLayer(Paidiverpy):
         Returns:
             pd.DataFrame: The renamed metadata
         """
-        image_type = f".{self.step_metadata.get('image_type')}" if self.step_metadata.get("image_type") else ""
+        image_open_args = f".{self.step_metadata.get('image_open_args')}" if self.step_metadata.get("image_open_args") else ""
         if rename == "datetime":
-            metadata["image-filename"] = pd.to_datetime(metadata["image-datetime"]).dt.strftime("%Y%m%dT%H%M%S.%f").str[:-3] + "Z" + image_type
+            metadata["image-filename"] = pd.to_datetime(metadata["image-datetime"]).dt.strftime("%Y%m%dT%H%M%S.%f").str[:-3] + "Z" + image_open_args
 
             duplicate_mask = metadata.duplicated(subset="image-filename", keep=False)
             if duplicate_mask.any():
@@ -263,99 +272,20 @@ class OpenLayer(Paidiverpy):
                     axis=1,
                 )
         elif rename == "UUID":
-            metadata["image-filename"] = metadata["image-filename"].apply(lambda _: str(uuid.uuid4()) + image_type)
+            metadata["image-filename"] = metadata["image-filename"].apply(lambda _: str(uuid.uuid4()) + image_open_args)
         self.set_metadata(metadata)
         return metadata
 
-    @staticmethod
-    def open_image_remote(img_path: str, **kwargs: dict) -> tuple[np.ndarray | dask.array.core.Array, dict]:
-        """Open an image file.
+    def _get_image_open_args(self, image_open_args: str | dict | None) -> tuple[str | None, str | None]:
+        """Get the image open arguments.
 
         Args:
-            img_path (str): The path to the image file
-            **kwargs (dict): Additional keyword arguments. The following are supported:
-                - storage_options (dict): The storage options for reading metadata file.
-                - parallel (bool): Whether to use Dask for parallel processing.
-
-        Raises:
-            ValueError: Failed to open the image
+            image_open_args (str | dict | None): The image open arguments
 
         Returns:
-            tuple[np.ndarray | dask.array.core.Array, dict]: The image data and the EXIF data
+            tuple[str | None, str | None]: The image type and parameters
         """
-        try:
-            img_bytes = get_file_from_bucket(img_path, kwargs.get("storage_options"))
-            if kwargs.get("parallel"):
-                img_array = np.frombuffer(img_bytes, np.uint8)
-                decoded_img = cv2.imdecode(img_array, cv2.IMREAD_UNCHANGED)
-                lazy_img = delayed(cv2.imdecode)(np.frombuffer(img_bytes, np.uint8), cv2.IMREAD_UNCHANGED)
-                img = da.from_delayed(lazy_img, shape=decoded_img.shape, dtype=decoded_img.dtype)
-            else:
-                img_array = np.frombuffer(img_bytes, np.uint8)
-                img = cv2.imdecode(img_array, cv2.IMREAD_UNCHANGED)
-            exif = OpenLayer.extract_exif_single(BytesIO(img_bytes), image_name=img_path.split("/")[-1])
-        except (FileNotFoundError, OSError, TypeError) as e:
-            img = None
-            logging.warning("Failed to open %s: %s", img_path, e)
-
-        return img, exif
-
-    @staticmethod
-    def open_image_local(img_path: str, **kwargs: dict) -> tuple[np.ndarray | dask.array.core.Array, dict]:
-        """Open an image file.
-
-        Args:
-            img_path (str): The path to the image file
-            **kwargs (dict): Additional keyword arguments. The following are supported:
-                - parallel (bool): Whether to use Dask for parallel processing.
-
-        Raises:
-            ValueError: Failed to open the image
-
-        Returns:
-            tuple[np.ndarray | dask.array.core.Array, dict]: The image data and the EXIF data
-        """
-        exif = OpenLayer.extract_exif_single(img_path)
-        if kwargs.get("parallel"):
-            img = dask_image.imread.imread(str(img_path))
-            img = np.squeeze(img)
-        else:
-            img = cv2.imread(str(img_path), cv2.IMREAD_UNCHANGED)
-            if img.ndim == NUM_DIMENSIONS_GREY:
-                img = np.expand_dims(img, axis=-1)
-            elif img.ndim == NUM_DIMENSIONS and img.shape[2] == NUM_CHANNELS_RGBA:
-                img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
-            elif img.ndim == NUM_DIMENSIONS and img.shape[2] == NUM_CHANNELS_RGB:
-                img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        return img, exif
-
-    @staticmethod
-    def extract_exif_single(img_path: str, image_name: str | None = None) -> dict:
-        """Extract EXIF data from a single image file.
-
-        Args:
-            img_path (str): The path to the image file.
-            image_name (str, optional): The name of the image file. Defaults to None.
-
-        Returns:
-            dict: The EXIF data.
-        """
-        exif = {}
-        try:
-            img_pil = Image.open(img_path)
-            exif_data = img_pil.getexif()
-            if exif_data is not None:
-                if image_name:
-                    exif["image-filename"] = image_name
-                else:
-                    exif["image-filename"] = img_path.name
-                for tag, value in exif_data.items():
-                    tag_name = TAGS.get(tag, tag)
-                    exif[tag_name] = value
-        except FileNotFoundError as e:
-            logging.warning("Failed to open %s: %s", img_path, e)
-        except OSError as e:
-            logging.warning("Failed to open %s: %s", img_path, e)
-        except Exception as e:  # noqa: BLE001
-            logging.warning("Failed to extract EXIF data from %s: %s", img_path, e)
-        return exif
+        if isinstance(image_open_args, dict):
+            return image_open_args.get("image_type", "").lower(), image_open_args.get("params", {})
+        image_type = image_open_args.lower() if image_open_args else ""
+        return image_type, {}

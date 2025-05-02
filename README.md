@@ -151,6 +151,13 @@ Below are the latest insights from our development activities:
 | Upstream CI tests (daily runs)     | [![Upstream CI Energy][ci-energy-badge-upstream]][ci-energy-link-upstream] [![Upstream CI CO₂][ci-energy-badge-upstream-co2]][ci-energy-link-upstream] |
 -->
 
-## 🤝 Contributing to **paidiverpy**
+## Contributing to **paidiverpy**
 
 Want to support or improve **paidiverpy**? Check out our [contribution guide](https://paidiverpy.readthedocs.io/en/latest/contributing.html) to learn how to get started.
+
+
+## Acknowledgements
+
+This project was supported by the UK Natural Environment Research Council (NERC)
+through the *Tools for automating image analysis for biodiversity monitoring (AIAB)*
+Funding Opportunity, reference code **UKRI052**.

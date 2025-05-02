@@ -14,7 +14,7 @@ To enable automatic renaming, set the `general.rename` parameter in the configur
 
     general:
       rename: "datetime"
-      image_type: "JPG"
+      image_open_args: "JPG"
 
 
 The package currently supports two renaming strategies:

@@ -53,7 +53,7 @@ class GeneralConfig(DynamicConfig):
                 self.input_path = Path(input_path) if not self.is_remote else input_path
             self.metadata_path = kwargs.get("metadata_path")
             self.metadata_type = kwargs.get("metadata_type")
-            self.image_type = kwargs.get("image_type")
+            self.image_open_args = kwargs.get("image_open_args")
             self.append_data_to_metadata = kwargs.get("append_data_to_metadata", False)
         self.metadata_conventions = kwargs.get("metadata_conventions")
         output_path = kwargs.get("output_path")
@@ -97,7 +97,7 @@ class GeneralConfig(DynamicConfig):
         self.input_path = Path(information["input_path"])
         self.metadata_path = Path(information["metadata_path"])
         self.metadata_type = information["metadata_type"]
-        self.image_type = information["image_type"]
+        self.image_open_args = information["image_open_args"]
         if information.get("append_data_to_metadata"):
             self.append_data_to_metadata = information["append_data_to_metadata"]
 

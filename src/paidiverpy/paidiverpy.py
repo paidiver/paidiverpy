@@ -10,7 +10,6 @@ import pandas as pd
 from dask.diagnostics import ProgressBar
 from dask.distributed import Client
 from distributed import LocalCluster
-from tqdm import tqdm
 from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
 from paidiverpy.images_layer import ImagesLayer
@@ -29,7 +28,7 @@ class Paidiverpy:
             It can contain the following keys / attributes:
             - input_path (str): The path to the input files.
             - output_path (str): The path to the output files.
-            - image_type (str): The type of the images.
+            - image_open_args (str): The type of the images.
             - metadata_path (str): The path to the metadata file.
             - metadata_type (str): The type of the metadata file.
             - track_changes (bool): Whether to track changes.
@@ -106,9 +105,12 @@ class Paidiverpy:
         params = self.step_metadata.get("params") or {}
         method, params = self._get_method_by_mode(params, self.layer_methods, mode)
         images = self.images.get_step(step=len(self.images.images) - 1)
-        image_list = self.process_sequentially(images, method, params) if self.n_jobs == 1 else self.process_parallel(images, method, params)
+        image_list, metadata = (
+            self.process_sequentially(images, method, params) if self.n_jobs == 1 else self.process_parallel(images, method, params)
+        )
         if not test:
             self.step_name = f"color_{self.config_index}" if not self.step_name else self.step_name
+            self.set_metadata(metadata)
             if add_new_step:
                 self.images.add_step(
                     step=self.step_name,
@@ -137,7 +139,19 @@ class Paidiverpy:
             List[np.ndarray]: The list of processed images.
         """
         func = partial(method, params=params)
-        return [func(img).process() if custom else func(img) for img in tqdm(images, desc="Processing images")]
+        metadata = self.get_metadata().to_dict(orient="records")
+        processed_images = []
+        for index, (img, metadata_image) in enumerate(zip(images, metadata, strict=False)):
+            if custom:
+                image, metadata_image_updated = func(img, metadata=metadata_image, metadata_core=metadata).process()
+            else:
+                image, metadata_image_updated = func(img, metadata=metadata_image, metadata_core=metadata)
+            metadata[index] = metadata_image_updated
+            processed_images.append(image)
+
+        metadata = pd.DataFrame(metadata)
+
+        return processed_images, metadata
 
     def process_parallel(
         self,
@@ -160,23 +174,34 @@ class Paidiverpy:
             List[da.core.Array]: The list of processed images.
         """
         func = partial(method, params=params)
+        metadata = self.get_metadata().to_dict(orient="records")
+
+        def _process_image(img, metadata_image, metadata_core):  # noqa: ANN001, ANN202
+            if custom:
+                result = func(img, metadata=metadata_image, metadata_core=metadata_core).process()
+            else:
+                result = func(img, metadata=metadata_image, metadata_core=metadata_core)
+            return result
+
+        tasks = [dask.delayed(_process_image)(img, metadata_image, metadata) for img, metadata_image in zip(images, metadata, strict=False)]
+
         if self.client:
             if isinstance(self.client.cluster, LocalCluster):
-                delayed_images = [dask.delayed(func)(img) for img in images]
-                futures = self.client.compute(delayed_images)
+                futures = self.client.compute(tasks)
             else:
-                futures = [self.client.submit(func, img) for img in images]
-
+                futures = [
+                    self.client.submit(_process_image, img, metadata_image, metadata) for img, metadata_image in zip(images, metadata, strict=False)
+                ]
             with ProgressBar():
                 results = self.client.gather(futures)
-            return [da.from_array(img.process() if custom else img) for img in results]
+        else:
+            with dask.config.set(scheduler="threads", num_workers=self.n_jobs), ProgressBar():
+                results = dask.compute(*tasks)
 
-        delayed_images = [dask.delayed(func)(img) for img in images]
+        processed_images, metadata = zip(*results, strict=False)
+        metadata = pd.DataFrame(metadata)
 
-        with dask.config.set(scheduler="threads", num_workers=self.n_jobs), ProgressBar():
-            results = dask.compute(*delayed_images)
-
-        return [da.from_array(img.process() if custom else img) for img in results]
+        return list(processed_images), metadata
 
     def _set_variables_from_paidiverpy(self, paidiverpy: "Paidiverpy") -> None:
         """Set the variables from the paidiverpy object.
@@ -213,7 +238,7 @@ class Paidiverpy:
             return Configuration(config_file_path)
         general_config = {}
         config_params = ConfigParams(config_params) if isinstance(config_params, dict) else config_params
-        config_params_keys = ["input_path", "output_path", "metadata_path", "metadata_type", "image_type", "track_changes", "n_jobs"]
+        config_params_keys = ["input_path", "output_path", "metadata_path", "metadata_type", "image_open_args", "track_changes", "n_jobs"]
         for key in config_params_keys:
             general_config[key] = getattr(config_params, key)
         return Configuration(add_general=general_config)
@@ -372,3 +397,17 @@ class Paidiverpy:
         else:
             raise_error = self.step_metadata["params"].get("raise_error", False)
         return raise_error
+
+    @staticmethod
+    def prepare_inputs(
+        image_data: np.ndarray,
+        metadata: dict | None,
+        params: DynamicConfig | None,
+        default_params_factory: DynamicConfig,
+        **kwargs: dict,
+    ) -> tuple[np.ndarray, dict, DynamicConfig]:
+        """Standard preprocessing for convert layer methods."""
+        _ = kwargs
+        metadata = metadata or {}
+        params = params or default_params_factory()
+        return image_data, metadata, params, kwargs

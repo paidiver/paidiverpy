@@ -35,7 +35,7 @@ Example:
       output_path: 's3://bucket-name/output/data/path/'
       metadata_path: "https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/lazy_load_benthic/metadata_ifdo_hf.json"
       metadata_type: 'IFDO'
-      image_type: 'JPG'
+      image_open_args: 'JPG'
 
     steps:
       # Define pipeline steps
@@ -60,7 +60,7 @@ Example:
       output_path: 's3://bucket-name/output/data/path/'
       metadata_path: 's3://bucket-name/metadata/path/metadata.json'
       metadata_type: 'IFDO'
-      image_type: 'JPG'
+      image_open_args: 'JPG'
 
     steps:
       # Define pipeline steps
