@@ -44,6 +44,7 @@ dependencies = [
   "boto3>=1.35.92",
   "botocore>=1.35.92",
   "opencv-python>=4.11",
+  "rawpy>=0.24.0",
   ]
 license = {file = "LICENSE"}
 version = "0.1.4"
