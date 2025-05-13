@@ -112,21 +112,25 @@ class ConvertLayer(Paidiverpy):
             tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
         image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, BitParams, **kwargs)
-        bit = metadata.get("bit_depth", image_data.dtype.itemsize)
+        try:
+            bit = metadata.get("bit_depth", image_data.dtype.itemsize)
 
-        if params.output_bits == EIGHT_BITS and bit != EIGHT_BITS_SIZE:
-            image_data, metadata = ConvertLayer.normalize_image(image_data, metadata)
-            image_data = np.uint8(image_data * 255)
-        elif params.output_bits == SIXTEEN_BITS and bit != SIXTEEN_BITS_SIZE:
-            image_data, metadata = ConvertLayer.normalize_image(image_data, metadata)
-            image_data = np.uint16(image_data * 65535)
-        elif params.output_bits == THIRTY_TWO_BITS and bit != THIRTY_TWO_BITS_SIZE:
-            image_data, metadata = ConvertLayer.normalize_image(image_data, metadata)
-            image_data = np.float32(image_data)
-        else:
-            msg = f"Unsupported output bits or image already within provided format: {params.output_bits}"
+            if params.output_bits == EIGHT_BITS and bit != EIGHT_BITS_SIZE:
+                image_data, metadata = ConvertLayer.normalize_image(image_data, metadata)
+                image_data = np.uint8(image_data * 255)
+            elif params.output_bits == SIXTEEN_BITS and bit != SIXTEEN_BITS_SIZE:
+                image_data, metadata = ConvertLayer.normalize_image(image_data, metadata)
+                image_data = np.uint16(image_data * 65535)
+            elif params.output_bits == THIRTY_TWO_BITS and bit != THIRTY_TWO_BITS_SIZE:
+                image_data, metadata = ConvertLayer.normalize_image(image_data, metadata)
+                image_data = np.float32(image_data)
+            else:
+                msg = f"Unsupported output bits or image already within provided format: {params.output_bits}"
+                raise_value_error(msg)
+            metadata["bit_depth"] = params.output_bits / 8
+        except Exception as e:  # noqa: BLE001
+            msg = f"Failed to convert the image to {params.output_bits} bits: {e!s}"
             check_raise_error(params.raise_error, msg)
-        metadata["bit_depth"] = params.output_bits / 8
 
         return image_data, metadata
 
