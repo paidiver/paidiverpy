@@ -22,7 +22,7 @@ Classes
 Module Contents
 ---------------
 
-.. py:class:: MetadataParser(config: paidiverpy.config.config.Configuration = None, metadata_path: str | None = None, metadata_type: str | None = None, append_data_to_metadata: str | None = None, logger: logging.Logger | None = None)
+.. py:class:: MetadataParser(config: paidiverpy.config.config.Configuration = None, metadata_path: str | None = None, metadata_type: str | None = None, metadata_conventions: str | None = None, append_data_to_metadata: str | None = None, logger: logging.Logger | None = None)
 
    
    Class for parsing metadata files.
@@ -57,6 +57,30 @@ Module Contents
 
    ..
        !! processed by numpydoc !!
+
+   .. py:method:: set_new_attributes(**kwargs: dict) -> None
+
+      
+      Set new attributes for the metadata parser.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
 
    .. py:method:: open_metadata() -> dask.dataframe.DataFrame
 

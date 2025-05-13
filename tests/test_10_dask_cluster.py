@@ -2,7 +2,7 @@
 
 import unittest
 from pathlib import Path
-import dask.array
+import numpy as np
 import pandas as pd
 from paidiverpy.config.config import Configuration
 from paidiverpy.config.config import GeneralConfig
@@ -31,7 +31,7 @@ class TestDaskCluster(BaseTestClass):
         images = pipeline.images.images
         assert images[0][0] is None
         assert images[1][0] is None
-        assert isinstance(images[-1][0], dask.array.core.Array)
+        assert isinstance(images[-1][0], np.ndarray)
         assert len(images) == number_images
         output_path = Path(pipeline.config.general.output_path)
         output_files = list(output_path.glob("*.png"))
@@ -48,7 +48,7 @@ class TestDaskCluster(BaseTestClass):
         images = pipeline.images.images
         assert images[0][0] is None
         assert images[1][0] is None
-        assert isinstance(images[-1][0], dask.array.core.Array)
+        assert isinstance(images[-1][0], np.ndarray)
         assert len(images) == number_images
 
 

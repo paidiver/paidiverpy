@@ -48,7 +48,7 @@ Classes
 Package Contents
 ----------------
 
-.. py:class:: CustomLayer(config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.config.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: paidiverpy.Paidiverpy = None, step_name: str | None = None, parameters: dict | None = None, config_index: int | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
+.. py:class:: CustomLayer(parameters: dict, config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.config.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: paidiverpy.Paidiverpy = None, step_name: str | None = None, config_index: int | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
 
    Bases: :py:obj:`paidiverpy.Paidiverpy`
 
@@ -58,6 +58,8 @@ Package Contents
 
    Process the images in the custom layer.
 
+   :param parameters: The parameters for the step.
+   :type parameters: dict
    :param config_params: The configuration parameters.
                          It can contain the following keys / attributes:
                          - input_path (str): The path to the input files.
@@ -79,8 +81,6 @@ Package Contents
    :type paidiverpy: Paidiverpy
    :param step_name: The name of the step.
    :type step_name: str
-   :param parameters: The parameters for the step.
-   :type parameters: dict
    :param config_index: The index of the configuration.
    :type config_index: int
    :param logger: The logger object.
@@ -107,7 +107,7 @@ Package Contents
    ..
        !! processed by numpydoc !!
 
-   .. py:method:: run(add_new_step: bool = True) -> paidiverpy.images_layer.ImagesLayer | None
+   .. py:method:: run() -> paidiverpy.images_layer.ImagesLayer | None
 
       
       Custom Layer run method.

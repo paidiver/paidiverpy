@@ -31,6 +31,7 @@ Module Contents
                          It can contain the following keys / attributes:
                          - input_path (str): The path to the input files.
                          - output_path (str): The path to the output files.
+                         - image_open_args (str): The type of the images.
                          - metadata_path (str): The path to the metadata file.
                          - metadata_type (str): The type of the metadata file.
                          - track_changes (bool): Whether to track changes.
@@ -233,71 +234,17 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: get_waypoints() -> pandas.DataFrame
-
-      
-      Get the waypoints.
-
-      :raises ValueError: Waypoints are not loaded in the metadata.
-
-      :returns: The waypoints
-      :rtype: pd.DataFrame
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      ..
-          !! processed by numpydoc !!
-
-
-   .. py:method:: show_images(step_name: str) -> None
-
-      
-      Show the images.
-
-      :param step_name: The step name.
-      :type step_name: str
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      ..
-          !! processed by numpydoc !!
-
-
-   .. py:method:: save_images(step: str | int | None = None, by_order: bool = False, image_format: str = 'png') -> None
+   .. py:method:: save_images(step: str | int | None = None, image_format: str = 'png', output_path: str | pathlib.Path | None = None) -> None
 
       
       Save the images.
 
-      :param step: The step name or order. Defaults to None.
-      :type step: str | int, optional
-      :param by_order: Whether to save by order. Defaults to False.
-      :type by_order: bool, optional
+      :param step: The step order. Defaults to None.
+      :type step: int, optional
       :param image_format: The image format. Defaults to "png".
       :type image_format: str, optional
+      :param output_path: The output path. Defaults to None.
+      :type output_path: str | Path, optional
 
 
 
@@ -341,13 +288,13 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: plot_trimmed_photos(new_metadata: pandas.DataFrame) -> None
+   .. py:method:: clear_steps(value: int | str) -> None
 
       
-      Plot the trimmed photos.
+      Clear steps from the images and metadata.
 
-      :param new_metadata: The new metadata.
-      :type new_metadata: pd.DataFrame
+      :param value: Step name or order.
+      :type value: int | str
 
 
 
@@ -367,15 +314,13 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: clear_steps(value: int | str, by_order: bool = True) -> None
+   .. py:method:: prepare_inputs(image_data: numpy.ndarray, metadata: dict | None, params: paidiverpy.utils.dynamic_classes.DynamicConfig | None, default_params_factory: paidiverpy.utils.dynamic_classes.DynamicConfig, **kwargs: dict) -> tuple[numpy.ndarray, dict, paidiverpy.utils.dynamic_classes.DynamicConfig]
+      :staticmethod:
+
 
       
-      Clear steps from the images and metadata.
+      Standard preprocessing for convert layer methods.
 
-      :param value: Step name or order.
-      :type value: int | str
-      :param by_order: Whether to remove by order. Defaults to True.
-      :type by_order: bool, optional
 
 
 

@@ -196,9 +196,9 @@ class TestColourLayer(BaseTestClass):
         assert isinstance(images, list)
         assert isinstance(images[0][0], da.core.Array)
         assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[0][0].mean().compute() != images[1][0].mean().compute()
-        assert images[1][0].mean().compute() != images[2][0].mean().compute()
-        assert images[2][0].mean().compute() == images[3][0].mean().compute()
+        assert images[0][0].mean() != images[1][0].mean()
+        assert images[1][0].mean() != images[2][0].mean()
+        assert images[2][0].mean() == images[3][0].mean()
 
     def test_colour_illumination_several(self):
         """Test the colour illumination step."""
@@ -214,9 +214,9 @@ class TestColourLayer(BaseTestClass):
         assert isinstance(images, list)
         assert isinstance(images[0][0], da.core.Array)
         assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[0][0].mean().compute() != images[1][0].mean().compute()
-        assert images[1][0].mean().compute() != images[2][0].mean().compute()
-        assert images[2][0].mean().compute() == images[3][0].mean().compute()
+        assert images[0][0].mean() != images[1][0].mean()
+        assert images[1][0].mean() != images[2][0].mean()
+        assert images[2][0].mean() == images[3][0].mean()
 
     def test_colour_deblur_one(self):
         """Test the colour deblur step."""
@@ -304,12 +304,12 @@ class TestColourLayer(BaseTestClass):
         assert isinstance(images, list)
         assert isinstance(images[0][0], da.core.Array)
         assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[0][0].mean().compute() != images[1][0].mean().compute()
-        assert images[1][0].mean().compute() == images[2][0].mean().compute()
-        assert images[2][0].mean().compute() != images[3][0].mean().compute()
-        assert images[3][0].mean().compute() != images[4][0].mean().compute()
-        assert images[4][0].mean().compute() != images[5][0].mean().compute()
-        assert images[5][0].mean().compute() == images[6][0].mean().compute()
+        assert images[0][0].mean() != images[1][0].mean()
+        assert images[1][0].mean() == images[2][0].mean()
+        assert images[2][0].mean() != images[3][0].mean()
+        assert images[3][0].mean() != images[4][0].mean()
+        assert images[4][0].mean() != images[5][0].mean()
+        assert images[5][0].mean() == images[6][0].mean()
 
     def test_edge_several(self):
         """Test the colour edge step."""
@@ -325,8 +325,8 @@ class TestColourLayer(BaseTestClass):
         assert isinstance(images, list)
         assert isinstance(images[0][0], da.core.Array)
         assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[0][0].mean().compute() != images[1][0].mean().compute()
-        assert images[1][0].mean().compute() != images[2][0].mean().compute()
+        assert images[0][0].mean() != images[1][0].mean()
+        assert images[1][0].mean() != images[2][0].mean()
 
 
 if __name__ == "__main__":

@@ -34,6 +34,7 @@ Submodules
    :maxdepth: 1
 
    /api/paidiverpy/open_layer/open_layer/index
+   /api/paidiverpy/open_layer/utils/index
 
 
 Classes
@@ -195,112 +196,6 @@ Package Contents
 
       :returns: The renamed metadata
       :rtype: pd.DataFrame
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      ..
-          !! processed by numpydoc !!
-
-
-   .. py:method:: open_image_remote(img_path: str, **kwargs: dict) -> tuple[numpy.ndarray | dask.array.core.Array, dict]
-      :staticmethod:
-
-
-      
-      Open an image file.
-
-      :param img_path: The path to the image file
-      :type img_path: str
-      :param \*\*kwargs: Additional keyword arguments. The following are supported:
-                         - storage_options (dict): The storage options for reading metadata file.
-                         - parallel (bool): Whether to use Dask for parallel processing.
-      :type \*\*kwargs: dict
-
-      :raises ValueError: Failed to open the image
-
-      :returns: The image data and the EXIF data
-      :rtype: tuple[np.ndarray | dask.array.core.Array, dict]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      ..
-          !! processed by numpydoc !!
-
-
-   .. py:method:: open_image_local(img_path: str, **kwargs: dict) -> tuple[numpy.ndarray | dask.array.core.Array, dict]
-      :staticmethod:
-
-
-      
-      Open an image file.
-
-      :param img_path: The path to the image file
-      :type img_path: str
-      :param \*\*kwargs: Additional keyword arguments. The following are supported:
-                         - parallel (bool): Whether to use Dask for parallel processing.
-      :type \*\*kwargs: dict
-
-      :raises ValueError: Failed to open the image
-
-      :returns: The image data and the EXIF data
-      :rtype: tuple[np.ndarray | dask.array.core.Array, dict]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      ..
-          !! processed by numpydoc !!
-
-
-   .. py:method:: extract_exif_single(img_path: str, image_name: str | None = None) -> dict
-      :staticmethod:
-
-
-      
-      Extract EXIF data from a single image file.
-
-      :param img_path: The path to the image file.
-      :type img_path: str
-      :param image_name: The name of the image file. Defaults to None.
-      :type image_name: str, optional
-
-      :returns: The EXIF data.
-      :rtype: dict
 
 
 

@@ -47,7 +47,7 @@ Classes
 Package Contents
 ----------------
 
-.. py:class:: ColourLayer(config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.config.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: paidiverpy.Paidiverpy = None, step_name: str | None = None, parameters: dict | None = None, config_index: int | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
+.. py:class:: ColourLayer(parameters: dict, config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.config.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: paidiverpy.Paidiverpy = None, step_name: str | None = None, config_index: int | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
 
    Bases: :py:obj:`paidiverpy.Paidiverpy`
 
@@ -57,6 +57,8 @@ Package Contents
 
    This class contains the methods for processing the images in the colour layer.
 
+   :param parameters: The parameters for the step.
+   :type parameters: dict
    :param config_params: The configuration parameters.
                          It can contain the following keys / attributes:
                          - input_path (str): The path to the input files.
@@ -78,8 +80,6 @@ Package Contents
    :type paidiverpy: Paidiverpy
    :param step_name: The name of the step.
    :type step_name: str
-   :param parameters: The parameters for the step.
-   :type parameters: dict
    :param config_index: The index of the configuration.
    :type config_index: int
    :param logger: The logger object.
@@ -106,7 +106,7 @@ Package Contents
    ..
        !! processed by numpydoc !!
 
-   .. py:method:: grayscale(image_data: numpy.ndarray, params: paidiverpy.config.colour_params.GrayScaleParams = None) -> numpy.ndarray
+   .. py:method:: grayscale(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.config.colour_params.GrayScaleParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
       :staticmethod:
 
 
@@ -117,13 +117,18 @@ Package Contents
 
       :param image_data: The input image.
       :type image_data: np.ndarray
+      :param metadata: Metadata for the image.
+      :type metadata: dict, optional
       :param params: Parameters for the grayscale conversion.
+                     Defaults to GrayScaleParams().
       :type params: GrayScaleParams, optional
+      :param \*\*kwargs: Additional keyword arguments.
+      :type \*\*kwargs: dict
 
       :raises ValueError: If the input image does not have 3 channels or 4 channels with alpha.
 
-      :returns: The grayscale image.
-      :rtype: np.ndarray
+      :returns: The updated image and the updated metadata.
+      :rtype: tuple[np.ndarray, dict]
 
 
 
@@ -143,7 +148,7 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: gaussian_blur(image_data: numpy.ndarray, params: paidiverpy.config.colour_params.GaussianBlurParams = None) -> numpy.ndarray
+   .. py:method:: gaussian_blur(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.config.colour_params.GaussianBlurParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
       :staticmethod:
 
 
@@ -154,15 +159,18 @@ Package Contents
 
       :param image_data: The image to apply Gaussian blur.
       :type image_data: np.ndarray
+      :param metadata: Metadata for the image.
+      :type metadata: dict, optional
       :param params: the parameters for the method.
+                     Defaults to GaussianBlurParams().
       :type params: GaussianBlurParams, optional
-
-      Defaults to GaussianBlurParams().
+      :param \*\*kwargs: Additional keyword arguments.
+      :type \*\*kwargs: dict
 
       :raises ValueError: Error applying Gaussian blur.
 
-      :returns: The image in grayscale.
-      :rtype: np.ndarray
+      :returns: The updated image and the updated metadata.
+      :rtype: tuple[np.ndarray, dict]
 
 
 
@@ -182,7 +190,7 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: sharpen(image_data: numpy.ndarray, params: paidiverpy.config.colour_params.SharpenParams = None) -> numpy.ndarray
+   .. py:method:: sharpen(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.config.colour_params.SharpenParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
       :staticmethod:
 
 
@@ -193,13 +201,17 @@ Package Contents
 
       :param image_data: The image to apply sharpening.
       :type image_data: np.ndarray
+      :param metadata: Metadata for the image.
+      :type metadata: dict, optional
       :param params: Params for method. Defaults to SharpenParams().
       :type params: SharpenParams, optional
+      :param \*\*kwargs: Additional keyword arguments.
+      :type \*\*kwargs: dict
 
       :raises ValueError: Error applying sharpening.
 
-      :returns: The image with sharpening applied.
-      :rtype: np.ndarray
+      :returns: The updated image and the updated metadata.
+      :rtype: tuple[np.ndarray, dict]
 
 
 
@@ -219,7 +231,7 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: contrast_adjustment(image_data: numpy.ndarray, params: paidiverpy.config.colour_params.ContrastAdjustmentParams = None) -> numpy.ndarray
+   .. py:method:: contrast_adjustment(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.config.colour_params.ContrastAdjustmentParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
       :staticmethod:
 
 
@@ -230,15 +242,18 @@ Package Contents
 
       :param image_data: The image to apply contrast adjustment.
       :type image_data: np.ndarray
+      :param metadata: Metadata for the image.
+      :type metadata: dict, optional
       :param params: Params for method.
       :type params: ContrastAdjustmentParams, optional
 
       Defaults to ContrastAdjustmentParams().
+          **kwargs (dict): Additional keyword arguments.
 
       :raises ValueError: Error applying contrast adjustment.
 
-      :returns: The image with contrast adjustment applied.
-      :rtype: np.ndarray
+      :returns: The updated image and the updated metadata.
+      :rtype: tuple[np.ndarray, dict]
 
 
 
@@ -258,7 +273,7 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: illumination_correction(image_data: numpy.ndarray, params: paidiverpy.config.colour_params.IlluminationCorrectionParams = None) -> numpy.ndarray
+   .. py:method:: illumination_correction(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.config.colour_params.IlluminationCorrectionParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
       :staticmethod:
 
 
@@ -269,15 +284,18 @@ Package Contents
 
       :param image_data: The image to apply illumination correction.
       :type image_data: np.ndarray
+      :param metadata: Metadata for the image.
+      :type metadata: dict, optional
       :param params: Params for method.
+                     Defaults to IlluminationCorrectionParams().
       :type params: IlluminationCorrectionParams, optional
-
-      Defaults to IlluminationCorrectionParams().
+      :param \*\*kwargs: Additional keyword arguments.
+      :type \*\*kwargs: dict
 
       :raises ValueError: Error applying illumination correction.
 
-      :returns: The image with illumination correction applied.
-      :rtype: np.ndarray
+      :returns: The updated image and the updated metadata.
+      :rtype: tuple[np.ndarray, dict]
 
 
 
@@ -297,7 +315,7 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: deblur(image_data: numpy.ndarray, params: paidiverpy.config.colour_params.DeblurParams = None) -> numpy.ndarray
+   .. py:method:: deblur(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.config.colour_params.DeblurParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
       :staticmethod:
 
 
@@ -308,18 +326,21 @@ Package Contents
 
       :param image_data: The image to apply deblurring.
       :type image_data: np.ndarray
+      :param metadata: Metadata for the image.
+      :type metadata: dict, optional
       :param params: Params for method.
+                     Defaults to DeblurParams().
       :type params: DeblurParams, optional
-
-      Defaults to DeblurParams().
+      :param \*\*kwargs: Additional keyword arguments.
+      :type \*\*kwargs: dict
 
       :raises ValueError: Unknown PSF type. Please use 'gaussian' or 'motion'.
       :raises ValueError: Unknown method type. Please use 'wiener'.
       :raises NotImplementedError: Unknown method type. Please use 'wiener'.
       :raises ValueError: Error applying contrast adjustment.
 
-      :returns: The image with deblurring applied.
-      :rtype: np.ndarray
+      :returns: The updated image and the updated metadata.
+      :rtype: tuple[np.ndarray, dict]
 
 
 
@@ -339,7 +360,48 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: edge_detection(image_data: numpy.ndarray, params: paidiverpy.config.colour_params.EdgeDetectionParams = None) -> numpy.ndarray
+   .. py:method:: colour_alteration(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.config.colour_params.ColourAlterationParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
+      :staticmethod:
+
+
+      
+      Apply colour alteration to the image.
+
+      :param image_data: The image to alter colour channel.
+      :type image_data: np.ndarray
+      :param metadata: Metadata for the image.
+      :type metadata: dict, optional
+      :param params: Params for method. Defaults to None.
+      :type params: ColourAlterationParams, optional
+      :param \*\*kwargs: Additional keyword arguments.
+      :type \*\*kwargs: dict
+
+      :raises ValueError: Unknown method type. Please use 'white_balance'.
+      :raises ValueError: Image is gray-scale'.
+      :raises e: Error applying colour alteration.
+
+      :returns: The updated image and the updated metadata.
+      :rtype: tuple[np.ndarray, dict]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: edge_detection(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.config.colour_params.EdgeDetectionParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
       :staticmethod:
 
 
@@ -350,52 +412,18 @@ Package Contents
 
       :param image_data: The image to apply edge detection.
       :type image_data: np.ndarray
+      :param metadata: Metadata for the image.
+      :type metadata: dict, optional
       :param params: Params for method.
+                     Defaults to EdgeDetectionParams().
       :type params: EdgeDetectionParams, optional
-
-      Defaults to EdgeDetectionParams().
+      :param \*\*kwargs: Additional keyword arguments.
+      :type \*\*kwargs: dict
 
       :raises e: Error applying edge detection.
 
-      :returns: The image with edge detection applied.
-      :rtype: np.ndarray
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      ..
-          !! processed by numpydoc !!
-
-
-   .. py:method:: colour_alteration(image_data: numpy.ndarray, params: paidiverpy.config.colour_params.ColourAlterationParams = None) -> numpy.ndarray
-      :staticmethod:
-
-
-      
-      Apply colour alteration to the image.
-
-      :param image_data: The image to alter colour channel.
-      :type image_data: np.ndarray
-      :param params: Params for method. Defaults to None.
-      :type params: ColourAlterationParams, optional
-
-      :raises ValueError: Unknown method type. Please use 'white_balance'.
-      :raises ValueError: Image is gray-scale'.
-      :raises e: Error applying colour alteration.
-
-      :returns: The image with colour alteration applied.
-      :rtype: np.ndarray
+      :returns: The updated image and the updated metadata.
+      :rtype: tuple[np.ndarray, dict]
 
 
 
@@ -506,72 +534,6 @@ Package Contents
       :type angle_z: int, optional
 
       :returns: The motion PSF
-      :rtype: np.ndarray
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      ..
-          !! processed by numpydoc !!
-
-
-   .. py:method:: white_balance(img: numpy.ndarray) -> numpy.ndarray
-      :staticmethod:
-
-
-      
-      White balance.
-
-      Perform white balancing on the image.
-
-      :param img: The image to white balance.
-      :type img: np.ndarray
-
-      :returns: The white balanced image.
-      :rtype: np.ndarray
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      ..
-          !! processed by numpydoc !!
-
-
-   .. py:method:: normalize_img(img: numpy.ndarray) -> numpy.ndarray
-      :staticmethod:
-
-
-      
-      Normalize the image.
-
-      Normalize the image to [0, 1].
-
-      :param img: The image to normalize
-      :type img: np.ndarray
-
-      :returns: The normalized image
       :rtype: np.ndarray
 
 
