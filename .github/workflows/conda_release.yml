@@ -55,5 +55,5 @@ jobs:
         git diff --quiet -- conda_recipes/meta_bioconda.yaml conda_recipes/meta.yaml || (
           git add conda_recipes/meta_bioconda.yaml conda_recipes/meta.yaml
           git commit -m "chore: update conda recipe"
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }}
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.head_ref || github.ref_name }}
         )
