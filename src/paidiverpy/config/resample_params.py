@@ -30,6 +30,7 @@ class ResampleDepthParams(DynamicConfig):
 class ResampleAltitudeParams(DynamicConfig):
     """This class contains the parameters for the altitude resampling."""
 
+    by: str = "lower"
     value: float = None
     raise_error: bool = False
 

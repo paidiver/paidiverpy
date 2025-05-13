@@ -8,11 +8,14 @@ from json import JSONDecodeError
 from pathlib import Path
 import dask.dataframe as dd
 import pandas as pd
-from jsonschema import Draft202012Validator
-from jsonschema.exceptions import ValidationError
 from shapely.geometry import Point
 from paidiverpy.config.config import Configuration
+from paidiverpy.metadata_parser.utils import convert_to_croissant
+from paidiverpy.metadata_parser.utils import convert_to_ifdo
+from paidiverpy.metadata_parser.utils import format_error
+from paidiverpy.metadata_parser.utils import validate_ifdo
 from paidiverpy.utils.docker import is_running_in_docker
+from paidiverpy.utils.exceptions import raise_value_error
 from paidiverpy.utils.logging_functions import initialise_logging
 from paidiverpy.utils.object_store import define_storage_options
 from paidiverpy.utils.object_store import get_file_from_bucket
@@ -124,6 +127,46 @@ class MetadataParser:
         metadata["flag"] = 0
         return self._prepare_metadata(metadata)
 
+    def export_metadata(
+        self,
+        output_format: str = "csv",
+        output_path: str | None = "metadata",
+        metadata: pd.DataFrame | None = None,
+        dataset_metadata: dict | None = None,
+    ) -> None:
+        """Export metadata to a file.
+
+        Args:
+            output_format (str, optional): Format of the output file. Defaults to "csv".
+            output_path (str, optional): Path to the output file. Defaults to "metadata".
+            metadata (pd.DataFrame, optional): Metadata DataFrame. Defaults to None.
+            dataset_metadata (dict, optional): Dataset metadata. Defaults to None.
+        """
+        if not dataset_metadata:
+            if not self.dataset_metadata:
+                raise_value_error("Dataset metadata is not defined.")
+            dataset_metadata = self.dataset_metadata
+        if not metadata:
+            if not self.metadata:
+                raise_value_error("Metadata is not defined.")
+            metadata = self.metadata
+        if isinstance(self.metadata, dd.DataFrame):
+            metadata = self.metadata.compute()
+        if output_format == "csv":
+            # Add dataset metadata to the metadata
+            self.metadata.to_csv(output_path, index=False)
+        elif output_format == "json":
+            # Add dataset metadata to the metadata
+            metadata.to_json(output_path, orient="records", lines=True)
+        elif output_format == "IFDO":
+            convert_to_ifdo(dataset_metadata, metadata, output_path)
+        elif output_format == "croissant":
+            convert_to_croissant(dataset_metadata, metadata, output_path)
+        else:
+            self.logger.error("Unsupported output format: %s", output_format)
+            raise_value_error(f"Unsupported output format: {output_format}")
+        self.logger.info("Metadata exported to %s", output_path)
+
     def _prepare_metadata(self, metadata: dd.DataFrame) -> dd.DataFrame:
         """Prepare metadata for processing.
 
@@ -135,6 +178,7 @@ class MetadataParser:
         """
         errors = []
         metadata = self._rename_columns(metadata, "image-altitude-meters", errors=errors)
+        metadata = self._rename_columns(metadata, "image-depth", errors=errors)
         metadata = self._rename_columns(metadata, "image-latitude", errors=errors)
         metadata = self._rename_columns(metadata, "image-longitude", errors=errors)
         metadata = self._rename_columns(metadata, "image-camera-pitch-degrees", errors=errors)
@@ -276,23 +320,13 @@ class MetadataParser:
             metadata = metadata.sort_values(by="image-datetime")
         return metadata.compute()
 
-    def _validate_ifdo(self, ifdo_data: dict) -> None:
-        """validate_ifdo method.
-
-        Validates input data against iFDO scheme. Raises an exception if the
-        data is invalid.
+    def _validate_ifdo(self, metadata: dict) -> None:
+        """Validate iFDO metadata.
 
         Args:
-            ifdo_data (Dict): parsed iFDO data.
+            metadata (dict): Metadata dictionary.
         """
-        ifdo_version = ifdo_data.get("image-set-header", {}).get("image-set-ifdo-version", None)
-        if not ifdo_version:
-            msg = "No iFDO version found in metadata."
-            raise ValidationError(msg)
-        schema_file_path = f"https://www.marine-imaging.com/fair/schemas/ifdo-{ifdo_version}.json"
-        schema = json.loads(get_file_from_bucket(schema_file_path))
-        validator = Draft202012Validator(schema)
-        errors = sorted(validator.iter_errors(ifdo_data), key=lambda e: e.path)
+        errors = validate_ifdo(metadata)
         if errors:
             msg_warn = "Failed to validate the IFDO metadata.\n"
             msg_warn += "You can continue, but some functions may not work properly.\n"
@@ -300,7 +334,7 @@ class MetadataParser:
             self.logger.warning(msg_warn)
             msg_debug = "Validation errors with the metadata:\n"
             for error in errors:
-                msg_debug += f"{MetadataParser.format_error(error.path)}: {error.message}\n"
+                msg_debug += f"{format_error(error.path)}: {error.message}\n"
             self.logger.debug(msg_debug)
         else:
             self.logger.info("Metadata file is valid.")
@@ -323,17 +357,3 @@ class MetadataParser:
         metadata = self.metadata
 
         return message + metadata._repr_html_()
-
-    @staticmethod
-    def format_error(text: list) -> str:
-        """Format error message.
-
-        Args:
-            text (list): List of error messages.
-
-        Returns:
-            str: Formatted error message.
-        """
-        if len(text) > 3:  # noqa: PLR2004
-            return f"...{'.'.join(map(str, text[-3:]))}"
-        return ".".join(map(str, text))
