@@ -32,18 +32,50 @@ DATASET_URLS = {
     "plankton_csv": {
         "url": "https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/plankton_csv.zip",
         "metadata_type": "CSV_FILE",
-        "image_type": "BMP",
+        "metadata_path": "metadata_plankton_csv.csv",
+        "image_open_args": "BMP",
     },
     "benthic_csv": {
         "url": "https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/benthic_csv.zip",
         "metadata_type": "CSV_FILE",
-        "image_type": "PNG",
+        "metadata_path": "metadata_benthic_csv.csv",
+        "image_open_args": "PNG",
         "append_data_to_metadata": True,
     },
     "benthic_ifdo": {
         "url": "https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/benthic_ifdo.zip",
         "metadata_type": "IFDO",
-        "image_type": "JPG",
+        "metadata_path": "metadata_benthic_ifdo.json",
+        "image_open_args": "JPG",
+    },
+    "nef_raw": {
+        "url": "https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/nef_raw.zip",
+        "metadata_type": "CSV_FILE",
+        "metadata_path": "metadata_nef_raw.csv",
+        "image_open_args": {
+            "image_type": "nef",
+            "params": {
+                "use_camera_wb": True,
+            },
+        },
+    },
+    "benthic_raw_images": {
+        "url": "https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/benthic_raw_images.zip",
+        "metadata_type": "CSV_FILE",
+        "metadata_path": "metadata_benthic_raw_images.csv",
+        "image_open_args": {
+            "image_type": "raw",
+            "params": {
+                "width": 2448,
+                "height": 2048,
+                "bit_depth": 8,
+                "endianness": None,
+                "layout": None,
+                "image_misc": "bayer",
+                "bayer_pattern": "GB",
+                "file_header_size": 0,
+            },
+        },
     },
 }
 
@@ -182,12 +214,12 @@ class PaidiverpyData:
         Returns:
             dict: Information about the dataset
         """
-        metadata_path = f"metadata_{dataset_name}.csv" if dataset_name.split("_")[-1] == "csv" else f"metadata_{dataset_name}.json"
+        metadata_path = dataset_information["metadata_path"]
         information = {
             "input_path": str(extract_dir / "images"),
             "metadata_path": str(extract_dir / "metadata" / metadata_path),
             "metadata_type": dataset_information["metadata_type"],
-            "image_type": dataset_information["image_type"],
+            "image_open_args": dataset_information["image_open_args"],
         }
         if dataset_information.get("append_data_to_metadata"):
             information["append_data_to_metadata"] = str(extract_dir / "metadata" / f"appended_metadata_{dataset_name}.csv")

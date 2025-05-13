@@ -97,43 +97,53 @@ class ConvertLayer(Paidiverpy):
         self.layer_methods = CONVERT_LAYER_METHODS
 
     @staticmethod
-    def convert_bits(image_data: np.ndarray, params: BitParams = None) -> np.ndarray:
+    def convert_bits(image_data: np.ndarray, metadata: dict | None = None, params: BitParams = None, **kwargs: dict) -> tuple[np.ndarray, dict]:
         """Convert the image to the specified number of bits.
 
         Args:
             image_data (np.ndarray): The image data.
+            metadata (dict, optional): The metadata for the image.
             params (BitParams, optional): The parameters for the bit conversion.
+            **kwargs: Additional keyword arguments.
+
         Defaults to BitParams().
 
         Returns:
-            np.ndarray: The image data with the specified number of bits.
+            tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
-        params = params or BitParams()
-        bit = image_data.dtype.itemsize
+        image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, BitParams, **kwargs)
+        try:
+            bit = metadata.get("bit_depth", image_data.dtype.itemsize)
 
-        if params.output_bits == EIGHT_BITS and bit != EIGHT_BITS_SIZE:
-            image_data = ConvertLayer.normalize_image(image_data)
-            image_data = np.uint8(image_data * 255)
-        elif params.output_bits == SIXTEEN_BITS and bit != SIXTEEN_BITS_SIZE:
-            image_data = ConvertLayer.normalize_image(image_data)
-            image_data = np.uint16(image_data * 65535)
-        elif params.output_bits == THIRTY_TWO_BITS and bit != THIRTY_TWO_BITS_SIZE:
-            image_data = ConvertLayer.normalize_image(image_data)
-            image_data = np.float32(image_data)
-        else:
-            msg = f"Unsupported output bits or image already within provided format: {params.output_bits}"
+            if params.output_bits == EIGHT_BITS and bit != EIGHT_BITS_SIZE:
+                image_data, metadata = ConvertLayer.normalize_image(image_data, metadata)
+                image_data = np.uint8(image_data * 255)
+            elif params.output_bits == SIXTEEN_BITS and bit != SIXTEEN_BITS_SIZE:
+                image_data, metadata = ConvertLayer.normalize_image(image_data, metadata)
+                image_data = np.uint16(image_data * 65535)
+            elif params.output_bits == THIRTY_TWO_BITS and bit != THIRTY_TWO_BITS_SIZE:
+                image_data, metadata = ConvertLayer.normalize_image(image_data, metadata)
+                image_data = np.float32(image_data)
+            else:
+                msg = f"Unsupported output bits or image already within provided format: {params.output_bits}"
+                raise_value_error(msg)
+            metadata["bit_depth"] = params.output_bits / 8
+        except Exception as e:  # noqa: BLE001
+            msg = f"Failed to convert the image to {params.output_bits} bits: {e!s}"
             check_raise_error(params.raise_error, msg)
 
-        return image_data
+        return image_data, metadata
 
     @staticmethod
-    def channel_convert(image_data: np.ndarray, params: ToParams = None) -> np.ndarray:
+    def channel_convert(image_data: np.ndarray, metadata: dict | None = None, params: ToParams = None, **kwargs: dict) -> tuple[np.ndarray, dict]:
         """Convert the image to the specified channel.
 
         Args:
             image_data (np.ndarray): The image data.
+            metadata (dict, optional): The metadata for the image.
             params (ToParams, optional): The parameters for the channel conversion.
-        Defaults to ToParams().
+                Defaults to ToParams().
+            **kwargs: Additional keyword arguments.
 
         Raises:
             ValueError: The image is already in RGB format.
@@ -141,10 +151,10 @@ class ConvertLayer(Paidiverpy):
             ValueError: Failed to convert the image to {params.to}: {str(e)}
 
         Returns:
-            np.ndarray: The image data with the specified channel.
+            tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
-        params = params or ToParams()
-        num_channels = image_data.shape[-1]
+        image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, ToParams, **kwargs)
+        num_channels = metadata.get("num_channels", image_data.shape[-1])
 
         conversion_map = {
             "RGB": {
@@ -168,30 +178,37 @@ class ConvertLayer(Paidiverpy):
             if conversion is None:
                 raise_value_error(f"The image is already in {params.to.upper()} format.")
             image_data = cv2.cvtColor(image_data, conversion)
+            metadata["num_channels"] = 3 if params.to == "RGB" else 4 if params.to == "RGBA" else 1
             if params.to == "gray":
                 image_data = np.expand_dims(image_data, axis=-1)
         except Exception as e:  # noqa: BLE001
             msg = f"Failed to convert the image to {params.to}: {e!s}"
             check_raise_error(params.raise_error, msg)
 
-        return image_data
+        return image_data, metadata
 
     @staticmethod
-    def normalize_image(image_data: np.ndarray, params: NormalizeParams = None) -> np.ndarray:
+    def normalize_image(
+        image_data: np.ndarray, metadata: dict | None = None, params: NormalizeParams = None, **kwargs: dict
+    ) -> tuple[np.ndarray, dict]:
         """Normalize the image data.
 
         Args:
             image_data (np.ndarray): The image data.
+            metadata (dict, optional): The metadata for the image.
             params (NormalizeParams, optional): The parameters for the image normalization.
+                Defaults to NormalizeParams().
+            **kwargs: Additional keyword arguments.
+
         Defaults to NormalizeParams().
 
         Raises:
             ValueError: Failed to normalize the image: {str(e)}
 
         Returns:
-            np.ndarray: The normalized image data.
+            tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
-        params = params or NormalizeParams()
+        image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, NormalizeParams, **kwargs)
         try:
             if params.method == "minmax":
                 if params.min > params.max:
@@ -209,24 +226,27 @@ class ConvertLayer(Paidiverpy):
         except Exception as e:  # noqa: BLE001
             msg = f"Failed to normalize the image: {e!s}"
             check_raise_error(params.raise_error, msg)
-        return image_data
+
+        return image_data, metadata
 
     @staticmethod
-    def resize(image_data: np.ndarray, params: ResizeParams = None) -> np.ndarray:
+    def resize(image_data: np.ndarray, metadata: dict | None = None, params: ResizeParams = None, **kwargs: dict) -> tuple[np.ndarray, dict]:
         """Resize the image data.
 
         Args:
             image_data (np.ndarray): The image data.
+            metadata (dict, optional): The metadata for the image.
             params (ResizeParams, optional): The parameters for the image resizing.
-        Defaults to ResizeParams().
+                Defaults to ResizeParams().
+            **kwargs: Additional keyword arguments.
 
         Raises:
             ValueError: Failed to resize the image: {str(e)}
 
         Returns:
-            np.ndarray: The resized image data.
+            tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
-        params = params or ResizeParams()
+        image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, ResizeParams, **kwargs)
         interp_map = {
             "nearest": cv2.INTER_NEAREST,
             "linear": cv2.INTER_LINEAR,
@@ -254,25 +274,27 @@ class ConvertLayer(Paidiverpy):
         except Exception as e:  # noqa: BLE001
             msg = f"Failed to resize the image: {e!s}"
             check_raise_error(params.raise_error, msg)
-        return image_data
+        return image_data, metadata
 
     @staticmethod
-    def crop_images(image_data: np.ndarray, params: CropParams = None) -> np.ndarray:
+    def crop_images(image_data: np.ndarray, metadata: dict | None = None, params: CropParams = None, **kwargs: dict) -> tuple[np.ndarray, dict]:
         """Crop the image data.
 
         Args:
             image_data (np.ndarray): The image data.
+            metadata (dict, optional): The metadata for the image.
             params (CropParams, optional): The parameters for the image cropping.
-        Defaults to CropParams().
+                Defaults to CropParams().
+            **kwargs: Additional keyword arguments.
 
         Raises:
             ValueError: The crop size is larger than the image size.
             ValueError: top_left must be provided when mode='topleft'.
 
         Returns:
-            np.ndarray: The cropped image data.
+            tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
-        params = params or CropParams()
+        image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, CropParams, **kwargs)
         try:
             height, width = image_data.shape[:2]
             crop_h, crop_w = ConvertLayer._get_crop_size(height, width, params.size, params.size_type)
@@ -307,7 +329,7 @@ class ConvertLayer(Paidiverpy):
         except Exception as e:  # noqa: BLE001
             msg = f"Failed to crop the image: {e!s}"
             check_raise_error(params.raise_error, msg)
-        return image_data
+        return image_data, metadata
 
     @staticmethod
     def _get_crop_size(height: int, width: int, size: float | list, size_type: str) -> tuple:

@@ -1,0 +1,19 @@
+general:
+  sample_data: "nef_raw"
+  output_path: "./output"
+  n_jobs: 1
+
+steps:
+  - colour:
+      name: "grayscale"
+      mode: "grayscale"
+
+  - colour:
+      name: "colour_correction"
+      mode: "gaussian_blur"
+      params:
+        sigma: 1.0
+
+  - colour:
+      name: "contrast"
+      mode: "contrast"

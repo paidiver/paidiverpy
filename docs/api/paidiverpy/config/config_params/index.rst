@@ -34,6 +34,7 @@ Module Contents
                          It should have the following keys:
                          - input_path (str): The input path.
                          - output_path (str): The output path.
+                         - image_open_args (str): The image type.
                          - metadata_path (str): The metadata path.
                          - metadata_type (str): The metadata type.
                          - track_changes (bool): Whether to track changes.

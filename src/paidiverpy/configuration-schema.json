@@ -33,8 +33,27 @@
             "null"
           ]
         },
-        "image_type": {
-          "type": "string"
+        "image_open_args": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "image_type": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object"
+                }
+              },
+              "required": [
+                "image_type"
+              ],
+              "additionalProperties": false
+            }
+          ]
         },
         "append_data_to_metadata": {
           "type": [
@@ -1390,12 +1409,12 @@
         "type": "object",
         "properties": {
           "min": {
-            "type": "integer",
+            "type": "number",
             "minimum": 0,
             "maximum": 1
           },
           "max": {
-            "type": "integer",
+            "type": "number",
             "minimum": 0,
             "maximum": 1
           },

@@ -1,7 +1,7 @@
 general:
   sample_data: "benthic_csv"
   output_path: "./output"
-  image_type: "PNG"
+  image_open_args: "PNG"
 
 steps:
   - convert:

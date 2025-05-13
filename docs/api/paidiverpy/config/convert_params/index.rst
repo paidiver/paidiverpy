@@ -21,7 +21,6 @@ Classes
 
    paidiverpy.config.convert_params.BitParams
    paidiverpy.config.convert_params.ToParams
-   paidiverpy.config.convert_params.BayerPatternParams
    paidiverpy.config.convert_params.NormalizeParams
    paidiverpy.config.convert_params.ResizeParams
    paidiverpy.config.convert_params.CropParams
@@ -63,32 +62,6 @@ Module Contents
 
    
    This class contains the parameters for the channel conversion.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   ..
-       !! processed by numpydoc !!
-
-.. py:class:: BayerPatternParams
-
-   Bases: :py:obj:`paidiverpy.utils.dynamic_classes.DynamicConfig`
-
-
-   
-   This class contains the parameters for the Bayer pattern conversion.
 
 
 
