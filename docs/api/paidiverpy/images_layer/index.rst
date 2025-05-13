@@ -82,35 +82,6 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: remove_steps_by_name(step: tuple) -> int
-
-      
-      Remove steps by name.
-
-      :param step: The step to remove
-      :type step: str
-
-      :returns: The index of the removed step
-      :rtype: int
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      ..
-          !! processed by numpydoc !!
-
-
    .. py:method:: remove_steps_by_order(step_order: int) -> None
 
       
@@ -137,41 +108,13 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: get_last_step_order() -> int
-
-      
-      Get the last step order.
-
-      :returns: The last step order
-      :rtype: int
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      ..
-          !! processed by numpydoc !!
-
-
-   .. py:method:: get_step(step: str | int | None = None, by_order: bool = False, last: bool = False) -> list[numpy.ndarray | dask.array.core.Array]
+   .. py:method:: get_step(step: str | int | None = None, last: bool = False) -> list[numpy.ndarray | dask.array.core.Array]
 
       
       Get a step by name or order.
 
       :param step: The step to get. Defaults to None.
       :type step: str | int, optional
-      :param by_order: If True, get the step by order. Defaults to False.
-      :type by_order: bool, optional
       :param last: If True, get the last step. Defaults to False.
       :type last: bool, optional
 
@@ -222,21 +165,21 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: save(step: str | int | None = None, by_order: bool = False, last: bool = False, output_path: str | None = None, image_format: str = 'png', client: dask.distributed.Client = None, n_jobs: int = 1, logger: logging.Logger | None = None) -> None
+   .. py:method:: save(step: str | int | None = None, last: bool = True, output_path: str | None = None, image_format: str = 'png', config: paidiverpy.config.config.Configuration | None = None, client: dask.distributed.Client = None, n_jobs: int = 1, logger: logging.Logger | None = None) -> None
 
       
       Save the images in the pipeline.
 
       :param step: The step to save. Defaults to None.
       :type step: str| int, optional
-      :param by_order: If True, save the step by order. Defaults to False.
-      :type by_order: bool, optional
       :param last: If True, save the last step. Defaults to False.
       :type last: bool, optional
       :param output_path: The output path to save the images. Defaults to None.
       :type output_path: str, optional
       :param image_format: The image format to save. Defaults to "png".
       :type image_format: str, optional
+      :param config: The configuration object. Defaults to None.
+      :type config: Configuration, optional
       :param client: The Dask client. Defaults to None.
       :type client: Client, optional
       :param n_jobs: The number of jobs to use. Defaults to 1.

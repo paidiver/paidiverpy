@@ -17,11 +17,7 @@ Classes
 .. autoapisummary::
 
    paidiverpy.config.config.GeneralConfig
-   paidiverpy.config.config.PositionConfig
-   paidiverpy.config.config.ConvertConfig
-   paidiverpy.config.config.ColourConfig
-   paidiverpy.config.config.SamplingConfig
-   paidiverpy.config.config.CustomConfig
+   paidiverpy.config.config.StepConfig
    paidiverpy.config.config.Configuration
 
 
@@ -56,14 +52,22 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:class:: PositionConfig(**kwargs: dict)
+.. py:class:: StepConfig(**kwargs: dict)
 
    Bases: :py:obj:`paidiverpy.utils.dynamic_classes.DynamicConfig`
 
 
    
-   Position configuration class.
+   Step configuration class.
 
+   This class is used to define the step configuration from the configuration file
+
+   :param name: The name of the step.
+   :type name: str
+   :param step_name: The name of the step.
+   :type step_name: str
+   :param \*\*kwargs: The step configuration.
+   :type \*\*kwargs: dict
 
 
 
@@ -82,121 +86,17 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:class:: ConvertConfig(**kwargs: dict)
-
-   Bases: :py:obj:`paidiverpy.utils.dynamic_classes.DynamicConfig`
-
-
-   
-   Convert configuration class.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   ..
-       !! processed by numpydoc !!
-
-.. py:class:: ColourConfig(**kwargs: dict)
-
-   Bases: :py:obj:`paidiverpy.utils.dynamic_classes.DynamicConfig`
-
-
-   
-   Colour configuration class.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   ..
-       !! processed by numpydoc !!
-
-.. py:class:: SamplingConfig(**kwargs: dict)
-
-   Bases: :py:obj:`paidiverpy.utils.dynamic_classes.DynamicConfig`
-
-
-   
-   Sampling configuration class.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   ..
-       !! processed by numpydoc !!
-
-.. py:class:: CustomConfig(**kwargs: dict)
-
-   Bases: :py:obj:`paidiverpy.utils.dynamic_classes.DynamicConfig`
-
-
-   
-   Sampling configuration class.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   ..
-       !! processed by numpydoc !!
-
-.. py:class:: Configuration(config_file_path: str | None = None, input_path: str | None = None, output_path: str | None = None)
+.. py:class:: Configuration(config_file_path: str | None = None, add_general: dict | None = None, add_steps: list[dict] | None = None)
 
    
    Configuration class.
 
    :param config_file_path: The configuration file path. Defaults to None.
    :type config_file_path: str, optional
-   :param input_path: The input path. Defaults to None.
-   :type input_path: str, optional
-   :param output_path: The output path. Defaults to None.
-   :type output_path: str, optional
+   :param add_general: The general configuration. Defaults to None.
+   :type add_general: dict, optional
+   :param add_steps: The steps configuration. Defaults to None.
+   :type add_steps: dict, optional
 
 
 
@@ -215,15 +115,15 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-   .. py:method:: add_config(config_name: str, config: dict) -> None
+   .. py:method:: add_general(config: dict, validate: bool = False) -> None
 
       
       Add a configuration.
 
-      :param config_name: The configuration name.
-      :type config_name: str
       :param config: The configuration.
       :type config: dict
+      :param validate: Whether to validate the configuration. Defaults to False.
+      :type validate: bool, optional
 
       :raises ValueError: Invalid configuration name.
 
@@ -245,7 +145,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: add_step(config_index: int | None = None, parameters: dict | None = None) -> int
+   .. py:method:: add_step(config_index: int | None = None, parameters: dict | None = None, insert: bool = False, validate: bool = False) -> int
 
       
       Add a step to the configuration.
@@ -254,6 +154,10 @@ Module Contents
       :type config_index: int, optional
       :param parameters: The parameters for the step. Defaults to None.
       :type parameters: dict, optional
+      :param insert: Whether to insert the step at the given index. Defaults to False.
+      :type insert: bool, optional
+      :param validate: Whether to validate the configuration. Defaults to True.
+      :type validate: bool, optional
 
       :raises ValueError: Invalid step index.
 
@@ -285,6 +189,35 @@ Module Contents
 
       :param output_path: The output path.
       :type output_path: str
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: get_output_path(output_path: str | None = None) -> tuple[pathlib.Path | str, bool]
+
+      
+      Get the output path.
+
+      :param output_path: The output path. Defaults to None.
+      :type output_path: str, optional
+
+      :returns: The output path and whether it is remote.
+      :rtype: tuple[Path | str, bool]
 
 
 

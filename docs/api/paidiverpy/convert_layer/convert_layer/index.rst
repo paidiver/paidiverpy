@@ -25,12 +25,12 @@ Classes
 Module Contents
 ---------------
 
-.. py:class:: ConvertLayer(config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.config.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: paidiverpy.Paidiverpy = None, step_name: str | None = None, parameters: dict | None = None, client: dask.distributed.Client | None = None, config_index: int | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
+.. py:class:: ConvertLayer(parameters: dict, config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.config.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: paidiverpy.Paidiverpy = None, step_name: str | None = None, client: dask.distributed.Client | None = None, config_index: int | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
 
    Bases: :py:obj:`paidiverpy.Paidiverpy`
 
 
-
+   
    Process the images in the convert layer.
 
    This class provides various methods to convert images according to specified
@@ -87,22 +87,25 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-   .. py:method:: convert_bits(image_data: numpy.ndarray, params: paidiverpy.config.convert_params.BitParams = None) -> numpy.ndarray
+   .. py:method:: convert_bits(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.config.convert_params.BitParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
       :staticmethod:
 
 
-
+      
       Convert the image to the specified number of bits.
 
       :param image_data: The image data.
       :type image_data: np.ndarray
+      :param metadata: The metadata for the image.
+      :type metadata: dict, optional
       :param params: The parameters for the bit conversion.
       :type params: BitParams, optional
+      :param \*\*kwargs: Additional keyword arguments.
 
       Defaults to BitParams().
 
-      :returns: The image data with the specified number of bits.
-      :rtype: np.ndarray
+      :returns: The updated image and the updated metadata.
+      :rtype: tuple[np.ndarray, dict]
 
 
 
@@ -122,26 +125,28 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: channel_convert(image_data: numpy.ndarray, params: paidiverpy.config.convert_params.ToParams = None) -> numpy.ndarray
+   .. py:method:: channel_convert(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.config.convert_params.ToParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
       :staticmethod:
 
 
-
+      
       Convert the image to the specified channel.
 
       :param image_data: The image data.
       :type image_data: np.ndarray
+      :param metadata: The metadata for the image.
+      :type metadata: dict, optional
       :param params: The parameters for the channel conversion.
+                     Defaults to ToParams().
       :type params: ToParams, optional
-
-      Defaults to ToParams().
+      :param \*\*kwargs: Additional keyword arguments.
 
       :raises ValueError: The image is already in RGB format.
       :raises ValueError: The image is already in grayscale.
       :raises ValueError: Failed to convert the image to {params.to}: {str(e)}
 
-      :returns: The image data with the specified channel.
-      :rtype: np.ndarray
+      :returns: The updated image and the updated metadata.
+      :rtype: tuple[np.ndarray, dict]
 
 
 
@@ -161,64 +166,28 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: change_bayer_pattern(image_data: numpy.ndarray, params: paidiverpy.config.convert_params.BayerPatternParams = None) -> numpy.ndarray
+   .. py:method:: normalize_image(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.config.convert_params.NormalizeParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
       :staticmethod:
 
 
-
-      Convert the image to the specified Bayer pattern.
-
-      :param image_data: The image data.
-      :type image_data: np.ndarray
-      :param params: The parameters for the Bayer pattern conversion.
-      :type params: BayerPatternParams, optional
-
-      Defaults to BayerPatternParams().
-
-      :raises ValueError: Invalid Bayer pattern for a single-channel image.
-      :raises KeyError: Invalid Bayer pattern for a single-channel image.
-
-      Expected 'RG', 'BG', 'GR', or 'GB'.
-
-      :returns: The image data with the specified Bayer pattern.
-      :rtype: np.ndarray
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      ..
-          !! processed by numpydoc !!
-
-
-   .. py:method:: normalize_image(image_data: numpy.ndarray, params: paidiverpy.config.convert_params.NormalizeParams = None) -> numpy.ndarray
-      :staticmethod:
-
-
-
+      
       Normalize the image data.
 
       :param image_data: The image data.
       :type image_data: np.ndarray
+      :param metadata: The metadata for the image.
+      :type metadata: dict, optional
       :param params: The parameters for the image normalization.
+                     Defaults to NormalizeParams().
       :type params: NormalizeParams, optional
+      :param \*\*kwargs: Additional keyword arguments.
 
       Defaults to NormalizeParams().
 
       :raises ValueError: Failed to normalize the image: {str(e)}
 
-      :returns: The normalized image data.
-      :rtype: np.ndarray
+      :returns: The updated image and the updated metadata.
+      :rtype: tuple[np.ndarray, dict]
 
 
 
@@ -238,24 +207,26 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: resize(image_data: numpy.ndarray, params: paidiverpy.config.convert_params.ResizeParams = None) -> numpy.ndarray
+   .. py:method:: resize(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.config.convert_params.ResizeParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
       :staticmethod:
 
 
-
+      
       Resize the image data.
 
       :param image_data: The image data.
       :type image_data: np.ndarray
+      :param metadata: The metadata for the image.
+      :type metadata: dict, optional
       :param params: The parameters for the image resizing.
+                     Defaults to ResizeParams().
       :type params: ResizeParams, optional
-
-      Defaults to ResizeParams().
+      :param \*\*kwargs: Additional keyword arguments.
 
       :raises ValueError: Failed to resize the image: {str(e)}
 
-      :returns: The resized image data.
-      :rtype: np.ndarray
+      :returns: The updated image and the updated metadata.
+      :rtype: tuple[np.ndarray, dict]
 
 
 
@@ -275,25 +246,27 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: crop_images(image_data: numpy.ndarray, params: paidiverpy.config.convert_params.CropParams = None) -> numpy.ndarray
+   .. py:method:: crop_images(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.config.convert_params.CropParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
       :staticmethod:
 
 
-
+      
       Crop the image data.
 
       :param image_data: The image data.
       :type image_data: np.ndarray
+      :param metadata: The metadata for the image.
+      :type metadata: dict, optional
       :param params: The parameters for the image cropping.
+                     Defaults to CropParams().
       :type params: CropParams, optional
+      :param \*\*kwargs: Additional keyword arguments.
 
-      Defaults to CropParams().
+      :raises ValueError: The crop size is larger than the image size.
+      :raises ValueError: top_left must be provided when mode='topleft'.
 
-      :raises ValueError: Crop range is out of bounds.
-      :raises ValueError: Failed to crop the image: {str(e)}
-
-      :returns: The cropped image data.
-      :rtype: np.ndarray
+      :returns: The updated image and the updated metadata.
+      :rtype: tuple[np.ndarray, dict]
 
 
 
@@ -311,3 +284,5 @@ Module Contents
 
       ..
           !! processed by numpydoc !!
+
+

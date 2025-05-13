@@ -19,19 +19,19 @@ Classes
 
 .. autoapisummary::
 
-   paidiverpy.config.position_params.ReprojectParams
+   paidiverpy.config.position_params.CalculateCornersParams
 
 
 Module Contents
 ---------------
 
-.. py:class:: ReprojectParams
+.. py:class:: CalculateCornersParams
 
    Bases: :py:obj:`paidiverpy.utils.dynamic_classes.DynamicConfig`
 
 
    
-   This class contains the parameters for the bit conversion.
+   This class contains the parameters for the overlapping resampling.
 
 
 

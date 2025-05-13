@@ -11,14 +11,6 @@ paidiverpy.utils.exceptions
        !! processed by numpydoc !!
 
 
-Exceptions
-----------
-
-.. autoapisummary::
-
-   paidiverpy.utils.exceptions.VariableNotFoundError
-
-
 Functions
 ---------
 
@@ -29,34 +21,6 @@ Functions
 
 Module Contents
 ---------------
-
-.. py:exception:: VariableNotFoundError(variable_name: str)
-
-   Bases: :py:obj:`Exception`
-
-
-   
-   Exception raised for when a variable is not found in the dataset.
-
-   :param Exception: The base exception class.
-   :type Exception: Exception
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   ..
-       !! processed by numpydoc !!
 
 .. py:function:: raise_value_error(message: str) -> None
 

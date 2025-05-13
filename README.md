@@ -117,6 +117,7 @@ Together with the documentation, you can explore various use cases through sampl
 - [Run a pipeline using a public dataset with IFDO metadata](examples/example_notebooks/pipeline_ifdo.ipynb)
 - [Run a pipeline using a data on a object store](examples/example_notebooks/pipeline_remote_data.ipynb)
 - [Add a custom algorithm to a pipeline](examples/example_notebooks/pipeline_custom_algorithm.ipynb)
+- [Open and process raw images](examples/example_notebooks/working_with_raw_images.ipynb)
 
 ### Example Data
 
@@ -129,9 +130,11 @@ PaidiverpyData().load(DATASET_NAME)
 
 Available datasets:
 
-- plankton_csv
-- benthic_csv
-- benthic_ifdo
+- plankton_csv: Plankton dataset with CSV file metadata
+- benthic_csv: Benthic dataset with CSV file metadata
+- benthic_ifdo: Benthic dataset with IFDO metadata
+- nef_raw: Sample images in Nef format (raw images) with CSV file metadata
+- benthic_raw_images: Benthic dataset in raw format with CSV file metadata
 
 Example data will be automatically downloaded when running the example notebooks.
 

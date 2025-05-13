@@ -9,6 +9,9 @@ from pathlib import Path
 warnings.filterwarnings("ignore", category=DeprecationWarning, message=r".*jsonschema.RefResolver is deprecated.*")
 warnings.filterwarnings("ignore", category=DeprecationWarning, message=r".*distutils Version classes are deprecated.*")
 
+NEF_RAW_LINK = "https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/nef_raw_examples/"
+RAW_IMAGES_LINK = "https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/raw_data_examples/"
+
 
 class BaseTestClass(unittest.TestCase):
     """Base test class for the paidiverpy package."""

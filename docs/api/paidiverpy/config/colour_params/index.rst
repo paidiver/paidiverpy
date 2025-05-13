@@ -21,12 +21,12 @@ Classes
 
    paidiverpy.config.colour_params.GrayScaleParams
    paidiverpy.config.colour_params.GaussianBlurParams
-   paidiverpy.config.colour_params.EdgeDetectionParams
    paidiverpy.config.colour_params.SharpenParams
    paidiverpy.config.colour_params.ContrastAdjustmentParams
    paidiverpy.config.colour_params.IlluminationCorrectionParams
    paidiverpy.config.colour_params.DeblurParams
    paidiverpy.config.colour_params.ColourAlterationParams
+   paidiverpy.config.colour_params.EdgeDetectionParams
 
 
 Module Contents
@@ -65,32 +65,6 @@ Module Contents
 
    
    This class contains the parameters for the Gaussian blur.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   ..
-       !! processed by numpydoc !!
-
-.. py:class:: EdgeDetectionParams
-
-   Bases: :py:obj:`paidiverpy.utils.dynamic_classes.DynamicConfig`
-
-
-   
-   This class contains the parameters for the edge detection.
 
 
 
@@ -221,6 +195,32 @@ Module Contents
 
    
    This class contains the parameters for the colour alteration.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:class:: EdgeDetectionParams
+
+   Bases: :py:obj:`paidiverpy.utils.dynamic_classes.DynamicConfig`
+
+
+   
+   This class contains the parameters for the edge detection.
 
 
 

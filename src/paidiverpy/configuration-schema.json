@@ -41,7 +41,7 @@
             {
               "type": "object",
               "properties": {
-                "type": {
+                "image_type": {
                   "type": "string"
                 },
                 "params": {
@@ -49,7 +49,7 @@
                 }
               },
               "required": [
-                "type"
+                "image_type"
               ],
               "additionalProperties": false
             }

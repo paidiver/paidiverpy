@@ -8,7 +8,6 @@ import dask
 import dask.array as da
 import numpy as np
 import rawpy
-from dask import delayed
 from PIL import Image
 from PIL.ExifTags import TAGS
 from paidiverpy.utils.data import EIGHT_BITS
@@ -17,49 +16,70 @@ from paidiverpy.utils.data import NUM_CHANNELS_RGBA
 from paidiverpy.utils.data import NUM_DIMENSIONS
 from paidiverpy.utils.data import NUM_DIMENSIONS_GREY
 from paidiverpy.utils.data import SIXTEEN_BITS
+from paidiverpy.utils.exceptions import raise_value_error
 from paidiverpy.utils.object_store import get_file_from_bucket
 
 SUPPORTED_OPENCV_IMAGE_TYPES = [
-    "bmp", "dib", # Windows bitmaps
-    "jpg", "jpeg", "jpe", # JPEG files
-    "jp2", # JPEG 2000 files
-    "png", # Portable Network Graphics
-    "webP", # WebP
-    "pbm", "pgm", "ppm", "pxm", "pnm", # Portable image format
-    "sr", "ras", # Sun rasters
-    "tiff", "tif", # TIFF files
-    "exr", # OpenEXR Image files
-    "hdr", "pic", # Radiance HDR
-    "", # non specified
+    "bmp",
+    "dib",  # Windows bitmaps
+    "jpg",
+    "jpeg",
+    "jpe",  # JPEG files
+    "jp2",  # JPEG 2000 files
+    "png",  # Portable Network Graphics
+    "webP",  # WebP
+    "pbm",
+    "pgm",
+    "ppm",
+    "pxm",
+    "pnm",  # Portable image format
+    "sr",
+    "ras",  # Sun rasters
+    "tiff",
+    "tif",  # TIFF files
+    "exr",  # OpenEXR Image files
+    "hdr",
+    "pic",  # Radiance HDR
+    "",  # non specified
 ]
 
 SUPPORTED_PIL_IMAGE_TYPES = [
-    "bmp", "dib", # Windows bitmaps
-    "jpg", "jpeg", # JPEG files
-    "jp2", # JPEG 2000 files
-    "png", # Portable Network Graphics
-    "ppm", "pgm", "pbm", # Portable image format
-    "tiff", "tif", # TIFF files
-    "webp", # WebP
-    "", # non specified
+    "bmp",
+    "dib",  # Windows bitmaps
+    "jpg",
+    "jpeg",  # JPEG files
+    "jp2",  # JPEG 2000 files
+    "png",  # Portable Network Graphics
+    "ppm",
+    "pgm",
+    "pbm",  # Portable image format
+    "tiff",
+    "tif",  # TIFF files
+    "webp",  # WebP
+    "",  # non specified
+]
+
+SUPPORTED_EXIF_IMAGE_TYPES = [
+    *SUPPORTED_PIL_IMAGE_TYPES,
+    "nef",  # Nikon RAW
 ]
 
 SUPPORTED_RAWPY_IMAGE_TYPES = [
-    "crw", # Canon RAW
-    "cr2", # Canon RAW
-    "cr3", # Canon RAW
-    "dng", # Adobe Digital Negative
-    "nef", # Nikon RAW
-    "nrw", # Nikon RAW
-    "orf", # Olympus RAW
-    "rw2", # Panasonic RAW
-    "raf", # Fuji RAW
+    "crw",  # Canon RAW
+    "cr2",  # Canon RAW
+    "cr3",  # Canon RAW
+    "dng",  # Adobe Digital Negative
+    "nef",  # Nikon RAW
+    "nrw",  # Nikon RAW
+    "orf",  # Olympus RAW
+    "rw2",  # Panasonic RAW
+    "raf",  # Fuji RAW
 ]
 
-def open_image_remote(img_path: str,
-                      image_type: str | None,
-                      image_open_args: dict | None = None,
-                      **kwargs: dict) -> tuple[np.ndarray | dask.array.core.Array, dict]:
+
+def open_image_remote(
+    img_path: str, image_type: str | None, image_open_args: dict | None = None, **kwargs: dict
+) -> tuple[np.ndarray | dask.array.core.Array, dict]:
     """Open an image file.
 
     Args:
@@ -85,19 +105,19 @@ def open_image_remote(img_path: str,
             exif = extract_exif_single(BytesIO(img_bytes), image_type=image_type, image_name=img_path.split("/")[-1])
         else:
             img = load_raw_image(BytesIO(img_bytes), image_type=image_type, image_open_args=image_open_args, remote=True)
+            exif = extract_exif_single(BytesIO(img_bytes), image_type=image_type, image_name=img_path.split("/")[-1])
     except (FileNotFoundError, OSError, TypeError) as e:
         img = None
         logging.warning("Failed to open %s: %s", img_path, e)
 
-    img = correct_image_dims_and_format(img, kwargs.get("parallel"))
+    img = correct_image_dims_and_format(img, kwargs.get("parallel"), image_type=image_type)
 
     return img, exif
 
 
-def open_image_local(img_path: str,
-                     image_type: str | None,
-                     image_open_args: dict | None = None,
-                     **kwargs: dict) -> tuple[np.ndarray | dask.array.core.Array, dict]:
+def open_image_local(
+    img_path: str, image_type: str | None, image_open_args: dict | None = None, **kwargs: dict
+) -> tuple[np.ndarray | dask.array.core.Array, dict]:
     """Open an image file.
 
     Args:
@@ -118,15 +138,19 @@ def open_image_local(img_path: str,
         img = cv2.imread(str(img_path), image_open_args.get("flags", cv2.IMREAD_UNCHANGED))
     else:
         img = load_raw_image(img_path, image_type=image_type, image_open_args=image_open_args)
-    img = correct_image_dims_and_format(img, kwargs.get("parallel"))
+    img = correct_image_dims_and_format(img, kwargs.get("parallel"), image_type=image_type)
     return img, exif
 
-def correct_image_dims_and_format(img: np.ndarray | dask.array.core.Array, parallel: bool) -> np.ndarray | dask.array.core.Array:
+
+def correct_image_dims_and_format(
+    img: np.ndarray | dask.array.core.Array, parallel: bool, image_type: str | None = None
+) -> np.ndarray | dask.array.core.Array:
     """Correct the image dimensions and format.
 
     Args:
         img (np.ndarray | dask.array.core.Array): The image data
         parallel (bool): Whether to use Dask for parallel processing
+        image_type (str | None): The image type
 
     Returns:
         np.ndarray | dask.array.core.Array: The corrected image data
@@ -135,9 +159,9 @@ def correct_image_dims_and_format(img: np.ndarray | dask.array.core.Array, paral
         return img
     if img.ndim == NUM_DIMENSIONS_GREY:
         img = np.expand_dims(img, axis=-1)
-    elif img.ndim == NUM_DIMENSIONS and img.shape[2] == NUM_CHANNELS_RGBA:
+    elif img.ndim == NUM_DIMENSIONS and img.shape[2] == NUM_CHANNELS_RGBA and image_type in SUPPORTED_OPENCV_IMAGE_TYPES:
         img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
-    elif img.ndim == NUM_DIMENSIONS and img.shape[2] == NUM_CHANNELS_RGB:
+    elif img.ndim == NUM_DIMENSIONS and img.shape[2] == NUM_CHANNELS_RGB and image_type in SUPPORTED_OPENCV_IMAGE_TYPES:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     if parallel:
         img = da.from_array(img, chunks=img.shape)
@@ -160,51 +184,141 @@ def load_raw_image(img_path: str, image_type: str | None, image_open_args: dict 
         np.ndarray: The loaded image data
     """
     img = None
+    img_bytes = img_path if remote else str(img_path)
     if image_type in SUPPORTED_RAWPY_IMAGE_TYPES:
         try:
-            img_bytes = img_path if remote else str(img_path)
             with rawpy.imread(img_bytes) as raw:
                 img = raw.postprocess(**image_open_args)
         except rawpy.LibRawFileUnsupportedError as e:
             logging.warning("Failed to open %s using rawpy: %s. Trying using raw loader", img_path, e)
     if img is None:
         try:
-            width = image_open_args.get("width", 2448)
-            height = image_open_args.get("height", 2048)
-            bit_depth = image_open_args.get("bit_depth", 8)
-            bayer_pattern = image_open_args.get("bayer_pattern")
-            image_format = image_open_args.get("image_format", "mono")
-            endianness = image_open_args.get("endianness")
-            file_header_size = image_open_args.get("file_header_size", 0)
-            channels = image_open_args.get("channels", 1)
-            img_bytes = img_path
-            if not remote:
-                with Path(img_path).open("rb") as file:
-                    img_bytes = file.read()
-            img_bytes.seek(file_header_size)
-            raw_data = img_bytes.read()
-
-            if bit_depth == EIGHT_BITS:
-                dtype = np.uint8
-            elif bit_depth <= SIXTEEN_BITS:
-                dtype = np.dtype("<u2") if endianness == "little" else np.dtype(">u2")
-            else:
-                msg = "Failed to load the image. Unsupported bit depth"
-                raise ValueError(msg)
-
-            img = np.frombuffer(raw_data, dtype=dtype)
-            img = img.reshape((height, width, channels)) if channels > 1 else img.reshape((height, width))
-            if image_format.lower() == "bayer":
-                code = {
-                    "BG": cv2.COLOR_BayerBG2RGB,
-                    "GB": cv2.COLOR_BayerGB2RGB,
-                    "RG": cv2.COLOR_BayerRG2RGB,
-                    "GR": cv2.COLOR_BayerGR2RGB
-                }[bayer_pattern]
-                img = cv2.cvtColor(img, code)
-        except (FileNotFoundError, OSError, TypeError) as e:
+            img = load_raw_image_using_path_open(img_bytes, image_open_args, remote)
+        except (FileNotFoundError, OSError, TypeError, ValueError, NotImplementedError) as e:
             logging.warning("Failed to open %s: %s", img_path, e)
     return img
+
+
+def load_raw_image_using_path_open(img_path: str, image_open_args: dict | None, remote: bool = False) -> np.ndarray | dask.array.core.Array:
+    """Load a raw image file using the open function.
+
+    Args:
+        img_path (str): The path to the image file or a BytesIO object
+        image_open_args (dict | None): The image open arguments
+        remote (bool): Whether the image is remote or local. Defaults to False.
+
+    Raises:
+        ValueError: Failed to open the image
+
+    Returns:
+        np.ndarray: The loaded image data
+    """
+    width = image_open_args.get("width", 2448)
+    height = image_open_args.get("height", 2048)
+    bit_depth = image_open_args.get("bit_depth", 8)
+    endianess = image_open_args.get("endianness", None)
+    layout = image_open_args.get("layout", "5:6:5")
+    image_misc = image_open_args.get("image_misc", "").split(",")
+    bayer_pattern = image_open_args.get("bayer_pattern", None)
+    file_header_size = image_open_args.get("file_header_size", 0)
+    channels = image_open_args.get("channels", 1)
+    if remote:
+        img_path.seek(file_header_size)
+        raw_data = img_path.read()
+    else:
+        with Path(img_path).open("rb") as file:
+            file.seek(file_header_size)
+            raw_data = file.read()
+    if bit_depth == EIGHT_BITS:
+        img = np.frombuffer(raw_data, dtype=np.uint8)
+        img = decode_8bpp(img, image_misc, width, height, channels, bayer_pattern)
+    elif bit_depth == SIXTEEN_BITS:
+        dtype = np.dtype("<u2") if endianess == "little" else np.dtype(">u2")
+        img = np.frombuffer(raw_data, dtype=dtype)
+        img = decode_16bpp(img, layout, width, height, endianess)
+    else:
+        msg = "Failed to load the image. Unsupported bit depth"
+        raise ValueError(msg)
+    if "vertical_flip" in image_misc:
+        img = np.flipud(img)
+
+    return img
+
+
+def decode_8bpp(img: np.ndarray, image_misc: list[str], width: int, height: int, channels: int, bayer_pattern: str | None = None) -> np.ndarray:
+    """Decode 8-bit per channel image data.
+
+    Args:
+        img (np.ndarray): The image data.
+        image_misc (list[str]): The image metadata.
+        width (int): The width of the image.
+        height (int): The height of the image.
+        channels (int): The number of channels in the image.
+        bayer_pattern (str | None): The Bayer pattern if the image is in Bayer format. Defaults to None.
+
+    Returns:
+        np.ndarray: The decoded image data.
+    """
+    if "bayer" in image_misc:
+        img = img.reshape((height, width))
+        code = {"BG": cv2.COLOR_BayerBG2RGB, "GB": cv2.COLOR_BayerGB2RGB, "RG": cv2.COLOR_BayerRG2RGB, "GR": cv2.COLOR_BayerGR2RGB}[bayer_pattern]
+        img = cv2.cvtColor(img, code)
+    else:
+        img = img.reshape((height, width, channels)) if channels > 1 else img.reshape((height, width))
+    return img
+
+
+def decode_16bpp(img: np.ndarray, layout: str = "5:6:5", width: int = 2448, height: int = 2048, endianess: str | None = None) -> np.ndarray:
+    """Decode 16-bit packed RGB into 8-bit per channel RGB based on layout.
+
+    Args:
+        img (np.ndarray): The packed 16-bit image data.
+        layout (str): The layout of the packed data. Valid options include "5:6:5", "5:5:5", "5:5:6".
+        width (int): The width of the image.
+        height (int): The height of the image.
+        endianess (bool): Whether to swap the byte order.
+
+    Returns:
+        np.ndarray: The unpacked 8-bit RGB image data.
+    """
+    try:
+        if endianess == "big":
+            img = img.byteswap()
+        img = img.reshape((height, width))
+        if layout == "5:6:5":
+            r = (img & 0xF800) >> 11
+            g = (img & 0x07E0) >> 5
+            b = img & 0x001F
+            r = (r * 255) // 31
+            g = (g * 255) // 63
+            b = (b * 255) // 31
+        elif layout == "5:5:5":
+            r = (img & 0x7C00) >> 10
+            g = (img & 0x03E0) >> 5
+            b = img & 0x001F
+            r = (r * 255) // 31
+            g = (g * 255) // 31
+            b = (b * 255) // 31
+        elif layout == "5:5:6":
+            r = (img & 0x7C00) >> 10
+            g = (img & 0x03F0) >> 4
+            b = img & 0x000F
+            r = (r * 255) // 31
+            g = (g * 255) // 63
+            b = (b * 255) // 15
+        elif layout == "6:5:5":
+            r = (img & 0xFC00) >> 10
+            g = (img & 0x03E0) >> 5
+            b = img & 0x001F
+            r = (r * 255) // 63
+            g = (g * 255) // 31
+            b = (b * 255) // 31
+        else:
+            raise_value_error("Unsupported layout: %s", layout)
+    except (KeyError, ValueError) as e:
+        msg = f"Unsupported options. Error: {e}"
+        raise ValueError(msg) from e
+    return np.stack([r, g, b], axis=-1)
 
 
 def extract_exif_single(img_path: str, image_type: str, image_name: str | None = None) -> dict:
@@ -219,8 +333,8 @@ def extract_exif_single(img_path: str, image_type: str, image_name: str | None =
         dict: The EXIF data.
     """
     exif = {}
-    if image_type and image_type not in SUPPORTED_PIL_IMAGE_TYPES:
-        logging.warning("Image type %s not supported for EXIF extraction", image_type)
+    if image_type and image_type not in SUPPORTED_EXIF_IMAGE_TYPES:
+        logging.debug("Image type %s not supported for EXIF extraction", image_type)
         return exif
     try:
         img_pil = Image.open(img_path)
@@ -234,9 +348,9 @@ def extract_exif_single(img_path: str, image_type: str, image_name: str | None =
                 tag_name = TAGS.get(tag, tag)
                 exif[tag_name] = value
     except FileNotFoundError as e:
-        logging.warning("Failed to open %s: %s", img_path, e)
+        logging.debug("Failed to open %s: %s", img_path, e)
     except OSError as e:
-        logging.warning("Failed to open %s: %s", img_path, e)
+        logging.debug("Failed to open %s: %s", img_path, e)
     except Exception as e:  # noqa: BLE001
-        logging.warning("Failed to extract EXIF data from %s: %s", img_path, e)
+        logging.debug("Failed to extract EXIF data from %s: %s", img_path, e)
     return exif

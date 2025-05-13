@@ -172,9 +172,11 @@ class MetadataParser:
                 columns_1 = columns.copy()
                 columns_1.remove(columns_1[-1])
                 return metadata.drop(columns_1, errors="ignore", axis=1)
-        msg = f"Metadata does not have a {columns[0]} type column. It should have one of the following columns: {columns}. \n"
+        if column_name == "ID":
+            msg = f"Metadata does not have a {columns[0]} type column. This column will be created. \n"
+        else:
+            msg = f"Metadata does not have a {columns[0]} type column. It should have one of the following columns: {columns}. \n"
         if raise_error:
-            self.logger.error(msg)
             raise ValueError(
                 msg,
             )
