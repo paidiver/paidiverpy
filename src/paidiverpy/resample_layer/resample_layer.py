@@ -252,11 +252,11 @@ class ResampleLayer(Paidiverpy):
         """
         params = ResampleDepthParams() if params is None else params
         metadata = self.get_metadata()
-        metadata.loc[:, "image-altitude-meters"] = metadata["image-altitude-meters"].abs()
+        metadata.loc[:, "image-depth"] = metadata["image-depth"].abs()
         if params.by == "lower":
-            metadata = metadata.loc[metadata["image-altitude-meters"] > params.value]
+            metadata = metadata.loc[metadata["image-depth"] > params.value]
         else:
-            metadata = metadata.loc[metadata["image-altitude-meters"] < params.value]
+            metadata = metadata.loc[metadata["image-depth"] < params.value]
         if test:
             InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="resample").run()
         return metadata
@@ -280,8 +280,11 @@ class ResampleLayer(Paidiverpy):
         """
         params = ResampleAltitudeParams() if params is None else params
         metadata = self.get_metadata()
-        metadata.loc[:, "altitude_m"] = metadata["altitude_m"].abs()
-        metadata = metadata.loc[metadata["altitude_m"] < params.value]
+        metadata.loc[:, "image-altitude-meters"] = metadata["image-altitude-meters"].abs()
+        if params.by == "lower":
+            metadata = metadata.loc[metadata["image-altitude-meters"] > params.value]
+        else:
+            metadata = metadata.loc[metadata["image-altitude-meters"] < params.value]
         if test:
             InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="resample").run()
         return metadata

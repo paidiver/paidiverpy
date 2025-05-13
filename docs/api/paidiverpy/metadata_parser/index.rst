@@ -34,6 +34,7 @@ Submodules
    :maxdepth: 1
 
    /api/paidiverpy/metadata_parser/metadata_parser/index
+   /api/paidiverpy/metadata_parser/utils/index
 
 
 Classes
@@ -135,13 +136,15 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: __repr__() -> str
+   .. py:method:: export_metadata(output_format: str = 'csv', output_path: str | None = 'metadata') -> None
 
       
-      Return the string representation of the metadata.
+      Export metadata to a file.
 
-      :returns: String representation of the metadata.
-      :rtype: str
+      :param output_format: Format of the output file. Defaults to "csv".
+      :type output_format: str, optional
+      :param output_path: Path to the output file. Defaults to "metadata".
+      :type output_path: str, optional
 
 
 
@@ -161,17 +164,12 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: format_error(text: list) -> str
-      :staticmethod:
-
+   .. py:method:: __repr__() -> str
 
       
-      Format error message.
+      Return the string representation of the metadata.
 
-      :param text: List of error messages.
-      :type text: list
-
-      :returns: Formatted error message.
+      :returns: String representation of the metadata.
       :rtype: str
 
 

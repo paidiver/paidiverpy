@@ -14,18 +14,43 @@ The IFDO (Image File Data Object) format is a standardized way of organizing met
 - **Date and Time**: Timestamps indicating when the image was captured.
 - **Geospatial Information**: Latitude and longitude coordinates specifying the location of the image capture.
 
-To ensure compliance with the IFDO standard, it is important to structure the JSON file correctly. You can utilize the `mariqt` package (already integrated to `Paidiverpy`), which provides tools to validate IFDO metadata files against the standard. This ensures that your metadata files are formatted correctly and that all required fields are present.
+To ensure compliance with the IFDO standard, it is important to structure the JSON file correctly. You can validate the IFDO metadata by using the `validate_ifdo` function available in the `paidiverpy` package.
+This function checks the metadata file against the IFDO standard and ensures that all required fields are present. You can see an example below:
+
+.. code-block:: python
+
+    from paidiverpy.metadata_parser.utils import validate_ifdo
+
+    # Validate the IFDO metadata file
+    validate_ifdo("/path/to/your/metadata.json")
+
 
 CSV File Requirements
 ---------------------
 
-If you opt to use a CSV file, please ensure that the `filename` column adheres to one of the following headers: ['image-filename', 'filename', 'file_name', 'FileName', 'File Name'].
+If you opt to use a CSV file, please ensure that the column names adheres to certain standard names. To use the full potential of the package, it is recommended to include the following columns in your CSV file:
 
-Other columns like datetime, latitude, and longitude should follow these conventions:
+- **image-filename**: The name of the image file. **This is the only mandatory column**!
+- **ID**: A unique identifier for the image (e.g., index or ID).
+- **image-datetime**: The date and time when the image was captured.
+- **image-latitude**: The latitude coordinate of the image capture location.
+- **image-longitude**: The longitude coordinate of the image capture location.
+- **image-depth**: The depth at which the image was captured (if applicable).
+- **image-altitude-meters**: The altitude of the camera when the image was captured.
+- **image-camera-pitch-degrees**: The pitch angle of the camera when the image was captured.
+- **image-camera-roll-degrees**: The roll angle of the camera when the image was captured.
 
-- Datetime: ``['image-datetime', 'datetime', 'date_time', 'DateTime', 'Datetime']``
-- Latitude: ``['image-latitude', 'lat', 'latitude_deg', 'latitude', 'Latitude', 'Latitude_deg', 'Lat']``
-- Longitude: ``['image-longitude', 'lon', 'longitude_deg', 'longitude', 'Longitude', 'Longitude_deg', 'Lon']``
+The names of the columns can be different from the ones listed above. The code uses a file to map the names of the columns to the standard names: `metadata_conventions.json <https://github.com/paidiver/paidiverpy/blob/dev/src/paidiverpy/metadata_parser/metadata_conventions.json>`_.
+You can use the file provided or you can create your own file to map the columns. If you choose to use your own file, you need to set on the configuration file the path to your file. The path should be set in the `general >> metadata_conventions` part. For example:
+
+.. code-block:: yaml
+
+  general:
+    input_path: "/input/data/path/"
+    output_path: "/output/data/path/"
+    metadata_path: "/metadata/path/metadata.json"
+    metadata_type: "IFDO"
+    metadata_conventions: "/path/to/your/file.json"
 
 .. admonition:: Note
 
