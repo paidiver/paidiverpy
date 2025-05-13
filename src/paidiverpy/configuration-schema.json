@@ -1409,12 +1409,12 @@
         "type": "object",
         "properties": {
           "min": {
-            "type": "integer",
+            "type": "number",
             "minimum": 0,
             "maximum": 1
           },
           "max": {
-            "type": "integer",
+            "type": "number",
             "minimum": 0,
             "maximum": 1
           },
