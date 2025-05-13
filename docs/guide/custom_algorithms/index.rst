@@ -19,14 +19,26 @@ Your custom algorithm class should extend `BaseCustomAlgorithm` and implement th
   from paidiverpy.custom_layer.base_custom_algorithm import BaseCustomAlgorithm
 
   class MyMethod(BaseCustomAlgorithm):
-      def process(self):
-          return self.image_data * self.params.some_param
+      def process(self):op
+          return self.image_data * self.params.some_param, self.metadata
 
 In the `process` method:
 
 * The input, `image_data`, is either a NumPy or Dask array.
+* `metadata` is a dictionary containing metadata related to the image data.
 * `params` is an object containing the parameters specific to your algorithm.
-* The method should return a processed NumPy or Dask array.
+* The method should return a processed NumPy or Dask array and the metadata.
+
+.. admonition:: Important
+
+  The `image_data` is either a NumPy or Dask array, depending on the input. To standardize the format, all image data
+  will have a shape of length 3: `(height, width, channels)`. Grayscale images will include a singleton channel dimension.
+  For multi-channel images, the channel order will be RGB (for 3 channels) or RGBA (for 4 channels).
+
+.. admonition:: Important
+
+  The `process` method must return a tuple containing the processed data and metadata. The metadata can be used in the process and it can be modified.
+  However, the metadata must be returned in the same format as it was received (i.e., as a dictionary).
 
 If your algorithm relies on external libraries, import them within this file, ensuring the `process` method follows this signature.
 

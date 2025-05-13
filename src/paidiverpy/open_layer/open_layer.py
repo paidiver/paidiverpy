@@ -1,5 +1,6 @@
 """Open raw image file."""
 
+import contextlib
 import copy
 import gc
 import logging
@@ -156,8 +157,8 @@ class OpenLayer(Paidiverpy):
         for img, exif in images_and_exifs:
             image_list.append(img)
             exifs.append(exif)
-
-        self.set_metadata(self.get_metadata().merge(pd.DataFrame(exifs), on="image-filename", how="left"))
+        with contextlib.suppress(KeyError):
+            self.set_metadata(self.get_metadata().merge(pd.DataFrame(exifs), on="image-filename", how="left"))
         metadata = self.get_metadata()
         rename = self.step_metadata.get("rename")
         if rename:
@@ -184,11 +185,9 @@ class OpenLayer(Paidiverpy):
             np.ndarray | dask.array.core.Array: The processed image data
         """
         func = open_image_remote if remote else open_image_local
-        img, exif = func(img_path,
-                         image_type=self.image_type,
-                         image_open_args=self.image_open_args,
-                         storage_options=self.storage_options,
-                         parallel=False)
+        img, exif = func(
+            img_path, image_type=self.image_type, image_open_args=self.image_open_args, storage_options=self.storage_options, parallel=False
+        )
         return img, exif
 
     def _process_image_threads(self, img_path_list: list[str], remote: bool = False) -> list[np.ndarray]:
@@ -204,11 +203,11 @@ class OpenLayer(Paidiverpy):
         func = open_image_remote if remote else open_image_local
         delayed_image_list = []
         for _, img_path in enumerate(img_path_list):
-            delayed_image_list.append(delayed(func)(img_path,
-                                                    image_type=self.image_type,
-                                                    image_open_args=self.image_open_args,
-                                                    storage_options=self.storage_options,
-                                                    parallel=True))
+            delayed_image_list.append(
+                delayed(func)(
+                    img_path, image_type=self.image_type, image_open_args=self.image_open_args, storage_options=self.storage_options, parallel=True
+                )
+            )
         with dask.config.set(scheduler="threads", num_workers=self.n_jobs):
             with ProgressBar():
                 computed_images = compute(*delayed_image_list)
@@ -228,22 +227,30 @@ class OpenLayer(Paidiverpy):
         delayed_image_list = []
         if isinstance(self.client.cluster, dask.distributed.LocalCluster):
             for _, img_path in enumerate(img_path_list):
-                delayed_image_list.append(delayed(func)(img_path,
-                                                        image_type=self.image_type,
-                                                        image_open_args=self.image_open_args,
-                                                        storage_options=self.storage_options,
-                                                        parallel=True))
+                delayed_image_list.append(
+                    delayed(func)(
+                        img_path,
+                        image_type=self.image_type,
+                        image_open_args=self.image_open_args,
+                        storage_options=self.storage_options,
+                        parallel=True,
+                    )
+                )
             with ProgressBar():
                 futures = self.client.compute(delayed_image_list, sync=False)
         else:
             futures = []
             for _, img_path in enumerate(img_path_list):
-                futures.append(self.client.submit(func,
-                                                  img_path,
-                                                  image_type=self.image_type,
-                                                  image_open_args=self.image_open_args,
-                                                  storage_options=self.storage_options,
-                                                  parallel=True))
+                futures.append(
+                    self.client.submit(
+                        func,
+                        img_path,
+                        image_type=self.image_type,
+                        image_open_args=self.image_open_args,
+                        storage_options=self.storage_options,
+                        parallel=True,
+                    )
+                )
         return self.client.gather(futures)
 
     def rename_images(self, rename: str, metadata: pd.DataFrame) -> pd.DataFrame:

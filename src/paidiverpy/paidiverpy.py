@@ -10,6 +10,7 @@ import pandas as pd
 from dask.diagnostics import ProgressBar
 from dask.distributed import Client
 from distributed import LocalCluster
+from tqdm import tqdm
 from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
 from paidiverpy.images_layer import ImagesLayer
@@ -141,7 +142,7 @@ class Paidiverpy:
         func = partial(method, params=params)
         metadata = self.get_metadata().to_dict(orient="records")
         processed_images = []
-        for index, (img, metadata_image) in enumerate(zip(images, metadata, strict=False)):
+        for index, (img, metadata_image) in enumerate(tqdm(zip(images, metadata, strict=False), total=len(images), desc="Processing images")):
             if custom:
                 image, metadata_image_updated = func(img, metadata=metadata_image, metadata_core=metadata).process()
             else:
