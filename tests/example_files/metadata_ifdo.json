@@ -1,0 +1,877 @@
+{
+  "image-set-header": {
+    "image-set-ifdo-version": "v2.1.0",
+    "image-copyright": "Open data - freely available for use under the Open Government Licence (OGL); see NERC Policy on Licensing and Charging for Information (v1.5; 30/09/2016)",
+    "image-coordinate-reference-system": "EPSG:32629",
+    "image-project": {
+      "name": "RRS Discovery III cruise 377/8 (BODC ship identifier 74E3)",
+      "uri": "https://www.bodc.ac.uk/resources/inventories/cruise_inventory/report/11411/"
+    },
+    "image-context": {
+      "name": "D377-062",
+      "uri": "https://eprints.soton.ac.uk/350696/1/NOC_CR_23.pdf"
+    },
+    "image-event": {
+      "name": "D377-062",
+      "uri": "https://eprints.soton.ac.uk/350696/1/NOC_CR_23.pdf"
+    },
+    "image-abstract": "This photographic survey was the first in a series of surveys conducted in the same location with a camera mounted on an autonomous underwater vehicle, initially when the Greater Haig Fras area was under consideration for Marine Conservation Zone (MCZ) status. The work was initially undertaken as a Defra-funded project 'Investigating the feasibility of utilizing AUV and Glider technology for mapping and monitoring of the UK MPA network (MB0118)', Case study 2: Shallow-water AUV mapping off SW UK; Cruise report: Ruhl, H., 2013. RRS Discovery cruise 377 & 378, 05-27 July 2012. Autonomous ecological surveying of the abyss: understanding mesoscale spatial heterogeneity at the Porcupine Abyssal Plain.  (73 pp.). Southampton, UK: National Oceanography Centre, Southampton. (National Oceanography Centre Cruise Report, 23). https://nora.nerc.ac.uk/id/eprint/500784/1/NOC_CR_23.pdf  See also: Wynn, R. B., B. J. Bett, A. J. Evans, G. Griffiths, V. A. I. Huvenne, A. R. Jones, M. R. Palmer, D. Dove, J. A. Howe, T. J. Boyd & B. J. Bett, 2012. Investigating the feasibility of utilizing AUV and Glider technology for mapping and monitoring of the UK MPA network., vol Final report for Defra project MB0118. National Oceanography Centre, Southampton. 244pp.  https://nora.nerc.ac.uk/id/eprint/500733/1/DEFRA_MB0118%28Wynn%29_FINAL.pdf",
+    "image-set-name": "Greater Haig Fras 2012 autonomous underwater vehicle image survey - mosaicked tiles used for quantifying benthic community and characterising seabed type",
+    "image-platform": {
+      "name": "Autosub6000",
+      "uri": "http://vocab.nerc.ac.uk/collection/B76/current/B7600031/"
+    },
+    "image-sensor": {
+      "name": "NOC AUV6000 camera system",
+      "uri": "http://vocab.nerc.ac.uk/collection/L22/current/TOOL1897/"
+    },
+    "image-set-uuid": "822731b4-a6b7-476f-887e-debf00bfa6ba",
+    "image-creators": [
+      {
+        "name": "Noelie Benoist",
+        "uri": "https://orcid.org/0000-0002-9079-593X"
+      },
+      {
+        "name": "Brian J Bett",
+        "uri": "https://orcid.org/0000-0002-9079-593X"
+      },
+      {
+        "name": "Kirsty Morris",
+        "uri": "https://orcid.org/0000-0002-9079-593X"
+      },
+      {
+        "name": "Henry A Ruhl",
+        "uri": "https://orcid.org/0000-0002-9079-593X"
+      }
+    ],
+    "image-pi": {
+      "name": "Henry Ruhl",
+      "uri": "https://orcid.org/0000-0002-9079-593X"
+    },
+    "image-license": {
+      "name": "Open Government License",
+      "uri": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+    },
+    "image-spatial-constraints": "Image tiles generated from four seabed photography survey lines within a bounding box of c. (50.35493999,- 7.720771485; 50.39472532, -7.720770658; 50.39472514, -7.712087057; 50.35493981, -7.712087884)",
+    "image-temporal-constraints": "Constituent images of the tiles were captured in a single dive of the Autosub6000 vehicle during its mission 58. The image acquisition period was c. 26/07/2012 02:53 - 26/07/2012 06:38",
+    "image-acquisition": "photo",
+    "image-quality": "product",
+    "image-deployment": "mapping",
+    "image-navigation": "reconstructed",
+    "image-scale-reference": "calibrated camera",
+    "image-illumination": "artificial light",
+    "image-resolution": "mm",
+    "image-marine-zone": "seafloor",
+    "image-spectral-resolution": "rgb",
+    "image-capture-mode": "timer",
+    "image-target-environment": "Constrained seabed area of near level-bottom terrain encompassing a range of seabed types. The specific location of the Autosub6000 mission was chosen to correspond with an area of ship-based multibeam echosounder seabed survey carried out from the RV Cefas Endeavour just prior to the arrival of RRS Discovery cruise 377/8.",
+    "image-objective": "The aim of the survey was to undertake high-resolution seabed mapping and colour photography in a recommended Marine Conservation Zone (rMCZ), to highlight the capability of AUV technology for high-resolution shallow-water mapping and benthic assemblage assessment.",
+    "image-item-identification-scheme": "<Autosub6000 mission number M##>_<8-digit downward camera ID>_<milliseconds since 01/01/1601>",
+    "image-curation-protocol": "Images were mosaicked in 'tiles' consisting of 5 consecutive images (each tile representing approximately 7.3 m2 of seabed). Images were orthorectified and scaled to a common altitude per tile. The average dimension of a pixel was 0.59 mm; this scaling (used in estimating the areas provided and in published analysis) is incorrect as it employed an incorrect camera magnification of 1.45, while the true magnification was likely 1.35. Further details of the mosaicking process are detailed in: Morris, K.J., Bett, B.J., Durden, J.M., Huvenne, V.A.I., Milligan, R., Jones, D.O.B., McPhail, S., Robert, K., Bailey, D., Ruhl, H.A., 2014. A new method for ecological surveying of the abyss using autonomous underwater vehicle photography. Limnology and Oceanography: Methods, 12, 795-809. 10.4319/lom.2014.12.795.",
+    "image-datetime": "2012-07-26 02:53:18.000000",
+    "image-latitude": 50.376,
+    "image-longitude": -7.7165
+  },
+  "image-set-items": {
+    "M58_10441297_12987744807147.jpg": {
+      "image-datetime": "2016-05-11 09:09:41.000000",
+      "image-longitude": -7.71210609,
+      "image-latitude": 50.39418572,
+      "image-uuid": "854D01B1-BA2E-487C-8B33-7C46AFD8F45F",
+      "image-area-square-meter": 9.944266443,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744811443.jpg": {
+      "image-datetime": "2016-05-11 09:26:08.000000",
+      "image-longitude": -7.71210988,
+      "image-latitude": 50.39413194,
+      "image-uuid": "5FC8AC68-3C00-4885-8E61-EB1DB7F278D4",
+      "image-area-square-meter": 6.997520739,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744853552.jpg": {
+      "image-datetime": "2016-05-11 09:09:41.000000",
+      "image-longitude": -7.71212678,
+      "image-latitude": 50.39359794,
+      "image-uuid": "E0404921-BE11-44C3-A510-6BC19249FD72",
+      "image-area-square-meter": 6.528180471,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744857927.jpg": {
+      "image-datetime": "2016-05-11 09:09:42.000000",
+      "image-longitude": -7.71212745,
+      "image-latitude": 50.3935421,
+      "image-uuid": "90180FAB-4ECD-4FD9-9910-D5777D7C6807",
+      "image-area-square-meter": 5.396470537,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744862146.jpg": {
+      "image-datetime": "2016-05-11 09:09:42.000000",
+      "image-longitude": -7.71212801,
+      "image-latitude": 50.39348852,
+      "image-uuid": "8DC068D6-E6A9-4B98-96B3-6E85E1B463B4",
+      "image-area-square-meter": 5.109684592,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744866443.jpg": {
+      "image-datetime": "2016-05-11 09:09:43.000000",
+      "image-longitude": -7.71212845,
+      "image-latitude": 50.39343391,
+      "image-uuid": "6B2C533C-A4ED-4C1B-8E57-DF1E59178460",
+      "image-area-square-meter": 4.96519563,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744870740.jpg": {
+      "image-datetime": "2016-05-11 09:09:43.000000",
+      "image-longitude": -7.71212869,
+      "image-latitude": 50.39337918,
+      "image-uuid": "1FAE580D-D517-41C6-91DF-43BF558EEB8C",
+      "image-area-square-meter": 5.758141077,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744875021.jpg": {
+      "image-datetime": "2016-05-11 09:09:43.000000",
+      "image-longitude": -7.71212854,
+      "image-latitude": 50.3933244,
+      "image-uuid": "602354C5-D2A4-4D1A-9BE3-73F9E4EF0377",
+      "image-area-square-meter": 6.779037828,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744879318.jpg": {
+      "image-datetime": "2016-05-11 09:09:44.000000",
+      "image-longitude": -7.71212834,
+      "image-latitude": 50.39326936,
+      "image-uuid": "FDDBF231-AB2D-410B-AE04-E4C03E98E28A",
+      "image-area-square-meter": 6.884099321,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744883630.jpg": {
+      "image-datetime": "2016-05-11 09:09:44.000000",
+      "image-longitude": -7.71212787,
+      "image-latitude": 50.39321387,
+      "image-uuid": "73D606D5-A2DD-4BC8-BAC4-D85D12B34431",
+      "image-area-square-meter": 7.763743004,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744887927.jpg": {
+      "image-datetime": "2016-05-11 09:26:08.000000",
+      "image-longitude": -7.71212735,
+      "image-latitude": 50.39315916,
+      "image-uuid": "EE554E14-B810-4CAE-8CA4-C72F3D48FDA7",
+      "image-area-square-meter": 7.404317769,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744892224.jpg": {
+      "image-datetime": "2016-05-11 09:09:45.000000",
+      "image-longitude": -7.71212703,
+      "image-latitude": 50.39310396,
+      "image-uuid": "2160CCF3-4530-45A3-981F-507643A4F8CD",
+      "image-area-square-meter": 5.892331695,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744901661.jpg": {
+      "image-datetime": "2016-05-11 09:26:08.000000",
+      "image-longitude": -7.71212749,
+      "image-latitude": 50.39298333,
+      "image-uuid": "551FF00B-8CC3-48B6-B511-8AE542DB640E",
+      "image-area-square-meter": 5.359940212,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744905958.jpg": {
+      "image-datetime": "2016-05-11 09:26:09.000000",
+      "image-longitude": -7.71212779,
+      "image-latitude": 50.39292861,
+      "image-uuid": "34086F7F-D46B-4D9E-91CD-1DA8685221C1",
+      "image-area-square-meter": 6.229244747,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744910271.jpg": {
+      "image-datetime": "2016-05-11 09:09:46.000000",
+      "image-longitude": -7.71212777,
+      "image-latitude": 50.39287376,
+      "image-uuid": "C9F333C0-35CF-4D78-9423-D97C926C7C21",
+      "image-area-square-meter": 6.54383956,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744918864.jpg": {
+      "image-datetime": "2016-05-11 09:09:47.000000",
+      "image-longitude": -7.7121282,
+      "image-latitude": 50.39276375,
+      "image-uuid": "958F5149-6E91-4A50-8988-A08C916299F0",
+      "image-area-square-meter": 7.8527021,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744923161.jpg": {
+      "image-datetime": "2016-05-11 09:09:47.000000",
+      "image-longitude": -7.71212859,
+      "image-latitude": 50.39270847,
+      "image-uuid": "10C2A9D4-B592-4334-907D-4D88F58B0E7E",
+      "image-area-square-meter": 6.547186735,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744927442.jpg": {
+      "image-datetime": "2016-05-11 09:26:09.000000",
+      "image-longitude": -7.71212893,
+      "image-latitude": 50.3926534,
+      "image-uuid": "60F076D4-3290-4CF2-BA16-BB8A160013F9",
+      "image-area-square-meter": 7.102768069,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744934333.jpg": {
+      "image-datetime": "2016-05-11 09:09:48.000000",
+      "image-longitude": -7.71212996,
+      "image-latitude": 50.39256475,
+      "image-uuid": "4772B40D-97C4-4F2C-8462-1E755180E1D4",
+      "image-area-square-meter": 6.414609845,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744938630.jpg": {
+      "image-datetime": "2016-05-11 09:09:48.000000",
+      "image-longitude": -7.71213038,
+      "image-latitude": 50.39250932,
+      "image-uuid": "3F39F6CE-2D13-495A-B72D-FEF04DC342F5",
+      "image-area-square-meter": 6.084179919,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744942926.jpg": {
+      "image-datetime": "2016-05-11 09:09:48.000000",
+      "image-longitude": -7.71213073,
+      "image-latitude": 50.39245442,
+      "image-uuid": "C1EEC120-AFE8-4823-8287-96901FD247D0",
+      "image-area-square-meter": 6.464497979,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744947223.jpg": {
+      "image-datetime": "2016-05-11 09:09:49.000000",
+      "image-longitude": -7.71213116,
+      "image-latitude": 50.39239916,
+      "image-uuid": "7561B0D3-4F38-4AAC-B23C-FE36D08F553A",
+      "image-area-square-meter": 7.141296341,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744951692.jpg": {
+      "image-datetime": "2016-05-11 09:09:49.000000",
+      "image-longitude": -7.7121317,
+      "image-latitude": 50.39234167,
+      "image-uuid": "A375B9F7-7CA8-4E0A-8E04-E64295BF98BA",
+      "image-area-square-meter": 7.696060114,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744962270.jpg": {
+      "image-datetime": "2016-05-11 09:09:49.000000",
+      "image-longitude": -7.71213346,
+      "image-latitude": 50.39220599,
+      "image-uuid": "95409287-ADE5-4478-B3B5-EBA89A852EC0",
+      "image-area-square-meter": 7.339733519,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744966129.jpg": {
+      "image-datetime": "2016-05-11 09:09:49.000000",
+      "image-longitude": -7.7121339,
+      "image-latitude": 50.39215631,
+      "image-uuid": "177AC150-B390-4E0F-9DF8-8C6E9C915985",
+      "image-area-square-meter": 6.333063392,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744970426.jpg": {
+      "image-datetime": "2016-05-11 09:09:50.000000",
+      "image-longitude": -7.7121346,
+      "image-latitude": 50.39210139,
+      "image-uuid": "5242D9F6-C207-4FCD-99B2-1C1F2A089B02",
+      "image-area-square-meter": 6.706263053,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744974707.jpg": {
+      "image-datetime": "2016-05-11 09:09:50.000000",
+      "image-longitude": -7.71213476,
+      "image-latitude": 50.39204648,
+      "image-uuid": "4A84EC8B-6697-4338-95EB-DE1716CDDF55",
+      "image-area-square-meter": 6.113176685,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744979020.jpg": {
+      "image-datetime": "2016-05-11 09:09:50.000000",
+      "image-longitude": -7.7121343,
+      "image-latitude": 50.39199091,
+      "image-uuid": "48FD5D15-5DD7-4C87-8898-59A1A7B2BF5B",
+      "image-area-square-meter": 7.368722143,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744989332.jpg": {
+      "image-datetime": "2016-05-11 09:09:51.000000",
+      "image-longitude": -7.71213337,
+      "image-latitude": 50.39185825,
+      "image-uuid": "62288AA0-945E-443C-9E42-0646F0ACE662",
+      "image-area-square-meter": 8.329651311,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987744994488.jpg": {
+      "image-datetime": "2016-05-11 09:26:09.000000",
+      "image-longitude": -7.71213325,
+      "image-latitude": 50.39179209,
+      "image-uuid": "BA6DD573-D330-4AA7-AD0D-A9A5BB1B842F",
+      "image-area-square-meter": 7.617701598,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745006504.jpg": {
+      "image-datetime": "2016-05-11 09:26:09.000000",
+      "image-longitude": -7.71213341,
+      "image-latitude": 50.39163934,
+      "image-uuid": "DC5D57ED-260C-4BB4-A916-5BB115399275",
+      "image-area-square-meter": 7.121276259,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745010816.jpg": {
+      "image-datetime": "2016-05-11 09:09:52.000000",
+      "image-longitude": -7.71213356,
+      "image-latitude": 50.39158514,
+      "image-uuid": "3CBF5E15-3E4D-49D3-BBA7-C2D92FACEF91",
+      "image-area-square-meter": 7.138755793,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745015191.jpg": {
+      "image-datetime": "2016-05-11 09:09:52.000000",
+      "image-longitude": -7.71213337,
+      "image-latitude": 50.39152949,
+      "image-uuid": "62E40431-C7A9-48A4-89F9-FBB67B330DE9",
+      "image-area-square-meter": 7.130875891,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745019395.jpg": {
+      "image-datetime": "2016-05-11 09:09:52.000000",
+      "image-longitude": -7.71213348,
+      "image-latitude": 50.39147623,
+      "image-uuid": "8DC71DDF-C9F1-4D77-B4E5-25BC8B7348F9",
+      "image-area-square-meter": 7.368330848,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745023691.jpg": {
+      "image-datetime": "2016-05-11 09:09:52.000000",
+      "image-longitude": -7.71213383,
+      "image-latitude": 50.39142125,
+      "image-uuid": "76E19907-DAF2-4D5D-8D5B-43C62C44F1F3",
+      "image-area-square-meter": 7.572009408,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745027988.jpg": {
+      "image-datetime": "2016-05-11 09:09:53.000000",
+      "image-longitude": -7.71213402,
+      "image-latitude": 50.39136639,
+      "image-uuid": "5442D513-A027-44B6-B317-1B187E880FA0",
+      "image-area-square-meter": 5.875921263,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745035754.jpg": {
+      "image-datetime": "2016-05-11 09:09:53.000000",
+      "image-longitude": -7.71213423,
+      "image-latitude": 50.39126746,
+      "image-uuid": "9B88D7A8-550D-4907-A8C6-F5C17D887EF7",
+      "image-area-square-meter": 7.29039002,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745040035.jpg": {
+      "image-datetime": "2016-05-11 09:09:53.000000",
+      "image-longitude": -7.71213448,
+      "image-latitude": 50.39121274,
+      "image-uuid": "F10D0A1E-24F5-456E-9184-2C875FAE0B8D",
+      "image-area-square-meter": 7.198809092,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745044332.jpg": {
+      "image-datetime": "2016-05-11 09:09:54.000000",
+      "image-longitude": -7.7121348,
+      "image-latitude": 50.39115789,
+      "image-uuid": "0C36615D-1A27-44DD-B28A-67774DF6EB0E",
+      "image-area-square-meter": 7.203181749,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745048629.jpg": {
+      "image-datetime": "2016-05-11 09:09:54.000000",
+      "image-longitude": -7.71213532,
+      "image-latitude": 50.39110302,
+      "image-uuid": "A1485FAE-0655-4D36-9E73-FF772F8976AA",
+      "image-area-square-meter": 7.321018601,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745052926.jpg": {
+      "image-datetime": "2016-05-11 09:09:54.000000",
+      "image-longitude": -7.71213593,
+      "image-latitude": 50.39104779,
+      "image-uuid": "283B085B-D0B1-43B1-A890-C8A7C82033A6",
+      "image-area-square-meter": 7.437831667,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745064097.jpg": {
+      "image-datetime": "2016-05-11 09:09:54.000000",
+      "image-longitude": -7.71213753,
+      "image-latitude": 50.39090618,
+      "image-uuid": "B72DD958-FE44-4028-A290-04BE393B5090",
+      "image-area-square-meter": 7.686498266,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745068379.jpg": {
+      "image-datetime": "2016-05-11 09:09:55.000000",
+      "image-longitude": -7.71213771,
+      "image-latitude": 50.39085269,
+      "image-uuid": "DE670776-B8CD-48DC-B838-617727F935F2",
+      "image-area-square-meter": 6.784593245,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745072691.jpg": {
+      "image-datetime": "2016-05-11 09:09:55.000000",
+      "image-longitude": -7.71213781,
+      "image-latitude": 50.39079878,
+      "image-uuid": "D4CB54C8-90D5-4AA0-882D-681CBEE276C2",
+      "image-area-square-meter": 7.231868689,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745076972.jpg": {
+      "image-datetime": "2016-05-11 09:09:55.000000",
+      "image-longitude": -7.71213789,
+      "image-latitude": 50.39074515,
+      "image-uuid": "90822BFE-5A92-4751-8C0C-73F3952DDF60",
+      "image-area-square-meter": 7.17308007,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745088941.jpg": {
+      "image-datetime": "2016-05-11 09:09:55.000000",
+      "image-longitude": -7.71213802,
+      "image-latitude": 50.39059414,
+      "image-uuid": "EC5572D7-CE53-4929-8CF9-82A142F80F6B",
+      "image-area-square-meter": 7.307530908,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745092456.jpg": {
+      "image-datetime": "2016-05-11 09:26:10.000000",
+      "image-longitude": -7.71213769,
+      "image-latitude": 50.39054985,
+      "image-uuid": "759EB21A-8AC6-414E-8617-F2EFDA2BFB5E",
+      "image-area-square-meter": 6.294893564,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745103628.jpg": {
+      "image-datetime": "2016-05-11 09:26:10.000000",
+      "image-longitude": -7.71213563,
+      "image-latitude": 50.39040941,
+      "image-uuid": "FD135AD7-C5C4-4285-95C5-095AD99D1F86",
+      "image-area-square-meter": 7.109182736,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745107925.jpg": {
+      "image-datetime": "2016-05-11 09:09:56.000000",
+      "image-longitude": -7.71213467,
+      "image-latitude": 50.39035547,
+      "image-uuid": "DCD50F50-8ED8-454B-A3CF-01DDC034D088",
+      "image-area-square-meter": 7.332454265,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745112222.jpg": {
+      "image-datetime": "2016-05-11 09:09:56.000000",
+      "image-longitude": -7.71213376,
+      "image-latitude": 50.39030114,
+      "image-uuid": "28F50AB9-475C-41B6-9F0D-59DAA3C97428",
+      "image-area-square-meter": 6.559308282,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745116519.jpg": {
+      "image-datetime": "2016-05-11 09:26:10.000000",
+      "image-longitude": -7.71213263,
+      "image-latitude": 50.39024695,
+      "image-uuid": "A503592D-DFDC-4321-B8BE-7282B0A185C6",
+      "image-area-square-meter": 7.52531802,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745121003.jpg": {
+      "image-datetime": "2016-05-11 09:09:57.000000",
+      "image-longitude": -7.71213108,
+      "image-latitude": 50.39019013,
+      "image-uuid": "BFC69163-FC74-4652-AC9C-A72C115C2464",
+      "image-area-square-meter": 6.37126789,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745125097.jpg": {
+      "image-datetime": "2016-05-11 09:09:57.000000",
+      "image-longitude": -7.71212951,
+      "image-latitude": 50.39013834,
+      "image-uuid": "16AA73E0-4397-4E2F-95A0-002200AEAA6E",
+      "image-area-square-meter": 7.339028613,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745138003.jpg": {
+      "image-datetime": "2016-05-11 09:09:58.000000",
+      "image-longitude": -7.71212447,
+      "image-latitude": 50.38997528,
+      "image-uuid": "715AD41A-3696-40D3-A732-5ECA24BEF406",
+      "image-area-square-meter": 7.687881719,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745142300.jpg": {
+      "image-datetime": "2016-05-11 09:09:58.000000",
+      "image-longitude": -7.71212318,
+      "image-latitude": 50.38992104,
+      "image-uuid": "B0BEFBB8-42B3-4BB9-A49C-95A70DBB1C7F",
+      "image-area-square-meter": 7.017900087,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745146581.jpg": {
+      "image-datetime": "2016-05-11 09:09:58.000000",
+      "image-longitude": -7.71212248,
+      "image-latitude": 50.38986615,
+      "image-uuid": "BBB443A8-731B-496E-B7A6-AD452FD71438",
+      "image-area-square-meter": 7.365693269,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745150878.jpg": {
+      "image-datetime": "2016-05-11 09:26:10.000000",
+      "image-longitude": -7.71212229,
+      "image-latitude": 50.38981117,
+      "image-uuid": "3CCE7159-4E32-4F0A-B322-51C212FFF6F9",
+      "image-area-square-meter": 7.469467674,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745155190.jpg": {
+      "image-datetime": "2016-05-11 09:09:59.000000",
+      "image-longitude": -7.71212206,
+      "image-latitude": 50.38975623,
+      "image-uuid": "2030DA86-7920-4449-A061-10AA9BF1D065",
+      "image-area-square-meter": 7.432139113,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745159487.jpg": {
+      "image-datetime": "2016-05-11 09:09:59.000000",
+      "image-longitude": -7.71212146,
+      "image-latitude": 50.38970103,
+      "image-uuid": "94B92060-B9D3-4897-BFEB-68D18BB93B22",
+      "image-area-square-meter": 7.407020354,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745163768.jpg": {
+      "image-datetime": "2016-05-11 09:26:11.000000",
+      "image-longitude": -7.71212099,
+      "image-latitude": 50.38964613,
+      "image-uuid": "D56EA78D-1669-47D0-BBFB-6613C352BA90",
+      "image-area-square-meter": 6.672731249,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745168081.jpg": {
+      "image-datetime": "2016-05-11 09:26:11.000000",
+      "image-longitude": -7.71212075,
+      "image-latitude": 50.38959091,
+      "image-uuid": "35F05EB2-F8BF-4A27-9441-DAFB7B05F196",
+      "image-area-square-meter": 7.453306634,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745172362.jpg": {
+      "image-datetime": "2016-05-11 09:26:11.000000",
+      "image-longitude": -7.71212063,
+      "image-latitude": 50.3895364,
+      "image-uuid": "092BD110-9ADF-40C3-B8DB-20289AD9FB6C",
+      "image-area-square-meter": 7.233994353,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745176674.jpg": {
+      "image-datetime": "2016-05-11 09:10:00.000000",
+      "image-longitude": -7.71212067,
+      "image-latitude": 50.38948156,
+      "image-uuid": "921BADDD-01D4-46E1-BC6F-7EA891253C48",
+      "image-area-square-meter": 7.206832012,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745180955.jpg": {
+      "image-datetime": "2016-05-11 09:10:00.000000",
+      "image-longitude": -7.71212098,
+      "image-latitude": 50.38942713,
+      "image-uuid": "30E3480D-4A1D-42AD-85F4-C0728E6C8494",
+      "image-area-square-meter": 7.596359195,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745185268.jpg": {
+      "image-datetime": "2016-05-11 09:10:00.000000",
+      "image-longitude": -7.7121214,
+      "image-latitude": 50.38937227,
+      "image-uuid": "4E5A7ED7-605E-4001-9938-EC316C58FB61",
+      "image-area-square-meter": 8.09263447,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745189565.jpg": {
+      "image-datetime": "2016-05-11 09:10:01.000000",
+      "image-longitude": -7.71212207,
+      "image-latitude": 50.38931773,
+      "image-uuid": "DE049E9C-CF58-46D4-AA1E-8EBFEA608FB6",
+      "image-area-square-meter": 7.968434925,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745194721.jpg": {
+      "image-datetime": "2016-05-11 09:26:12.000000",
+      "image-longitude": -7.71212276,
+      "image-latitude": 50.38925242,
+      "image-uuid": "B9611828-13CB-4044-9644-A563E9F66701",
+      "image-area-square-meter": 7.415406146,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745199002.jpg": {
+      "image-datetime": "2016-05-11 09:10:01.000000",
+      "image-longitude": -7.71212331,
+      "image-latitude": 50.38919787,
+      "image-uuid": "911BE98C-6342-437B-B6CB-9486F4797843",
+      "image-area-square-meter": 7.021110273,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745203643.jpg": {
+      "image-datetime": "2016-05-11 09:26:12.000000",
+      "image-longitude": -7.71212437,
+      "image-latitude": 50.38913914,
+      "image-uuid": "4B8B7C4F-0B84-4275-8EC2-00AA7B26979C",
+      "image-area-square-meter": 6.561429025,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745210189.jpg": {
+      "image-datetime": "2016-05-11 09:26:12.000000",
+      "image-longitude": -7.71212552,
+      "image-latitude": 50.38905667,
+      "image-uuid": "4F48B60A-763E-4944-9330-33BC8C7A6BBA",
+      "image-area-square-meter": 6.608393176,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745219642.jpg": {
+      "image-datetime": "2016-05-11 09:10:02.000000",
+      "image-longitude": -7.71212709,
+      "image-latitude": 50.38893688,
+      "image-uuid": "41C2F9BF-6519-42ED-B3AD-B9DF9EA79714",
+      "image-area-square-meter": 7.825065036,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745223939.jpg": {
+      "image-datetime": "2016-05-11 09:10:02.000000",
+      "image-longitude": -7.71212769,
+      "image-latitude": 50.38888245,
+      "image-uuid": "F0CE7C56-1E25-4E6B-963D-E7F6BDCB8E58",
+      "image-area-square-meter": 8.11871123,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745231673.jpg": {
+      "image-datetime": "2016-05-11 09:10:03.000000",
+      "image-longitude": -7.71212858,
+      "image-latitude": 50.38878342,
+      "image-uuid": "4FBC897E-C006-4E4D-8097-A92E54C5C215",
+      "image-area-square-meter": 7.332415555,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745235955.jpg": {
+      "image-datetime": "2016-05-11 09:10:03.000000",
+      "image-longitude": -7.71212887,
+      "image-latitude": 50.38872894,
+      "image-uuid": "D259647B-57F5-4DAE-B7C0-0F5C65DE344D",
+      "image-area-square-meter": 6.212114136,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745240267.jpg": {
+      "image-datetime": "2016-05-11 09:10:03.000000",
+      "image-longitude": -7.7121296,
+      "image-latitude": 50.38867326,
+      "image-uuid": "1345C48A-D360-4D48-8737-2F94A1C9517B",
+      "image-area-square-meter": 6.921951206,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745244564.jpg": {
+      "image-datetime": "2016-05-11 09:10:03.000000",
+      "image-longitude": -7.71213031,
+      "image-latitude": 50.38861803,
+      "image-uuid": "151D6F27-9B83-4F52-90E9-28877F6C8674",
+      "image-area-square-meter": 7.877749083,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745249720.jpg": {
+      "image-datetime": "2016-05-11 09:10:04.000000",
+      "image-longitude": -7.71213039,
+      "image-latitude": 50.38855169,
+      "image-uuid": "EE5E6F2F-0AB2-4D25-B289-097C3DF82DFA",
+      "image-area-square-meter": 8.756487571,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745254017.jpg": {
+      "image-datetime": "2016-05-11 09:10:04.000000",
+      "image-longitude": -7.71213043,
+      "image-latitude": 50.38849618,
+      "image-uuid": "ABA28391-9A9F-42D0-B86D-0425B440E2F1",
+      "image-area-square-meter": 9.044839772,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745258361.jpg": {
+      "image-datetime": "2016-05-11 09:10:04.000000",
+      "image-longitude": -7.71213038,
+      "image-latitude": 50.3884399,
+      "image-uuid": "6F49180D-3332-478A-88A5-D76446FAB02F",
+      "image-area-square-meter": 7.56043931,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745262595.jpg": {
+      "image-datetime": "2016-05-11 09:10:04.000000",
+      "image-longitude": -7.71213043,
+      "image-latitude": 50.38838546,
+      "image-uuid": "996DE202-609B-445D-BE46-190265A12BCB",
+      "image-area-square-meter": 8.606367608,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745267282.jpg": {
+      "image-datetime": "2016-05-11 09:10:05.000000",
+      "image-longitude": -7.71213052,
+      "image-latitude": 50.38832465,
+      "image-uuid": "4E47D85C-E628-4DCF-A3D4-37C451DF0D18",
+      "image-area-square-meter": 7.948175253,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745271204.jpg": {
+      "image-datetime": "2016-05-11 09:10:05.000000",
+      "image-longitude": -7.71213021,
+      "image-latitude": 50.38827413,
+      "image-uuid": "6DE9252B-EF54-493F-86C5-284C7F0C5B4A",
+      "image-area-square-meter": 7.758788071,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745275501.jpg": {
+      "image-datetime": "2016-05-11 09:26:12.000000",
+      "image-longitude": -7.71212969,
+      "image-latitude": 50.38821898,
+      "image-uuid": "58B038A6-38A4-46F6-A66B-7FF190B48417",
+      "image-area-square-meter": 7.83062872,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745287688.jpg": {
+      "image-datetime": "2016-05-11 09:10:05.000000",
+      "image-longitude": -7.71212812,
+      "image-latitude": 50.38806126,
+      "image-uuid": "F0D2B03C-D46E-4A23-889B-10DC75EE510B",
+      "image-area-square-meter": 7.487107307,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745291829.jpg": {
+      "image-datetime": "2016-05-11 09:10:05.000000",
+      "image-longitude": -7.71212768,
+      "image-latitude": 50.38800778,
+      "image-uuid": "5FE398DC-D8ED-4B95-A86E-0452861D62F1",
+      "image-area-square-meter": 7.606992797,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745296126.jpg": {
+      "image-datetime": "2016-05-11 09:26:13.000000",
+      "image-longitude": -7.71212751,
+      "image-latitude": 50.38795235,
+      "image-uuid": "47C291CF-7946-4F1F-A81F-F653B0A2FBEC",
+      "image-area-square-meter": 7.280598096,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745300422.jpg": {
+      "image-datetime": "2016-05-11 09:10:06.000000",
+      "image-longitude": -7.71212765,
+      "image-latitude": 50.38789704,
+      "image-uuid": "0DEF74A2-1681-4D18-8CE1-248D2A8DBB36",
+      "image-area-square-meter": 7.84890368,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745304704.jpg": {
+      "image-datetime": "2016-05-11 09:26:13.000000",
+      "image-longitude": -7.71212782,
+      "image-latitude": 50.38784142,
+      "image-uuid": "BEE5CF1F-8E81-44FA-9CD6-9528FFCEEE29",
+      "image-area-square-meter": 7.67156626,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745311579.jpg": {
+      "image-datetime": "2016-05-11 09:10:07.000000",
+      "image-longitude": -7.71212774,
+      "image-latitude": 50.38775249,
+      "image-uuid": "7025323D-6C51-492A-BC81-D4324C4A35DC",
+      "image-area-square-meter": 8.902522357,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745315891.jpg": {
+      "image-datetime": "2016-05-11 09:10:07.000000",
+      "image-longitude": -7.71212792,
+      "image-latitude": 50.3876968,
+      "image-uuid": "36996C7D-D255-4258-A39F-2C4CC3255001",
+      "image-area-square-meter": 8.612249124,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745320188.jpg": {
+      "image-datetime": "2016-05-11 09:10:07.000000",
+      "image-longitude": -7.71212814,
+      "image-latitude": 50.38764123,
+      "image-uuid": "A059B41A-3716-4101-84DD-DC3ED11E4E4B",
+      "image-area-square-meter": 8.199275589,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745324485.jpg": {
+      "image-datetime": "2016-05-11 09:26:13.000000",
+      "image-longitude": -7.71212792,
+      "image-latitude": 50.38758626,
+      "image-uuid": "729B5E32-7789-432F-9A0F-CE972898098E",
+      "image-area-square-meter": 8.073980809,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745328781.jpg": {
+      "image-datetime": "2016-05-11 09:10:08.000000",
+      "image-longitude": -7.71212808,
+      "image-latitude": 50.38753114,
+      "image-uuid": "EC0C20FE-C10B-42F0-BC6D-7D2F9DF045F2",
+      "image-area-square-meter": 8.013399288,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745333078.jpg": {
+      "image-datetime": "2016-05-11 09:10:08.000000",
+      "image-longitude": -7.71212845,
+      "image-latitude": 50.38747588,
+      "image-uuid": "09490C2C-D1A7-4B15-810F-23CF0572083A",
+      "image-area-square-meter": 7.533837305,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745337359.jpg": {
+      "image-datetime": "2016-05-11 09:10:09.000000",
+      "image-longitude": -7.71212879,
+      "image-latitude": 50.38742081,
+      "image-uuid": "93079523-47AF-4D5D-85E5-4E4F6F88A6F9",
+      "image-area-square-meter": 7.062602888,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745342531.jpg": {
+      "image-datetime": "2016-05-11 09:10:09.000000",
+      "image-longitude": -7.71212911,
+      "image-latitude": 50.38735422,
+      "image-uuid": "75C2B85A-1C26-4997-B6C1-BCF83E24DCAE",
+      "image-area-square-meter": 6.882645934,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745346828.jpg": {
+      "image-datetime": "2016-05-11 09:10:09.000000",
+      "image-longitude": -7.71212961,
+      "image-latitude": 50.3872984,
+      "image-uuid": "B964C6A1-A2E3-4F57-977C-1CDEBC11E043",
+      "image-area-square-meter": 7.300434885,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745351406.jpg": {
+      "image-datetime": "2016-05-11 09:10:09.000000",
+      "image-longitude": -7.71213019,
+      "image-latitude": 50.38723928,
+      "image-uuid": "E0EB2856-F1DB-4415-917A-98DF2FCC8D19",
+      "image-area-square-meter": 7.052154365,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745355422.jpg": {
+      "image-datetime": "2016-05-11 09:10:09.000000",
+      "image-longitude": -7.71213104,
+      "image-latitude": 50.38718742,
+      "image-uuid": "95F7395B-D6A2-4C62-8E10-BABD8FEE55FC",
+      "image-area-square-meter": 7.652171829,
+      "image-media-type": "JPEG"
+    },
+    "M58_10441297_12987745365734.jpg": {
+      "image-datetime": "2016-05-11 09:10:10.000000",
+      "image-longitude": -7.7121329,
+      "image-latitude": 50.38705398,
+      "image-uuid": "F6C06EAF-3106-4B88-BE5D-BDC9E6BBD892",
+      "image-area-square-meter": 7.522790774,
+      "image-media-type": "JPEG"
+    }
+  }
+}

@@ -10,4 +10,4 @@ general:
   - mode: to
     params:
       to: gray
-  metadata_conventions: /mnt/noc/code/paidiver/paidiverpy/tests/example_files/metadata_conventions.json
+  metadata_conventions: /mnt/noc/code/paidiver/paidiverpy/tests/example_files/metadata_conventions_error.json

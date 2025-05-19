@@ -10,10 +10,9 @@ import dask.dataframe as dd
 import pandas as pd
 from shapely.geometry import Point
 from paidiverpy.config.config import Configuration
-from paidiverpy.metadata_parser.utils import convert_to_croissant
-from paidiverpy.metadata_parser.utils import convert_to_ifdo
-from paidiverpy.metadata_parser.utils import format_error
-from paidiverpy.metadata_parser.utils import validate_ifdo
+from paidiverpy.metadata_parser.ifdo_tools import convert_to_ifdo
+from paidiverpy.metadata_parser.ifdo_tools import format_ifdo_validation_error
+from paidiverpy.metadata_parser.ifdo_tools import validate_ifdo
 from paidiverpy.utils.docker import is_running_in_docker
 from paidiverpy.utils.exceptions import raise_value_error
 from paidiverpy.utils.logging_functions import initialise_logging
@@ -55,13 +54,8 @@ class MetadataParser:
         self.storage_options = define_storage_options(self.metadata_path)
         self.metadata_conventions = self._calculate_metadata_conventions()
 
+        self.dataset_metadata = {}
         self.metadata = self.open_metadata()
-        self.dataset_metadata = None
-        self._define_additional_attributes()
-
-    def _define_additional_attributes(self) -> None:
-        """Set new attributes for the metadata parser."""
-        self.trimmed_polygon = None
 
     def set_new_attributes(self, **kwargs: dict) -> None:
         """Set new attributes for the metadata parser."""
@@ -133,39 +127,37 @@ class MetadataParser:
         output_path: str | None = "metadata",
         metadata: pd.DataFrame | None = None,
         dataset_metadata: dict | None = None,
+        from_step: int = -1,
     ) -> None:
         """Export metadata to a file.
 
         Args:
-            output_format (str, optional): Format of the output file. Defaults to "csv".
+            output_format (str, optional): Format of the output file. It can be
+        "csv", "json", "IFDO", or "croissant". Defaults to "csv".
             output_path (str, optional): Path to the output file. Defaults to "metadata".
             metadata (pd.DataFrame, optional): Metadata DataFrame. Defaults to None.
             dataset_metadata (dict, optional): Dataset metadata. Defaults to None.
+            from_step (int, optional): Step from which to export metadata. Defaults to None, which means last step.
         """
-        if not dataset_metadata:
-            if not self.dataset_metadata:
-                raise_value_error("Dataset metadata is not defined.")
+        if not dataset_metadata or not isinstance(dataset_metadata, dict):
             dataset_metadata = self.dataset_metadata
         if not metadata:
-            if not self.metadata:
+            if self.metadata is None or self.metadata.empty:
                 raise_value_error("Metadata is not defined.")
             metadata = self.metadata
         if isinstance(self.metadata, dd.DataFrame):
             metadata = self.metadata.compute()
-        if output_format == "csv":
-            # Add dataset metadata to the metadata
-            self.metadata.to_csv(output_path, index=False)
-        elif output_format == "json":
-            # Add dataset metadata to the metadata
-            metadata.to_json(output_path, orient="records", lines=True)
-        elif output_format == "IFDO":
-            convert_to_ifdo(dataset_metadata, metadata, output_path)
-        elif output_format == "croissant":
-            convert_to_croissant(dataset_metadata, metadata, output_path)
-        else:
+        if output_format.lower() not in ["csv", "json", "ifdo", "croissant"]:
             self.logger.error("Unsupported output format: %s", output_format)
             raise_value_error(f"Unsupported output format: {output_format}")
-        self.logger.info("Metadata exported to %s", output_path)
+        # try:
+        MetadataParser.convert_metadata_to(
+            dataset_metadata=dataset_metadata, metadata=metadata, output_path=output_path, output_format=output_format, from_step=from_step
+        )
+        #     self.logger.info("Metadata exported to %s file in format %s", output_path, output_format)
+        # except Exception as error:
+        #     self.logger.error("Failed to export metadata: %s", error)
+        #     raise_value_error(f"Failed to export metadata: {error}")
 
     def _prepare_metadata(self, metadata: dd.DataFrame) -> dd.DataFrame:
         """Prepare metadata for processing.
@@ -208,6 +200,8 @@ class MetadataParser:
         Returns:
             dd.DataFrame: Metadata DataFrame.
         """
+        if column_name not in self.metadata_conventions:
+            raise_value_error(f"Column {column_name} is not in the metadata conventions file. Please add to the file and try again.")
         columns = self.metadata_conventions[column_name].copy()
         columns.append(column_name)
         for col in columns:
@@ -326,7 +320,7 @@ class MetadataParser:
         Args:
             metadata (dict): Metadata dictionary.
         """
-        errors = validate_ifdo(metadata)
+        errors = validate_ifdo(ifdo_data=metadata)
         if errors:
             msg_warn = "Failed to validate the IFDO metadata.\n"
             msg_warn += "You can continue, but some functions may not work properly.\n"
@@ -334,7 +328,7 @@ class MetadataParser:
             self.logger.warning(msg_warn)
             msg_debug = "Validation errors with the metadata:\n"
             for error in errors:
-                msg_debug += f"{format_error(error.path)}: {error.message}\n"
+                msg_debug += f"{format_ifdo_validation_error(error['path'])}: {error['message']}\n"
             self.logger.debug(msg_debug)
         else:
             self.logger.info("Metadata file is valid.")
@@ -357,3 +351,41 @@ class MetadataParser:
         metadata = self.metadata
 
         return message + metadata._repr_html_()
+
+    @staticmethod
+    def convert_metadata_to(dataset_metadata: dict, metadata: dict, output_path: str, output_format: str, from_step: int = -1) -> None:
+        """Convert metadata to specified format.
+
+        Args:
+            dataset_metadata (dict): Dataset metadata.
+            metadata (dict): Metadata to convert.
+            output_path (str): Path to save the converted metadata.
+            output_format (str): Type of metadata to convert to. It can be "csv",
+        "json", "IFDO", or "croissant".
+            from_step (int): Step to filter metadata. Default is -1, which means the last step.
+        """
+        if "flag" in metadata.columns:
+            metadata = metadata[metadata["flag"] == 0] if from_step < 0 else metadata[(metadata["flag"] == 0) | (metadata["flag"] > from_step)]
+            metadata = metadata.drop(columns=["flag"], errors="ignore")
+        if "point" in metadata.columns:
+            metadata = metadata.drop(columns=["point"], errors="ignore")
+        empty_cols = metadata.columns[metadata.isna().all()]
+        metadata = metadata.drop(columns=empty_cols)
+        if output_format.lower() in ["csv", "json"]:
+            output_path = f"{output_path}.{output_format}"
+            for key, value in dataset_metadata.items():
+                if key not in metadata.columns:
+                    metadata[key] = value
+            for col in metadata.select_dtypes(include=["object"]).columns:
+                metadata[col] = metadata[col].astype(str)
+            metadata.to_csv(output_path, index=False) if output_format == "csv" else metadata.to_json(output_path, orient="records")
+        elif output_format.lower() == "ifdo":
+            output_path = f"{output_path}.json"
+            convert_to_ifdo(dataset_metadata, metadata, output_path)
+        elif output_format.lower() == "croissant":
+            # output_path = f"{output_path}.json"
+            # convert_to_croissant(dataset_metadata, metadata, output_path)
+            msg = "Croissant format is not implemented yet."
+            raise NotImplementedError(msg)
+        else:
+            raise_value_error(f"Unsupported output format: {output_format}")

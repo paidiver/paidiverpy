@@ -63,15 +63,20 @@ def initialise_logging(verbose: int = 2, logger_name: str = "paidiverpy") -> log
     except ValueError as err:
         msg = f"Invalid verbose level: {verbose}. Choose from {list(VerboseLevel)}."
         raise ValueError(msg) from err
+
     handler = logging.StreamHandler(sys.stdout)
     formatter = ColorFormatter(
         "☁ paidiverpy ☁  | %(levelname)10s | %(asctime)s | %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
     handler.setFormatter(formatter)
+    handler.setLevel(log_level)  # Set level on the handler too
 
     logger = logging.getLogger(logger_name)
     logger.setLevel(log_level)
+
+    if not any(isinstance(h, logging.StreamHandler) for h in logger.handlers):
+        logger.addHandler(handler)
 
     return logger
 

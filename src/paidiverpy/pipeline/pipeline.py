@@ -111,6 +111,7 @@ class Pipeline(Paidiverpy):
                         step_name=step_name,
                         parameters=step_params,
                     )
+                    self.metadata.dataset_metadata["input_path"] = str(self.config.general.input_path)
                 else:
                     step_instance = step_class(
                         paidiverpy=self,
@@ -119,6 +120,8 @@ class Pipeline(Paidiverpy):
                         config_index=index - 1,
                     )
                 step_instance.run()
+                # if len(self.images.images) > 4:
+                #     import pdb; pdb.set_trace()
                 if not step_params.get("test", False):
                     self.images = step_instance.images
                     self.set_metadata(step_instance.get_metadata(flag="all"))
