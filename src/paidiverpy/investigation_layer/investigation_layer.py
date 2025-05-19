@@ -115,8 +115,8 @@ class InvestigationLayer(Paidiverpy):
         ax.set_xlabel("Longitude")
         ax.set_ylabel("Latitude")
         ax.set_title("Comparison of Original and Resampled Images")
-        if hasattr(self.metadata, "trimmed_polygon") and self.metadata.trimmed_polygon is not None:
-            self.metadata.trimmed_polygon.plot(ax=ax, color="none", edgecolor="black", linewidth=2)
+        if self.metadata.dataset_metadata.get("trimmed_polygon") is not None:
+            self.metadata.dataset_metadata["trimmed_polygon"].plot(ax=ax, color="none", edgecolor="black", linewidth=2)
         plt.savefig(self.output_path / "graph_trimmed_images.png")
         plt.close()
 

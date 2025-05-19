@@ -201,7 +201,7 @@ class PositionLayer(Paidiverpy):
             coordsm = pd.DataFrame(chm, columns=["long_deg", "lat_deg"])
             polygon_m = Polygon(coordsm.values)
             metadata.loc[i, "polygon_m"] = polygon_m
-        self.set_metadata(metadata)
+        self.set_metadata(metadata, flag=True)
         if test:
             InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="polygon").run()
             return None

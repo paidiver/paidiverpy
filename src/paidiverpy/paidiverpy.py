@@ -1,6 +1,7 @@
 """Main class for the paidiverpy package."""
 
 import logging
+from contextlib import suppress
 from functools import partial
 from pathlib import Path
 import dask
@@ -110,8 +111,10 @@ class Paidiverpy:
             self.process_sequentially(images, method, params) if self.n_jobs == 1 else self.process_parallel(images, method, params)
         )
         if not test:
-            self.step_name = f"color_{self.config_index}" if not self.step_name else self.step_name
-            self.set_metadata(metadata)
+            self.step_name = f"step_{self.config_index}" if not self.step_name else self.step_name
+            # if len(self.images.images) > 3:
+            #     import pdb; pdb.set_trace()
+            self.set_metadata(metadata, flag=len(self.images.images))
             if add_new_step:
                 self.images.add_step(
                     step=self.step_name,
@@ -147,6 +150,7 @@ class Paidiverpy:
                 image, metadata_image_updated = func(img, metadata=metadata_image, metadata_core=metadata).process()
             else:
                 image, metadata_image_updated = func(img, metadata=metadata_image, metadata_core=metadata)
+
             metadata[index] = metadata_image_updated
             processed_images.append(image)
 
@@ -285,13 +289,46 @@ class Paidiverpy:
             return self.metadata.metadata[self.metadata.metadata["flag"] <= flag].copy()
         return self.metadata.metadata[self.metadata.metadata["flag"] <= flag].sort_values("image-datetime").copy()
 
-    def set_metadata(self, metadata: pd.DataFrame) -> None:
+    def set_metadata(self, metadata: pd.DataFrame, flag: bool = False) -> None:
         """Set the metadata.
 
         Args:
             metadata (pd.DataFrame): The metadata object.
+            flag (bool, optional): The flag value. Defaults to False.
         """
-        self.metadata.metadata = metadata
+        if not flag:
+            self.metadata.metadata = metadata
+        else:
+            original_metadata = self.metadata.metadata.copy()
+
+            merged_metadata = original_metadata.merge(metadata, on="image-filename", how="left", suffixes=("_orig", "_new"))
+
+            updated_metadata = merged_metadata[["image-filename"]].copy()
+
+            all_columns = set(original_metadata.columns).union(metadata.columns) - {"image-filename"}
+
+            for column in all_columns:
+                col_new = f"{column}_new" if f"{column}_new" in merged_metadata.columns else None
+                col_orig = f"{column}_orig" if f"{column}_orig" in merged_metadata.columns else column
+
+                if col_new and col_orig:
+                    updated_metadata[column] = merged_metadata[col_new].combine_first(merged_metadata[col_orig])
+                elif col_new:
+                    updated_metadata[column] = merged_metadata[col_new]
+                elif col_orig:
+                    updated_metadata[column] = merged_metadata[col_orig]
+
+            updated_metadata = updated_metadata[
+                ["image-filename"]
+                + [col for col in original_metadata.columns if col != "image-filename"]
+                + [col for col in updated_metadata.columns if col not in original_metadata.columns and col != "image-filename"]
+            ]
+
+            for col in original_metadata.columns:
+                if col in updated_metadata.columns:
+                    with suppress(Exception):
+                        updated_metadata[col] = updated_metadata[col].astype(original_metadata[col].dtype)
+            self.metadata.metadata = updated_metadata
 
     def save_images(
         self,
@@ -322,6 +359,7 @@ class Paidiverpy:
             n_jobs=self.n_jobs,
             logger=self.logger,
         )
+        self.metadata.dataset_metadata["output_path"] = str(output_path)
         self.logger.info("Images are saved to: %s", output_path)
 
     def remove_images(self) -> None:

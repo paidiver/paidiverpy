@@ -458,7 +458,6 @@ class ColourLayer(Paidiverpy):
             features = ColourLayer.sharpness_analysis(gray_image_data, image_data, features, params.estimate_sharpness)
 
             # mask the raw image with smoothed foreground mask
-            # import pdb; pdb.set_trace()
             blurd_bw_image_data = gaussian(bw_image_data, params.blur_radius)
             if np.max(blurd_bw_image_data) > 0:
                 blurd_bw_image_data = blurd_bw_image_data / np.max(blurd_bw_image_data)

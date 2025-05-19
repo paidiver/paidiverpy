@@ -25,6 +25,10 @@ This function checks the metadata file against the IFDO standard and ensures tha
     validate_ifdo("/path/to/your/metadata.json")
 
 
+Please refer to the :ref:`guide_export_validate_metadata` for more details on how to use this feature.
+You can also run an example notebook with this feature by exploring the :ref:`gallery` section.
+
+
 CSV File Requirements
 ---------------------
 
@@ -63,3 +67,16 @@ Example Files
 Examples of both CSV and IFDO metadata files are available in the ``example/metadata`` directory. You can refer to these examples to guide the creation of your own metadata files: `Example Metadata Files <https://github.com/paidiver/paidiverpy/tree/dev/examples/metadata>`_
 
 By following these guidelines and utilizing the provided examples, you can ensure that your metadata is well-structured and compatible with the Paidiverpy package, facilitating effective image processing.
+
+
+Exporting Metadata
+------------------
+
+The package provides a function to export the metadata to different formats and standards. The function `export_metadata` allows you to export the metadata to:
+
+- IFDO format: This is the standard format for metadata in the Paidiverpy package.
+- CSV file: You can export the metadata to a CSV file, which can be useful for compatibility with other tools or systems.
+- JSON file: You can export the metadata to a JSON file, which is a widely used format for data interchange.
+
+Please refer to the :ref:`guide_export_validate_metadata` for more details on how to use this feature and the available options for exporting metadata.
+You can also run an example notebook with this feature by exploring the :ref:`gallery` section.
