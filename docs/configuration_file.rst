@@ -104,7 +104,7 @@ In the example above, the pipeline consists of the following steps:
 Example Configuration Files
 ---------------------------
 
-Example configuration files for processing the sample datasets can be found in the `example/config_files <https://github.com/paidiver/paidiverpy/tree/dev/examples/config_files>`_ directory of the repository. These files can be used to test the example notebooks described in the :doc:`gallery examples <gallery>`. Running the examples will automatically download the sample data.
+Example configuration files for processing the sample datasets can be found in the `example/config_files <https://github.com/paidiver/paidiverpy/tree/main/examples/config_files>`_ directory of the repository. These files can be used to test the example notebooks described in the :doc:`gallery examples <gallery>`. Running the examples will automatically download the sample data.
 
 
 .. admonition:: Note

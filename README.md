@@ -118,6 +118,7 @@ Together with the documentation, you can explore various use cases through sampl
 - [Run a pipeline using a data on a object store](examples/example_notebooks/pipeline_remote_data.ipynb)
 - [Add a custom algorithm to a pipeline](examples/example_notebooks/pipeline_custom_algorithm.ipynb)
 - [Open and process raw images](examples/example_notebooks/working_with_raw_images.ipynb)
+- [Export and validate metadata](examples/example_notebooks/export_validate_metadata.ipynb)
 
 ### Example Data
 

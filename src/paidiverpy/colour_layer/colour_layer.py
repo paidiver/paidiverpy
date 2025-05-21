@@ -34,12 +34,12 @@ from paidiverpy.config.colour_params import IlluminationCorrectionParams
 from paidiverpy.config.colour_params import SharpenParams
 from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
-from paidiverpy.images_layer import NUM_CHANNELS_RGBA
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.utils.data import DEFAULT_BITS
 from paidiverpy.utils.data import NUM_CHANNELS_GREY
 from paidiverpy.utils.data import NUM_CHANNELS_RGB
+from paidiverpy.utils.data import NUM_CHANNELS_RGBA
 from paidiverpy.utils.data import NUM_DIMENSIONS
 from paidiverpy.utils.data import NUM_DIMENSIONS_GREY
 from paidiverpy.utils.exceptions import raise_value_error
@@ -244,7 +244,7 @@ class ColourLayer(Paidiverpy):
             image_data (np.ndarray): The image to apply contrast adjustment.
             metadata (dict, optional): Metadata for the image.
             params (ContrastAdjustmentParams, optional): Params for method.
-        Defaults to ContrastAdjustmentParams().
+                Defaults to ContrastAdjustmentParams().
             **kwargs (dict): Additional keyword arguments.
 
         Raises:

@@ -8,11 +8,13 @@ from json import JSONDecodeError
 from pathlib import Path
 import dask.dataframe as dd
 import pandas as pd
+from PIL import TiffImagePlugin
 from shapely.geometry import Point
 from paidiverpy.config.config import Configuration
 from paidiverpy.metadata_parser.ifdo_tools import convert_to_ifdo
 from paidiverpy.metadata_parser.ifdo_tools import format_ifdo_validation_error
 from paidiverpy.metadata_parser.ifdo_tools import validate_ifdo
+from paidiverpy.utils import formating_html
 from paidiverpy.utils.docker import is_running_in_docker
 from paidiverpy.utils.exceptions import raise_value_error
 from paidiverpy.utils.logging_functions import initialise_logging
@@ -150,14 +152,14 @@ class MetadataParser:
         if output_format.lower() not in ["csv", "json", "ifdo", "croissant"]:
             self.logger.error("Unsupported output format: %s", output_format)
             raise_value_error(f"Unsupported output format: {output_format}")
-        # try:
-        MetadataParser.convert_metadata_to(
-            dataset_metadata=dataset_metadata, metadata=metadata, output_path=output_path, output_format=output_format, from_step=from_step
-        )
-        #     self.logger.info("Metadata exported to %s file in format %s", output_path, output_format)
-        # except Exception as error:
-        #     self.logger.error("Failed to export metadata: %s", error)
-        #     raise_value_error(f"Failed to export metadata: {error}")
+        try:
+            MetadataParser.convert_metadata_to(
+                dataset_metadata=dataset_metadata, metadata=metadata, output_path=output_path, output_format=output_format, from_step=from_step
+            )
+            self.logger.info("Metadata exported to %s file in format %s", output_path, output_format)
+        except Exception as error:  # noqa: BLE001
+            self.logger.error("Failed to export metadata: %s", error)
+            raise_value_error(f"Failed to export metadata: {error}")
 
     def _prepare_metadata(self, metadata: dd.DataFrame) -> dd.DataFrame:
         """Prepare metadata for processing.
@@ -347,10 +349,7 @@ class MetadataParser:
         Returns:
             str: HTML representation of the metadata.
         """
-        message = "This is a instance of 'MetadataParser'<br><br>"
-        metadata = self.metadata
-
-        return message + metadata._repr_html_()
+        return formating_html.metadata_repr(self)
 
     @staticmethod
     def convert_metadata_to(dataset_metadata: dict, metadata: dict, output_path: str, output_format: str, from_step: int = -1) -> None:
@@ -373,11 +372,7 @@ class MetadataParser:
         metadata = metadata.drop(columns=empty_cols)
         if output_format.lower() in ["csv", "json"]:
             output_path = f"{output_path}.{output_format}"
-            for key, value in dataset_metadata.items():
-                if key not in metadata.columns:
-                    metadata[key] = value
-            for col in metadata.select_dtypes(include=["object"]).columns:
-                metadata[col] = metadata[col].astype(str)
+            metadata = MetadataParser.group_metadata_and_dataset_metadata(metadata, dataset_metadata)
             metadata.to_csv(output_path, index=False) if output_format == "csv" else metadata.to_json(output_path, orient="records")
         elif output_format.lower() == "ifdo":
             output_path = f"{output_path}.json"
@@ -389,3 +384,65 @@ class MetadataParser:
             raise NotImplementedError(msg)
         else:
             raise_value_error(f"Unsupported output format: {output_format}")
+
+    @staticmethod
+    def group_metadata_and_dataset_metadata(
+        metadata: pd.DataFrame | dd.DataFrame,
+        dataset_metadata: dict,
+    ) -> tuple[pd.DataFrame, dict]:
+        """Group metadata and dataset metadata.
+
+        Args:
+            metadata (pd.DataFrame | dd.DataFrame): Metadata DataFrame.
+            dataset_metadata (dict): Dataset metadata.
+            metadata_type (str): Metadata type. Defaults to "IFDO".
+
+        Returns:
+            tuple[pd.DataFrame, dict]: Grouped metadata and dataset metadata.
+        """
+        if isinstance(metadata, dd.DataFrame):
+            metadata = metadata.compute()
+        for key, value in dataset_metadata.items():
+            if key not in metadata.columns:
+                metadata[key] = value
+        for col in metadata.select_dtypes(include=["object"]).columns:
+            metadata[col] = metadata[col].astype(str)
+        return metadata
+
+    @staticmethod
+    def metadata_to_exif(
+        filename: str,
+        metadata: pd.DataFrame,
+        image_format: str = "png",
+    ) -> None | dict:
+        """Convert metadata to EXIF format.
+
+        Args:
+            filename (str): Filename to convert.
+            metadata (pd.DataFrame): Metadata DataFrame.
+            image_format (str): Image format. Defaults to "png".
+
+        Returns:
+            None | dict: EXIF data or None if not found.
+        """
+        _ = filename
+        exif_dict = None
+        if metadata is not None:
+            if image_format.lower() == "jpeg":
+                pass
+                # exif_dict = {"0th": {piexif.ImageIFD.Artist: "Tobias"}, "Exif": {}, "GPS": {}, "1st": {}, "thumbnail": None}
+                # exif_dict = piexif.dump(exif_dict)
+                # exif_dict = piexif.load(filename)
+            elif image_format.lower() == "tiff":
+                # For TIFF/PNG, we can use PIL to extract EXIF-like data
+                # Note: This is very limited and may not cover all EXIF tags
+                # TIFF/PNG does not have a standard EXIF format
+                # This is a placeholder for actual implementation
+                exif_dict = TiffImagePlugin.ImageFileDirectory_v2()
+                for key, value in metadata.items():
+                    if isinstance(value, str | int | float):
+                        exif_dict[key] = value
+            elif image_format.lower() == "png":
+                # PNG does not have EXIF, but we can use tEXt chunks
+                exif_dict = {}
+        return exif_dict

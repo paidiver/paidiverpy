@@ -28,7 +28,7 @@ class TestSimplePipeline(BaseTestClass):
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
         assert isinstance(pipeline.config.general, GeneralConfig)
-        assert isinstance(pipeline.to_html(), str)
+        assert isinstance(pipeline._repr_html_(), str)
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
@@ -60,7 +60,7 @@ class TestSimplePipeline(BaseTestClass):
         output_html = pipeline.images._repr_html_()
         assert isinstance(output_html, str)
         assert "<style>" in output_html
-        assert "image-container" in output_html
+        assert "ppy-images-img" in output_html
         output_pipeline_str = pipeline._repr_html_()
         assert isinstance(output_pipeline_str, str)
         assert "parameters" in output_pipeline_str
@@ -73,7 +73,7 @@ class TestSimplePipeline(BaseTestClass):
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
         assert isinstance(pipeline.config.general, GeneralConfig)
-        assert isinstance(pipeline.to_html(), str)
+        assert isinstance(pipeline._repr_html_(), str)
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images

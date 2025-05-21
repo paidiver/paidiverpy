@@ -349,12 +349,16 @@ class Paidiverpy:
         if not output_path:
             output_path = self.config.general.output_path
         self.logger.info("Saving images from step: %s", step if not last else "last")
+
+        # metadata = MetadataParser.group_metadata_and_dataset_metadata(self.metadata.metadata,
+        #                                                               self.metadata.dataset_metadata)
         self.images.save(
             step,
             last=last,
             output_path=output_path,
             image_format=image_format,
             config=self.config,
+            metadata=None,
             client=self.client,
             n_jobs=self.n_jobs,
             logger=self.logger,
@@ -445,7 +449,18 @@ class Paidiverpy:
         default_params_factory: DynamicConfig,
         **kwargs: dict,
     ) -> tuple[np.ndarray, dict, DynamicConfig]:
-        """Standard preprocessing for convert layer methods."""
+        """Standard preprocessing for convert layer methods.
+
+        Args:
+            image_data (np.ndarray): The image data.
+            metadata (dict | None): The metadata.
+            params (DynamicConfig | None): The parameters.
+            default_params_factory (DynamicConfig): The default parameters factory.
+            **kwargs (dict): Additional keyword arguments.
+
+        Returns:
+            tuple[np.ndarray, dict, DynamicConfig]: The image data, metadata, and parameters.
+        """
         _ = kwargs
         metadata = metadata or {}
         params = params or default_params_factory()
