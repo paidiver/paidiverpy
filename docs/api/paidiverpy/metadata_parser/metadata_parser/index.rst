@@ -110,6 +110,38 @@ Module Contents
           !! processed by numpydoc !!
 
 
+   .. py:method:: export_metadata(output_format: str = 'csv', output_path: str | None = 'metadata', metadata: pandas.DataFrame | None = None, dataset_metadata: dict | None = None, from_step: int = -1) -> None
+
+      
+      Export metadata to a file.
+
+      :param output_format: Format of the output file. It can be
+      :type output_format: str, optional
+
+      "csv", "json", "IFDO", or "croissant". Defaults to "csv".
+          output_path (str, optional): Path to the output file. Defaults to "metadata".
+          metadata (pd.DataFrame, optional): Metadata DataFrame. Defaults to None.
+          dataset_metadata (dict, optional): Dataset metadata. Defaults to None.
+          from_step (int, optional): Step from which to export metadata. Defaults to None, which means last step.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
    .. py:method:: __repr__() -> str
 
       
@@ -136,18 +168,24 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: format_error(text: list) -> str
+   .. py:method:: convert_metadata_to(dataset_metadata: dict, metadata: dict, output_path: str, output_format: str, from_step: int = -1) -> None
       :staticmethod:
 
 
       
-      Format error message.
+      Convert metadata to specified format.
 
-      :param text: List of error messages.
-      :type text: list
+      :param dataset_metadata: Dataset metadata.
+      :type dataset_metadata: dict
+      :param metadata: Metadata to convert.
+      :type metadata: dict
+      :param output_path: Path to save the converted metadata.
+      :type output_path: str
+      :param output_format: Type of metadata to convert to. It can be "csv",
+      :type output_format: str
 
-      :returns: Formatted error message.
-      :rtype: str
+      "json", "IFDO", or "croissant".
+          from_step (int): Step to filter metadata. Default is -1, which means the last step.
 
 
 

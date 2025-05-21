@@ -89,7 +89,7 @@ By default, `paidiverpy` automatically selects the appropriate image loading met
           }
       }
 
-   These parameters are inspired by the settings found in [IrfanView](https://www.irfanview.com). This is a screenshot of the available options in IrfanView:
+   These parameters are inspired by the settings found in `IrfanView <https://www.irfanview.com>`_. This is a screenshot of the available options in IrfanView:
 
    .. image:: ../../_static/infanview_screenshot.png
       :alt: IrfanView Raw Options

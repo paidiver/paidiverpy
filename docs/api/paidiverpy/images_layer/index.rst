@@ -139,13 +139,16 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: show(image_number: int = 0) -> None
+   .. py:method:: show(image_number: int = 0) -> IPython.display.HTML
 
       
       Show the images in the pipeline.
 
       :param image_number: The index of the image to show. Defaults to 0.
       :type image_number: int, optional
+
+      :returns: The HTML representation of the images
+      :rtype: HTML
 
 
 
@@ -406,39 +409,6 @@ Module Contents
 
       :returns: The HTML representation of the object
       :rtype: HTML
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      ..
-          !! processed by numpydoc !!
-
-
-   .. py:method:: numpy_array_to_base64(image_array: numpy.ndarray | dask.array.core.Array, size: tuple = (150, 150)) -> str
-      :staticmethod:
-
-
-      
-      Convert a numpy array to a base64 image.
-
-      :param image_array: The image array
-      :type image_array: np.ndarray | da.core.Array
-      :param size: _description_. Defaults to (150, 150).
-      :type size: tuple, optional
-
-      :returns: The base64 image
-      :rtype: str
 
 
 

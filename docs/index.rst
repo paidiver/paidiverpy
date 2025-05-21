@@ -46,9 +46,10 @@ Documentation
 
     guide/performance/index
     guide/custom_algorithms/index
-    guide/rename_images/index
     guide/remote_data
     guide/image_formats/index
+    guide/rename_images/index
+    guide/export_validate_metadata/index
 
 .. toctree::
     :maxdepth: 2

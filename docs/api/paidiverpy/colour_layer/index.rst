@@ -245,10 +245,10 @@ Package Contents
       :param metadata: Metadata for the image.
       :type metadata: dict, optional
       :param params: Params for method.
+                     Defaults to ContrastAdjustmentParams().
       :type params: ContrastAdjustmentParams, optional
-
-      Defaults to ContrastAdjustmentParams().
-          **kwargs (dict): Additional keyword arguments.
+      :param \*\*kwargs: Additional keyword arguments.
+      :type \*\*kwargs: dict
 
       :raises ValueError: Error applying contrast adjustment.
 
