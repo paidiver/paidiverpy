@@ -27,7 +27,7 @@ class TestPipelineDask(BaseTestClass):
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
         assert isinstance(pipeline.config.general, GeneralConfig)
-        assert isinstance(pipeline.to_html(), str)
+        assert isinstance(pipeline._repr_html_(), str)
         assert isinstance(pipeline.get_metadata(), pd.DataFrame)
         pipeline.run()
         images = pipeline.images.images

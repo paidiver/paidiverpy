@@ -28,7 +28,7 @@ class TestPipelineInteraction(BaseTestClass):
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
         assert isinstance(pipeline.config.general, GeneralConfig)
-        assert isinstance(pipeline.to_html(), str)
+        assert isinstance(pipeline._repr_html_(), str)
         pipeline.run()
         assert pipeline.steps[-1][2]["test"] is False
         assert len(pipeline.steps) == number_pipeline_steps

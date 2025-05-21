@@ -245,13 +245,15 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: set_metadata(metadata: pandas.DataFrame) -> None
+   .. py:method:: set_metadata(metadata: pandas.DataFrame, flag: bool = False) -> None
 
       
       Set the metadata.
 
       :param metadata: The metadata object.
       :type metadata: pd.DataFrame
+      :param flag: The flag value. Defaults to False.
+      :type flag: bool, optional
 
 
 

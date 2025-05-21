@@ -43,7 +43,7 @@ Plankton: Dataset name **"plankton_csv"**
     :alt: Pelagic Image 1
 
 Benthic 1: Dataset name **"benthic_csv"**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Benthic Images (2018) – Clarion Clipperton Zone (~5000m depth),
 - Equipment: Camera mounted on the front of an ROV

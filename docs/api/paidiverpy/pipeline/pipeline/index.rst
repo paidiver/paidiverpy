@@ -168,29 +168,3 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: to_html() -> str
-
-      
-      Generate HTML representation of the pipeline.
-
-      :returns: The HTML representation of the pipeline.
-      :rtype: str
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      ..
-          !! processed by numpydoc !!
-
-

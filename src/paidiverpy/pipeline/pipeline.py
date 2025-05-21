@@ -1,7 +1,6 @@
 """Pipeline builder class for image preprocessing."""
 
 import gc
-import json
 import logging
 from paidiverpy import Paidiverpy
 from paidiverpy.config.config import Configuration
@@ -9,6 +8,7 @@ from paidiverpy.config.config_params import ConfigParams
 from paidiverpy.config.pipeline_params import STEPS_CLASS_TYPES
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.open_layer import OpenLayer
+from paidiverpy.utils import formating_html
 
 STEP_WITHOUT_PARAMS = 2
 STEP_WITH_PARAMS = 3
@@ -238,104 +238,10 @@ class Pipeline(Paidiverpy):
             steps.append(new_step)
         return steps
 
-    def to_html(self) -> str:
-        """Generate HTML representation of the pipeline.
-
-        Returns:
-            str: The HTML representation of the pipeline.
-        """
-        steps_html = ""
-        parameters_html = ""
-
-        for i, step in enumerate(self.config.steps):
-            if i % 4 == 0 and i > 0:
-                steps_html += '<div style="clear:both;"></div>'
-            steps_html += f"""
-                <div id="step_{i}" title="Click to see more information"
-                    class="square" style="cursor: pointer; float:left;
-                    padding: 10px; width: max-content; height: 80px;
-                    margin: 10px; border: 1px solid #000; text-align: center;
-                    line-height: 80px;" onclick="showParameters('step_{i}')">
-                    <h2 style="font-size:20px;">{step.name.capitalize()}</h2>
-                    <h2 style="font-size:13px;">Type: {step.step_name.capitalize()}</h2>
-                </div>
-            """
-            if i < len(self.config.steps) - 1:
-                steps_html += """
-                    <div style="float:left; width: 50px; height: 80px;
-                        margin: 10px; text-align: center; line-height: 80px;">
-                        &#10132;
-                    </div>
-                """
-            parameters_html += f"""
-                <div id="parameters_step_{i}" class="parameters"
-                    style="display: none;">
-                    <pre>{json.dumps(step.to_dict(), indent=4)}</pre>
-                </div>
-            """
-
-        general_html = f"""
-        <div id="general" title="Click to see more information" class="square"
-            style="float:left; cursor: pointer; padding: 10px;
-            width: max-content; height: 80px; margin: 10px;
-            border: 1px solid #000; text-align: center; line-height: 80px;"
-            onclick="showParameters('general')">
-            <h2 style="font-size:20px;">{self.config.general.name.capitalize()}</h2>
-            <h2 style="font-size:13px;">Type: {self.config.general.step_name.capitalize()}</h2>
-        </div>
-        """
-
-        parameters_html += f"""
-            <div id="parameters_general" class="parameters" style="display: none;">
-                <pre>{json.dumps(self.config.general.to_dict(), indent=4)}</pre>
-            </div>
-        """
-        part_text = ""
-        if len(self.steps) > 1:
-            part_text = (
-                f'<div style="float:left; width: 50px; height: 80px; margin: 10px; text-align: center; line-height: 80px;">&#10132;</div>{steps_html}'
-            )
-
-        return f"""
-        <div style="display: flex; flex-wrap: wrap; align-items: center;">
-            {general_html}{part_text}
-        </div>
-        <div id="parameters" style="padding: 10px; margin: 10px;">{parameters_html}</div>
-        <script>
-            function showParameters(id) {{
-                // Hide all parameter sections
-                var currentTarget = document.getElementById(id);
-                var square = document.getElementsByClassName('square');
-                var allParams = document.getElementsByClassName('parameters');
-                var selectedParams = document.getElementById('parameters_' + id);
-                var idWasVisible = false;
-                if (selectedParams) {{
-                    var idWasVisible = selectedParams.style.display === 'block';
-                }}
-                for (var i = 0; i < square.length; i++) {{
-                    square[i].style.color = 'black';
-                }}
-                for (var i = 0; i < allParams.length; i++) {{
-                    allParams[i].style.display = 'none';
-                }}
-                // Show the selected parameter section
-                if (selectedParams) {{
-                    if (idWasVisible) {{
-                        selectedParams.style.display = 'none';
-                        currentTarget.style.color = 'black';
-                    }} else {{
-                        selectedParams.style.display = 'block';
-                        currentTarget.style.color = 'red';
-                    }}
-                }}
-            }}
-        </script>
-        """
-
     def _repr_html_(self) -> str:
         """Generate HTML representation of the pipeline.
 
         Returns:
             str: The HTML representation of the pipeline.
         """
-        return self.to_html()
+        return formating_html.pipeline_repr(self)
