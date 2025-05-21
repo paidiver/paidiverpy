@@ -29,7 +29,7 @@ class TestConvertLayer(BaseTestClass):
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
         assert isinstance(pipeline.config.general, GeneralConfig)
-        assert isinstance(pipeline.to_html(), str)
+        assert isinstance(pipeline._repr_html_(), str)
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
@@ -48,7 +48,7 @@ class TestConvertLayer(BaseTestClass):
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
         assert isinstance(pipeline.config.general, GeneralConfig)
-        assert isinstance(pipeline.to_html(), str)
+        assert isinstance(pipeline._repr_html_(), str)
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
@@ -66,7 +66,7 @@ class TestConvertLayer(BaseTestClass):
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
         assert isinstance(pipeline.config.general, GeneralConfig)
-        assert isinstance(pipeline.to_html(), str)
+        assert isinstance(pipeline._repr_html_(), str)
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
@@ -87,7 +87,7 @@ class TestConvertLayer(BaseTestClass):
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
         assert isinstance(pipeline.config.general, GeneralConfig)
-        assert isinstance(pipeline.to_html(), str)
+        assert isinstance(pipeline._repr_html_(), str)
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
@@ -111,7 +111,7 @@ class TestConvertLayer(BaseTestClass):
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
         assert isinstance(pipeline.config.general, GeneralConfig)
-        assert isinstance(pipeline.to_html(), str)
+        assert isinstance(pipeline._repr_html_(), str)
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
@@ -137,7 +137,7 @@ class TestConvertLayer(BaseTestClass):
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
         assert isinstance(pipeline.config.general, GeneralConfig)
-        assert isinstance(pipeline.to_html(), str)
+        assert isinstance(pipeline._repr_html_(), str)
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
@@ -164,7 +164,7 @@ class TestConvertLayer(BaseTestClass):
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
         assert isinstance(pipeline.config.general, GeneralConfig)
-        assert isinstance(pipeline.to_html(), str)
+        assert isinstance(pipeline._repr_html_(), str)
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
@@ -198,7 +198,7 @@ class TestConvertLayer(BaseTestClass):
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
         assert isinstance(pipeline.config.general, GeneralConfig)
-        assert isinstance(pipeline.to_html(), str)
+        assert isinstance(pipeline._repr_html_(), str)
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
@@ -234,7 +234,7 @@ class TestConvertLayer(BaseTestClass):
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
         assert isinstance(pipeline.config.general, GeneralConfig)
-        assert isinstance(pipeline.to_html(), str)
+        assert isinstance(pipeline._repr_html_(), str)
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
@@ -273,7 +273,7 @@ class TestConvertLayer(BaseTestClass):
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
         assert isinstance(pipeline.config.general, GeneralConfig)
-        assert isinstance(pipeline.to_html(), str)
+        assert isinstance(pipeline._repr_html_(), str)
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images

@@ -117,22 +117,24 @@ class ResampleLayer(Paidiverpy):
         try:
             metadata = method(self.step_order, test=test, params=params)
             new_metadata = self.get_metadata(flag="all")
-            new_metadata.loc[~new_metadata.index.isin(metadata.index), "flag"] = self.step_order
+            mask = ~new_metadata["image-filename"].isin(metadata["image-filename"]) & (new_metadata["flag"] == 0)
+            new_metadata.loc[mask, "flag"] = self.step_order
+            number_of_images_in_this_step = len(new_metadata[new_metadata["flag"].isin([0, self.step_order])])
             self.logger.info(
                 "Number of images to be removed: %s. Total number of images: %s",
-                len(new_metadata) - len(metadata),
-                len(new_metadata),
+                number_of_images_in_this_step - len(metadata),
+                number_of_images_in_this_step,
             )
         except Exception as e:  # noqa: BLE001
             self.logger.error("Error in resample layer: %s", e)
             if self.raise_error:
                 raise_value_error("Resample layer step failed.")
             self.logger.error("Resample layer step will be skipped.")
-            metadata = self.get_metadata(flag="all")
+            new_metadata = self.get_metadata(flag="all")
         if not self.add_new_step:
             return metadata
         if not test:
-            self.set_metadata(metadata)
+            self.set_metadata(new_metadata)
             self.step_name = f"trim_{mode}" if not self.step_name else self.step_name
             self.images.add_step(
                 step=self.step_name,
@@ -231,6 +233,7 @@ class ResampleLayer(Paidiverpy):
             metadata = metadata.loc[(metadata["image-datetime"] >= start_date) & (metadata["image-datetime"] <= end_date)]
         if test:
             InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="resample").run()
+
         return metadata
 
     def _by_depth(
@@ -252,11 +255,11 @@ class ResampleLayer(Paidiverpy):
         """
         params = ResampleDepthParams() if params is None else params
         metadata = self.get_metadata()
-        metadata.loc[:, "image-altitude-meters"] = metadata["image-altitude-meters"].abs()
+        metadata.loc[:, "image-depth"] = metadata["image-depth"].abs()
         if params.by == "lower":
-            metadata = metadata.loc[metadata["image-altitude-meters"] > params.value]
+            metadata = metadata.loc[metadata["image-depth"] > params.value]
         else:
-            metadata = metadata.loc[metadata["image-altitude-meters"] < params.value]
+            metadata = metadata.loc[metadata["image-depth"] < params.value]
         if test:
             InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="resample").run()
         return metadata
@@ -280,8 +283,11 @@ class ResampleLayer(Paidiverpy):
         """
         params = ResampleAltitudeParams() if params is None else params
         metadata = self.get_metadata()
-        metadata.loc[:, "altitude_m"] = metadata["altitude_m"].abs()
-        metadata = metadata.loc[metadata["altitude_m"] < params.value]
+        metadata.loc[:, "image-altitude-meters"] = metadata["image-altitude-meters"].abs()
+        if params.by == "lower":
+            metadata = metadata.loc[metadata["image-altitude-meters"] > params.value]
+        else:
+            metadata = metadata.loc[metadata["image-altitude-meters"] < params.value]
         if test:
             InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="resample").run()
         return metadata
@@ -356,7 +362,7 @@ class ResampleLayer(Paidiverpy):
                 return any(polygon.contains(point) for polygon in polygons.geometry)
 
             metadata = metadata.loc[metadata["point"].apply(_point_in_any_polygon)]
-            self.metadata.set_new_attributes(trimmed_polygon=polygons.geometry)
+            self.metadata.dataset_metadata["trimmed_polygon"] = polygons.geometry
         if test:
             InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="resample").run()
         return metadata
@@ -411,7 +417,7 @@ class ResampleLayer(Paidiverpy):
                 metadata = metadata.loc[
                     (metadata[f"brightness_{params.channel}"] > params.min) & (metadata[f"brightness_{params.channel}"] < params.max)
                 ]
-        self.set_metadata(metadata)
+        self.set_metadata(metadata, flag=True)
         if test:
             InvestigationLayer(
                 paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="resample-obscure"
@@ -461,7 +467,8 @@ class ResampleLayer(Paidiverpy):
                     parameters=step_params,
                     client=self.client,
                     add_new_step=False,
-                ).run()
+                ).run(),
+                flag=0,
             )
         metadata = self.get_metadata()
         metadata["overlap"] = 0
@@ -484,7 +491,7 @@ class ResampleLayer(Paidiverpy):
             else:
                 index_comparison = i
                 metadata.loc[i, "overlap"] = 0
-        self.set_metadata(metadata)
+        self.set_metadata(metadata, flag=True)
         metadata = metadata.loc[metadata["overlap"] == 0]
         if test:
             InvestigationLayer(

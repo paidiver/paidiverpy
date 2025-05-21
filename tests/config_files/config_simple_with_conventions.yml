@@ -1,0 +1,13 @@
+general:
+  sample_data: benthic_csv
+  output_path: ./output
+  rename: UUID
+  sampling:
+  - mode: percent
+    params:
+      value: 0.1
+  convert:
+  - mode: to
+    params:
+      to: gray
+  metadata_conventions: /mnt/noc/code/paidiver/paidiverpy/tests/example_files/metadata_conventions_error.json

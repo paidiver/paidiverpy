@@ -139,10 +139,10 @@ class PositionLayer(Paidiverpy):
         omega = params.omega
         camera_distance = params.camera_distance
 
-        metadata["approx_vertdim_m"] = 2 * (metadata["altitude_m"] + camera_distance) * np.tan(np.radians(theta / 2))
-        metadata["approx_horizdim_m"] = 2 * (metadata["altitude_m"] + camera_distance) * np.tan(np.radians(omega / 2))
+        metadata["approx_vertdim_m"] = 2 * (metadata["image-altitude-meters"] + camera_distance) * np.tan(np.radians(theta / 2))
+        metadata["approx_horizdim_m"] = 2 * (metadata["image-altitude-meters"] + camera_distance) * np.tan(np.radians(omega / 2))
         metadata["approx_area_m2"] = (
-            4 * ((metadata["altitude_m"] + camera_distance) ** 2) * np.tan(np.radians(theta / 2)) * np.tan(np.radians(omega / 2))
+            4 * ((metadata["image-altitude-meters"] + camera_distance) ** 2) * np.tan(np.radians(theta / 2)) * np.tan(np.radians(omega / 2))
         )
         metadata["headingoffset_rad"] = np.arctan(metadata["approx_horizdim_m"] / metadata["approx_vertdim_m"])
         metadata["cornerdist_m"] = 0.5 * metadata["approx_horizdim_m"] / np.sin(metadata["headingoffset_rad"])
@@ -201,7 +201,7 @@ class PositionLayer(Paidiverpy):
             coordsm = pd.DataFrame(chm, columns=["long_deg", "lat_deg"])
             polygon_m = Polygon(coordsm.values)
             metadata.loc[i, "polygon_m"] = polygon_m
-        self.set_metadata(metadata)
+        self.set_metadata(metadata, flag=True)
         if test:
             InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="polygon").run()
             return None

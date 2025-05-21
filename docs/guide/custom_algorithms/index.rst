@@ -16,11 +16,11 @@ Your custom algorithm class should extend `BaseCustomAlgorithm` and implement th
 
 .. code-block:: python
 
-  from paidiverpy.custom_layer.base_custom_algorithm import BaseCustomAlgorithm
+    from paidiverpy.custom_layer.base_custom_algorithm import BaseCustomAlgorithm
 
-  class MyMethod(BaseCustomAlgorithm):
-      def process(self):op
-          return self.image_data * self.params.some_param, self.metadata
+    class MyMethod(BaseCustomAlgorithm):
+        def process(self):
+            return self.image_data * self.params.some_param, self.metadata
 
 In the `process` method:
 
@@ -117,7 +117,7 @@ In this setup:
 
 To execute, run your application with the configuration file above, and the custom algorithm will be applied accordingly.
 
-Example configuration files for custom algorithms can be found in the `example/config_files <https://github.com/paidiver/paidiverpy/tree/dev/examples/config_files>`_ directory of the repository. You can also run an example notebook with a custom algorithm by exploring the :ref:`gallery` section.
+Example configuration files for custom algorithms can be found in the `example/config_files <https://github.com/paidiver/paidiverpy/tree/main/examples/config_files>`_ directory of the repository. You can also run an example notebook with a custom algorithm by exploring the :ref:`gallery` section.
 
 Run in Docker
 -------------

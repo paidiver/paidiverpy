@@ -13,6 +13,7 @@ from paidiverpy.config.convert_params import CONVERT_LAYER_METHODS
 from paidiverpy.config.custom_params import CustomParams
 from paidiverpy.config.position_params import POSITION_LAYER_METHODS
 from paidiverpy.config.resample_params import RESAMPLE_LAYER_METHODS
+from paidiverpy.utils import formating_html
 from paidiverpy.utils.data import PaidiverpyData
 from paidiverpy.utils.docker import is_running_in_docker
 from paidiverpy.utils.dynamic_classes import DynamicConfig
@@ -363,3 +364,11 @@ class Configuration:
             str: The string representation of the configuration.
         """
         return json.dumps(self.to_dict(), indent=4)
+
+    def _repr_html_(self) -> str:
+        """Generate HTML representation of the configuration.
+
+        Returns:
+            str: The HTML representation of the configuration.
+        """
+        return formating_html.config_repr(self)

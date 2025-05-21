@@ -1276,6 +1276,14 @@
       "altitude_params": {
         "type": "object",
         "properties": {
+          "by": {
+            "type": "string",
+            "enum": [
+              "lower",
+              "upper"
+            ],
+            "default": "lower"
+          },
           "value": {
             "type": "number"
           },

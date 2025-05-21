@@ -314,6 +314,30 @@ Notebook Examples
 
                     :fas:`file-arrow-down` Download notebook
 
+    .. grid-item-card:: Exporting and Validating Metadata
+        :img-top: _static/nb_examples_13.png
+
+        |mode_standard|
+        ^^^
+        A notebook to show how to export and validate metadata
+        +++
+        .. grid:: 2 2 2 2
+
+            .. grid-item::
+
+                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/main/examples/example_notebooks/export_validate_metadata.ipynb
+                    :color: primary
+                    :outline:
+
+                    :fas:`eye` Online viewer
+
+            .. grid-item::
+
+                .. button-link:: https://github.com/paidiver/paidiverpy/blob/main/examples/example_notebooks/export_validate_metadata.ipynb
+                    :color: primary
+                    :outline:
+
+                    :fas:`file-arrow-down` Download notebook
 
 .. dropdown:: Notebook tags Legend
     :open:

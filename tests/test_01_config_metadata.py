@@ -112,7 +112,7 @@ class TestConfigMetadataClass(BaseTestClass):
         assert isinstance(config_dict["general"]["metadata_conventions"], str)
         assert config_dict["general"]["metadata_conventions"] == str(Path(metadata_conventions_path).absolute())
         Path(output_file_path).unlink(missing_ok=True)
-        metadata_conventions_path_error = "tests/example_files/metadata_conventions_error.json"
+        metadata_conventions_path_error = "tests/example_files/metadata_conventions_missing.json"
         with Path(file_path).open() as file:
             data = yaml.safe_load(file)
         data["general"]["metadata_conventions"] = str(Path(metadata_conventions_path_error).absolute())
@@ -126,6 +126,22 @@ class TestConfigMetadataClass(BaseTestClass):
         assert isinstance(config_dict["general"]["metadata_conventions"], str)
         assert config_dict["general"]["metadata_conventions"] == str(Path(metadata_conventions_path_error).absolute())
         Path(output_file_path).unlink(missing_ok=True)
+
+    def test_metadata_conventions_error(self):
+        """Test the metadata conventions."""
+        file_path = "tests/config_files/config_simple.yml"
+        output_file_path = "tests/config_files/config_simple_with_conventions.yml"
+        metadata_conventions_path = "tests/example_files/metadata_conventions_error.json"
+        with Path(file_path).open() as file:
+            data = yaml.safe_load(file)
+        data["general"]["metadata_conventions"] = str(Path(metadata_conventions_path).absolute())
+        with Path(output_file_path).open("w") as file:
+            yaml.dump(data, file, sort_keys=False)
+
+        config = Configuration(config_file_path=output_file_path)
+        with pytest.raises(ValueError) as cm:
+            MetadataParser(config=config)
+        assert "Column image-depth is not in the metadata conventions file" in str(cm.value)
 
     def test_build_metadata(self):
         """Test the metadata conventions."""
