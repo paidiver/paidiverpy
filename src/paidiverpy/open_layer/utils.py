@@ -10,6 +10,9 @@ import numpy as np
 import rawpy
 from PIL import Image
 from PIL.ExifTags import TAGS
+from paidiverpy.config.open_params import SUPPORTED_EXIF_IMAGE_TYPES
+from paidiverpy.config.open_params import SUPPORTED_OPENCV_IMAGE_TYPES
+from paidiverpy.config.open_params import SUPPORTED_RAWPY_IMAGE_TYPES
 from paidiverpy.utils.data import EIGHT_BITS
 from paidiverpy.utils.data import NUM_CHANNELS_RGB
 from paidiverpy.utils.data import NUM_CHANNELS_RGBA
@@ -19,67 +22,10 @@ from paidiverpy.utils.data import SIXTEEN_BITS
 from paidiverpy.utils.exceptions import raise_value_error
 from paidiverpy.utils.object_store import get_file_from_bucket
 
-SUPPORTED_OPENCV_IMAGE_TYPES = [
-    "bmp",
-    "dib",  # Windows bitmaps
-    "jpg",
-    "jpeg",
-    "jpe",  # JPEG files
-    "jp2",  # JPEG 2000 files
-    "png",  # Portable Network Graphics
-    "webP",  # WebP
-    "pbm",
-    "pgm",
-    "ppm",
-    "pxm",
-    "pnm",  # Portable image format
-    "sr",
-    "ras",  # Sun rasters
-    "tiff",
-    "tif",  # TIFF files
-    "exr",  # OpenEXR Image files
-    "hdr",
-    "pic",  # Radiance HDR
-    "",  # non specified
-]
-
-SUPPORTED_PIL_IMAGE_TYPES = [
-    "bmp",
-    "dib",  # Windows bitmaps
-    "jpg",
-    "jpeg",  # JPEG files
-    "jp2",  # JPEG 2000 files
-    "png",  # Portable Network Graphics
-    "ppm",
-    "pgm",
-    "pbm",  # Portable image format
-    "tiff",
-    "tif",  # TIFF files
-    "webp",  # WebP
-    "",  # non specified
-]
-
-SUPPORTED_EXIF_IMAGE_TYPES = [
-    *SUPPORTED_PIL_IMAGE_TYPES,
-    "nef",  # Nikon RAW
-]
-
-SUPPORTED_RAWPY_IMAGE_TYPES = [
-    "crw",  # Canon RAW
-    "cr2",  # Canon RAW
-    "cr3",  # Canon RAW
-    "dng",  # Adobe Digital Negative
-    "nef",  # Nikon RAW
-    "nrw",  # Nikon RAW
-    "orf",  # Olympus RAW
-    "rw2",  # Panasonic RAW
-    "raf",  # Fuji RAW
-]
-
 
 def open_image_remote(
     img_path: str, image_type: str | None, image_open_args: dict | None = None, **kwargs: dict
-) -> tuple[np.ndarray | dask.array.core.Array, dict]:
+) -> tuple[np.ndarray | dask.array.core.Array, dict, str]:
     """Open an image file.
 
     Args:
@@ -94,14 +40,14 @@ def open_image_remote(
         ValueError: Failed to open the image
 
     Returns:
-        tuple[np.ndarray | dask.array.core.Array, dict]: The image data and the EXIF data
+        tuple[np.ndarray | dask.array.core.Array, dict, str]: The image data, the EXIF data, and the image path
     """
     exif = {}
     try:
         img_bytes = get_file_from_bucket(img_path, kwargs.get("storage_options"))
         if image_type in SUPPORTED_OPENCV_IMAGE_TYPES:
-            img_array = np.frombuffer(img_bytes, image_open_args.get("dtype", np.uint8))
-            img = cv2.imdecode(img_array, image_open_args.get("flags", cv2.IMREAD_UNCHANGED))
+            img_array = np.frombuffer(img_bytes, image_open_args["dtype"])
+            img = cv2.imdecode(img_array, image_open_args["flags"])
             exif = extract_exif_single(BytesIO(img_bytes), image_type=image_type, image_name=img_path.split("/")[-1])
         else:
             img = load_raw_image(BytesIO(img_bytes), image_type=image_type, image_open_args=image_open_args, remote=True)
@@ -112,12 +58,12 @@ def open_image_remote(
 
     img = correct_image_dims_and_format(img, kwargs.get("parallel"), image_type=image_type)
 
-    return img, exif
+    return img, exif, img_path
 
 
 def open_image_local(
     img_path: str, image_type: str | None, image_open_args: dict | None = None, **kwargs: dict
-) -> tuple[np.ndarray | dask.array.core.Array, dict]:
+) -> tuple[np.ndarray | dask.array.core.Array, dict, str]:
     """Open an image file.
 
     Args:
@@ -131,7 +77,7 @@ def open_image_local(
         ValueError: Failed to open the image
 
     Returns:
-        tuple[np.ndarray | dask.array.core.Array, dict]: The image data and the EXIF data
+        tuple[np.ndarray | dask.array.core.Array, dict, str]: The image data, the EXIF data, and the image path
     """
     exif = extract_exif_single(img_path=img_path, image_type=image_type)
     if image_type in SUPPORTED_OPENCV_IMAGE_TYPES:
@@ -139,7 +85,7 @@ def open_image_local(
     else:
         img = load_raw_image(img_path, image_type=image_type, image_open_args=image_open_args)
     img = correct_image_dims_and_format(img, kwargs.get("parallel"), image_type=image_type)
-    return img, exif
+    return img, exif, img_path
 
 
 def correct_image_dims_and_format(
@@ -191,7 +137,7 @@ def load_raw_image(img_path: str, image_type: str | None, image_open_args: dict 
                 img = raw.postprocess(**image_open_args)
         except rawpy.LibRawFileUnsupportedError as e:
             logging.warning("Failed to open %s using rawpy: %s. Trying using raw loader", img_path, e)
-    if img is None:
+    else:
         try:
             img = load_raw_image_using_path_open(img_bytes, image_open_args, remote)
         except (FileNotFoundError, OSError, TypeError, ValueError, NotImplementedError) as e:
@@ -213,15 +159,15 @@ def load_raw_image_using_path_open(img_path: str, image_open_args: dict | None, 
     Returns:
         np.ndarray: The loaded image data
     """
-    width = image_open_args.get("width", 2448)
+    width = image_open_args.get("width")
     height = image_open_args.get("height", 2048)
     bit_depth = image_open_args.get("bit_depth", 8)
     endianess = image_open_args.get("endianness", None)
-    layout = image_open_args.get("layout", "5:6:5")
-    image_misc = image_open_args.get("image_misc", "").split(",")
-    bayer_pattern = image_open_args.get("bayer_pattern", None)
-    file_header_size = image_open_args.get("file_header_size", 0)
-    channels = image_open_args.get("channels", 1)
+    layout = image_open_args.get("layout")
+    image_misc = image_open_args.get("image_misc").split(",")
+    bayer_pattern = image_open_args.get("bayer_pattern")
+    file_header_size = image_open_args.get("file_header_size")
+    channels = image_open_args.get("channels")
     if remote:
         img_path.seek(file_header_size)
         raw_data = img_path.read()

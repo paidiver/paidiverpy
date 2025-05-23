@@ -12,11 +12,11 @@ from dask.diagnostics import ProgressBar
 from dask.distributed import Client
 from distributed import LocalCluster
 from tqdm import tqdm
-from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
+from paidiverpy.config.configuration import Configuration
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
-from paidiverpy.utils.dynamic_classes import DynamicConfig
+from paidiverpy.utils.base_model import BaseModel
 from paidiverpy.utils.logging_functions import initialise_logging
 from paidiverpy.utils.parallellisation import get_client
 from paidiverpy.utils.parallellisation import get_n_jobs
@@ -112,8 +112,6 @@ class Paidiverpy:
         )
         if not test:
             self.step_name = f"step_{self.config_index}" if not self.step_name else self.step_name
-            # if len(self.images.images) > 3:
-            #     import pdb; pdb.set_trace()
             self.set_metadata(metadata, flag=len(self.images.images))
             if add_new_step:
                 self.images.add_step(
@@ -162,7 +160,7 @@ class Paidiverpy:
         self,
         images: list[da.core.Array],
         method: callable,
-        params: DynamicConfig,
+        params: BaseModel,
         custom: bool = False,
     ) -> list[np.ndarray]:
         """Process the images in parallel.
@@ -172,7 +170,7 @@ class Paidiverpy:
         Args:
             images (List[da.core.Array]): The list of images to process.
             method (callable): The method to apply to the images.
-            params (DynamicConfig): The parameters for the method.
+            params (BaseModel): The parameters for the method.
             custom (bool, optional): Whether the method is a custom method. Defaults to False.
 
         Returns:
@@ -240,9 +238,9 @@ class Paidiverpy:
             Configuration: The configuration object.
         """
         if config_file_path:
-            return Configuration(config_file_path)
+            return Configuration(config_file_path=config_file_path)
         general_config = {}
-        config_params = ConfigParams(config_params) if isinstance(config_params, dict) else config_params
+        config_params = ConfigParams(**config_params) if isinstance(config_params, dict) else config_params
         config_params_keys = ["input_path", "output_path", "metadata_path", "metadata_type", "image_open_args", "track_changes", "n_jobs"]
         for key in config_params_keys:
             general_config[key] = getattr(config_params, key)
@@ -396,7 +394,7 @@ class Paidiverpy:
 
     def _get_method_by_mode(
         self,
-        params: DynamicConfig,
+        params: BaseModel,
         method_dict: dict,
         mode: str,
         class_method: bool = True,
@@ -404,7 +402,7 @@ class Paidiverpy:
         """Get the method by mode.
 
         Args:
-            params (DynamicConfig): The parameters.
+            params (BaseModel): The parameters.
             method_dict (dict): The method dictionary.
             mode (str): The mode.
             class_method (bool, optional): Whether the method is a class method.
@@ -435,7 +433,7 @@ class Paidiverpy:
         """
         if self.raise_error:
             return self.raise_error
-        if isinstance(self.step_metadata["params"], DynamicConfig):
+        if isinstance(self.step_metadata["params"], BaseModel):
             raise_error = self.step_metadata["params"].raise_error
         else:
             raise_error = self.step_metadata["params"].get("raise_error", False)
@@ -445,21 +443,21 @@ class Paidiverpy:
     def prepare_inputs(
         image_data: np.ndarray,
         metadata: dict | None,
-        params: DynamicConfig | None,
-        default_params_factory: DynamicConfig,
+        params: BaseModel | None,
+        default_params_factory: BaseModel,
         **kwargs: dict,
-    ) -> tuple[np.ndarray, dict, DynamicConfig]:
+    ) -> tuple[np.ndarray, dict, BaseModel]:
         """Standard preprocessing for convert layer methods.
 
         Args:
             image_data (np.ndarray): The image data.
             metadata (dict | None): The metadata.
-            params (DynamicConfig | None): The parameters.
-            default_params_factory (DynamicConfig): The default parameters factory.
+            params (BaseModel | None): The parameters.
+            default_params_factory (BaseModel): The default parameters factory.
             **kwargs (dict): Additional keyword arguments.
 
         Returns:
-            tuple[np.ndarray, dict, DynamicConfig]: The image data, metadata, and parameters.
+            tuple[np.ndarray, dict, BaseModel]: The image data, metadata, and parameters.
         """
         _ = kwargs
         metadata = metadata or {}

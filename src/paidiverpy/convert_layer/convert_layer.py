@@ -9,8 +9,8 @@ import cv2
 import numpy as np
 from dask.distributed import Client
 from paidiverpy import Paidiverpy
-from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
+from paidiverpy.config.configuration import Configuration
 from paidiverpy.config.convert_params import CONVERT_LAYER_METHODS
 from paidiverpy.config.convert_params import BitParams
 from paidiverpy.config.convert_params import CropParams
@@ -346,8 +346,11 @@ class ConvertLayer(Paidiverpy):
         """
         if isinstance(size, int | float):
             crop_h = crop_w = size
-        elif isinstance(size, list):
+        elif isinstance(size, list | tuple):
             crop_h, crop_w = size
+        else:
+            msg = "Size must be an int, float, list or tuple."
+            raise_value_error(msg)
         if size_type == "percent":
             crop_h = int(height * crop_h)
             crop_w = int(width * crop_w)

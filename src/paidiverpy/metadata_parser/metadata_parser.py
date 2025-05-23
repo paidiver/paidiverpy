@@ -10,7 +10,7 @@ import dask.dataframe as dd
 import pandas as pd
 from PIL import TiffImagePlugin
 from shapely.geometry import Point
-from paidiverpy.config.config import Configuration
+from paidiverpy.config.configuration import Configuration
 from paidiverpy.metadata_parser.ifdo_tools import convert_to_ifdo
 from paidiverpy.metadata_parser.ifdo_tools import format_ifdo_validation_error
 from paidiverpy.metadata_parser.ifdo_tools import validate_ifdo
@@ -20,6 +20,7 @@ from paidiverpy.utils.exceptions import raise_value_error
 from paidiverpy.utils.logging_functions import initialise_logging
 from paidiverpy.utils.object_store import define_storage_options
 from paidiverpy.utils.object_store import get_file_from_bucket
+from paidiverpy.utils.object_store import path_is_remote
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -58,11 +59,6 @@ class MetadataParser:
 
         self.dataset_metadata = {}
         self.metadata = self.open_metadata()
-
-    def set_new_attributes(self, **kwargs: dict) -> None:
-        """Set new attributes for the metadata parser."""
-        for key, value in kwargs.items():
-            setattr(self, key, value)
 
     def _calculate_metadata_conventions(self) -> str:
         """Calculate metadata conventions.
@@ -147,8 +143,7 @@ class MetadataParser:
             if self.metadata is None or self.metadata.empty:
                 raise_value_error("Metadata is not defined.")
             metadata = self.metadata
-        if isinstance(self.metadata, dd.DataFrame):
-            metadata = self.metadata.compute()
+        metadata = metadata.compute() if isinstance(metadata, dd.DataFrame) else metadata
         if output_format.lower() not in ["csv", "json", "ifdo", "croissant"]:
             self.logger.error("Unsupported output format: %s", output_format)
             raise_value_error(f"Unsupported output format: {output_format}")
@@ -255,7 +250,7 @@ class MetadataParser:
         """
         metadata_path = self.metadata_path if isinstance(self.metadata_path, str) else str(self.metadata_path)
 
-        if self.config.general.is_remote:
+        if path_is_remote(metadata_path):
             file_bytes = get_file_from_bucket(metadata_path, self.storage_options)
             metadata = json.loads(file_bytes.decode("utf-8"))
         else:
@@ -294,7 +289,7 @@ class MetadataParser:
         Returns:
             dd.DataFrame: Metadata DataFrame
         """
-        if self.config.general.is_remote:
+        if path_is_remote(self.metadata_path):
             file_bytes = get_file_from_bucket(self.metadata_path, self.storage_options)
             file_bytes = BytesIO(file_bytes)
             df_pandas = pd.read_csv(file_bytes)
@@ -400,8 +395,7 @@ class MetadataParser:
         Returns:
             tuple[pd.DataFrame, dict]: Grouped metadata and dataset metadata.
         """
-        if isinstance(metadata, dd.DataFrame):
-            metadata = metadata.compute()
+        metadata = metadata.compute() if isinstance(metadata, dd.DataFrame) else metadata
         for key, value in dataset_metadata.items():
             if key not in metadata.columns:
                 metadata[key] = value

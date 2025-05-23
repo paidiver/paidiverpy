@@ -12,7 +12,7 @@ class BaseCustomAlgorithm:
     Args:
         image_data (np.ndarray | dask.array.core.Array): The image data to process
         metadata (dict): The metadata for the image data
-        params (DynamicConfig): The parameters for the custom algorithm
+        params (CustomParams): The parameters for the custom algorithm
         metadata_object (pd.DataFrame, optional): The metadata object for the image data.
     """
 

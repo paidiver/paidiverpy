@@ -32,8 +32,8 @@ from paidiverpy.config.colour_params import GaussianBlurParams
 from paidiverpy.config.colour_params import GrayScaleParams
 from paidiverpy.config.colour_params import IlluminationCorrectionParams
 from paidiverpy.config.colour_params import SharpenParams
-from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
+from paidiverpy.config.configuration import Configuration
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.utils.data import DEFAULT_BITS
@@ -257,7 +257,9 @@ class ColourLayer(Paidiverpy):
 
         try:
             method = params.method
-            kernel_size = tuple(params.kernel_size) if params.kernel_size and isinstance(params.kernel_size, list | tuple) else None
+            kernel_size = params.kernel_size
+            if params.kernel_size:
+                kernel_size = params.kernel_size if isinstance(params.kernel_size, tuple | list) else (params.kernel_size, params.kernel_size)
             clip_limit = params.clip_limit
             gamma_value = params.gamma_value
             bits = image_data.dtype.itemsize * DEFAULT_BITS
@@ -477,13 +479,12 @@ class ColourLayer(Paidiverpy):
                 params.deconv_mask_weight,
                 params.small_float_val,
             )
+            metadata["edge_detection"] = features
+            if num_channels == NUM_CHANNELS_RGBA:
+                image_data = np.dstack((image_data, image_a))
         except Exception as e:  # noqa: BLE001
             msg = f"Error applying edge detection: {e}"
             check_raise_error(params.raise_error, msg)
-
-        metadata["edge_detection"] = features
-        if num_channels == NUM_CHANNELS_RGBA:
-            image_data = np.dstack((image_data, image_a))
         return image_data, metadata
 
     @staticmethod

@@ -3,6 +3,7 @@
 import argparse
 import json
 import sys
+from paidiverpy.config.configuration import Configuration
 from paidiverpy.pipeline import Pipeline
 from paidiverpy.utils.benchmark_test import benchmark_handler
 from paidiverpy.utils.docker import is_running_in_docker
@@ -33,7 +34,9 @@ def process_action(parser: argparse.ArgumentParser) -> None:
     if is_docker:
         config_filename = args.configuration_file.split("/")[-1]
         args.configuration_file = f"/app/config_files/{config_filename}"
-
+    if args.validate:
+        Configuration.validate_config(args.configuration_file, local=False)
+        return
     pipeline = Pipeline(
         config_file_path=args.configuration_file,
         logger=logger,
@@ -75,6 +78,18 @@ def add_arguments(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         ),
         default={},
     )
+
+    parser.add_argument(
+        "-v",
+        "--validate",
+        dest="validate",
+        action="store_true",
+        default=False,
+        help=(
+            "OPTIONAL: ONLY FOR CONFIGURATION FILE CHECKING. Check the configuration file."
+        ),
+    )
+
     return parser
 
 

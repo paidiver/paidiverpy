@@ -1,60 +1,51 @@
-"""Convert layer parameters dataclasses.
+"""Convert layer parameters models."""
 
-This module contains the dataclasses for the parameters of the convert layer
-functions.
-"""
-
-from dataclasses import dataclass
-from paidiverpy.utils.dynamic_classes import DynamicConfig
+from pydantic import Field
+from paidiverpy.utils.base_model import BaseModel
 
 
-@dataclass
-class BitParams(DynamicConfig):
+class BitParams(BaseModel):
     """This class contains the parameters for the bit conversion."""
 
-    output_bits: int = 8
-    raise_error: bool = False
+    output_bits: int = Field(8, description="Number of bits in output image")
+    raise_error: bool = Field(False, description="Raise error on failure")
 
 
-@dataclass
-class ToParams(DynamicConfig):
+class ToParams(BaseModel):
     """This class contains the parameters for the channel conversion."""
 
-    to: str = "uint8"
-    channel_selector: int = 0
-    raise_error: bool = False
+    to: str = Field("uint8", description="Target data type")
+    channel_selector: int = Field(0, description="Index of channel to select")
+    raise_error: bool = Field(False, description="Raise error on failure")
 
 
-@dataclass
-class NormalizeParams(DynamicConfig):
+class NormalizeParams(BaseModel):
     """This class contains the parameters for the image normalization."""
 
-    min: float = 0
-    max: float = 1
-    method: str = "minmax"
-    raise_error: bool = False
+    min: float = Field(0, description="Minimum normalization value")
+    max: float = Field(1, description="Maximum normalization value")
+    method: str = Field("minmax", description="Normalization method")
+    raise_error: bool = Field(False, description="Raise error on failure")
 
 
-@dataclass
-class ResizeParams(DynamicConfig):
+class ResizeParams(BaseModel):
     """This class contains the parameters for the image resizing."""
 
-    size: tuple = None
-    preserve_aspect: bool = True
-    scale: float = 1.0
-    interpolation: str = "linear"
-    raise_error: bool = False
+    size: tuple[int, int] | None = Field(None, description="Target size (width, height)")
+    preserve_aspect: bool = Field(True, description="Preserve aspect ratio")
+    scale: float | list[float] = Field(1.0, description="Scale factor")
+    interpolation: str = Field("linear", description="Interpolation method")
+    raise_error: bool = Field(False, description="Raise error on failure")
 
 
-@dataclass
-class CropParams(DynamicConfig):
+class CropParams(BaseModel):
     """This class contains the parameters for the image cropping."""
 
-    size: tuple | float = 1
-    size_type: str = "percent"
-    mode: str = "center"
-    top_left: tuple = (0, 0)
-    raise_error: bool = False
+    size: tuple[int, int] | float | int = Field(1, description="Crop size or scaling factor")
+    size_type: str = Field("percent", description="Size type: percent or pixels")
+    mode: str = Field("center", description="Crop mode")
+    top_left: tuple[int, int] = Field((0, 0), description="Top-left corner for cropping")
+    raise_error: bool = Field(False, description="Raise error on failure")
 
 
 CONVERT_LAYER_METHODS = {
@@ -64,3 +55,5 @@ CONVERT_LAYER_METHODS = {
     "resize": {"params": ResizeParams, "method": "resize"},
     "crop": {"params": CropParams, "method": "crop_images"},
 }
+
+ConvertParamsUnion = BitParams | ToParams | NormalizeParams | ResizeParams | CropParams | dict

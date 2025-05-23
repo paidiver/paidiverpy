@@ -1,23 +1,20 @@
-"""Position layer parameters.
+"""Position layer parameters models."""
 
-This module contains the dataclasses for the parameters of the convert layer
-functions.
-"""
-
-from dataclasses import dataclass
-from paidiverpy.utils.dynamic_classes import DynamicConfig
+from pydantic import Field
+from paidiverpy.utils.base_model import BaseModel
 
 
-@dataclass
-class CalculateCornersParams(DynamicConfig):
-    """This class contains the parameters for the overlapping resampling."""
+class CalculateCornersParams(BaseModel):
+    """Parameters for the overlapping resampling calculation."""
 
-    omega: float = 0.5
-    theta: float = 0.5
-    camera_distance: float = 1.12
-    raise_error: bool = False
+    omega: float = Field(0.5, description="Horizontal angle of view (in radians or normalized units)")
+    theta: float = Field(0.5, description="Vertical angle of view (in radians or normalized units)")
+    camera_distance: float = Field(1.12, description="Distance from camera to the scene (in meters)")
+    raise_error: bool = Field(False, description="Raise error on failure")
 
 
 POSITION_LAYER_METHODS = {
     "calculate_corners": {"params": CalculateCornersParams, "method": "calculate_corners"},
 }
+
+PositionParamsUnion = CalculateCornersParams | dict
