@@ -2,8 +2,8 @@
 
 import unittest
 import numpy as np
-from paidiverpy.config.config import Configuration
-from paidiverpy.config.config import GeneralConfig
+from paidiverpy.config.configuration import Configuration
+from paidiverpy.config.configuration import GeneralConfig
 from paidiverpy.pipeline import Pipeline
 from paidiverpy.utils.data import EIGHT_BITS_MAX
 from paidiverpy.utils.data import EIGHT_BITS_SIZE

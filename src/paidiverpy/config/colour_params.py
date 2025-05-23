@@ -1,94 +1,82 @@
-"""Colour layer parameters dataclasses.
+"""Colour layer parameters models."""
 
-This module contains the dataclasses for the parameters of the colour layer
-functions.
-"""
-
-from dataclasses import dataclass
-from paidiverpy.utils.dynamic_classes import DynamicConfig
+from pydantic import Field
+from paidiverpy.utils.base_model import BaseModel
 
 
-@dataclass
-class GrayScaleParams(DynamicConfig):
-    """This class contains the parameters for the grayscale conversion."""
+class GrayScaleParams(BaseModel):
+    """Parameters for the grayscale conversion."""
 
-    method: str = "opencv"
-    invert_colours: bool = False
-    raise_error: bool = False
-
-
-@dataclass
-class GaussianBlurParams(DynamicConfig):
-    """This class contains the parameters for the Gaussian blur."""
-
-    sigma: float = 1.0
-    raise_error: bool = False
+    method: str = Field("opencv", description="Grayscale conversion method")
+    invert_colours: bool = Field(False, description="Invert grayscale values")
+    raise_error: bool = Field(False, description="Raise error on failure")
 
 
-@dataclass
-class SharpenParams(DynamicConfig):
-    """This class contains the parameters for the sharpening."""
+class GaussianBlurParams(BaseModel):
+    """Parameters for Gaussian blur."""
 
-    alpha: float = 1.5
-    beta: float = -0.5
-    raise_error: bool = False
+    sigma: float = Field(1.0, description="Sigma value for Gaussian kernel")
+    raise_error: bool = Field(False, description="Raise error on failure")
 
 
-@dataclass
-class ContrastAdjustmentParams(DynamicConfig):
-    """This class contains the parameters for the contrast adjustment."""
+class SharpenParams(BaseModel):
+    """Parameters for sharpening."""
 
-    method: str = "clahe"
-    kernel_size: int = None
-    clip_limit: float = 0.01
-    gamma_value: float = 0.5
-    raise_error: bool = False
+    alpha: float = Field(1.5, description="Weight of original image")
+    beta: float = Field(-0.5, description="Weight of blurred image")
+    raise_error: bool = Field(False, description="Raise error on failure")
 
 
-@dataclass
-class IlluminationCorrectionParams(DynamicConfig):
-    """This class contains the parameters for the illumination correction."""
+class ContrastAdjustmentParams(BaseModel):
+    """Parameters for contrast adjustment."""
 
-    method: str = "rolling"
-    radius: int = 5
-    raise_error: bool = False
-
-
-@dataclass
-class DeblurParams(DynamicConfig):
-    """This class contains the parameters for the deblurring."""
-
-    method: str = "wiener"
-    psf_type: str = "gaussian"
-    sigma: float = 20
-    angle: int = 45
-    raise_error: bool = False
+    method: str = Field("clahe", description="Contrast adjustment method")
+    kernel_size: tuple[int, int] | int | None = Field(None, description="Kernel size for CLAHE")
+    clip_limit: float = Field(0.01, description="Clip limit for CLAHE")
+    gamma_value: float = Field(0.5, description="Gamma correction value")
+    raise_error: bool = Field(False, description="Raise error on failure")
 
 
-@dataclass
-class ColourAlterationParams(DynamicConfig):
-    """This class contains the parameters for the colour alteration."""
+class IlluminationCorrectionParams(BaseModel):
+    """Parameters for illumination correction."""
 
-    method: str = "white_balance"
-    raise_error: bool = False
+    method: str = Field("rolling", description="Correction method (e.g. rolling ball)")
+    radius: int = Field(5, description="Radius of the illumination filter")
+    raise_error: bool = Field(False, description="Raise error on failure")
 
 
-@dataclass
-class EdgeDetectionParams(DynamicConfig):
-    """This class contains the parameters for the edge detection."""
+class DeblurParams(BaseModel):
+    """Parameters for deblurring."""
 
-    method: str = "sobel"
-    blur_radius: float = 1.0
-    threshold: float = 0.1
-    object_type: str = "bright"
-    object_selection: str = "largest"
-    estimate_sharpness: bool = False
-    deconv: bool = False
-    deconv_method: str = "LR"
-    deconv_iter: int = 10
-    deconv_mask_weight: float = 0.03
-    small_float_val: float = 1e-6
-    raise_error: bool = False
+    method: str = Field("wiener", description="Deblurring method")
+    psf_type: str = Field("gaussian", description="Point Spread Function type")
+    sigma: int = Field(20, description="Sigma for Gaussian PSF")
+    angle: int = Field(45, description="Angle for motion blur PSF")
+    raise_error: bool = Field(False, description="Raise error on failure")
+
+
+class ColourAlterationParams(BaseModel):
+    """Parameters for colour alteration."""
+
+    method: str = Field("white_balance", description="Colour alteration method")
+    raise_error: bool = Field(False, description="Raise error on failure")
+
+
+class EdgeDetectionParams(BaseModel):
+    """Parameters for edge detection."""
+
+    method: str = Field("sobel", description="Edge detection method")
+    blur_radius: int = Field(1, description="Blur radius before edge detection")
+    threshold: list[float] | None = Field(None, description="Threshold for edge detection")
+    object_type: str = Field("bright", description="Type of object (bright or dark)")
+    object_selection: str = Field("largest", description="Object selection strategy")
+    estimate_sharpness: bool = Field(False, description="Estimate image sharpness")
+    deconv: bool = Field(False, description="Apply deconvolution")
+    deconv_method: str = Field("LR", description="Deconvolution method")
+    deconv_iter: int = Field(10, description="Deconvolution iterations")
+    deconv_mask_weight: float = Field(0.03, description="Deconvolution mask weighting")
+    small_float_val: float = Field(1e-6, description="Small float to avoid division by zero")
+    raise_error: bool = Field(False, description="Raise error on failure")
 
 
 COLOUR_LAYER_METHODS = {
@@ -104,3 +92,16 @@ COLOUR_LAYER_METHODS = {
     },
     "colour_alteration": {"params": ColourAlterationParams, "method": "colour_alteration"},
 }
+
+ColourParamsUnion = (
+    GrayScaleParams
+    | GaussianBlurParams
+    | EdgeDetectionParams
+    | SharpenParams
+    | ContrastAdjustmentParams
+    | DeblurParams
+    | IlluminationCorrectionParams
+    | ColourAlterationParams
+    | EdgeDetectionParams
+    | dict
+)

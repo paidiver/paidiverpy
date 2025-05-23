@@ -5,10 +5,10 @@ from pathlib import Path
 import numpy as np
 import pytest
 from paidiverpy.colour_layer.colour_layer import ColourLayer
-from paidiverpy.config.config import Configuration
-from paidiverpy.config.config import GeneralConfig
+from paidiverpy.config.configuration import Configuration
+from paidiverpy.config.configuration import GeneralConfig
 from paidiverpy.pipeline import Pipeline
-from paidiverpy.resample_layer.resample_layer import ResampleLayer
+from paidiverpy.sampling_layer.sampling_layer import SamplingLayer
 from tests.base_test_class import BaseTestClass
 
 
@@ -37,7 +37,7 @@ class TestPipelineInteraction(BaseTestClass):
         assert len(images) == number_images
         pipeline.add_step(
             "Area1",
-            ResampleLayer,
+            SamplingLayer,
             {"mode": "fixed", "params": {"value": 10}, "test": False},
             1,
             substitute=True,
@@ -63,7 +63,7 @@ class TestPipelineInteraction(BaseTestClass):
         pipeline = Pipeline(config_file_path="tests/config_files/config_plankton.yml")
         pipeline.add_step(
             "Area1",
-            ResampleLayer,
+            SamplingLayer,
             {"mode": "fixed", "params": {"value": 10}, "test": False},
             1,
             substitute=True,

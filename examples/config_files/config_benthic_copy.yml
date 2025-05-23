@@ -1,0 +1,15 @@
+general:
+  sample_data: "benthic_csv"
+  output_path: "./output"
+  n_jobs: 1
+  image_open_args:
+    image_type: "JPG"
+  sampling:
+    - mode: "fixed"
+      params:
+        value: 20
+
+steps:
+  - colour:
+      name: "colour_correction"
+      mode: "grayscale"

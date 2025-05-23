@@ -6,8 +6,8 @@ import numpy as np
 import pandas as pd
 import pytest
 import yaml
-from paidiverpy.config.config import Configuration
-from paidiverpy.config.config import GeneralConfig
+from paidiverpy.config.configuration import Configuration
+from paidiverpy.config.configuration import GeneralConfig
 from paidiverpy.pipeline import Pipeline
 from tests.base_test_class import BaseTestClass
 

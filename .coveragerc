@@ -4,6 +4,8 @@ source =
     src/paidiverpy
 omit =
     src/paidiverpy/utils/benchmark_test.py
+    src/paidiverpy/utils/schema_json_handler.py
+
 
 [report]
 show_missing = True

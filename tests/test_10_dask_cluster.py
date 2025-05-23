@@ -4,8 +4,8 @@ import unittest
 from pathlib import Path
 import numpy as np
 import pandas as pd
-from paidiverpy.config.config import Configuration
-from paidiverpy.config.config import GeneralConfig
+from paidiverpy.config.configuration import Configuration
+from paidiverpy.config.configuration import GeneralConfig
 from paidiverpy.pipeline import Pipeline
 from tests.base_test_class import BaseTestClass
 

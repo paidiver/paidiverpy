@@ -17,7 +17,7 @@ from paidiverpy.utils.data import NUM_DIMENSIONS_GREY
 
 if TYPE_CHECKING:
     from paidiverpy import Paidiverpy
-    from paidiverpy.config.config import Configuration
+    from paidiverpy.config.configuration import Configuration
     from paidiverpy.images_layer import ImagesLayer
     from paidiverpy.metadata_parser import MetadataParser
 

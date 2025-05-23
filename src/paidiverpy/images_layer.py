@@ -13,7 +13,7 @@ from dask.diagnostics import ProgressBar
 from dask.distributed import Client
 from IPython.display import HTML
 from PIL import Image
-from paidiverpy.config.config import Configuration
+from paidiverpy.config.configuration import Configuration
 from paidiverpy.utils import formating_html
 from paidiverpy.utils.data import NUM_CHANNELS_GREY
 from paidiverpy.utils.data import NUM_DIMENSIONS_GREY

@@ -10,8 +10,8 @@ from dask.distributed import Client
 from geopy.distance import geodesic
 from shapely.geometry import Polygon
 from paidiverpy import Paidiverpy
-from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
+from paidiverpy.config.configuration import Configuration
 from paidiverpy.config.position_params import POSITION_LAYER_METHODS
 from paidiverpy.config.position_params import CalculateCornersParams
 from paidiverpy.images_layer import ImagesLayer

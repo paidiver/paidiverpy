@@ -100,3 +100,15 @@ def upload_file_to_bucket(file_obj: io.BytesIO, output_path: str, client: boto3.
     s3_path = output_path[5:]
     bucket_name, key = s3_path.split("/", 1)
     client.put_object(Body=file_obj.getvalue(), Bucket=bucket_name, Key=key)
+
+
+def path_is_remote(path: str) -> bool:
+    """Check if the path is a remote path.
+
+    Args:
+        path (str): The path to check.
+
+    Returns:
+        bool: True if the path is remote, False otherwise.
+    """
+    return str(path).startswith(("http://", "https://", "s3://"))

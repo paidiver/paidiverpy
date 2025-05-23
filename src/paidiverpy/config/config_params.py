@@ -1,70 +1,48 @@
 """Configuration parameters module."""
 
 from pathlib import Path
-from paidiverpy.utils.dynamic_classes import DynamicConfig
+from pydantic import model_validator
+from paidiverpy.utils.base_model import BaseModel
 
-REQUIRED_KEYS = ["input_path", "output_path", "metadata_path", "metadata_type", "image_open_args"]
 
+class ConfigParams(BaseModel):
+    """Configuration parameters using Pydantic.
 
-class ConfigParams(DynamicConfig):
-    """Configuration parameters class.
-
-    Args:
-        config_params (Dict): The configuration parameters.
-            It should have the following keys:
-            - input_path (str): The input path.
-            - output_path (str): The output path.
-            - image_open_args (str): The image type.
-            - metadata_path (str): The metadata path.
-            - metadata_type (str): The metadata type.
-            - track_changes (bool): Whether to track changes.
-            - n_jobs (int): The number of jobs.
-
-    Raises:
-        ValueError: Invalid configuration parameters.
+    Fields:
+        input_path (Path): The input path.
+        output_path (Path): The output path.
+        image_open_args (str): The image type.
+        metadata_path (Path): The metadata path.
+        metadata_type (str): The metadata type.
+        track_changes (bool): Whether to track changes. Defaults to True.
+        n_jobs (int): Number of jobs. Defaults to 1.
     """
 
-    def __init__(self, config_params: dict[str, str | None]) -> None:
-        self.config_params = self._validate_config_params(config_params)
-        self.input_path = Path(self.config_params["input_path"])
-        self.output_path = Path(self.config_params["output_path"])
-        self.image_open_args = self.config_params["image_open_args"]
-        self.metadata_path = Path(self.config_params["metadata_path"])
-        self.metadata_type = self.config_params["metadata_type"]
-        self.track_changes = self.config_params.get("track_changes", True)
-        self.n_jobs = self.config_params.get("n_jobs", 1)
+    input_path: Path
+    output_path: Path
+    image_open_args: str
+    metadata_path: Path
+    metadata_type: str
+    track_changes: bool = True
+    n_jobs: int = 1
 
-    def _validate_config_params(self, config_params: dict[str, str | None]) -> dict[str, str | None]:
-        """Validate the configuration parameters.
+    @model_validator(mode="before")
+    @classmethod
+    def validate_required_keys(cls, values: dict) -> dict:
+        """Validate the required keys in the configuration parameters.
 
         Args:
-            config_params (Dict): The configuration parameters.
-                It should have the following keys:
-                - input_path (str): The input path.
-                - output_path (str): The output path.
-                - image_open_args (str): The image type.
-                - metadata_path (str): The metadata path.
-                - metadata_type (str): The metadata type.
-                - track_changes (bool): Whether to track changes.
-                - n_jobs (int): The number of jobs.
+            values (dict): The values to validate.
 
         Raises:
-            ValueError: Invalid configuration parameters.
+            ValueError: If any of the required keys are missing.
 
         Returns:
-            Dict: The validated configuration parameters.
+            dict: The validated values.
         """
-        new_config_params = {}
-
-        dict_keys = set(config_params.keys())
-        elements_set = set(REQUIRED_KEYS)
-
-        missing_keys = elements_set - dict_keys
-
-        if missing_keys:
-            msg = f"Error in config_params: params {missing_keys} are missing."
+        required_keys = ["input_path", "output_path", "metadata_path", "metadata_type", "image_open_args"]
+        missing = [key for key in required_keys if key not in values]
+        if missing:
+            msg = f"Error in config_params: params {missing} are missing."
             raise ValueError(msg)
-
-        for key in REQUIRED_KEYS:
-            new_config_params[key] = config_params.get(key)
-        return new_config_params
+        return values

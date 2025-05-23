@@ -3,11 +3,11 @@
 import gc
 import logging
 from paidiverpy import Paidiverpy
-from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
-from paidiverpy.config.pipeline_params import STEPS_CLASS_TYPES
+from paidiverpy.config.configuration import Configuration
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.open_layer import OpenLayer
+from paidiverpy.pipeline.pipeline_params import STEPS_CLASS_TYPES
 from paidiverpy.utils import formating_html
 
 STEP_WITHOUT_PARAMS = 2
@@ -71,7 +71,7 @@ class Pipeline(Paidiverpy):
                 if name == "raw":
                     self.config.add_general(step[2])
                 else:
-                    self.config.add_step(None, step[2])
+                    self.config.add_step(parameters=step[2], step_class=step[1])
         self.steps = steps
         self.runned_steps = -1
 
@@ -120,8 +120,6 @@ class Pipeline(Paidiverpy):
                         config_index=index - 1,
                     )
                 step_instance.run()
-                # if len(self.images.images) > 4:
-                #     import pdb; pdb.set_trace()
                 if not step_params.get("test", False):
                     self.images = step_instance.images
                     self.set_metadata(step_instance.get_metadata(flag="all"))
@@ -203,13 +201,13 @@ class Pipeline(Paidiverpy):
         if index:
             if substitute:
                 self.steps[index] = (step_name, step_class, parameters)
-                self.config.add_step(index - 1, parameters, validate=True)
+                self.config.add_step(index - 1, parameters, validate=True, step_class=step_class)
             else:
                 self.steps.insert(index, (step_name, step_class, parameters))
-                self.config.add_step(index - 1, parameters, insert=True, validate=True)
+                self.config.add_step(index - 1, parameters, insert=True, validate=True, step_class=step_class)
         else:
             self.steps.append((step_name, step_class, parameters))
-            self.config.add_step(None, parameters, validate=True)
+            self.config.add_step(None, parameters, validate=True, step_class=step_class)
 
     def _get_step_name(self, step_class: type) -> str:
         """Get the name of the step class.

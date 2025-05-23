@@ -8,8 +8,8 @@ import importlib.util
 import logging
 from importlib.resources import files
 from paidiverpy import Paidiverpy
-from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
+from paidiverpy.config.configuration import Configuration
 from paidiverpy.config.custom_params import CustomParams
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
@@ -77,7 +77,7 @@ class CustomLayer(Paidiverpy):
         self.step_metadata = self._calculate_steps_metadata(self.config.steps[self.config_index])
         self.raise_error = self._calculate_raise_error()
 
-    def run(self) -> ImagesLayer | None:
+    def run(self) -> None:
         """Custom Layer run method.
 
         Run the custom layer steps on the images based on the configuration
@@ -86,9 +86,6 @@ class CustomLayer(Paidiverpy):
         Args:
             add_new_step (bool, optional): Whether to add a new step to the images object.
         Defaults to True.
-
-        Returns:
-            ImagesLayer | None: The images object with the new step added.
         """
         algorithm_name = self.step_metadata.get("name")
         file_path = self.step_metadata.get("file_path")
@@ -102,15 +99,17 @@ class CustomLayer(Paidiverpy):
         check_and_install_dependencies(self.step_metadata.get("dependencies"), self.step_metadata.get("dependencies_path"))
         test = self.step_metadata.get("test")
         params = self.step_metadata.get("params") or {}
-        params = CustomParams(**params)
+        params = CustomParams(**params) if isinstance(params, dict) else params
         method = self.load_custom_algorithm(file_path, class_name, algorithm_name)
         images = self.images.get_step(step=len(self.images.images) - 1)
-        if self.n_jobs == 1:
-            image_list = self.process_sequentially(images, method, params, custom=True)
-        else:
-            self.process_parallel(images, method, params, custom=True)
+        image_list, metadata = (
+            self.process_sequentially(images, method, params, custom=True)
+            if self.n_jobs == 1
+            else self.process_parallel(images, method, params, custom=True)
+        )
         if not test:
             self.step_name = algorithm_name if not self.step_name else self.step_name
+            self.set_metadata(metadata, flag=len(self.images.images))
             self.images.add_step(
                 step=self.step_name,
                 images=image_list,
@@ -118,8 +117,8 @@ class CustomLayer(Paidiverpy):
                 metadata=self.get_metadata(),
                 track_changes=self.track_changes,
             )
-            return None
-        return None
+        #     return None
+        # return None
 
     def load_custom_algorithm(self, file_path: str, class_name: str, algorithm_name: str) -> callable:
         """Load a custom algorithm class.
