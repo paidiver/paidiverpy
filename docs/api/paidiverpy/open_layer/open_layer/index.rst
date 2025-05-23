@@ -22,7 +22,7 @@ Classes
 Module Contents
 ---------------
 
-.. py:class:: OpenLayer(config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.config.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: paidiverpy.Paidiverpy = None, step_name: str = 'raw', parameters: dict | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
+.. py:class:: OpenLayer(config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.configuration.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: paidiverpy.Paidiverpy = None, step_name: str = 'raw', parameters: dict | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
 
    Bases: :py:obj:`paidiverpy.Paidiverpy`
 
@@ -125,7 +125,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: process_image_sequential(img_path: str, remote: bool = False) -> tuple[numpy.ndarray | dask.array.core.Array, dict]
+   .. py:method:: process_image_sequential(img_path: str, remote: bool = False) -> tuple[numpy.ndarray | dask.array.core.Array, dict, str]
 
       
       Process a single image file.
@@ -135,8 +135,8 @@ Module Contents
       :param remote: Whether the image is remote. Defaults to False.
       :type remote: bool, optional
 
-      :returns: The processed image data
-      :rtype: np.ndarray | dask.array.core.Array
+      :returns: The processed image, EXIF data, and image path.
+      :rtype: np.ndarray | dask.array.core.Array, dict, str
 
 
 

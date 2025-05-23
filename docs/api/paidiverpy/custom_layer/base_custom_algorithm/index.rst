@@ -32,7 +32,7 @@ Module Contents
    :param metadata: The metadata for the image data
    :type metadata: dict
    :param params: The parameters for the custom algorithm
-   :type params: DynamicConfig
+   :type params: CustomParams
    :param metadata_object: The metadata object for the image data.
    :type metadata_object: pd.DataFrame, optional
 

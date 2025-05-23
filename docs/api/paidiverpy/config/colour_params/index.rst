@@ -5,10 +5,7 @@ paidiverpy.config.colour_params
 
 .. autoapi-nested-parse::
 
-   Colour layer parameters dataclasses.
-
-   This module contains the dataclasses for the parameters of the colour layer
-   functions.
+   Colour layer parameters models.
 
    ..
        !! processed by numpydoc !!
@@ -32,13 +29,13 @@ Classes
 Module Contents
 ---------------
 
-.. py:class:: GrayScaleParams
+.. py:class:: GrayScaleParams(/, **data: Any)
 
-   Bases: :py:obj:`paidiverpy.utils.dynamic_classes.DynamicConfig`
+   Bases: :py:obj:`paidiverpy.utils.base_model.BaseModel`
 
 
    
-   This class contains the parameters for the grayscale conversion.
+   Parameters for the grayscale conversion.
 
 
 
@@ -58,13 +55,13 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:class:: GaussianBlurParams
+.. py:class:: GaussianBlurParams(/, **data: Any)
 
-   Bases: :py:obj:`paidiverpy.utils.dynamic_classes.DynamicConfig`
+   Bases: :py:obj:`paidiverpy.utils.base_model.BaseModel`
 
 
    
-   This class contains the parameters for the Gaussian blur.
+   Parameters for Gaussian blur.
 
 
 
@@ -84,13 +81,13 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:class:: SharpenParams
+.. py:class:: SharpenParams(/, **data: Any)
 
-   Bases: :py:obj:`paidiverpy.utils.dynamic_classes.DynamicConfig`
+   Bases: :py:obj:`paidiverpy.utils.base_model.BaseModel`
 
 
    
-   This class contains the parameters for the sharpening.
+   Parameters for sharpening.
 
 
 
@@ -110,13 +107,13 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:class:: ContrastAdjustmentParams
+.. py:class:: ContrastAdjustmentParams(/, **data: Any)
 
-   Bases: :py:obj:`paidiverpy.utils.dynamic_classes.DynamicConfig`
+   Bases: :py:obj:`paidiverpy.utils.base_model.BaseModel`
 
 
    
-   This class contains the parameters for the contrast adjustment.
+   Parameters for contrast adjustment.
 
 
 
@@ -136,13 +133,13 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:class:: IlluminationCorrectionParams
+.. py:class:: IlluminationCorrectionParams(/, **data: Any)
 
-   Bases: :py:obj:`paidiverpy.utils.dynamic_classes.DynamicConfig`
+   Bases: :py:obj:`paidiverpy.utils.base_model.BaseModel`
 
 
    
-   This class contains the parameters for the illumination correction.
+   Parameters for illumination correction.
 
 
 
@@ -162,13 +159,13 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:class:: DeblurParams
+.. py:class:: DeblurParams(/, **data: Any)
 
-   Bases: :py:obj:`paidiverpy.utils.dynamic_classes.DynamicConfig`
+   Bases: :py:obj:`paidiverpy.utils.base_model.BaseModel`
 
 
    
-   This class contains the parameters for the deblurring.
+   Parameters for deblurring.
 
 
 
@@ -188,13 +185,13 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:class:: ColourAlterationParams
+.. py:class:: ColourAlterationParams(/, **data: Any)
 
-   Bases: :py:obj:`paidiverpy.utils.dynamic_classes.DynamicConfig`
+   Bases: :py:obj:`paidiverpy.utils.base_model.BaseModel`
 
 
    
-   This class contains the parameters for the colour alteration.
+   Parameters for colour alteration.
 
 
 
@@ -214,13 +211,13 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:class:: EdgeDetectionParams
+.. py:class:: EdgeDetectionParams(/, **data: Any)
 
-   Bases: :py:obj:`paidiverpy.utils.dynamic_classes.DynamicConfig`
+   Bases: :py:obj:`paidiverpy.utils.base_model.BaseModel`
 
 
    
-   This class contains the parameters for the edge detection.
+   Parameters for edge detection.
 
 
 

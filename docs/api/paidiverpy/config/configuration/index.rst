@@ -1,7 +1,7 @@
-paidiverpy.config.config
-========================
+paidiverpy.config.configuration
+===============================
 
-.. py:module:: paidiverpy.config.config
+.. py:module:: paidiverpy.config.configuration
 
 .. autoapi-nested-parse::
 
@@ -16,75 +16,11 @@ Classes
 
 .. autoapisummary::
 
-   paidiverpy.config.config.GeneralConfig
-   paidiverpy.config.config.StepConfig
-   paidiverpy.config.config.Configuration
+   paidiverpy.config.configuration.Configuration
 
 
 Module Contents
 ---------------
-
-.. py:class:: GeneralConfig(**kwargs: dict)
-
-   Bases: :py:obj:`paidiverpy.utils.dynamic_classes.DynamicConfig`
-
-
-   
-   General configuration class.
-
-   This class is used to define the general configuration from the configuration file
-       or from the input from the user.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   ..
-       !! processed by numpydoc !!
-
-.. py:class:: StepConfig(**kwargs: dict)
-
-   Bases: :py:obj:`paidiverpy.utils.dynamic_classes.DynamicConfig`
-
-
-   
-   Step configuration class.
-
-   This class is used to define the step configuration from the configuration file
-
-   :param name: The name of the step.
-   :type name: str
-   :param step_name: The name of the step.
-   :type step_name: str
-   :param \*\*kwargs: The step configuration.
-   :type \*\*kwargs: dict
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   ..
-       !! processed by numpydoc !!
 
 .. py:class:: Configuration(config_file_path: str | None = None, add_general: dict | None = None, add_steps: list[dict] | None = None)
 
@@ -114,6 +50,36 @@ Module Contents
 
    ..
        !! processed by numpydoc !!
+
+   .. py:method:: validate_config(config: dict | str | pathlib.Path, local: bool = True) -> None
+      :staticmethod:
+
+
+      
+      Validate the configuration.
+
+      :param config: The configuration to validate.
+      :type config: dict | str | Path
+      :param local: Whether the schema is local. Defaults to True.
+      :type local: bool, optional
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
 
    .. py:method:: add_general(config: dict, validate: bool = False) -> None
 
@@ -145,7 +111,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: add_step(config_index: int | None = None, parameters: dict | None = None, insert: bool = False, validate: bool = False) -> int
+   .. py:method:: add_step(config_index: int | None = None, parameters: dict | None = None, insert: bool = False, validate: bool = False, step_class: paidiverpy.utils.base_model.BaseModel | None = None) -> int
 
       
       Add a step to the configuration.
@@ -158,6 +124,8 @@ Module Contents
       :type insert: bool, optional
       :param validate: Whether to validate the configuration. Defaults to True.
       :type validate: bool, optional
+      :param step_class: The class of the step. Defaults to None.
+      :type step_class: BaseModel, optional
 
       :raises ValueError: Invalid step index.
 
