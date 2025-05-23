@@ -5,10 +5,7 @@ paidiverpy.config.position_params
 
 .. autoapi-nested-parse::
 
-   Position layer parameters.
-
-   This module contains the dataclasses for the parameters of the convert layer
-   functions.
+   Position layer parameters models.
 
    ..
        !! processed by numpydoc !!
@@ -25,13 +22,13 @@ Classes
 Module Contents
 ---------------
 
-.. py:class:: CalculateCornersParams
+.. py:class:: CalculateCornersParams(/, **data: Any)
 
-   Bases: :py:obj:`paidiverpy.utils.dynamic_classes.DynamicConfig`
+   Bases: :py:obj:`paidiverpy.utils.base_model.BaseModel`
 
 
    
-   This class contains the parameters for the overlapping resampling.
+   Parameters for the overlapping resampling calculation.
 
 
 

@@ -1,39 +1,16 @@
-paidiverpy.resample_layer
-=========================
+paidiverpy.sampling_layer.sampling_layer
+========================================
 
-.. py:module:: paidiverpy.resample_layer
+.. py:module:: paidiverpy.sampling_layer.sampling_layer
 
 .. autoapi-nested-parse::
 
-   
-   __init__.py for resample_layer module.
+   SamplingLayer class.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+   Sampling the images based on the configuration file.
 
    ..
        !! processed by numpydoc !!
-
-
-Submodules
-----------
-
-.. toctree::
-   :maxdepth: 1
-
-   /api/paidiverpy/resample_layer/resample_layer/index
 
 
 Classes
@@ -41,13 +18,13 @@ Classes
 
 .. autoapisummary::
 
-   paidiverpy.resample_layer.ResampleLayer
+   paidiverpy.sampling_layer.sampling_layer.SamplingLayer
 
 
-Package Contents
-----------------
+Module Contents
+---------------
 
-.. py:class:: ResampleLayer(parameters: dict, config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.config.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: paidiverpy.Paidiverpy = None, step_name: str | None = None, client: dask.distributed.Client | None = None, config_index: int | None = None, add_new_step: bool = True, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
+.. py:class:: SamplingLayer(parameters: dict, config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.configuration.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: paidiverpy.Paidiverpy = None, step_name: str | None = None, client: dask.distributed.Client | None = None, config_index: int | None = None, add_new_step: bool = True, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
 
    Bases: :py:obj:`paidiverpy.Paidiverpy`
 

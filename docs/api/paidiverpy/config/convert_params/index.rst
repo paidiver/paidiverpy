@@ -5,10 +5,7 @@ paidiverpy.config.convert_params
 
 .. autoapi-nested-parse::
 
-   Convert layer parameters dataclasses.
-
-   This module contains the dataclasses for the parameters of the convert layer
-   functions.
+   Convert layer parameters models.
 
    ..
        !! processed by numpydoc !!
@@ -29,9 +26,9 @@ Classes
 Module Contents
 ---------------
 
-.. py:class:: BitParams
+.. py:class:: BitParams(/, **data: Any)
 
-   Bases: :py:obj:`paidiverpy.utils.dynamic_classes.DynamicConfig`
+   Bases: :py:obj:`paidiverpy.utils.base_model.BaseModel`
 
 
    
@@ -55,9 +52,9 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:class:: ToParams
+.. py:class:: ToParams(/, **data: Any)
 
-   Bases: :py:obj:`paidiverpy.utils.dynamic_classes.DynamicConfig`
+   Bases: :py:obj:`paidiverpy.utils.base_model.BaseModel`
 
 
    
@@ -81,9 +78,9 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:class:: NormalizeParams
+.. py:class:: NormalizeParams(/, **data: Any)
 
-   Bases: :py:obj:`paidiverpy.utils.dynamic_classes.DynamicConfig`
+   Bases: :py:obj:`paidiverpy.utils.base_model.BaseModel`
 
 
    
@@ -107,9 +104,9 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:class:: ResizeParams
+.. py:class:: ResizeParams(/, **data: Any)
 
-   Bases: :py:obj:`paidiverpy.utils.dynamic_classes.DynamicConfig`
+   Bases: :py:obj:`paidiverpy.utils.base_model.BaseModel`
 
 
    
@@ -133,9 +130,9 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:class:: CropParams
+.. py:class:: CropParams(/, **data: Any)
 
-   Bases: :py:obj:`paidiverpy.utils.dynamic_classes.DynamicConfig`
+   Bases: :py:obj:`paidiverpy.utils.base_model.BaseModel`
 
 
    

@@ -1,7 +1,7 @@
-paidiverpy.config.pipeline_params
-=================================
+paidiverpy.pipeline.pipeline_params
+===================================
 
-.. py:module:: paidiverpy.config.pipeline_params
+.. py:module:: paidiverpy.pipeline.pipeline_params
 
 .. autoapi-nested-parse::
 

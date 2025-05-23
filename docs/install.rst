@@ -80,7 +80,7 @@ Fetch the latest image from GitHub:
 Required and additional dependencies
 ------------------------------------
 
-Requirement dependencies details can be found `here <https://github.com/paidiver/paidiverpy/blob/dev/pyproject.toml>`_. These dependencies will be installed automatically when you install the package.
+Requirement dependencies details can be found `here <https://github.com/paidiver/paidiverpy/blob/main/pyproject.toml>`_. These dependencies will be installed automatically when you install the package.
 
 You may also need to install the following packages (required by opencv-python):
 

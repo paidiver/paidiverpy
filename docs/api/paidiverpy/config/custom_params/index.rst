@@ -24,13 +24,13 @@ Classes
 Module Contents
 ---------------
 
-.. py:class:: CustomParams(**kwargs: dict)
+.. py:class:: CustomParams(/, **data: Any)
 
-   Bases: :py:obj:`paidiverpy.utils.dynamic_classes.DynamicConfig`
+   Bases: :py:obj:`paidiverpy.utils.base_model.BaseModel`
 
 
    
-   This class contains the parameters for the custom_params module.
+   Parameters for the custom_params module with support for arbitrary fields.
 
 
 
@@ -49,4 +49,29 @@ Module Contents
 
    ..
        !! processed by numpydoc !!
+
+   .. py:attribute:: model_config
+      :type:  ClassVar[dict]
+
+      
+      Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
 

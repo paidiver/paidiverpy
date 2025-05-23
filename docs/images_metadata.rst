@@ -51,7 +51,7 @@ If using a CSV file, make sure your column names follow certain conventions. The
 - **image-camera-roll-degrees**: The roll angle of the camera when the image was captured.
 
 Column names in your CSV can differ from these standards. The package uses a mapping file, `metadata_conventions.json`, to align your column names with the standard ones:
-`metadata_conventions.json <https://github.com/paidiver/paidiverpy/blob/dev/src/paidiverpy/metadata_parser/metadata_conventions.json>`\_
+`metadata_conventions.json <https://github.com/paidiver/paidiverpy/blob/main/src/paidiverpy/metadata_parser/metadata_conventions.json>`_.
 
 You can use the provided mapping file or supply your own by specifying the path in the configuration file:
 

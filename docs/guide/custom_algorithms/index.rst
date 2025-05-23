@@ -82,7 +82,7 @@ In this example:
 Real Example
 ------------
 
-For a more concrete example, consider the following code snippet (available in `examples/custom_algorithms files <https://github.com/paidiver/paidiverpy/blob/dev/src/paidiverpy/custom_layer/_custom_algorithm_example.py>`_ of the `paidiverpy` package):
+For a more concrete example, consider the following code snippet (available in `examples/custom_algorithms files <https://github.com/paidiver/paidiverpy/blob/main/src/paidiverpy/custom_layer/_custom_algorithm_example.py>`_ of the `paidiverpy` package):
 
 .. literalinclude:: ../../../src/paidiverpy/custom_layer/_custom_algorithm_example.py
 

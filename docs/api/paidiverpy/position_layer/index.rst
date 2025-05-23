@@ -47,7 +47,7 @@ Classes
 Package Contents
 ----------------
 
-.. py:class:: PositionLayer(parameters: dict, config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.config.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: paidiverpy.Paidiverpy = None, step_name: str | None = None, client: dask.distributed.Client | None = None, config_index: int | None = None, add_new_step: bool = True, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
+.. py:class:: PositionLayer(parameters: dict, config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.configuration.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: paidiverpy.Paidiverpy = None, step_name: str | None = None, client: dask.distributed.Client | None = None, config_index: int | None = None, add_new_step: bool = True, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
 
    Bases: :py:obj:`paidiverpy.Paidiverpy`
 

@@ -168,7 +168,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: save(step: str | int | None = None, last: bool = True, output_path: str | None = None, image_format: str = 'png', config: paidiverpy.config.config.Configuration | None = None, client: dask.distributed.Client = None, n_jobs: int = 1, logger: logging.Logger | None = None) -> None
+   .. py:method:: save(step: str | int | None = None, last: bool = True, output_path: str | None = None, image_format: str = 'png', config: paidiverpy.config.configuration.Configuration | None = None, metadata: pandas.DataFrame | None = None, client: dask.distributed.Client = None, n_jobs: int = 1, logger: logging.Logger | None = None) -> None
 
       
       Save the images in the pipeline.
@@ -183,6 +183,8 @@ Module Contents
       :type image_format: str, optional
       :param config: The configuration object. Defaults to None.
       :type config: Configuration, optional
+      :param metadata: The metadata object. Defaults to None.
+      :type metadata: pd.DataFrame, optional
       :param client: The Dask client. Defaults to None.
       :type client: Client, optional
       :param n_jobs: The number of jobs to use. Defaults to 1.
@@ -208,7 +210,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: save_remote(images: list[numpy.ndarray | dask.array.core.Array], output_path: str, image_format: str, client: dask.distributed.Client, n_jobs: int, step_order: int, logger: logging.Logger) -> None
+   .. py:method:: save_remote(images: list[numpy.ndarray | dask.array.core.Array], output_path: str, image_format: str, metadata: pandas.DataFrame, client: dask.distributed.Client, n_jobs: int, step_order: int, logger: logging.Logger) -> None
 
       
       Save the images to a remote location.
@@ -219,6 +221,8 @@ Module Contents
       :type output_path: str
       :param image_format: The image format to save.
       :type image_format: str
+      :param metadata: The metadata object.
+      :type metadata: pd.DataFrame
       :param client: The Dask client.
       :type client: Client
       :param n_jobs: The number of jobs to use.
@@ -246,7 +250,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: save_local(images: list[numpy.ndarray | dask.array.core.Array], output_path: str, image_format: str, client: dask.distributed.Client, n_jobs: int, step_order: int, logger: logging.Logger) -> None
+   .. py:method:: save_local(images: list[numpy.ndarray | dask.array.core.Array], output_path: str, image_format: str, metadata: pandas.DataFrame, client: dask.distributed.Client, n_jobs: int, step_order: int, logger: logging.Logger) -> None
 
       
       Save the images to a local location.
@@ -257,6 +261,8 @@ Module Contents
       :type output_path: str
       :param image_format: The image format to save.
       :type image_format: str
+      :param metadata: The metadata object.
+      :type metadata: pd.DataFrame
       :param client: The Dask client.
       :type client: Client
       :param n_jobs: The number of jobs to use.
@@ -284,7 +290,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: process_and_upload(image: numpy.ndarray | dask.array.core.Array, img_path: str | pathlib.Path, image_format: str, s3_client: dask.distributed.Client | None = None) -> None
+   .. py:method:: process_and_upload(image: numpy.ndarray | dask.array.core.Array, img_path: str | pathlib.Path, image_format: str, s3_client: dask.distributed.Client | None = None, metadata: pandas.DataFrame | None = None) -> None
 
       
       Process and upload the images.
@@ -297,6 +303,8 @@ Module Contents
       :type image_format: str
       :param s3_client: The S3 client. Defaults to None.
       :type s3_client: boto3.client, optional
+      :param metadata: The metadata object. Defaults to None.
+      :type metadata: pd.DataFrame, optional
 
 
 
