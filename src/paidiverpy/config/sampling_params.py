@@ -5,6 +5,7 @@ functions.
 """
 
 from pathlib import Path
+from typing import Literal
 from pydantic import Field
 from paidiverpy.utils.base_model import BaseModel
 
@@ -12,15 +13,27 @@ from paidiverpy.utils.base_model import BaseModel
 class SamplingDatetimeParams(BaseModel):
     """Parameters for datetime resampling."""
 
-    min: str | None = Field(default=None, description="Minimum datetime bound (ISO 8601 format)")
-    max: str | None = Field(default=None, description="Maximum datetime bound (ISO 8601 format)")
+    min: str | None = Field(
+        default=None,
+        description=(
+            "Minimum datetime bound (ISO 8601 format). "
+            "If not provided, it will use the earliest datetime in the dataset."
+        ),
+    )
+    max: str | None = Field(
+        default=None,
+        description=(
+            "Maximum datetime bound (ISO 8601 format). "
+            "If not provided, it will use the latest datetime in the dataset."
+        ),
+    )
     raise_error: bool = Field(default=False, description="Raise error on failure")
 
 
 class SamplingDepthParams(BaseModel):
     """Parameters for depth resampling."""
 
-    by: str = Field(default="lower", description="Resampling strategy (e.g., 'lower', 'upper')")
+    by: Literal["lower", "upper"] = Field(default="lower", description="Resampling strategy (e.g., 'lower', 'upper')")
     value: float | None = Field(default=None, description="Depth value threshold")
     raise_error: bool = Field(default=False, description="Raise error on failure")
 
@@ -28,7 +41,7 @@ class SamplingDepthParams(BaseModel):
 class SamplingAltitudeParams(BaseModel):
     """Parameters for altitude resampling."""
 
-    by: str = Field(default="lower", description="Resampling strategy (e.g., 'lower', 'upper')")
+    by: Literal["lower", "upper"] = Field(default="lower", description="Resampling strategy (e.g., 'lower', 'upper')")
     value: float | None = Field(default=None, description="Altitude value threshold")
     raise_error: bool = Field(default=False, description="Raise error on failure")
 

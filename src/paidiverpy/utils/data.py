@@ -84,7 +84,7 @@ class PaidiverpyData:
     """A class to download and load datasets."""
 
     def __init__(self):
-        self.logger = logging.getLogger("paidiverpy") or initialise_logging()
+        self.logger = initialise_logging()
 
     def load(self, dataset_name: str) -> dict:
         """Download, unzip, and load the specified dataset.

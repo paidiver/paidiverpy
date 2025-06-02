@@ -76,3 +76,5 @@ function showParameters(id, randomId) {{
       }}
   }}
 }}
+
+hljs.highlightAll();

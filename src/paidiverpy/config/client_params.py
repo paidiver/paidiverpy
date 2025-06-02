@@ -13,4 +13,4 @@ class ClientParams(BaseModel):
     """
 
     cluster_type: Literal["local", "slurm"] = Field(default="local", description="Type of cluster")
-    params: dict = Field({}, description="Parameters for the cluster")
+    params: dict = Field({"n_workers": 0}, description="Parameters for the cluster")

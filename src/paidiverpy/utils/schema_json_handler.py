@@ -3,22 +3,23 @@
 import argparse
 import copy
 import json
-import logging
 from pathlib import Path
 from pydantic import Field
 from paidiverpy.config.configuration import config_name_mapping
 from paidiverpy.config.general_config import GeneralConfig
 from paidiverpy.config.step_config import StepConfigUnion
 from paidiverpy.utils.base_model import BaseModel
+from paidiverpy.utils.logging_functions import initialise_logging
 
-logger = logging.getLogger(__name__)
+logger = initialise_logging()
 
 
 class ConfigModel(BaseModel):
     """Step configuration model."""
 
     general: GeneralConfig = Field(description="General configuration")
-    steps: list[StepConfigUnion] | None = Field(default=None, description="List of step configurations")
+    # steps: list[StepConfigUnion] | None = Field(default=None, description="List of step configurations")
+    steps: list[StepConfigUnion] = Field(description="List of step configurations")
 
 
 def generate_schema(output_path: str) -> None:
@@ -77,5 +78,4 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate JSON schema for Paidiverpy configuration.")
     parser.add_argument("output_path", help="Path to save the generated JSON schema file")
     args = parser.parse_args()
-    logging.basicConfig(level=logging.INFO)
     generate_schema(args.output_path)
