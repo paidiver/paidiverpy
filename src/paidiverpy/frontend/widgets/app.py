@@ -43,7 +43,7 @@ class App:
     def create_pipeline_widget(self):
 
         if self.pipeline:
-            html = self.pipeline._repr_html_()
+            html = self.pipeline._repr_html_(only_html=True)
             self.pipeline_widget.clear()
             self.pipeline_widget.append(self.run_pipeline_button)
             self.pipeline_widget.append(pn.pane.HTML(html, sizing_mode="stretch_width"))
@@ -278,7 +278,7 @@ class App:
         submit_button = pn.widgets.Button(name="Create/Update General", button_type="primary")
         submit_button.on_click(on_submit)
 
-        self.general_form = pn.Column(*general_widget.layout, pn.Row(submit_button))
+        self.general_form = pn.Column(pn.Row(submit_button), *general_widget.layout, pn.Row(submit_button))
 
         general_widget.layout = pn.Column(
             title_button,
