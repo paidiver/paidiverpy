@@ -47,6 +47,7 @@ function hide(stepIndex) {
 
 
 function showParameters(id, randomId) {{
+  console.log('showParameters called with id:', id, 'and randomId:', randomId);
   // Hide all parameter sections
   var currentTarget = document.getElementById('ppy-pipeline-' + randomId + '-' + id);
   var square = document.getElementsByClassName('ppy-pipeline-' + randomId);

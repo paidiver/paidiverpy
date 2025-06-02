@@ -18,7 +18,7 @@ pn.config.css_files.append(EXTERNAL_CSS)
 
 pn.config.js_files={
     "external": EXTERNAL_JS[0],
-    "inline": files("paidiverpy.static.js").joinpath("script.js")
+    "inline": "https://raw.githubusercontent.com/paidiver/paidiverpy/refs/heads/186-enhance-exif-handling-in-processed-images/src/paidiverpy/static/js/script.js"
 }
 
 
