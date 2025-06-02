@@ -64,7 +64,9 @@
                     "type": "string"
                 },
                 "params": {
-                    "default": {},
+                    "default": {
+                        "n_workers": 0
+                    },
                     "description": "Parameters for the cluster",
                     "title": "Params",
                     "type": "object"
@@ -104,7 +106,7 @@
                             "type": "null"
                         }
                     ],
-                    "default": null,
+                    "default": "colour",
                     "description": "Name of the step",
                     "title": "Name"
                 },
@@ -126,45 +128,6 @@
                     "description": "Test mode",
                     "title": "Test",
                     "type": "boolean"
-                },
-                "file_path": {
-                    "anyOf": [
-                        {
-                            "type": "string"
-                        },
-                        {
-                            "type": "null"
-                        }
-                    ],
-                    "default": null,
-                    "description": "File path for custom step",
-                    "title": "File Path"
-                },
-                "class_name": {
-                    "anyOf": [
-                        {
-                            "type": "string"
-                        },
-                        {
-                            "type": "null"
-                        }
-                    ],
-                    "default": null,
-                    "description": "Class name for custom step",
-                    "title": "Class Name"
-                },
-                "mode": {
-                    "anyOf": [
-                        {
-                            "type": "string"
-                        },
-                        {
-                            "type": "null"
-                        }
-                    ],
-                    "default": null,
-                    "description": "Mode for the step",
-                    "title": "Mode"
                 },
                 "params": {
                     "anyOf": [
@@ -202,8 +165,26 @@
                     "default": null,
                     "description": "Colour parameters",
                     "title": "Params"
+                },
+                "mode": {
+                    "description": "Mode for the colour step",
+                    "enum": [
+                        "grayscale",
+                        "gaussian_blur",
+                        "edge_detection",
+                        "sharpen",
+                        "contrast",
+                        "deblur",
+                        "illumination_correction",
+                        "colour_alteration"
+                    ],
+                    "title": "Mode",
+                    "type": "string"
                 }
             },
+            "required": [
+                "mode"
+            ],
             "title": "ColourConfig",
             "type": "object"
         },
@@ -276,7 +257,7 @@
                             "type": "null"
                         }
                     ],
-                    "default": null,
+                    "default": "convert",
                     "description": "Name of the step",
                     "title": "Name"
                 },
@@ -298,45 +279,6 @@
                     "description": "Test mode",
                     "title": "Test",
                     "type": "boolean"
-                },
-                "file_path": {
-                    "anyOf": [
-                        {
-                            "type": "string"
-                        },
-                        {
-                            "type": "null"
-                        }
-                    ],
-                    "default": null,
-                    "description": "File path for custom step",
-                    "title": "File Path"
-                },
-                "class_name": {
-                    "anyOf": [
-                        {
-                            "type": "string"
-                        },
-                        {
-                            "type": "null"
-                        }
-                    ],
-                    "default": null,
-                    "description": "Class name for custom step",
-                    "title": "Class Name"
-                },
-                "mode": {
-                    "anyOf": [
-                        {
-                            "type": "string"
-                        },
-                        {
-                            "type": "null"
-                        }
-                    ],
-                    "default": null,
-                    "description": "Mode for the step",
-                    "title": "Mode"
                 },
                 "params": {
                     "anyOf": [
@@ -365,8 +307,23 @@
                     "default": null,
                     "description": "Convert parameters",
                     "title": "Params"
+                },
+                "mode": {
+                    "description": "Mode for the convert step",
+                    "enum": [
+                        "bits",
+                        "to",
+                        "normalize",
+                        "resize",
+                        "crop"
+                    ],
+                    "title": "Mode",
+                    "type": "string"
                 }
             },
+            "required": [
+                "mode"
+            ],
             "title": "ConvertConfig",
             "type": "object"
         },
@@ -452,9 +409,19 @@
                             "type": "null"
                         }
                     ],
-                    "default": null,
+                    "default": "custom",
                     "description": "Name of the step",
                     "title": "Name"
+                },
+                "file_path": {
+                    "description": "File path for custom step",
+                    "title": "File Path",
+                    "type": "string"
+                },
+                "class_name": {
+                    "description": "Class name for custom step",
+                    "title": "Class Name",
+                    "type": "string"
                 },
                 "step_name": {
                     "anyOf": [
@@ -475,33 +442,33 @@
                     "title": "Test",
                     "type": "boolean"
                 },
-                "file_path": {
-                    "anyOf": [
-                        {
-                            "type": "string"
-                        },
-                        {
-                            "type": "null"
-                        }
+                "processing_type": {
+                    "default": "image",
+                    "description": "If the images are processed individually or as a dataset",
+                    "enum": [
+                        "image",
+                        "dataset"
                     ],
-                    "default": null,
-                    "description": "File path for custom step",
-                    "title": "File Path"
+                    "title": "Processing Type",
+                    "type": "string"
                 },
-                "class_name": {
+                "dependencies": {
                     "anyOf": [
                         {
-                            "type": "string"
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
                         },
                         {
                             "type": "null"
                         }
                     ],
                     "default": null,
-                    "description": "Class name for custom step",
-                    "title": "Class Name"
+                    "description": "Dependencies for the custom step",
+                    "title": "Dependencies"
                 },
-                "mode": {
+                "dependencies_path": {
                     "anyOf": [
                         {
                             "type": "string"
@@ -511,8 +478,8 @@
                         }
                     ],
                     "default": null,
-                    "description": "Mode for the step",
-                    "title": "Mode"
+                    "description": "Path to the requirements file for the custom step",
+                    "title": "Dependencies Path"
                 },
                 "params": {
                     "anyOf": [
@@ -531,6 +498,10 @@
                     "title": "Params"
                 }
             },
+            "required": [
+                "file_path",
+                "class_name"
+            ],
             "title": "CustomConfig",
             "type": "object"
         },
@@ -717,19 +688,26 @@
             "properties": {
                 "name": {
                     "default": "raw",
-                    "description": "Name of the configuration",
+                    "description": "Name of the first step (the step to open images)",
                     "title": "Name",
                     "type": "string"
                 },
                 "step_name": {
                     "default": "open",
-                    "description": "Step name",
+                    "description": "Step name. This is a placeholder for the first step name and should not be used in the configuration file.",
                     "title": "Step Name",
                     "type": "string"
                 },
                 "sample_data": {
                     "anyOf": [
                         {
+                            "enum": [
+                                "plankton_csv",
+                                "benthic_csv",
+                                "benthic_ifdo",
+                                "nef_raw",
+                                "benthic_raw_images"
+                            ],
                             "type": "string"
                         },
                         {
@@ -737,7 +715,7 @@
                         }
                     ],
                     "default": null,
-                    "description": "Sample data type",
+                    "description": "Sample data to use for testing. If provided, it will override input_path, metadata_path, and metadata_type.",
                     "title": "Sample Data"
                 },
                 "input_path": {
@@ -754,7 +732,7 @@
                         }
                     ],
                     "default": null,
-                    "description": "Input path for image data",
+                    "description": "Input path for image data. Can be a local path or a remote URL.",
                     "title": "Input Path"
                 },
                 "output_path": {
@@ -768,7 +746,7 @@
                         }
                     ],
                     "default": "output",
-                    "description": "Output path for results",
+                    "description": "Output path for results. Can be a local path or a remote URL.",
                     "title": "Output Path"
                 },
                 "metadata_path": {
@@ -785,12 +763,16 @@
                         }
                     ],
                     "default": null,
-                    "description": "Path to metadata",
+                    "description": "Path to metadata. Can be a local path or a remote URL.",
                     "title": "Metadata Path"
                 },
                 "metadata_type": {
                     "anyOf": [
                         {
+                            "enum": [
+                                "IFDO",
+                                "CSV_FILE"
+                            ],
                             "type": "string"
                         },
                         {
@@ -798,12 +780,20 @@
                         }
                     ],
                     "default": null,
-                    "description": "Type of metadata",
+                    "description": "Type of metadata. Can be 'IFDO' or 'CSV_FILE'",
                     "title": "Metadata Type"
                 },
                 "image_open_args": {
-                    "default": null,
-                    "description": "Arguments to use when opening images",
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "$ref": "#/$defs/ImageOpenArgs"
+                        }
+                    ],
+                    "default": "",
+                    "description": "Arguments to use when opening images. It can be a string with the image format or an ImageOpenArgs object. If it is a empty string, the type will be inferred from the file extension.",
                     "title": "Image Open Args"
                 },
                 "append_data_to_metadata": {
@@ -816,7 +806,7 @@
                         }
                     ],
                     "default": null,
-                    "description": "Append data to metadata",
+                    "description": "Path to append data to metadata. If provided, it will be used to append data to the metadata file.",
                     "title": "Append Data To Metadata"
                 },
                 "metadata_conventions": {
@@ -829,7 +819,7 @@
                         }
                     ],
                     "default": null,
-                    "description": "Metadata conventions to apply",
+                    "description": "Metadata conventions to apply. If not provided, it will use the default conventions name described in the documentation.",
                     "title": "Metadata Conventions"
                 },
                 "n_jobs": {
@@ -848,17 +838,21 @@
                         }
                     ],
                     "default": null,
-                    "description": "Dask client object if available"
+                    "description": "Dask Client configuration. If None, it will not use Dask Client."
                 },
                 "track_changes": {
                     "default": true,
-                    "description": "Whether to track config changes",
+                    "description": "Whether to track config changes. If True, it will store in memory the output images on each step",
                     "title": "Track Changes",
                     "type": "boolean"
                 },
                 "rename": {
                     "anyOf": [
                         {
+                            "enum": [
+                                "UUID",
+                                "datetime"
+                            ],
                             "type": "string"
                         },
                         {
@@ -866,7 +860,7 @@
                         }
                     ],
                     "default": null,
-                    "description": "Field name to use for renaming",
+                    "description": "Field name to use for renaming. If not provided, the name will be the same as the input file name.",
                     "title": "Rename"
                 },
                 "sampling": {
@@ -882,7 +876,7 @@
                         }
                     ],
                     "default": null,
-                    "description": "Sampling step configurations",
+                    "description": "Sampling step configurations to be applied to the images before processing them. If not provided, no sampling will be applied.",
                     "title": "Sampling"
                 },
                 "convert": {
@@ -898,7 +892,7 @@
                         }
                     ],
                     "default": null,
-                    "description": "Convert step configurations",
+                    "description": "Convert step configurations to be applied to the images before processing them. If not provided, no conversion will be applied.",
                     "title": "Convert"
                 }
             },
@@ -955,6 +949,176 @@
             "title": "IlluminationCorrectionParams",
             "type": "object"
         },
+        "ImageOpenArgs": {
+            "description": "Wrapper for specifying image format and associated parameters.",
+            "properties": {
+                "image_type": {
+                    "default": "",
+                    "description": "Image format (e.g., 'PNG', 'JPEG', 'RAW', and others). ",
+                    "title": "Image Type",
+                    "type": "string"
+                },
+                "params": {
+                    "anyOf": [
+                        {
+                            "type": "object"
+                        },
+                        {
+                            "$ref": "#/$defs/ImageOpenArgsRawParams"
+                        },
+                        {
+                            "$ref": "#/$defs/ImageOpenArgsOpenCVParams"
+                        }
+                    ],
+                    "description": "Parameters for the image",
+                    "title": "Params"
+                }
+            },
+            "title": "ImageOpenArgs",
+            "type": "object"
+        },
+        "ImageOpenArgsOpenCVParams": {
+            "description": "Parameters for OpenCV image loading.",
+            "properties": {
+                "dtype": {
+                    "default": "uint8",
+                    "description": "Data type of the image (e.g., 'uint8', 'float32')",
+                    "title": "Dtype",
+                    "type": "string"
+                },
+                "flags": {
+                    "default": -1,
+                    "description": "OpenCV flags for image loading (e.g., cv2.IMREAD_COLOR). Default is -1 for loading the image as is.",
+                    "enum": [
+                        -1,
+                        0,
+                        1,
+                        2,
+                        4,
+                        8,
+                        16,
+                        17,
+                        32,
+                        33,
+                        64,
+                        65,
+                        128
+                    ],
+                    "title": "Flags",
+                    "type": "integer"
+                }
+            },
+            "title": "ImageOpenArgsOpenCVParams",
+            "type": "object"
+        },
+        "ImageOpenArgsRawParams": {
+            "description": "Parameters for manually loading raw images with specific metadata.\n\nThese parameters are required when the image format is not supported by standard libraries.",
+            "properties": {
+                "width": {
+                    "default": 0,
+                    "description": "Image width in pixels.",
+                    "title": "Width",
+                    "type": "integer"
+                },
+                "height": {
+                    "default": 0,
+                    "description": "Image height in pixels.",
+                    "title": "Height",
+                    "type": "integer"
+                },
+                "bit_depth": {
+                    "default": 8,
+                    "description": "Bit depth of the image: 8 or 16.",
+                    "enum": [
+                        8,
+                        16
+                    ],
+                    "title": "Bit Depth",
+                    "type": "integer"
+                },
+                "endianness": {
+                    "anyOf": [
+                        {
+                            "enum": [
+                                "little",
+                                "big"
+                            ],
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Endianness of the image data. Only applicable to 16-bit images.",
+                    "title": "Endianness"
+                },
+                "layout": {
+                    "anyOf": [
+                        {
+                            "enum": [
+                                "5:6:5",
+                                "5:5:5",
+                                "6:5:5",
+                                "5:5:6"
+                            ],
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": "5:6:5",
+                    "description": "RGB layout format (e.g. RGB565). Only for 16-bit images.",
+                    "title": "Layout"
+                },
+                "image_misc": {
+                    "default": "",
+                    "description": "Comma-separated string for image flags (e.g., 'bayer,vertical_flip').",
+                    "title": "Image Misc",
+                    "type": "string"
+                },
+                "bayer_pattern": {
+                    "anyOf": [
+                        {
+                            "enum": [
+                                "GB",
+                                "RG",
+                                "BG",
+                                "GR"
+                            ],
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Bayer pattern (e.g., GB, RG, BG, GR). Only for 8-bit bayer images.",
+                    "title": "Bayer Pattern"
+                },
+                "file_header_size": {
+                    "default": 0,
+                    "description": "Number of bytes to skip at the beginning of the file.",
+                    "title": "File Header Size",
+                    "type": "integer"
+                },
+                "swap_bytes": {
+                    "default": false,
+                    "description": "Swap bytes for endianness conversion. Only applicable for 16-bit images.",
+                    "title": "Swap Bytes",
+                    "type": "boolean"
+                },
+                "channels": {
+                    "default": 1,
+                    "description": "Number of channels in the image. Default is 1 (grayscale).",
+                    "title": "Channels",
+                    "type": "integer"
+                }
+            },
+            "title": "ImageOpenArgsRawParams",
+            "type": "object"
+        },
         "NormalizeParams": {
             "description": "This class contains the parameters for the image normalization.",
             "properties": {
@@ -998,7 +1162,7 @@
                             "type": "null"
                         }
                     ],
-                    "default": null,
+                    "default": "position",
                     "description": "Name of the step",
                     "title": "Name"
                 },
@@ -1021,45 +1185,6 @@
                     "title": "Test",
                     "type": "boolean"
                 },
-                "file_path": {
-                    "anyOf": [
-                        {
-                            "type": "string"
-                        },
-                        {
-                            "type": "null"
-                        }
-                    ],
-                    "default": null,
-                    "description": "File path for custom step",
-                    "title": "File Path"
-                },
-                "class_name": {
-                    "anyOf": [
-                        {
-                            "type": "string"
-                        },
-                        {
-                            "type": "null"
-                        }
-                    ],
-                    "default": null,
-                    "description": "Class name for custom step",
-                    "title": "Class Name"
-                },
-                "mode": {
-                    "anyOf": [
-                        {
-                            "type": "string"
-                        },
-                        {
-                            "type": "null"
-                        }
-                    ],
-                    "default": null,
-                    "description": "Mode for the step",
-                    "title": "Mode"
-                },
                 "params": {
                     "anyOf": [
                         {
@@ -1075,8 +1200,20 @@
                     "default": null,
                     "description": "Position parameters",
                     "title": "Params"
+                },
+                "mode": {
+                    "const": "calculate_corners",
+                    "description": "Mode for the position step",
+                    "enum": [
+                        "calculate_corners"
+                    ],
+                    "title": "Mode",
+                    "type": "string"
                 }
             },
+            "required": [
+                "mode"
+            ],
             "title": "PositionConfig",
             "type": "object"
         },
@@ -1150,6 +1287,10 @@
                 "by": {
                     "default": "lower",
                     "description": "Resampling strategy (e.g., 'lower', 'upper')",
+                    "enum": [
+                        "lower",
+                        "upper"
+                    ],
                     "title": "By",
                     "type": "string"
                 },
@@ -1188,7 +1329,7 @@
                             "type": "null"
                         }
                     ],
-                    "default": null,
+                    "default": "sampling",
                     "description": "Name of the step",
                     "title": "Name"
                 },
@@ -1210,45 +1351,6 @@
                     "description": "Test mode",
                     "title": "Test",
                     "type": "boolean"
-                },
-                "file_path": {
-                    "anyOf": [
-                        {
-                            "type": "string"
-                        },
-                        {
-                            "type": "null"
-                        }
-                    ],
-                    "default": null,
-                    "description": "File path for custom step",
-                    "title": "File Path"
-                },
-                "class_name": {
-                    "anyOf": [
-                        {
-                            "type": "string"
-                        },
-                        {
-                            "type": "null"
-                        }
-                    ],
-                    "default": null,
-                    "description": "Class name for custom step",
-                    "title": "Class Name"
-                },
-                "mode": {
-                    "anyOf": [
-                        {
-                            "type": "string"
-                        },
-                        {
-                            "type": "null"
-                        }
-                    ],
-                    "default": null,
-                    "description": "Mode for the step",
-                    "title": "Mode"
                 },
                 "params": {
                     "anyOf": [
@@ -1289,8 +1391,27 @@
                     "default": null,
                     "description": "Sampling parameters",
                     "title": "Params"
+                },
+                "mode": {
+                    "description": "Mode for the sampling step",
+                    "enum": [
+                        "datetime",
+                        "depth",
+                        "altitude",
+                        "pitch_roll",
+                        "overlapping",
+                        "fixed",
+                        "percent",
+                        "region",
+                        "obscure"
+                    ],
+                    "title": "Mode",
+                    "type": "string"
                 }
             },
+            "required": [
+                "mode"
+            ],
             "title": "SamplingConfig",
             "type": "object"
         },
@@ -1307,7 +1428,7 @@
                         }
                     ],
                     "default": null,
-                    "description": "Minimum datetime bound (ISO 8601 format)",
+                    "description": "Minimum datetime bound (ISO 8601 format). If not provided, it will use the earliest datetime in the dataset.",
                     "title": "Min"
                 },
                 "max": {
@@ -1320,7 +1441,7 @@
                         }
                     ],
                     "default": null,
-                    "description": "Maximum datetime bound (ISO 8601 format)",
+                    "description": "Maximum datetime bound (ISO 8601 format). If not provided, it will use the latest datetime in the dataset.",
                     "title": "Max"
                 },
                 "raise_error": {
@@ -1339,6 +1460,10 @@
                 "by": {
                     "default": "lower",
                     "description": "Resampling strategy (e.g., 'lower', 'upper')",
+                    "enum": [
+                        "lower",
+                        "upper"
+                    ],
                     "title": "By",
                     "type": "string"
                 },

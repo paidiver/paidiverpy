@@ -101,7 +101,7 @@ class ColourLayer(Paidiverpy):
         )
 
         self.step_name = step_name
-        self.config_index = self.config.add_step(config_index, parameters)
+        self.config_index = self.config.add_step(config_index, parameters, step_class=ColourLayer)
         self.step_metadata = self._calculate_steps_metadata(self.config.steps[self.config_index])
         self.raise_error = self._calculate_raise_error()
         self.layer_methods = COLOUR_LAYER_METHODS

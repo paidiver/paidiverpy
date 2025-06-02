@@ -26,25 +26,23 @@ class GeneralConfig(BaseModel):
     """
 
     name: str = Field("raw", description="Name of the first step (the step to open images)")
-    step_name: str = Field("open",
-                           description="Step name. This is a placeholder for the first step name and should not be used in the configuration file.")
-    sample_data: Literal[
-        "plankton_csv",
-        "benthic_csv",
-        "benthic_ifdo",
-        "nef_raw",
-        "benthic_raw_images"
-    ] | None = Field(
+    step_name: str = Field(
+        "open", description="Step name. This is a placeholder for the first step name and should not be used in the configuration file."
+    )
+    sample_data: Literal["plankton_csv", "benthic_csv", "benthic_ifdo", "nef_raw", "benthic_raw_images"] | None = Field(
         None,
         description="Sample data to use for testing. If provided, it will override input_path, metadata_path, and metadata_type.",
     )
     input_path: str | Path | None = Field(None, description="Input path for image data. Can be a local path or a remote URL.")
     output_path: str | Path = Field("output", description="Output path for results. Can be a local path or a remote URL.")
     metadata_path: str | Path | None = Field(None, description="Path to metadata. Can be a local path or a remote URL.")
-    metadata_type: Literal[
-        "IFDO",
-        "CSV_FILE",
-    ] | None = Field(None, description="Type of metadata. Can be 'IFDO' or 'CSV_FILE'")
+    metadata_type: (
+        Literal[
+            "IFDO",
+            "CSV_FILE",
+        ]
+        | None
+    ) = Field(None, description="Type of metadata. Can be 'IFDO' or 'CSV_FILE'")
     image_open_args: str | ImageOpenArgs = Field(
         "",
         description=(
@@ -54,44 +52,30 @@ class GeneralConfig(BaseModel):
     )
     append_data_to_metadata: str | None = Field(
         None,
-        description=(
-            "Path to append data to metadata. If provided, it will be used to append "
-            "data to the metadata file."
-        ),
+        description=("Path to append data to metadata. If provided, it will be used to append data to the metadata file."),
     )
     metadata_conventions: str | None = Field(
         None,
-        description=(
-            "Metadata conventions to apply. If not provided, it will use the default "
-            "conventions name described in the documentation."
-        ),
+        description=("Metadata conventions to apply. If not provided, it will use the default conventions name described in the documentation."),
     )
     n_jobs: int = Field(1, description="Number of jobs for parallel processing")
-    client: None | ClientParams = Field(
-        default=None,
-        description=(
-            "Dask Client configuration. If None, it will not use Dask Client."
-        )
-    )
+    client: None | ClientParams = Field(default=None, description=("Dask Client configuration. If None, it will not use Dask Client."))
 
     track_changes: bool = Field(True, description="Whether to track config changes. If True, it will store in memory the output images on each step")
-    rename: Literal[
-        "UUID",
-        "datetime"
-    ] | None = Field(None, description="Field name to use for renaming. If not provided, the name will be the same as the input file name.")
+    rename: Literal["UUID", "datetime"] | None = Field(
+        None, description="Field name to use for renaming. If not provided, the name will be the same as the input file name."
+    )
     sampling: list[SamplingConfig] | None = Field(
         None,
         description=(
-            "Sampling step configurations to be applied to the images before processing them. "
-            "If not provided, no sampling will be applied."
+            "Sampling step configurations to be applied to the images before processing them. If not provided, no sampling will be applied."
         ),
     )
 
     convert: list[ConvertConfig] | None = Field(
         None,
         description=(
-            "Convert step configurations to be applied to the images before processing "
-            "them. If not provided, no conversion will be applied."
+            "Convert step configurations to be applied to the images before processing them. If not provided, no conversion will be applied."
         ),
     )
 

@@ -101,7 +101,7 @@ class Configuration:
         self._load_steps(config_data)
 
     @staticmethod
-    def validate_config(config: dict | str | Path, local: bool=True) -> None:
+    def validate_config(config: dict | str | Path, local: bool = True) -> None:
         """Validate the configuration.
 
         Args:

@@ -1,10 +1,10 @@
 """This module provides functions to extract values from a Panel layout and convert them into a structured JSON-like dictionary."""
+
 import re
 import panel as pn
 
 
-def find_deep_layout(layout: pn.widgets.Widget,
-                     founds: list[pn.widgets.Widget]) -> list[pn.widgets.Widget]:
+def find_deep_layout(layout: pn.widgets.Widget, founds: list[pn.widgets.Widget]) -> list[pn.widgets.Widget]:
     """Recursively find all widgets and layouts in a Panel layout.
 
     Args:
@@ -24,8 +24,8 @@ def find_deep_layout(layout: pn.widgets.Widget,
             find_deep_layout(child, founds)
     return founds
 
-def check_valid_inputs(widget: pn.widgets.Widget,
-                       step: bool = False) -> bool:
+
+def check_valid_inputs(widget: pn.widgets.Widget, step: bool = False) -> bool:
     """Check if a widget is valid for extraction.
 
     Args:
@@ -47,6 +47,7 @@ def check_valid_inputs(widget: pn.widgets.Widget,
         return False
     return "Provide" not in widget.name
 
+
 def parse_name(name: str) -> list:
     """Parse a widget name into a list of keys.
 
@@ -56,12 +57,10 @@ def parse_name(name: str) -> list:
     Returns:
         list: A list of keys parsed from the name, converting numeric parts to integers.
     """
-    return [int(part) if part.isdigit() else part
-            for part in re.findall(r"\w+|\[\d+\]", name.replace("[", ".").replace("]", ""))]
+    return [int(part) if part.isdigit() else part for part in re.findall(r"\w+|\[\d+\]", name.replace("[", ".").replace("]", ""))]
 
-def insert_nested(result: dict,
-                  keys: list,
-                  value: any) -> None:
+
+def insert_nested(result: dict, keys: list, value: any) -> None:
     """Insert a value into a nested dictionary structure based on keys.
 
     Args:
@@ -82,8 +81,8 @@ def insert_nested(result: dict,
         else:
             current[key] = value
 
-def extract_values(widgets: list[pn.widgets.Widget],
-                   step: bool = False) -> dict:
+
+def extract_values(widgets: list[pn.widgets.Widget], step: bool = False) -> dict:
     """Extract values from a list of widgets and return them as a structured dictionary.
 
     Args:
@@ -99,7 +98,8 @@ def extract_values(widgets: list[pn.widgets.Widget],
     for widget in widgets:
         if not check_valid_inputs(widget, step):
             continue
-
+        if "type_selector" in widget.name and step:
+            step = False
         keys = parse_name(widget.name)
         value = widget.value
 
@@ -125,8 +125,7 @@ def extract_values(widgets: list[pn.widgets.Widget],
     return result
 
 
-def extract_json(layout: pn.widgets.Widget,
-                 step: bool = False) -> dict:
+def extract_json(layout: pn.widgets.Widget, step: bool = False) -> dict:
     """Extract JSON-like dictionary from a Panel layout or widget.
 
     Args:

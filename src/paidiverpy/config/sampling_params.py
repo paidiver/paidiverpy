@@ -15,17 +15,11 @@ class SamplingDatetimeParams(BaseModel):
 
     min: str | None = Field(
         default=None,
-        description=(
-            "Minimum datetime bound (ISO 8601 format). "
-            "If not provided, it will use the earliest datetime in the dataset."
-        ),
+        description=("Minimum datetime bound (ISO 8601 format). If not provided, it will use the earliest datetime in the dataset."),
     )
     max: str | None = Field(
         default=None,
-        description=(
-            "Maximum datetime bound (ISO 8601 format). "
-            "If not provided, it will use the latest datetime in the dataset."
-        ),
+        description=("Maximum datetime bound (ISO 8601 format). If not provided, it will use the latest datetime in the dataset."),
     )
     raise_error: bool = Field(default=False, description="Raise error on failure")
 

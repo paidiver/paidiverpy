@@ -1,6 +1,5 @@
 """Step configuration module."""
 
-import logging
 from typing import Any
 from typing import ClassVar
 from typing import Literal
@@ -92,8 +91,10 @@ class StepConfig(BaseModel):
             setattr(self, key, val)
         return self
 
+
 class PositionConfig(StepConfig):
     """Position configuration model."""
+
     name: str | None = Field("position", description="Name of the step")
     mode: PositionModeLiteral = Field(
         description="Mode for the position step",
@@ -101,8 +102,10 @@ class PositionConfig(StepConfig):
     test: bool = Field(False, description="Test mode")
     params: PositionParamsUnion | None = Field(default=None, description="Position parameters")
 
+
 class ColourConfig(StepConfig):
     """Colour configuration model."""
+
     name: str | None = Field("colour", description="Name of the step")
     mode: ColourModeLiteral = Field(
         description="Mode for the colour step",
@@ -110,8 +113,10 @@ class ColourConfig(StepConfig):
     test: bool = Field(False, description="Test mode")
     params: ColourParamsUnion | None = Field(default=None, description="Colour parameters")
 
+
 class ConvertConfig(StepConfig):
     """Convert configuration model."""
+
     name: str | None = Field("convert", description="Name of the step")
     mode: ConvertModeLiteral = Field(description="Mode for the convert step")
     test: bool = Field(False, description="Test mode")
@@ -120,21 +125,24 @@ class ConvertConfig(StepConfig):
 
 class SamplingConfig(StepConfig):
     """Sampling configuration model."""
+
     name: str | None = Field("sampling", description="Name of the step")
     mode: SamplingModeLiteral = Field(description="Mode for the sampling step")
     test: bool = Field(False, description="Test mode")
     params: SamplingParamsUnion | None = Field(default=None, description="Sampling parameters")
 
 
-class CustomConfig(StepConfig):
+class CustomConfig(BaseModel):
     """Custom configuration model."""
+
     name: str | None = Field("custom", description="Name of the step")
-    file_path: str | None = Field(None, description="File path for custom step")
-    class_name: str | None = Field(None, description="Class name for custom step")
+    file_path: str = Field(description="File path for custom step")
+    class_name: str = Field(description="Class name for custom step")
+    step_name: str | None = Field(None, description="Step name")
     test: bool = Field(False, description="Test mode")
-    processing_type: Literal["image", "dataset"] = Field(
-        "image", description="If the images are processed individually or as a dataset"
-    )
+    processing_type: Literal["image", "dataset"] = Field("image", description="If the images are processed individually or as a dataset")
+    dependencies: list[str] | None = Field(None, description="Dependencies for the custom step")
+    dependencies_path: str | None = Field(None, description="Path to the requirements file for the custom step")
     params: CustomParamsUnion | None = Field(default=None, description="Custom parameters")
 
 

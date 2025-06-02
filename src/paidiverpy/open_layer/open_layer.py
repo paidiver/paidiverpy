@@ -15,6 +15,11 @@ from tqdm import tqdm
 from paidiverpy import Paidiverpy
 from paidiverpy.config.config_params import ConfigParams
 from paidiverpy.config.configuration import Configuration
+from paidiverpy.config.open_params import SUPPORTED_OPENCV_IMAGE_TYPES
+from paidiverpy.config.open_params import SUPPORTED_RAWPY_IMAGE_TYPES
+from paidiverpy.config.open_params import ImageOpenArgsOpenCVParams
+from paidiverpy.config.open_params import ImageOpenArgsRawParams
+from paidiverpy.config.open_params import ImageOpenArgsRawPyParams
 from paidiverpy.convert_layer import ConvertLayer
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
@@ -295,7 +300,32 @@ class OpenLayer(Paidiverpy):
         Returns:
             tuple[str | None, str | None]: The image type and parameters
         """
-        image_open_args = image_open_args.to_dict() if isinstance(image_open_args, ConfigParams) else image_open_args
-        if isinstance(image_open_args, dict):
-            return image_open_args["image_type"].lower(), image_open_args.get("params", {})
-        return image_open_args.lower(), {}
+        if isinstance(image_open_args, str):
+            image_type = image_open_args.lower()
+            image_open_args = self._define_image_open_args(image_type, {})
+        elif isinstance(image_open_args, ConfigParams):
+            image_open_args = image_open_args.to_dict()
+            image_type = image_open_args["image_type"].lower()
+            image_open_args = image_open_args["params"]
+        else:
+            image_type = image_open_args["image_type"].lower()
+            image_open_args = self._define_image_open_args(image_type, image_open_args.get("params", {}))
+        return image_type, image_open_args
+
+    def _define_image_open_args(self, image_type: str, params: dict) -> str | dict:
+        """Define the image open arguments based on the image type.
+
+        Args:
+            image_type (str): The image type
+            params (dict): The parameters
+
+        Returns:
+            str | dict: The image open arguments
+        """
+        if image_type in SUPPORTED_RAWPY_IMAGE_TYPES:
+            image_open_args = ImageOpenArgsRawPyParams(**params)
+        elif image_type in SUPPORTED_OPENCV_IMAGE_TYPES:
+            image_open_args = ImageOpenArgsOpenCVParams(**params)
+        else:
+            image_open_args = ImageOpenArgsRawParams(**params)
+        return image_open_args.to_dict()

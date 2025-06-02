@@ -96,9 +96,7 @@ class SamplingLayer(Paidiverpy):
         self.step_name = step_name or "sampling"
         if not parameters.get("step_name"):
             parameters["step_name"] = self.step_name
-        self.config_index = self.config.add_step(config_index=config_index,
-                                                 parameters=parameters,
-                                                 step_class=SamplingLayer)
+        self.config_index = self.config.add_step(config_index=config_index, parameters=parameters, step_class=SamplingLayer)
         self.step_order = len(self.images.steps)
         self.step_metadata = self._calculate_steps_metadata(self.config.steps[self.config_index])
         self.add_new_step = add_new_step
@@ -112,7 +110,6 @@ class SamplingLayer(Paidiverpy):
         Raises:
             ValueError: The mode is not defined in the configuration file.
         """
-        print(self.config.steps[self.config_index])
         mode = self.step_metadata.get("mode")
         test = self.step_metadata.get("test")
         params = self.step_metadata.get("params") or {}

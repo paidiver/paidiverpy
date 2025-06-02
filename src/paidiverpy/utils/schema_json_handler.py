@@ -4,22 +4,11 @@ import argparse
 import copy
 import json
 from pathlib import Path
-from pydantic import Field
+from paidiverpy.config.config_model import ConfigModel
 from paidiverpy.config.configuration import config_name_mapping
-from paidiverpy.config.general_config import GeneralConfig
-from paidiverpy.config.step_config import StepConfigUnion
-from paidiverpy.utils.base_model import BaseModel
 from paidiverpy.utils.logging_functions import initialise_logging
 
 logger = initialise_logging()
-
-
-class ConfigModel(BaseModel):
-    """Step configuration model."""
-
-    general: GeneralConfig = Field(description="General configuration")
-    # steps: list[StepConfigUnion] | None = Field(default=None, description="List of step configurations")
-    steps: list[StepConfigUnion] = Field(description="List of step configurations")
 
 
 def generate_schema(output_path: str) -> None:

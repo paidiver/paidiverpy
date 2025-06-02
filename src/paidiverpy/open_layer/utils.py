@@ -46,8 +46,8 @@ def open_image_remote(
     try:
         img_bytes = get_file_from_bucket(img_path, kwargs.get("storage_options"))
         if image_type in SUPPORTED_OPENCV_IMAGE_TYPES:
-            img_array = np.frombuffer(img_bytes, image_open_args["dtype"])
-            img = cv2.imdecode(img_array, image_open_args["flags"])
+            img_array = np.frombuffer(img_bytes, image_open_args.get("dtype", np.uint8))
+            img = cv2.imdecode(img_array, image_open_args.get("flags", cv2.IMREAD_UNCHANGED))
             exif = extract_exif_single(BytesIO(img_bytes), image_type=image_type, image_name=img_path.split("/")[-1])
         else:
             img = load_raw_image(BytesIO(img_bytes), image_type=image_type, image_open_args=image_open_args, remote=True)
