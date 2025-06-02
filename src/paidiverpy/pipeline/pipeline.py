@@ -247,10 +247,10 @@ class Pipeline(Paidiverpy):
             steps.append(new_step)
         return steps
 
-    def _repr_html_(self) -> str:
+    def _repr_html_(self, only_html=False) -> str:
         """Generate HTML representation of the pipeline.
 
         Returns:
             str: The HTML representation of the pipeline.
         """
-        return formating_html.pipeline_repr(self)
+        return formating_html.pipeline_repr(self, only_html=only_html)
