@@ -104,9 +104,9 @@ class ImageOpenArgsRawParams(BaseModel):
     These parameters are required when the image format is not supported by standard libraries.
     """
 
-    width: int = Field(..., description="Image width in pixels.")
-    height: int = Field(..., description="Image height in pixels.")
-    bit_depth: Literal[8, 16] = Field(..., description="Bit depth of the image: 8 or 16.")
+    width: int = Field(default=0, description="Image width in pixels.")
+    height: int = Field(default=0, description="Image height in pixels.")
+    bit_depth: Literal[8, 16] = Field(default=8, description="Bit depth of the image: 8 or 16.")
 
     endianness: Literal["little", "big"] | None = Field(default=None, description="Endianness of the image data. Only applicable to 16-bit images.")
 
@@ -122,7 +122,7 @@ class ImageOpenArgsRawParams(BaseModel):
 
     file_header_size: int = Field(default=0, description="Number of bytes to skip at the beginning of the file.")
 
-    swap_bytes: bool | None = Field(default=False, description="Swap bytes for endianness conversion. Only applicable for 16-bit images.")
+    swap_bytes: bool = Field(default=False, description="Swap bytes for endianness conversion. Only applicable for 16-bit images.")
 
     channels: int = Field(default=1, description="Number of channels in the image. Default is 1 (grayscale).")
 
@@ -131,14 +131,20 @@ class ImageOpenArgsOpenCVParams(BaseModel):
     """Parameters for OpenCV image loading."""
 
     dtype: str = Field(default="uint8", description="Data type of the image (e.g., 'uint8', 'float32')")
-    flags: int = Field(default=-1, description="OpenCV flags for image loading (e.g., cv2.IMREAD_COLOR). Default is -1 for loading the image as is.")
-
+    flags: Literal[-1, 0, 1, 2, 4, 8,
+                   16, 17, 32, 33, 64,
+                   65, 128] = Field(default=-1,
+                                    description="OpenCV flags for image loading (e.g., cv2.IMREAD_COLOR). Default is -1 for loading the image as is.")
 
 class ImageOpenArgs(BaseModel):
     """Wrapper for specifying image format and associated parameters."""
 
-    params: ImageOpenArgsRawPyParams | ImageOpenArgsRawParams | ImageOpenArgsOpenCVParams | dict = Field(
-        default_factory=dict, description="Parameters for the image"
+    image_type: str = Field(
+        default="",
+        description="Image format (e.g., 'PNG', 'JPEG', 'RAW', and others). "
+    )
+    params: ImageOpenArgsRawPyParams | ImageOpenArgsRawParams | ImageOpenArgsOpenCVParams = Field(
+        default_factory=ImageOpenArgsOpenCVParams, description="Parameters for the image"
     )
 
     @model_validator(mode="after")

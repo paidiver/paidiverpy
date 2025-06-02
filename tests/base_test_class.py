@@ -1,10 +1,10 @@
 """Tests for the Paidiverpy package class."""
 
-import logging
 import shutil
 import unittest
 import warnings
 from pathlib import Path
+from paidiverpy.utils.logging_functions import initialise_logging
 
 warnings.filterwarnings("ignore", category=DeprecationWarning, message=r".*jsonschema.RefResolver is deprecated.*")
 warnings.filterwarnings("ignore", category=DeprecationWarning, message=r".*distutils Version classes are deprecated.*")
@@ -19,7 +19,7 @@ class BaseTestClass(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         """Set up the test class."""
-        cls.logger = logging.getLogger("paidiverpy")
+        cls.logger = initialise_logging()
         cls.cleanup_directories()
 
     @classmethod

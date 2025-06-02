@@ -1,0 +1,12 @@
+general:
+  image_open_args: BMP
+  input_path: /home/tobfer/.paidiverpy_cache/plankton_csv/images
+  metadata_path: /home/tobfer/.paidiverpy_cache/plankton_csv/metadata/metadata_plankton_csv.csv
+  metadata_type: CSV_FILE
+  n_jobs: 1
+  name: raw
+  output_path: output
+  sample_data: plankton_csv
+  step_name: open
+  track_changes: true
+steps: []

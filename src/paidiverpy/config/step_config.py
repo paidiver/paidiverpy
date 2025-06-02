@@ -3,6 +3,8 @@
 import logging
 from typing import Any
 from typing import ClassVar
+from typing import Literal
+from typing import cast
 from pydantic import Field
 from pydantic import model_validator
 from paidiverpy.config.colour_params import COLOUR_LAYER_METHODS
@@ -16,6 +18,7 @@ from paidiverpy.config.position_params import PositionParamsUnion
 from paidiverpy.config.sampling_params import SAMPLING_LAYER_METHODS
 from paidiverpy.config.sampling_params import SamplingParamsUnion
 from paidiverpy.utils.base_model import BaseModel
+from paidiverpy.utils.logging_functions import initialise_logging
 
 steps_params_mapping = {
     "colour": COLOUR_LAYER_METHODS,
@@ -24,7 +27,12 @@ steps_params_mapping = {
     "sampling": SAMPLING_LAYER_METHODS,
 }
 
-logger = logging.getLogger(__name__)
+PositionModeLiteral = cast(type, Literal.__getitem__(tuple(POSITION_LAYER_METHODS.keys())))
+ColourModeLiteral = cast(type, Literal.__getitem__(tuple(COLOUR_LAYER_METHODS.keys())))
+ConvertModeLiteral = cast(type, Literal.__getitem__(tuple(CONVERT_LAYER_METHODS.keys())))
+SamplingModeLiteral = cast(type, Literal.__getitem__(tuple(SAMPLING_LAYER_METHODS.keys())))
+
+logger = initialise_logging()
 
 
 class StepConfig(BaseModel):
@@ -33,11 +41,10 @@ class StepConfig(BaseModel):
     name: str | None = Field(None, description="Name of the step")
     step_name: str | None = Field(None, description="Step name")
     test: bool = Field(False, description="Test mode")
-    file_path: str | None = Field(None, description="File path for custom step")
-    class_name: str | None = Field(None, description="Class name for custom step")
-    mode: str | None = Field(None, description="Mode for the step")
     params: Any = Field(default_factory=dict, description="Parameters for the step")
-
+    mode: PositionModeLiteral | ColourModeLiteral | ConvertModeLiteral | SamplingModeLiteral = Field(
+        description="Mode for the position step",
+    )
     model_config: ClassVar[dict] = {
         "frozen": False,
     }
@@ -85,34 +92,49 @@ class StepConfig(BaseModel):
             setattr(self, key, val)
         return self
 
-
 class PositionConfig(StepConfig):
     """Position configuration model."""
-
+    name: str | None = Field("position", description="Name of the step")
+    mode: PositionModeLiteral = Field(
+        description="Mode for the position step",
+    )
+    test: bool = Field(False, description="Test mode")
     params: PositionParamsUnion | None = Field(default=None, description="Position parameters")
-
 
 class ColourConfig(StepConfig):
     """Colour configuration model."""
-
+    name: str | None = Field("colour", description="Name of the step")
+    mode: ColourModeLiteral = Field(
+        description="Mode for the colour step",
+    )
+    test: bool = Field(False, description="Test mode")
     params: ColourParamsUnion | None = Field(default=None, description="Colour parameters")
-
 
 class ConvertConfig(StepConfig):
     """Convert configuration model."""
-
+    name: str | None = Field("convert", description="Name of the step")
+    mode: ConvertModeLiteral = Field(description="Mode for the convert step")
+    test: bool = Field(False, description="Test mode")
     params: ConvertParamsUnion | None = Field(default=None, description="Convert parameters")
 
 
 class SamplingConfig(StepConfig):
     """Sampling configuration model."""
-
+    name: str | None = Field("sampling", description="Name of the step")
+    mode: SamplingModeLiteral = Field(description="Mode for the sampling step")
+    test: bool = Field(False, description="Test mode")
     params: SamplingParamsUnion | None = Field(default=None, description="Sampling parameters")
 
 
 class CustomConfig(StepConfig):
     """Custom configuration model."""
-
+    name: str | None = Field("custom", description="Name of the step")
+    file_path: str | None = Field(None, description="File path for custom step")
+    class_name: str | None = Field(None, description="Class name for custom step")
+    test: bool = Field(False, description="Test mode")
+    processing_type: Literal["image", "dataset"] = Field(
+        "image", description="If the images are processed individually or as a dataset"
+    )
     params: CustomParamsUnion | None = Field(default=None, description="Custom parameters")
 
 

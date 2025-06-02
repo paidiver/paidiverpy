@@ -2,7 +2,6 @@
 
 import copy
 import json
-import logging
 from importlib.resources import files
 from pathlib import Path
 import yaml
@@ -20,10 +19,11 @@ from paidiverpy.utils.base_model import BaseModel
 from paidiverpy.utils.docker import is_running_in_docker
 from paidiverpy.utils.exceptions import raise_value_error
 from paidiverpy.utils.install_packages import check_and_install_dependencies
+from paidiverpy.utils.logging_functions import initialise_logging
 from paidiverpy.utils.object_store import get_file_from_bucket
 from paidiverpy.utils.object_store import path_is_remote
 
-logger = logging.getLogger(__name__)
+logger = initialise_logging()
 
 config_name_mapping = {
     "colour": ColourConfig,
@@ -179,7 +179,7 @@ class Configuration:
                 msg = f"Failed to validate the general config you just added: {e!s}"
                 msg += "\nPlease check the parameters and try again."
                 logger.error(msg)
-                raise
+                raise ValidationError(msg) from e
 
     def add_step(
         self,
@@ -234,12 +234,22 @@ class Configuration:
                 raise
         return config_index
 
-    def export(self, output_path: str) -> None:
+    def export(self, output_path: str | None) -> None | str:
         """Export the configuration to a file.
 
         Args:
-            output_path (str): The output path.
+            output_path (str, optional): The path to save the configuration file. If None, returns the configuration as a YAML string.
+
+        Returns:
+            None | str: If output_path is None, returns the configuration as a YAML string.
+                        Otherwise, writes the configuration to the specified file.
         """
+        if not output_path:
+            return yaml.dump(
+                self.to_dict(yaml_convert=True),
+                default_flow_style=False,
+                allow_unicode=True,
+            )
         output_path = Path(output_path)
         with output_path.open("w", encoding="utf-8") as config_file:
             yaml.dump(
@@ -248,6 +258,7 @@ class Configuration:
                 default_flow_style=False,
                 allow_unicode=True,
             )
+            return None
 
     def get_output_path(self, output_path: str | None = None) -> tuple[Path | str, bool]:
         """Get the output path.

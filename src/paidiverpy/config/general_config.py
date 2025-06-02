@@ -1,19 +1,20 @@
 """Configuration module."""
 
-import logging
 from pathlib import Path
-from typing import Any
 from typing import ClassVar
+from typing import Literal
 from pydantic import Field
 from pydantic import model_validator
 from paidiverpy.config.client_params import ClientParams
+from paidiverpy.config.open_params import ImageOpenArgs
 from paidiverpy.config.step_config import ConvertConfig
 from paidiverpy.config.step_config import SamplingConfig
 from paidiverpy.utils.base_model import BaseModel
 from paidiverpy.utils.data import PaidiverpyData
+from paidiverpy.utils.logging_functions import initialise_logging
 from paidiverpy.utils.object_store import path_is_remote
 
-logger = logging.getLogger(__name__)
+logger = initialise_logging()
 
 
 class GeneralConfig(BaseModel):
@@ -24,22 +25,75 @@ class GeneralConfig(BaseModel):
 
     """
 
-    name: str = Field("raw", description="Name of the configuration")
-    step_name: str = Field("open", description="Step name")
-    sample_data: str | None = Field(None, description="Sample data type")
-    input_path: str | Path | None = Field(None, description="Input path for image data")
-    output_path: str | Path = Field("output", description="Output path for results")
-    metadata_path: str | Path | None = Field(None, description="Path to metadata")
-    metadata_type: str | None = Field(None, description="Type of metadata")
-    image_open_args: Any = Field(None, description="Arguments to use when opening images")
-    append_data_to_metadata: str | None = Field(None, description="Append data to metadata")
-    metadata_conventions: str | None = Field(None, description="Metadata conventions to apply")
+    name: str = Field("raw", description="Name of the first step (the step to open images)")
+    step_name: str = Field("open",
+                           description="Step name. This is a placeholder for the first step name and should not be used in the configuration file.")
+    sample_data: Literal[
+        "plankton_csv",
+        "benthic_csv",
+        "benthic_ifdo",
+        "nef_raw",
+        "benthic_raw_images"
+    ] | None = Field(
+        None,
+        description="Sample data to use for testing. If provided, it will override input_path, metadata_path, and metadata_type.",
+    )
+    input_path: str | Path | None = Field(None, description="Input path for image data. Can be a local path or a remote URL.")
+    output_path: str | Path = Field("output", description="Output path for results. Can be a local path or a remote URL.")
+    metadata_path: str | Path | None = Field(None, description="Path to metadata. Can be a local path or a remote URL.")
+    metadata_type: Literal[
+        "IFDO",
+        "CSV_FILE",
+    ] | None = Field(None, description="Type of metadata. Can be 'IFDO' or 'CSV_FILE'")
+    image_open_args: str | ImageOpenArgs = Field(
+        "",
+        description=(
+            "Arguments to use when opening images. It can be a string with the image "
+            "format or an ImageOpenArgs object. If it is a empty string, the type will be inferred from the file extension."
+        ),
+    )
+    append_data_to_metadata: str | None = Field(
+        None,
+        description=(
+            "Path to append data to metadata. If provided, it will be used to append "
+            "data to the metadata file."
+        ),
+    )
+    metadata_conventions: str | None = Field(
+        None,
+        description=(
+            "Metadata conventions to apply. If not provided, it will use the default "
+            "conventions name described in the documentation."
+        ),
+    )
     n_jobs: int = Field(1, description="Number of jobs for parallel processing")
-    client: None | ClientParams = Field(None, description="Dask client object if available")
-    track_changes: bool = Field(True, description="Whether to track config changes")
-    rename: str | None = Field(None, description="Field name to use for renaming")
-    sampling: list[SamplingConfig] | None = Field(None, description="Sampling step configurations")
-    convert: list[ConvertConfig] | None = Field(None, description="Convert step configurations")
+    client: None | ClientParams = Field(
+        default=None,
+        description=(
+            "Dask Client configuration. If None, it will not use Dask Client."
+        )
+    )
+
+    track_changes: bool = Field(True, description="Whether to track config changes. If True, it will store in memory the output images on each step")
+    rename: Literal[
+        "UUID",
+        "datetime"
+    ] | None = Field(None, description="Field name to use for renaming. If not provided, the name will be the same as the input file name.")
+    sampling: list[SamplingConfig] | None = Field(
+        None,
+        description=(
+            "Sampling step configurations to be applied to the images before processing them. "
+            "If not provided, no sampling will be applied."
+        ),
+    )
+
+    convert: list[ConvertConfig] | None = Field(
+        None,
+        description=(
+            "Convert step configurations to be applied to the images before processing "
+            "them. If not provided, no conversion will be applied."
+        ),
+    )
 
     model_config: ClassVar[dict] = {
         "frozen": False,
