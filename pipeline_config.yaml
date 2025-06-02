@@ -9,4 +9,22 @@ general:
   sample_data: plankton_csv
   step_name: open
   track_changes: true
-steps: []
+steps:
+- position:
+    mode: calculate_corners
+    name: position
+    params:
+      camera_distance: 1.12
+      omega: 0.5
+      raise_error: false
+      theta: 0.5
+    test: false
+- position:
+    mode: calculate_corners
+    name: position
+    params:
+      camera_distance: 1.12
+      omega: 0.5
+      raise_error: false
+      theta: 0.5
+    test: false

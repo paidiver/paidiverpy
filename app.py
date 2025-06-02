@@ -1,4 +1,5 @@
 """Paidiverpy Panel Application Entry Point."""
+
 from importlib.resources import files
 import panel as pn
 from paidiverpy.frontend.widgets.app import App
@@ -10,19 +11,11 @@ js_text = files("paidiverpy.static.js").joinpath("script.js").read_text()
 
 raw_css = [css_text]
 css_files = list(EXTERNAL_CSS)
-js_files={
+js_files = {
     "external": EXTERNAL_JS[0],
-    "inline": "https://raw.githubusercontent.com/paidiver/paidiverpy/refs/heads/186-enhance-exif-handling-in-processed-images/src/paidiverpy/static/js/script.js"
+    "inline": "https://raw.githubusercontent.com/paidiver/paidiverpy/refs/heads/186-enhance-exif-handling-in-processed-images/src/paidiverpy/static/js/script.js",
 }
 pn.extension("jsoneditor", "codeeditor", raw_css=raw_css, css_files=css_files, js_files=js_files)
-
-
-# pn.config.js_files=[
-#     f"<script src='{EXTERNAL_JS[0]}'></script>",
-#     f"<script>{EXTERNAL_JS[1]};</script>"
-# ]
-
-
 
 app = App()
 app.show()

@@ -85,9 +85,7 @@ def add_arguments(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         dest="validate",
         action="store_true",
         default=False,
-        help=(
-            "OPTIONAL: ONLY FOR CONFIGURATION FILE CHECKING. Check the configuration file."
-        ),
+        help=("OPTIONAL: ONLY FOR CONFIGURATION FILE CHECKING. Check the configuration file."),
     )
 
     return parser

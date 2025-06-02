@@ -1,9 +1,9 @@
 """Utility functions for creating widgets in Panel."""
+
 import panel as pn
 
 
-def create_title(title_str: str,
-                 html_h_tag: int =1, bold: bool =True) -> pn.pane.HTML:
+def create_title(title_str: str, html_h_tag: int = 1, bold: bool = True) -> pn.pane.HTML:
     """Create a title pane with the given string.
 
     Args:

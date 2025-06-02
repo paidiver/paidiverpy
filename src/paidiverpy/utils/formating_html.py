@@ -44,7 +44,7 @@ def _load_static_files() -> list[str]:
     return [files(package).joinpath(resource).read_text(encoding="utf-8") for package, resource in STATIC_FILES]
 
 
-def _obj_repr(obj: object, body: list[str], html: bool = False, only_html=False) -> str | HTML:
+def _obj_repr(obj: object, body: list[str], html: bool = False) -> str | HTML:
     """Return HTML repr of an xarray object.
 
     If CSS is not injected (untrusted notebook), fallback to the plain text repr.
@@ -73,9 +73,6 @@ def _obj_repr(obj: object, body: list[str], html: bool = False, only_html=False)
         f"<div>{body}</div>"
         "</div>"
     )
-
-    if only_html:
-        return f"<div>{body}</div>"
 
     return html_str if not html else HTML(html_str)
 
@@ -111,7 +108,7 @@ def metadata_repr(metadata: "MetadataParser") -> str:
     return _obj_repr(metadata, body)
 
 
-def pipeline_repr(pipeline: "Paidiverpy", only_html=False) -> str:
+def pipeline_repr(pipeline: "Paidiverpy") -> str:
     """Generate HTML representation of the pipeline.
 
     Args:
@@ -171,7 +168,7 @@ def pipeline_repr(pipeline: "Paidiverpy", only_html=False) -> str:
     </div>
     <div id="ppy-pipeline-parameters" class="ppy-pipeline-parameters-all">{parameters_html}</div>
     """
-    return _obj_repr(pipeline, body, only_html=only_html)
+    return _obj_repr(pipeline, body)
 
 
 def config_repr(config: "Configuration") -> str:

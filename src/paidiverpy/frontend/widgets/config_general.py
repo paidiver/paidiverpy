@@ -1,11 +1,14 @@
+"""Module for creating the general configuration widget in the PaidiverPy frontend."""
+
 import panel as pn
 from paidiverpy.config.general_config import GeneralConfig
 from paidiverpy.frontend.parse import parse_default_params
 from paidiverpy.frontend.render import WidgetRenderer
-from paidiverpy.frontend.widgets.utils import create_title
 
 
 class AppGeneral:
+    """Class for creating the general configuration widget in the PaidiverPy frontend."""
+
     def __init__(self):
         self.has_general = False
         self.has_steps = False
@@ -13,14 +16,8 @@ class AppGeneral:
         self.layout = None
         self.default_params = parse_default_params(GeneralConfig)
 
-    def create_widget(self):
+    def create_widget(self) -> None:
+        """Create the general configuration widget layout."""
         widget_render = WidgetRenderer()
         widgets = [widget_render.create_widget(name, field) for name, field in self.default_params.items()]
-
-        # information_str = (
-        #     "IMPORTANT: The fields 'input_path' and 'metadata_path' are required if 'sample_data' is not provided"
-        # )
-        # information_pane = create_title(information_str, html_h_tag=3)
-
-        # self.layout = pn.Column(information_pane, *widgets, visible=True)
         self.layout = pn.Column(*widgets, visible=True)

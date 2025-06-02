@@ -69,33 +69,10 @@ SUPPORTED_RAWPY_IMAGE_TYPES = {
 class ImageOpenArgsRawPyParams(BaseModel):
     """Parameters for RawPy postprocessing (rawpy.RawPy.postprocess)."""
 
-    demosaic_algorithm: int | None = Field(None, description="Demosaicing algorithm (e.g. rawpy.DemosaicAlgorithm.AHD)")
-    half_size: bool = Field(default=False, description="Reduce each 2x2 block to one pixel (half-size output)")
-    four_color_rgb: bool = Field(default=False, description="Use separate interpolations for two green channels")
-    dcb_iterations: int = Field(default=0, description="Number of DCB correction passes")
-    dcb_enhance: bool = Field(default=False, description="Enhanced DCB interpolation colors")
-    fbdd_noise_reduction: int = Field(default=0, description="FBDD noise reduction mode (0=Off)")
-    noise_thr: float | None = Field(default=None, description="Threshold for wavelet denoising")
-    median_filter_passes: int = Field(default=0, description="Median filter passes after demosaicing")
-    use_camera_wb: bool = Field(default=False, description="Use camera white balance")
-    use_auto_wb: bool = Field(default=False, description="Use automatic white balance")
-    user_wb: list[float] | None = Field(default=None, description="Manual white balance multipliers [R, G1, G2, B]")
-    output_color: int = Field(default=1, description="Output color space (e.g. rawpy.ColorSpace.sRGB = 1)")
-    output_bps: int = Field(default=8, description="Bits per sample in output image (8 or 16)")
-    user_flip: int | None = Field(default=None, description="Image flip/orientation override")
-    user_black: int | None = Field(default=None, description="Override black level")
-    user_sat: int | None = Field(default=None, description="Override saturation (white level)")
-    no_auto_bright: bool = Field(default=False, description="Disable automatic brightness scaling")
-    auto_bright_thr: float | None = Field(default=None, description="Threshold for clipping in auto brightness")
-    adjust_maximum_thr: float = Field(default=0.75, description="Maximum threshold adjustment factor")
-    bright: float = Field(default=1.0, description="Brightness scaling factor")
-    highlight_mode: int = Field(default=0, description="Highlight handling mode (e.g. rawpy.HighlightMode.Clip = 0)")
-    exp_shift: float | None = Field(default=None, description="Linear exposure shift (0.25 to 8.0)")
-    exp_preserve_highlights: float = Field(default=0.0, description="Highlight preservation during exposure adjustment")
-    no_auto_scale: bool = Field(default=False, description="Disable automatic pixel value scaling")
-    gamma: tuple[float, float] | None = Field(default=None, description="Gamma correction parameters (power, slope)")
-    chromatic_aberration: tuple[float, float] | None = Field(default=None, description="Red and blue scale correction")
-    bad_pixels_path: str | None = Field(default=None, description="Path to bad pixel file for correction")
+    class Config:
+        """Configuration for the RawPy parameters model."""
+
+        extra = "allow"
 
 
 class ImageOpenArgsRawParams(BaseModel):
@@ -131,18 +108,15 @@ class ImageOpenArgsOpenCVParams(BaseModel):
     """Parameters for OpenCV image loading."""
 
     dtype: str = Field(default="uint8", description="Data type of the image (e.g., 'uint8', 'float32')")
-    flags: Literal[-1, 0, 1, 2, 4, 8,
-                   16, 17, 32, 33, 64,
-                   65, 128] = Field(default=-1,
-                                    description="OpenCV flags for image loading (e.g., cv2.IMREAD_COLOR). Default is -1 for loading the image as is.")
+    flags: Literal[-1, 0, 1, 2, 4, 8, 16, 17, 32, 33, 64, 65, 128] = Field(
+        default=-1, description="OpenCV flags for image loading (e.g., cv2.IMREAD_COLOR). Default is -1 for loading the image as is."
+    )
+
 
 class ImageOpenArgs(BaseModel):
     """Wrapper for specifying image format and associated parameters."""
 
-    image_type: str = Field(
-        default="",
-        description="Image format (e.g., 'PNG', 'JPEG', 'RAW', and others). "
-    )
+    image_type: str = Field(default="", description="Image format (e.g., 'PNG', 'JPEG', 'RAW', and others). ")
     params: ImageOpenArgsRawPyParams | ImageOpenArgsRawParams | ImageOpenArgsOpenCVParams = Field(
         default_factory=ImageOpenArgsOpenCVParams, description="Parameters for the image"
     )

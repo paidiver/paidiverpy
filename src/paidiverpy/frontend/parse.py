@@ -1,23 +1,40 @@
+"""Parse Pydantic models to a dictionary format for frontend use."""
+
 from pathlib import Path
 from typing import get_args
 from typing import get_origin
+import pydantic.fields
 from pydantic_core import PydanticUndefinedType
 
-# from paidiverpy.config.colour_params import COLOUR_LAYER_METHODS
-# from paidiverpy.config.convert_params import CONVERT_LAYER_METHODS
-# from paidiverpy.config.position_params import POSITION_LAYER_METHODS
-# from paidiverpy.config.sampling_params import SAMPLING_LAYER_METHODS
-# from paidiverpy.config.step_config import StepConfigUnion
+OPTIONAL = 2
 
 
-def define_default_value(field):
+def define_default_value(field: pydantic.fields.FieldInfo) -> any:
+    """Define the default value for a Pydantic field.
+
+    Args:
+        field (pydantic.fields.FieldInfo): The Pydantic field to parse.
+
+    Returns:
+        any: The default value of the field, or None if no default is set.
+    """
     if field.default_factory is not None:
         return field.default_factory() if callable(field.default_factory) else field.default_factory
     if type(field.default) is PydanticUndefinedType:
         return None
     return field.default if field.default is not None else None
 
-def parse_default_params(model, steps=False):
+
+def parse_default_params(model: pydantic.BaseModel, steps: bool = False) -> dict:
+    """Parse the default parameters from a Pydantic model.
+
+    Args:
+        model (pydantic.BaseModel): The Pydantic model to parse.
+        steps (bool): If True, the parameters will be parsed for steps.
+
+    Returns:
+        dict: A dictionary containing the parsed parameters.
+    """
     params = parse_fields_from_pydantic_model(model)
     if "name" in params and not steps:
         del params["name"]
@@ -48,7 +65,16 @@ def parse_default_params(model, steps=False):
     return params
 
 
-def parse_get_origin_field(field, origin_field):
+def parse_get_origin_field(field: pydantic.fields.FieldInfo, origin_field: type) -> dict:
+    """Parse the origin field of a Pydantic field.
+
+    Args:
+        field (pydantic.fields.FieldInfo): The Pydantic field to parse.
+        origin_field (type): The origin type of the field.
+
+    Returns:
+        dict: A dictionary containing the parsed field information.
+    """
     output = {}
     output["default"] = define_default_value(field)
     output["description"] = field.description if field.description else ""
@@ -56,27 +82,7 @@ def parse_get_origin_field(field, origin_field):
         output["type"] = "literal"
         output["options"] = list(get_args(field.annotation))
     elif origin_field.__name__ in ["UnionType", "Union"]:
-        arguments = get_args(field.annotation)
-        if len(arguments) == 2 and Path in arguments:
-            output["type"] = "str"
-            output["default"] = output["default"] if output["default"] is not None else ""
-        else:
-            output["type"] = "union"
-            output["field_options"] = {}
-            for argument in get_args(field.annotation):
-                if argument is Path:
-                    continue  # Path is not supported in frontend
-                if argument is None:
-                    output["field_options"]["None"] = "null"
-                elif argument.__name__ in ["Literal", "LiteralType", "literal"]:
-                    output["field_options"]["literal"] = list(get_args(argument))
-                elif argument.__name__ == "list":
-                    output["field_options"]["list"] = get_args(argument)[0]
-                elif hasattr(argument, "model_json_schema"):
-                    output["field_options"][argument.__name__] = argument.model_json_schema()["description"]
-                else:
-                    output["field_options"][argument.__name__] = argument.__name__
-
+        output = parse_union_field(field, output)
     elif origin_field.__name__ == "list":
         output["type"] = "list"
         output["item_type"] = get_args(field.annotation)[0] if get_args(field.annotation) else "str"
@@ -90,14 +96,52 @@ def parse_get_origin_field(field, origin_field):
     return output
 
 
-def parse_fields_from_pydantic_model(model):
+def parse_union_field(field: pydantic.fields.FieldInfo, output: dict) -> dict:
+    """Parse a Pydantic field that is a union type.
+
+    Args:
+        field (pydantic.fields.FieldInfo): The Pydantic field to parse.
+        output (dict): The output dictionary to populate with parsed information.
+
+    Returns:
+        dict: The updated output dictionary with union field information.
+    """
+    arguments = get_args(field.annotation)
+    if len(arguments) == OPTIONAL and Path in arguments:
+        output["type"] = "str"
+        output["default"] = output["default"] if output["default"] is not None else ""
+    else:
+        output["type"] = "union"
+        output["field_options"] = {}
+        for argument in get_args(field.annotation):
+            if argument is Path:
+                continue
+            if argument is None:
+                output["field_options"]["None"] = "null"
+            elif argument.__name__ in ["Literal", "LiteralType", "literal"]:
+                output["field_options"]["literal"] = list(get_args(argument))
+            elif argument.__name__ == "list":
+                output["field_options"]["list"] = get_args(argument)[0]
+            elif hasattr(argument, "model_json_schema"):
+                output["field_options"][argument.__name__] = argument.model_json_schema()["description"]
+            else:
+                output["field_options"][argument.__name__] = argument.__name__
+    return output
+
+
+def parse_fields_from_pydantic_model(model: pydantic.BaseModel) -> dict:
+    """Parse fields from a Pydantic model into a dictionary format.
+
+    Args:
+        model (pydantic.BaseModel): The Pydantic model to parse.
+
+    Returns:
+        dict: A dictionary containing the parsed fields with their default values and types.
+    """
     output = {}
     for name, field in model.model_fields.items():
         default_value = define_default_value(field)
-        output[name] = {
-            "default": default_value,
-            "description": field.description
-        }
+        output[name] = {"default": default_value, "description": field.description}
         origin_field = get_origin(field.annotation)
         if not origin_field:
             field_type = field.annotation.__name__ if field.annotation else "Any"
