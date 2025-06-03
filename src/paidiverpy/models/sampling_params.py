@@ -76,15 +76,18 @@ class SamplingRegionParams(BaseModel):
     """Parameters for region-based resampling."""
 
     file: str | None | Path = Field(default=None, description="Path to the region file")
-    limits: list[str] | list[float] | None = Field(default=None, description="List of region limits")
+    limits: dict | None = Field(
+        default=None,
+        description=("Dict of region limits. Format {'min_lon': value, 'max_lon': value, 'min_lat': value, 'max_lat': value}"),
+    )
     raise_error: bool = Field(default=False, description="Raise error on failure")
 
 
 class SamplingObscureParams(BaseModel):
     """Parameters for obscure-based resampling."""
 
-    min: int = Field(default=0, description="Minimum threshold for obscuring")
-    max: int = Field(default=1, description="Maximum threshold for obscuring")
+    min: float = Field(default=0, description="Minimum threshold for obscuring")
+    max: float = Field(default=1, description="Maximum threshold for obscuring")
     channel: str = Field(default="mean", description="Channel selection strategy")
     raise_error: bool = Field(default=False, description="Raise error on failure")
 

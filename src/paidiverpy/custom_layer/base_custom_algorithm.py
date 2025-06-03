@@ -3,7 +3,7 @@
 import dask.array.core
 import numpy as np
 import pandas as pd
-from paidiverpy.config.custom_params import CustomParams
+from paidiverpy.models.custom_params import CustomParams
 
 
 class BaseCustomAlgorithm:

@@ -27,6 +27,7 @@ dependencies:
   - rawpy>=0.24.0
   - opencv>=4.11
   - ipykernel>=6.29.5
+  - pydantic>=2.9.2
   - pip
   - setuptools>=64.0.0
   - wheel

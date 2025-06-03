@@ -11,20 +11,18 @@ from paidiverpy.utils.docker import is_running_in_docker
 PACKAGE_REGEX = re.compile(r"^[a-zA-Z0-9_-]+(==[a-zA-Z0-9_.-]+)?$")
 
 
-def check_and_install_dependencies(dependencies: list[str] | None, dependencies_path: str | None) -> None:
+def check_and_install_dependencies(dependencies: str | None, dependencies_path: str | None) -> None:
     """Check and install dependencies.
 
     Args:
-        dependencies (list[str] | None]): The dependencies to check and install.
+        dependencies (str, None): The dependencies to check and install.
         dependencies_path (str, None): The path to the dependencies file.
 
     Raises:
         PackageNotFoundError: If the package is not found.
 
     """
-    list_of_dependencies = []
-    if dependencies:
-        list_of_dependencies = dependencies
+    list_of_dependencies = dependencies.split(",") if dependencies else []
     if dependencies_path:
         is_docker = is_running_in_docker()
         if is_docker:

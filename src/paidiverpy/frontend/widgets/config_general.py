@@ -1,9 +1,9 @@
 """Module for creating the general configuration widget in the PaidiverPy frontend."""
 
 import panel as pn
-from paidiverpy.config.general_config import GeneralConfig
 from paidiverpy.frontend.parse import parse_default_params
 from paidiverpy.frontend.render import WidgetRenderer
+from paidiverpy.models.general_config import GeneralConfig
 
 
 class AppGeneral:

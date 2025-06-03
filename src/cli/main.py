@@ -2,7 +2,10 @@
 
 import argparse
 import json
+import shutil
+import subprocess
 import sys
+from importlib.resources import files
 from paidiverpy.config.configuration import Configuration
 from paidiverpy.pipeline import Pipeline
 from paidiverpy.utils.benchmark_test import benchmark_handler
@@ -19,6 +22,17 @@ def process_action(parser: argparse.ArgumentParser) -> None:
         parser (argparse.ArgumentParser): The parser to parse the arguments from.
     """
     args = parser.parse_args()
+
+    if args.gui:
+        # Run the panel serve app.py
+
+        logger.info("Running the GUI for paidiverpy...")
+        panel_executable = shutil.which("panel")
+        if not panel_executable:
+            logger.error("The 'panel' executable was not found in the system PATH. Please install Panel using 'pip install panel'.")
+            sys.exit(1)
+        app_path = files("paidiverpy.frontend").joinpath("app.py")
+        subprocess.run([panel_executable, "serve", app_path, "--show", "--autoreload", "--port", "5006"], check=True)  # noqa: S603
 
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
@@ -86,6 +100,15 @@ def add_arguments(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         action="store_true",
         default=False,
         help=("OPTIONAL: ONLY FOR CONFIGURATION FILE CHECKING. Check the configuration file."),
+    )
+
+    parser.add_argument(
+        "-gui",
+        "--gui",
+        dest="gui",
+        action="store_true",
+        default=False,
+        help=("OPTIONAL: ONLY FOR RUNNING THE GRAPHICAL USER INTERFACE (GUI) OF PAIDIVERPY."),
     )
 
     return parser

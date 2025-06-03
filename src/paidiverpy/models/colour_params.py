@@ -31,7 +31,13 @@ class ContrastAdjustmentParams(BaseModel):
     """Parameters for contrast adjustment."""
 
     method: str = Field("clahe", description="Contrast adjustment method")
-    kernel_size: tuple[int, int] | int | None = Field(None, description="Kernel size for CLAHE")
+    kernel_size: dict | int | None = Field(
+        None,
+        description=(
+            "Kernel size for CLAHE. It can be a dict with the format "
+            "{'dim1': value, 'dim2': value} until the ndim, or an integer for square kernel size."
+        ),
+    )
     clip_limit: float = Field(0.01, description="Clip limit for CLAHE")
     gamma_value: float = Field(0.5, description="Gamma correction value")
     raise_error: bool = Field(False, description="Raise error on failure")
@@ -67,7 +73,9 @@ class EdgeDetectionParams(BaseModel):
 
     method: str = Field("sobel", description="Edge detection method")
     blur_radius: int = Field(1, description="Blur radius before edge detection")
-    threshold: list[float] | None = Field(None, description="Threshold for edge detection")
+    threshold: dict | None = Field(
+        None, description="Threshold for edge detection. It should have the format {'low': value, 'high': value}. High value is optional."
+    )
     object_type: str = Field("bright", description="Type of object (bright or dark)")
     object_selection: str = Field("largest", description="Object selection strategy")
     estimate_sharpness: bool = Field(False, description="Estimate image sharpness")

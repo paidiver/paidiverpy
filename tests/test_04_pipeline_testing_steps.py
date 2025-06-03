@@ -507,7 +507,7 @@ class TestPipelineTestSteps(BaseTestClass):
             SamplingLayer,
             {
                 "mode": "region",
-                "params": {"limits": [-153.608, -153.605, 11.251, 11.253]},
+                "params": {"limits": {"min_lon": -153.608, "max_lon": -153.605, "min_lat": 11.251, "max_lat": 11.253}},
                 "test": True,
             },
             1,
@@ -529,7 +529,7 @@ class TestPipelineTestSteps(BaseTestClass):
             SamplingLayer,
             {
                 "mode": "region",
-                "params": {"limits": [-153.608, -153.605, 11.251, 11.253]},
+                "params": {"limits": {"min_lon": -153.608, "max_lon": -153.605, "min_lat": 11.251, "max_lat": 11.253}},
                 "test": False,
             },
             1,
@@ -545,15 +545,15 @@ class TestPipelineTestSteps(BaseTestClass):
             SamplingLayer,
             {
                 "mode": "region",
-                "params": {"limits": [-153.999, -153.605, 11.251, 11.253]},
+                "params": {"limits": {"min_lon": -153.999, "max_lon": -153.605, "min_lat": 11.251, "max_lat": 11.253}},
                 "test": False,
             },
             1,
         )
         assert pipeline.steps[-1][2]["test"] is False
         assert len(pipeline.steps) == total_steps + 1
-        assert pipeline.steps[-1][2]["params"]["limits"] == [-153.608, -153.605, 11.251, 11.253]
-        assert pipeline.steps[-2][2]["params"]["limits"] == [-153.999, -153.605, 11.251, 11.253]
+        assert pipeline.steps[-1][2]["params"]["limits"] == {"min_lon": -153.608, "max_lon": -153.605, "min_lat": 11.251, "max_lat": 11.253}
+        assert pipeline.steps[-2][2]["params"]["limits"] == {"min_lon": -153.999, "max_lon": -153.605, "min_lat": 11.251, "max_lat": 11.253}
 
     def test_pipeline_testing_step_obscure_three_channels(self):
         """Test the Pipeline Testing Steps."""

@@ -6,18 +6,19 @@ from typing import Literal
 from typing import cast
 from pydantic import Field
 from pydantic import model_validator
-from paidiverpy.config.colour_params import COLOUR_LAYER_METHODS
-from paidiverpy.config.colour_params import ColourParamsUnion
-from paidiverpy.config.convert_params import CONVERT_LAYER_METHODS
-from paidiverpy.config.convert_params import ConvertParamsUnion
-from paidiverpy.config.custom_params import CustomParams
-from paidiverpy.config.custom_params import CustomParamsUnion
-from paidiverpy.config.position_params import POSITION_LAYER_METHODS
-from paidiverpy.config.position_params import PositionParamsUnion
-from paidiverpy.config.sampling_params import SAMPLING_LAYER_METHODS
-from paidiverpy.config.sampling_params import SamplingParamsUnion
+from paidiverpy.models.colour_params import COLOUR_LAYER_METHODS
+from paidiverpy.models.colour_params import ColourParamsUnion
+from paidiverpy.models.convert_params import CONVERT_LAYER_METHODS
+from paidiverpy.models.convert_params import ConvertParamsUnion
+from paidiverpy.models.custom_params import CustomParams
+from paidiverpy.models.position_params import POSITION_LAYER_METHODS
+from paidiverpy.models.position_params import PositionParamsUnion
+from paidiverpy.models.sampling_params import SAMPLING_LAYER_METHODS
+from paidiverpy.models.sampling_params import SamplingParamsUnion
 from paidiverpy.utils.base_model import BaseModel
 from paidiverpy.utils.logging_functions import initialise_logging
+
+# from paidiverpy.config.custom_params import CustomParamsUnion
 
 steps_params_mapping = {
     "colour": COLOUR_LAYER_METHODS,
@@ -141,9 +142,12 @@ class CustomConfig(BaseModel):
     step_name: str | None = Field(None, description="Step name")
     test: bool = Field(False, description="Test mode")
     processing_type: Literal["image", "dataset"] = Field("image", description="If the images are processed individually or as a dataset")
-    dependencies: list[str] | None = Field(None, description="Dependencies for the custom step")
+    dependencies: str | None = Field(
+        None,
+        description=("Dependencies for the custom step. It should be a string with each dependency separated by commas."),
+    )
     dependencies_path: str | None = Field(None, description="Path to the requirements file for the custom step")
-    params: CustomParamsUnion | None = Field(default=None, description="Custom parameters")
+    params: CustomParams | None = Field(default=None, description="Custom parameters")
 
 
-StepConfigUnion = PositionConfig | ColourConfig | ConvertConfig | SamplingConfig | CustomConfig | SamplingConfig
+StepConfigUnion = ColourConfig | ConvertConfig | CustomConfig | PositionConfig | SamplingConfig

@@ -18,4 +18,4 @@ class CustomParams(BaseModel):
     }
 
 
-CustomParamsUnion = CustomParams | dict
+# CustomParamsUnion = CustomParams | dict

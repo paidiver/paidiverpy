@@ -364,6 +364,9 @@ class App:
         """
         widget_render = WidgetRenderer(steps=True, step_parameters=step_parameters)
         default_params = {"steps": parse_fields_from_pydantic_model(ConfigModel)["steps"]}
+        default_params["steps"]["type"] = "list"
+        default_params["steps"]["item_type"] = default_params["steps"]["field_options"]["list"]
+        del default_params["steps"]["field_options"]
         widgets = [widget_render.create_widget(name, field) for name, field in default_params.items()]
 
         def toggle_visibility(event) -> None:  # noqa: ANN001, ARG001
