@@ -22,7 +22,7 @@ Classes
 Module Contents
 ---------------
 
-.. py:class:: Paidiverpy(config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.config.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, client: dask.distributed.Client | None = None, paidiverpy: Paidiverpy = None, track_changes: bool | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
+.. py:class:: Paidiverpy(config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.configuration.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, client: dask.distributed.Client | None = None, paidiverpy: Paidiverpy = None, track_changes: bool | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
 
    
    Main class for the paidiverpy package.
@@ -105,7 +105,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: process_sequentially(images: list[numpy.ndarray], method: callable, params: dict, custom: bool = False) -> list[numpy.ndarray]
+   .. py:method:: process_sequentially(images: list[numpy.ndarray], method: callable, params: dict, custom: bool = False) -> tuple[list[numpy.ndarray], pandas.DataFrame]
 
       
       Process the images sequentially.
@@ -121,8 +121,8 @@ Module Contents
       :param custom: Whether the method is a custom method. Defaults to False.
       :type custom: bool, optional
 
-      :returns: The list of processed images.
-      :rtype: List[np.ndarray]
+      :returns: A tuple containing the list of processed images and the metadata DataFrame.
+      :rtype: tuple[list[np.ndarray], pd.DataFrame]
 
 
 
@@ -142,7 +142,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: process_parallel(images: list[dask.array.core.Array], method: callable, params: paidiverpy.utils.dynamic_classes.DynamicConfig, custom: bool = False) -> list[numpy.ndarray]
+   .. py:method:: process_parallel(images: list[dask.array.core.Array], method: callable, params: paidiverpy.utils.base_model.BaseModel, custom: bool = False) -> tuple[list[numpy.ndarray], pandas.DataFrame]
 
       
       Process the images in parallel.
@@ -154,12 +154,47 @@ Module Contents
       :param method: The method to apply to the images.
       :type method: callable
       :param params: The parameters for the method.
-      :type params: DynamicConfig
+      :type params: BaseModel
       :param custom: Whether the method is a custom method. Defaults to False.
       :type custom: bool, optional
 
-      :returns: The list of processed images.
-      :rtype: List[da.core.Array]
+      :returns: A tuple containing the list of processed images and the metadata DataFrame.
+      :rtype: tuple[list[np.ndarray], pd.DataFrame]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: process_dataset(images: list[dask.array.core.Array], method: callable, params: paidiverpy.utils.base_model.BaseModel, custom: bool = False) -> tuple[list[numpy.ndarray], pandas.DataFrame]
+
+      
+      Process the images as a dataset.
+
+      :param images: The list of images to process.
+      :type images: List[da.core.Array]
+      :param method: The method to apply to the images.
+      :type method: callable
+      :param params: The parameters for the method.
+      :type params: BaseModel
+      :param custom: Whether the method is a custom method. Defaults to False.
+      :type custom: bool, optional
+
+      :returns: A tuple containing the list of processed images and the metadata DataFrame.
+      :rtype: tuple[list[np.ndarray], pd.DataFrame]
 
 
 
@@ -316,13 +351,26 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: prepare_inputs(image_data: numpy.ndarray, metadata: dict | None, params: paidiverpy.utils.dynamic_classes.DynamicConfig | None, default_params_factory: paidiverpy.utils.dynamic_classes.DynamicConfig, **kwargs: dict) -> tuple[numpy.ndarray, dict, paidiverpy.utils.dynamic_classes.DynamicConfig]
+   .. py:method:: prepare_inputs(image_data: numpy.ndarray, metadata: dict | None, params: paidiverpy.utils.base_model.BaseModel | None, default_params_factory: paidiverpy.utils.base_model.BaseModel, **kwargs: dict) -> tuple[numpy.ndarray, dict, paidiverpy.utils.base_model.BaseModel]
       :staticmethod:
 
 
       
       Standard preprocessing for convert layer methods.
 
+      :param image_data: The image data.
+      :type image_data: np.ndarray
+      :param metadata: The metadata.
+      :type metadata: dict | None
+      :param params: The parameters.
+      :type params: BaseModel | None
+      :param default_params_factory: The default parameters factory.
+      :type default_params_factory: BaseModel
+      :param \*\*kwargs: Additional keyword arguments.
+      :type \*\*kwargs: dict
+
+      :returns: The image data, metadata, and parameters.
+      :rtype: tuple[np.ndarray, dict, BaseModel]
 
 
 

@@ -5,9 +5,9 @@ import numpy as np
 import pandas as pd
 import pytest
 from IPython.display import HTML
-from paidiverpy.config.config import Configuration
+from paidiverpy.config.configuration import Configuration
 from paidiverpy.open_layer import OpenLayer
-from paidiverpy.resample_layer.resample_layer import ResampleLayer
+from paidiverpy.sampling_layer.sampling_layer import SamplingLayer
 from paidiverpy.utils.data import PaidiverpyData
 from tests.base_test_class import BaseTestClass
 
@@ -41,7 +41,7 @@ class TestSimpleProcessing(BaseTestClass):
             "mode": "datetime",
             "params": {"min": "2018-06-11 10:18:00", "max": "2018-06-11 04:20:00"},
         }
-        resample_layer = ResampleLayer(paidiverpy=open_layer, parameters=parameters)
+        resample_layer = SamplingLayer(paidiverpy=open_layer, parameters=parameters)
         resample_layer.run()
         images = resample_layer.images.images
         assert len(images) == number_images
@@ -50,8 +50,8 @@ class TestSimpleProcessing(BaseTestClass):
             "mode": "datetime",
             "params": {"min": "2018-06-11 04:14:00", "max": "2018-06-11 04:20:00"},
         }
-        resample_layer = ResampleLayer(paidiverpy=open_layer, parameters=parameters)
-        assert isinstance(resample_layer, ResampleLayer)
+        resample_layer = SamplingLayer(paidiverpy=open_layer, parameters=parameters)
+        assert isinstance(resample_layer, SamplingLayer)
         resample_layer_config = resample_layer.config
         assert isinstance(resample_layer_config, Configuration)
         assert resample_layer_config.general == open_layer_config.general
@@ -64,7 +64,7 @@ class TestSimpleProcessing(BaseTestClass):
             "params": {"min": "2018-06-11 04:18:00", "max": "2018-06-11 04:20:00"},
         }
         with pytest.raises(ValueError) as cm:
-            resample_layer = ResampleLayer(paidiverpy=open_layer, parameters=parameters)
+            resample_layer = SamplingLayer(paidiverpy=open_layer, parameters=parameters)
         assert str(cm.value) == "Mode is not defined for the resample layer."
         parameters = {
             "name": "datetime",
@@ -73,8 +73,8 @@ class TestSimpleProcessing(BaseTestClass):
         }
         open_layer.raise_error = True
         with pytest.raises(ValueError) as cm:
-            ResampleLayer(paidiverpy=open_layer, parameters=parameters).run()
-        assert str(cm.value) == "Resample layer step failed."
+            SamplingLayer(paidiverpy=open_layer, parameters=parameters).run()
+        assert str(cm.value) == "Sampling layer step failed."
 
     def test_processing_without_conf_file(self):
         """Test the OpenLayer class."""
@@ -83,7 +83,7 @@ class TestSimpleProcessing(BaseTestClass):
         config_params = data.load("plankton_csv")
         with pytest.raises(ValueError) as cm:
             OpenLayer(config_params=config_params)
-        assert str(cm.value) == "Error in config_params: params {'output_path'} are missing."
+        assert "Error in config_params: params ['output_path']" in str(cm.value)
         config_params["output_path"] = "tests/output"
         open_layer = OpenLayer(config_params=config_params)
         assert isinstance(open_layer, OpenLayer)
@@ -103,7 +103,7 @@ class TestSimpleProcessing(BaseTestClass):
             "mode": "datetime",
             "params": {"min": "2018-06-11 10:18:00", "max": "2018-06-11 04:20:00"},
         }
-        resample_layer = ResampleLayer(paidiverpy=open_layer, parameters=parameters)
+        resample_layer = SamplingLayer(paidiverpy=open_layer, parameters=parameters)
         resample_layer.run()
         images = resample_layer.images.images
         assert len(images) == number_images
@@ -112,8 +112,8 @@ class TestSimpleProcessing(BaseTestClass):
             "mode": "datetime",
             "params": {"min": "2018-06-11 04:14:00", "max": "2018-06-11 04:20:00"},
         }
-        resample_layer = ResampleLayer(paidiverpy=open_layer, parameters=parameters)
-        assert isinstance(resample_layer, ResampleLayer)
+        resample_layer = SamplingLayer(paidiverpy=open_layer, parameters=parameters)
+        assert isinstance(resample_layer, SamplingLayer)
         resample_layer_config = resample_layer.config
         assert isinstance(resample_layer_config, Configuration)
         assert resample_layer_config.general == open_layer_config.general

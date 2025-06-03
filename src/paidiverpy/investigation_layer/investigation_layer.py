@@ -8,8 +8,8 @@ import geopandas as gpd
 import pandas as pd
 from matplotlib import pyplot as plt
 from paidiverpy import Paidiverpy
-from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
+from paidiverpy.config.configuration import Configuration
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
 
@@ -111,10 +111,10 @@ class InvestigationLayer(Paidiverpy):
         _, ax = plt.subplots(figsize=(20, 10))
         ax.plot(metadata["image-longitude"], metadata["image-latitude"], ".k")
         ax.plot(new_metadata["image-longitude"], new_metadata["image-latitude"], "xr")
-        ax.legend(["Original", "After Resample"])
+        ax.legend(["Original", "After Sampling"])
         ax.set_xlabel("Longitude")
         ax.set_ylabel("Latitude")
-        ax.set_title("Comparison of Original and Resampled Images")
+        ax.set_title("Comparison of Original and Samplingd Images")
         if self.metadata.dataset_metadata.get("trimmed_polygon") is not None:
             self.metadata.dataset_metadata["trimmed_polygon"].plot(ax=ax, color="none", edgecolor="black", linewidth=2)
         plt.savefig(self.output_path / "graph_trimmed_images.png")

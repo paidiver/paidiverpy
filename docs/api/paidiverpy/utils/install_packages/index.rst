@@ -23,13 +23,13 @@ Functions
 Module Contents
 ---------------
 
-.. py:function:: check_and_install_dependencies(dependencies: list[str] | None, dependencies_path: str | None) -> None
+.. py:function:: check_and_install_dependencies(dependencies: str | None, dependencies_path: str | None) -> None
 
    
    Check and install dependencies.
 
    :param dependencies: The dependencies to check and install.
-   :type dependencies: list[str] | None]
+   :type dependencies: str, None
    :param dependencies_path: The path to the dependencies file.
    :type dependencies_path: str, None
 

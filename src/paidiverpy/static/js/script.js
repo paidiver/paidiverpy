@@ -46,33 +46,34 @@ function hide(stepIndex) {
 }
 
 
-function showParameters(id, randomId) {{
-  // Hide all parameter sections
+function showParameters(id, randomId) {
   var currentTarget = document.getElementById('ppy-pipeline-' + randomId + '-' + id);
   var square = document.getElementsByClassName('ppy-pipeline-' + randomId);
   var allParams = document.getElementsByClassName('ppy-pipeline-parameters-' + randomId);
   var selectedParams = document.getElementById('ppy-pipeline-parameters-' + randomId + '-' + id);
   var idWasVisible = false;
-  if (selectedParams) {{
+  if (selectedParams) {
       var idWasVisible = selectedParams.style.display === 'block';
-  }}
-  for (var i = 0; i < square.length; i++) {{
+  }
+  for (var i = 0; i < square.length; i++) {
       square[i].classList.remove('ppy-font-color-brown');
       square[i].classList.add('ppy-font-color');
-  }}
-  for (var i = 0; i < allParams.length; i++) {{
+  }
+  for (var i = 0; i < allParams.length; i++) {
       allParams[i].style.display = 'none';
-  }}
+  }
   // Show the selected parameter section
-  if (selectedParams) {{
-      if (idWasVisible) {{
+  if (selectedParams) {
+      if (idWasVisible) {
           selectedParams.style.display = 'none';
           currentTarget.classList.remove('ppy-font-color-brown');
           currentTarget.classList.add('ppy-font-color');
-      }} else {{
+      } else {
           selectedParams.style.display = 'block';
           currentTarget.classList.remove('ppy-font-color');
           currentTarget.classList.add('ppy-font-color-brown');
-      }}
-  }}
-}}
+      }
+  }
+}
+
+hljs.highlightAll();

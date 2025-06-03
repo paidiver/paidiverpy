@@ -2,12 +2,13 @@
 
 import gc
 import logging
+from jsonschema import ValidationError
 from paidiverpy import Paidiverpy
-from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
-from paidiverpy.config.pipeline_params import STEPS_CLASS_TYPES
+from paidiverpy.config.configuration import Configuration
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.open_layer import OpenLayer
+from paidiverpy.pipeline.pipeline_params import STEPS_CLASS_TYPES
 from paidiverpy.utils import formating_html
 
 STEP_WITHOUT_PARAMS = 2
@@ -71,7 +72,7 @@ class Pipeline(Paidiverpy):
                 if name == "raw":
                     self.config.add_general(step[2])
                 else:
-                    self.config.add_step(None, step[2])
+                    self.config.add_step(parameters=step[2], step_class=step[1])
         self.steps = steps
         self.runned_steps = -1
 
@@ -120,8 +121,6 @@ class Pipeline(Paidiverpy):
                         config_index=index - 1,
                     )
                 step_instance.run()
-                # if len(self.images.images) > 4:
-                #     import pdb; pdb.set_trace()
                 if not step_params.get("test", False):
                     self.images = step_instance.images
                     self.set_metadata(step_instance.get_metadata(flag="all"))
@@ -169,13 +168,17 @@ class Pipeline(Paidiverpy):
             step_name, step_class, step_params = step
         return step_name, step_class, step_params
 
-    def export_config(self, output_path: str) -> None:
+    def export_config(self, output_path: str | None = None) -> None | str:
         """Export the configuration to a yaml file.
 
         Args:
-            output_path (str): The path to the output file.
+            output_path (str, optional): The path to save the configuration file.
+
+        Returns:
+            None | str: The config file as string if output_path is None,
+                otherwise None.
         """
-        self.config.export(output_path)
+        return self.config.export(output_path)
 
     def add_step(
         self,
@@ -200,16 +203,22 @@ class Pipeline(Paidiverpy):
             parameters["name"] = step_name
         parameters["step_name"] = self._get_step_name(step_class)
         parameters["test"] = parameters.get("test", False)
-        if index:
-            if substitute:
-                self.steps[index] = (step_name, step_class, parameters)
-                self.config.add_step(index - 1, parameters, validate=True)
+        try:
+            if index:
+                if substitute:
+                    self.config.add_step(index - 1, parameters, validate=True, step_class=step_class)
+                    self.steps[index] = (step_name, step_class, parameters)
+                else:
+                    self.config.add_step(index - 1, parameters, insert=True, validate=True, step_class=step_class)
+                    self.steps.insert(index, (step_name, step_class, parameters))
+
             else:
-                self.steps.insert(index, (step_name, step_class, parameters))
-                self.config.add_step(index - 1, parameters, insert=True, validate=True)
-        else:
-            self.steps.append((step_name, step_class, parameters))
-            self.config.add_step(None, parameters, validate=True)
+                self.config.add_step(None, parameters, validate=True, step_class=step_class)
+                self.steps.append((step_name, step_class, parameters))
+        except (ValidationError, ValueError) as e:
+            msg = f"Invalid step parameters: {e}"
+            self.logger.error(msg)
+            raise ValueError(msg) from e
 
     def _get_step_name(self, step_class: type) -> str:
         """Get the name of the step class.

@@ -18,7 +18,7 @@ Core Classes
 
 - **PositionLayer**: Handles spatial information and metadata associated with images. This layer allows users to apply transformations based on the geographic coordinates or other spatial parameters, making it suitable for tasks that require spatial awareness. For more information, see the :ref:`step_position` section.
 
-- **ResampleLayer**: Responsible for resampling images to different resolutions or formats. This layer ensures that images can be resized or interpolated as needed, providing the necessary flexibility for different analysis scenarios. For more information, see the :ref:`step_sampling` section.
+- **SamplingLayer**: Responsible for resampling images to different resolutions or formats. This layer ensures that images can be resized or interpolated as needed, providing the necessary flexibility for different analysis scenarios. For more information, see the :ref:`step_sampling` section.
 
 - **ColourLayer**: This layer applies colour manipulation techniques to images, such as colour correction, filtering, and enhancement. It offers a range of methods to adjust the visual properties of images, allowing users to improve their quality for better analysis. For more information, see the :ref:`step_colour` section.
 
@@ -32,6 +32,8 @@ Supporting Classes
 - **Metadata**: Manages metadata associated with images. This class is responsible for loading, validating, and processing metadata files, ensuring that the required contextual information is readily available for image processing tasks. It supports both IFDO and CSV formats, making it versatile for different use cases. For more information, see the :ref:`images_metadata` section.
 
 - **ImagesLayer**: This class stores the outputs from each image processing step. It acts as a container for processed images, allowing users to access intermediate results easily. This organization helps in tracking changes made to images throughout the processing pipeline.
+
+- **InvestigationLayer**: This layer is designed for exploratory data analysis and visualization. It provides tools for generating visual representations of images and their associated metadata, helping users gain insights into the data. For more information, see the :ref:`guide_test_mode` section.
 
 Pipeline Class
 ------------------

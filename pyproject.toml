@@ -45,6 +45,7 @@ dependencies = [
   "botocore>=1.35.92",
   "opencv-python>=4.11",
   "rawpy>=0.24.0",
+  "pydantic>=2.9.2",
   ]
 license = {file = "LICENSE"}
 version = "0.1.4"

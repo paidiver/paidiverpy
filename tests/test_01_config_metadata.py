@@ -8,7 +8,7 @@ import pytest
 import yaml
 from jsonschema.exceptions import ValidationError
 from paidiverpy import Paidiverpy
-from paidiverpy.config.config import Configuration
+from paidiverpy.config.configuration import Configuration
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.open_layer import OpenLayer
 from paidiverpy.utils.data import PaidiverpyData
@@ -48,6 +48,7 @@ class TestConfigMetadataClass(BaseTestClass):
         assert isinstance(config_str, str)
         data = PaidiverpyData()
         config_params = data.load("plankton_csv")
+        config_params.pop("metadata_type")
         with pytest.raises(ValidationError) as cm:
             config = Configuration(add_general=config_params)
         assert "Failed to validate the configuration file" in str(cm.value)

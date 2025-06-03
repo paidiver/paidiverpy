@@ -23,19 +23,19 @@ from skimage.segmentation import checkerboard_level_set
 from skimage.segmentation import morphological_chan_vese
 from skimage.transform import resize
 from paidiverpy import Paidiverpy
-from paidiverpy.config.colour_params import COLOUR_LAYER_METHODS
-from paidiverpy.config.colour_params import ColourAlterationParams
-from paidiverpy.config.colour_params import ContrastAdjustmentParams
-from paidiverpy.config.colour_params import DeblurParams
-from paidiverpy.config.colour_params import EdgeDetectionParams
-from paidiverpy.config.colour_params import GaussianBlurParams
-from paidiverpy.config.colour_params import GrayScaleParams
-from paidiverpy.config.colour_params import IlluminationCorrectionParams
-from paidiverpy.config.colour_params import SharpenParams
-from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
+from paidiverpy.config.configuration import Configuration
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
+from paidiverpy.models.colour_params import COLOUR_LAYER_METHODS
+from paidiverpy.models.colour_params import ColourAlterationParams
+from paidiverpy.models.colour_params import ContrastAdjustmentParams
+from paidiverpy.models.colour_params import DeblurParams
+from paidiverpy.models.colour_params import EdgeDetectionParams
+from paidiverpy.models.colour_params import GaussianBlurParams
+from paidiverpy.models.colour_params import GrayScaleParams
+from paidiverpy.models.colour_params import IlluminationCorrectionParams
+from paidiverpy.models.colour_params import SharpenParams
 from paidiverpy.utils.data import DEFAULT_BITS
 from paidiverpy.utils.data import NUM_CHANNELS_GREY
 from paidiverpy.utils.data import NUM_CHANNELS_RGB
@@ -101,7 +101,7 @@ class ColourLayer(Paidiverpy):
         )
 
         self.step_name = step_name
-        self.config_index = self.config.add_step(config_index, parameters)
+        self.config_index = self.config.add_step(config_index, parameters, step_class=ColourLayer)
         self.step_metadata = self._calculate_steps_metadata(self.config.steps[self.config_index])
         self.raise_error = self._calculate_raise_error()
         self.layer_methods = COLOUR_LAYER_METHODS
@@ -257,7 +257,12 @@ class ColourLayer(Paidiverpy):
 
         try:
             method = params.method
-            kernel_size = tuple(params.kernel_size) if params.kernel_size and isinstance(params.kernel_size, list | tuple) else None
+            kernel_size = params.kernel_size
+            if params.kernel_size:
+                if isinstance(params.kernel_size, dict):
+                    kernel_size = list(params.kernel_size.values())
+                else:
+                    kernel_size = [params.kernel_size for _ in range(image_data.ndim)]
             clip_limit = params.clip_limit
             gamma_value = params.gamma_value
             bits = image_data.dtype.itemsize * DEFAULT_BITS
@@ -477,13 +482,12 @@ class ColourLayer(Paidiverpy):
                 params.deconv_mask_weight,
                 params.small_float_val,
             )
+            metadata["edge_detection"] = features
+            if num_channels == NUM_CHANNELS_RGBA:
+                image_data = np.dstack((image_data, image_a))
         except Exception as e:  # noqa: BLE001
             msg = f"Error applying edge detection: {e}"
             check_raise_error(params.raise_error, msg)
-
-        metadata["edge_detection"] = features
-        if num_channels == NUM_CHANNELS_RGBA:
-            image_data = np.dstack((image_data, image_a))
         return image_data, metadata
 
     @staticmethod
@@ -807,7 +811,7 @@ class ColourLayer(Paidiverpy):
         return features
 
     @staticmethod
-    def detect_edges(img: np.ndarray, method: str, blur_radius: float, threshold: tuple) -> np.ndarray:
+    def detect_edges(img: np.ndarray, method: str, blur_radius: float, threshold: dict) -> np.ndarray:
         """Detect edges.
 
         Detect edges in the image.
@@ -816,7 +820,7 @@ class ColourLayer(Paidiverpy):
             img (np.ndarray): The image to detect edges
             method (str): The method to use for edge detection
             blur_radius (float): The radius for the blur
-            threshold (tuple): The threshold for edge detection
+            threshold (dict): The threshold for edge detection
 
         Returns:
             np.ndarray: The filled edges
@@ -824,10 +828,10 @@ class ColourLayer(Paidiverpy):
         if method == "scharr":
             if len(img.shape) == NUM_CHANNELS_RGB:
                 edges_mags = [scharr(img[:, :, i]) for i in range(NUM_CHANNELS_RGB)]
-                filled_edges = [ColourLayer.process_edges(edges_mag, threshold[0], blur_radius) for edges_mag in edges_mags]
+                filled_edges = [ColourLayer.process_edges(edges_mag, threshold["low"], blur_radius) for edges_mag in edges_mags]
             else:
                 edges_mag = scharr(img)
-                filled_edges = ColourLayer.process_edges(edges_mag, threshold[0], blur_radius)
+                filled_edges = ColourLayer.process_edges(edges_mag, threshold["low"], blur_radius)
         elif method == "scharr_with_mean":
             if len(img.shape) == NUM_CHANNELS_RGB:
                 edges_mags = [scharr(img[:, :, i]) for i in range(3)]
@@ -837,7 +841,7 @@ class ColourLayer(Paidiverpy):
                 filled_edges = ColourLayer.process_edges_mean(edges_mag, blur_radius)
         elif method == "canny":
             if len(img.shape) == NUM_CHANNELS_RGB:
-                edges = [cv2.Canny(img[:, :, i], threshold[0], threshold[1]) for i in range(NUM_CHANNELS_RGB)]
+                edges = [cv2.Canny(img[:, :, i], threshold["low"], threshold["high"]) for i in range(NUM_CHANNELS_RGB)]
                 filled_edges = [
                     morphology.erosion(
                         ndimage.binary_fill_holes(morphology.closing(edge, morphology.square(blur_radius))),
@@ -846,7 +850,7 @@ class ColourLayer(Paidiverpy):
                     for edge in edges
                 ]
             else:
-                edges = cv2.Canny(img, threshold[0], threshold[1])
+                edges = cv2.Canny(img, threshold["low"], threshold["high"])
                 edges = morphology.closing(edges, morphology.square(blur_radius))
                 filled_edges = ndimage.binary_fill_holes(edges)
                 filled_edges = morphology.erosion(filled_edges, morphology.square(blur_radius))

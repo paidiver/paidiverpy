@@ -47,7 +47,7 @@ Classes
 Package Contents
 ----------------
 
-.. py:class:: InvestigationLayer(config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.config.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: paidiverpy.Paidiverpy = None, step_order: str | None = None, step_name: str | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2, plots: list | str | None = None, plot_metadata: pandas.DataFrame = None)
+.. py:class:: InvestigationLayer(config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.configuration.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: paidiverpy.Paidiverpy = None, step_order: str | None = None, step_name: str | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2, plots: list | str | None = None, plot_metadata: pandas.DataFrame = None)
 
    Bases: :py:obj:`paidiverpy.Paidiverpy`
 

@@ -1,0 +1,23 @@
+general:
+  n_jobs: 1
+  sample_data: "benthic_csv"
+  output_path: "./output"
+  rename: "datetime"
+  sampling:
+    - mode: "percent"
+      params:
+        value: 0.1
+
+steps:
+  - colour:
+      name: "colour_correction"
+      mode: "grayscale"
+
+  - custom:
+      name: "min_max_data"
+      file_path: "example_dataset"
+      processing_type: "dataset"
+      class_name: "MyMethod"
+      dependencies: "scikit-learn"
+      params:
+        feature_range: (0, 1)

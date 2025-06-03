@@ -25,7 +25,7 @@ Classes
 Module Contents
 ---------------
 
-.. py:class:: CustomLayer(parameters: dict, config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.config.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: paidiverpy.Paidiverpy = None, step_name: str | None = None, config_index: int | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
+.. py:class:: CustomLayer(parameters: dict, config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.configuration.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: paidiverpy.Paidiverpy = None, step_name: str | None = None, config_index: int | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
 
    Bases: :py:obj:`paidiverpy.Paidiverpy`
 
@@ -84,7 +84,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-   .. py:method:: run() -> paidiverpy.images_layer.ImagesLayer | None
+   .. py:method:: run() -> None
 
       
       Custom Layer run method.
@@ -96,9 +96,6 @@ Module Contents
       :type add_new_step: bool, optional
 
       Defaults to True.
-
-      :returns: The images object with the new step added.
-      :rtype: ImagesLayer | None
 
 
 

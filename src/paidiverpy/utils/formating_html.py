@@ -17,7 +17,7 @@ from paidiverpy.utils.data import NUM_DIMENSIONS_GREY
 
 if TYPE_CHECKING:
     from paidiverpy import Paidiverpy
-    from paidiverpy.config.config import Configuration
+    from paidiverpy.config.configuration import Configuration
     from paidiverpy.images_layer import ImagesLayer
     from paidiverpy.metadata_parser import MetadataParser
 
@@ -29,7 +29,7 @@ STATIC_FILES = (
     ("paidiverpy.static.js", "script.js"),
 )
 
-EXTERNAL_CSS = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
+EXTERNAL_CSS = ["https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"]
 
 EXTERNAL_JS = ("https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js", "hljs.highlightAll();")
 

@@ -4,10 +4,10 @@ import unittest
 from pathlib import Path
 import numpy as np
 from paidiverpy.colour_layer.colour_layer import ColourLayer
-from paidiverpy.config.config import Configuration
-from paidiverpy.config.config import GeneralConfig
+from paidiverpy.config.configuration import Configuration
+from paidiverpy.config.configuration import GeneralConfig
 from paidiverpy.pipeline import Pipeline
-from paidiverpy.resample_layer.resample_layer import ResampleLayer
+from paidiverpy.sampling_layer.sampling_layer import SamplingLayer
 from paidiverpy.utils.data import NUM_DIMENSIONS
 from tests.base_test_class import BaseTestClass
 
@@ -39,7 +39,7 @@ class TestPipelineTestSteps(BaseTestClass):
         assert pipeline.steps[1][2]["test"]
         pipeline.add_step(
             "overlapping",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "overlapping",
                 "test": True,
@@ -60,7 +60,7 @@ class TestPipelineTestSteps(BaseTestClass):
         assert len(output_graphs) == 0
         pipeline.add_step(
             "overlapping",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "overlapping",
                 "params": {"theta": 40, "omega": 57, "threshold": 0.1},
@@ -76,7 +76,7 @@ class TestPipelineTestSteps(BaseTestClass):
         assert len(images) == number_images
         pipeline.add_step(
             "datetime",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "datetime",
                 "test": True,
@@ -96,7 +96,7 @@ class TestPipelineTestSteps(BaseTestClass):
         assert len(output_graphs) == 0
         pipeline.add_step(
             "datetime",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "datetime",
                 "params": {"min": "2018-06-11 04:14:00", "max": "2018-06-11 04:20:00"},
@@ -127,7 +127,7 @@ class TestPipelineTestSteps(BaseTestClass):
         assert pipeline.steps[1][2]["test"]
         pipeline.add_step(
             "percent",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "percent",
                 "test": True,
@@ -148,7 +148,7 @@ class TestPipelineTestSteps(BaseTestClass):
         assert len(output_graphs) == 0
         pipeline.add_step(
             "percent",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "percent",
                 "params": {"value": 0.1},
@@ -177,7 +177,7 @@ class TestPipelineTestSteps(BaseTestClass):
         assert pipeline.steps[1][2]["test"]
         pipeline.add_step(
             "fixed",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "fixed",
                 "test": True,
@@ -198,7 +198,7 @@ class TestPipelineTestSteps(BaseTestClass):
         assert len(output_graphs) == 0
         pipeline.add_step(
             "fixed",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "fixed",
                 "test": True,
@@ -221,7 +221,7 @@ class TestPipelineTestSteps(BaseTestClass):
 
         pipeline.add_step(
             "fixed",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "fixed",
                 "params": {"value": 10},
@@ -250,7 +250,7 @@ class TestPipelineTestSteps(BaseTestClass):
         assert pipeline.steps[1][2]["test"]
         pipeline.add_step(
             "depth",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "depth",
                 "test": True,
@@ -271,7 +271,7 @@ class TestPipelineTestSteps(BaseTestClass):
         assert len(output_graphs) == 0
         pipeline.add_step(
             "depth",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "depth",
                 "params": {"value": 10, "by": "upper"},
@@ -293,7 +293,7 @@ class TestPipelineTestSteps(BaseTestClass):
         assert len(output_graphs) == 0
         pipeline.add_step(
             "depth",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "depth",
                 "params": {"value": 10},
@@ -322,7 +322,7 @@ class TestPipelineTestSteps(BaseTestClass):
         assert pipeline.steps[1][2]["test"]
         pipeline.add_step(
             "altitude",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "altitude",
                 "test": True,
@@ -343,7 +343,7 @@ class TestPipelineTestSteps(BaseTestClass):
         assert len(output_graphs) == 0
         pipeline.add_step(
             "altitude",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "altitude",
                 "params": {"value": 10},
@@ -372,7 +372,7 @@ class TestPipelineTestSteps(BaseTestClass):
         assert pipeline.steps[1][2]["test"]
         pipeline.add_step(
             "pitch_roll",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "pitch_roll",
                 "test": True,
@@ -393,7 +393,7 @@ class TestPipelineTestSteps(BaseTestClass):
         assert len(output_graphs) == 0
         pipeline.add_step(
             "pitch_roll",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "pitch_roll",
                 "params": {"pitch": 10, "roll": 10},
@@ -422,7 +422,7 @@ class TestPipelineTestSteps(BaseTestClass):
         assert pipeline.steps[1][2]["test"]
         pipeline.add_step(
             "region",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "region",
                 "test": True,
@@ -444,7 +444,7 @@ class TestPipelineTestSteps(BaseTestClass):
         region_filepath = Path("tests/example_files/polygons/region_polygon.geojson").absolute()
         pipeline.add_step(
             "region",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "region",
                 "params": {"file": region_filepath},
@@ -467,7 +467,7 @@ class TestPipelineTestSteps(BaseTestClass):
         region_filepath = Path("tests/example_files/polygons/region_polygon.shp").absolute()
         pipeline.add_step(
             "region",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "region",
                 "params": {"file": region_filepath},
@@ -504,10 +504,10 @@ class TestPipelineTestSteps(BaseTestClass):
         assert pipeline.steps[1][2]["test"]
         pipeline.add_step(
             "region",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "region",
-                "params": {"limits": [-153.608, -153.605, 11.251, 11.253]},
+                "params": {"limits": {"min_lon": -153.608, "max_lon": -153.605, "min_lat": 11.251, "max_lat": 11.253}},
                 "test": True,
             },
             1,
@@ -526,10 +526,10 @@ class TestPipelineTestSteps(BaseTestClass):
         assert len(output_graphs) == 0
         pipeline.add_step(
             "region",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "region",
-                "params": {"limits": [-153.608, -153.605, 11.251, 11.253]},
+                "params": {"limits": {"min_lon": -153.608, "max_lon": -153.605, "min_lat": 11.251, "max_lat": 11.253}},
                 "test": False,
             },
             1,
@@ -542,18 +542,18 @@ class TestPipelineTestSteps(BaseTestClass):
         assert len(pipeline.steps) == total_steps
         pipeline.add_step(
             "region",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "region",
-                "params": {"limits": [-153.999, -153.605, 11.251, 11.253]},
+                "params": {"limits": {"min_lon": -153.999, "max_lon": -153.605, "min_lat": 11.251, "max_lat": 11.253}},
                 "test": False,
             },
             1,
         )
         assert pipeline.steps[-1][2]["test"] is False
         assert len(pipeline.steps) == total_steps + 1
-        assert pipeline.steps[-1][2]["params"]["limits"] == [-153.608, -153.605, 11.251, 11.253]
-        assert pipeline.steps[-2][2]["params"]["limits"] == [-153.999, -153.605, 11.251, 11.253]
+        assert pipeline.steps[-1][2]["params"]["limits"] == {"min_lon": -153.608, "max_lon": -153.605, "min_lat": 11.251, "max_lat": 11.253}
+        assert pipeline.steps[-2][2]["params"]["limits"] == {"min_lon": -153.999, "max_lon": -153.605, "min_lat": 11.251, "max_lat": 11.253}
 
     def test_pipeline_testing_step_obscure_three_channels(self):
         """Test the Pipeline Testing Steps."""
@@ -570,7 +570,7 @@ class TestPipelineTestSteps(BaseTestClass):
         assert pipeline.steps[1][2]["test"]
         pipeline.add_step(
             "obscure",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "obscure",
                 "params": {"min": 0, "max": 1, "channel": "all"},
@@ -592,7 +592,7 @@ class TestPipelineTestSteps(BaseTestClass):
         assert len(output_graphs) == 0
         pipeline.add_step(
             "obscure",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "obscure",
                 "params": {"min": 0, "max": 1, "channel": "mean"},
@@ -614,7 +614,7 @@ class TestPipelineTestSteps(BaseTestClass):
         assert len(output_graphs) == 0
         pipeline.add_step(
             "obscure",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "obscure",
                 "params": {"min": 0, "max": 1, "channel": "1"},
@@ -659,7 +659,7 @@ class TestPipelineTestSteps(BaseTestClass):
         assert len(images[-1][0].shape) == NUM_DIMENSIONS
         pipeline.add_step(
             "obscure",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "obscure",
                 "test": True,
@@ -676,7 +676,7 @@ class TestPipelineTestSteps(BaseTestClass):
             output_graph.unlink()
         pipeline.add_step(
             "obscure",
-            ResampleLayer,
+            SamplingLayer,
             {
                 "mode": "obscure",
                 "test": False,

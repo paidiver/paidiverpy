@@ -25,7 +25,7 @@ Classes
 Module Contents
 ---------------
 
-.. py:class:: ColourLayer(parameters: dict, config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.config.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: paidiverpy.Paidiverpy = None, step_name: str | None = None, config_index: int | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
+.. py:class:: ColourLayer(parameters: dict, config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.configuration.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: paidiverpy.Paidiverpy = None, step_name: str | None = None, config_index: int | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
 
    Bases: :py:obj:`paidiverpy.Paidiverpy`
 
@@ -84,7 +84,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-   .. py:method:: grayscale(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.config.colour_params.GrayScaleParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
+   .. py:method:: grayscale(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.models.colour_params.GrayScaleParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
       :staticmethod:
 
 
@@ -126,7 +126,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: gaussian_blur(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.config.colour_params.GaussianBlurParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
+   .. py:method:: gaussian_blur(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.models.colour_params.GaussianBlurParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
       :staticmethod:
 
 
@@ -168,7 +168,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: sharpen(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.config.colour_params.SharpenParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
+   .. py:method:: sharpen(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.models.colour_params.SharpenParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
       :staticmethod:
 
 
@@ -209,7 +209,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: contrast_adjustment(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.config.colour_params.ContrastAdjustmentParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
+   .. py:method:: contrast_adjustment(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.models.colour_params.ContrastAdjustmentParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
       :staticmethod:
 
 
@@ -251,7 +251,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: illumination_correction(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.config.colour_params.IlluminationCorrectionParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
+   .. py:method:: illumination_correction(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.models.colour_params.IlluminationCorrectionParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
       :staticmethod:
 
 
@@ -293,7 +293,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: deblur(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.config.colour_params.DeblurParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
+   .. py:method:: deblur(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.models.colour_params.DeblurParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
       :staticmethod:
 
 
@@ -338,7 +338,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: colour_alteration(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.config.colour_params.ColourAlterationParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
+   .. py:method:: colour_alteration(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.models.colour_params.ColourAlterationParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
       :staticmethod:
 
 
@@ -379,7 +379,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: edge_detection(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.config.colour_params.EdgeDetectionParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
+   .. py:method:: edge_detection(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.models.colour_params.EdgeDetectionParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
       :staticmethod:
 
 
@@ -421,7 +421,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: get_object_features(gray_image_data: numpy.ndarray, label_image_data: numpy.ndarray, params: paidiverpy.config.colour_params.EdgeDetectionParams) -> tuple[dict, numpy.ndarray]
+   .. py:method:: get_object_features(gray_image_data: numpy.ndarray, label_image_data: numpy.ndarray, params: paidiverpy.models.colour_params.EdgeDetectionParams) -> tuple[dict, numpy.ndarray]
       :staticmethod:
 
 
@@ -620,7 +620,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: detect_edges(img: numpy.ndarray, method: str, blur_radius: float, threshold: tuple) -> numpy.ndarray
+   .. py:method:: detect_edges(img: numpy.ndarray, method: str, blur_radius: float, threshold: dict) -> numpy.ndarray
       :staticmethod:
 
 
@@ -636,7 +636,7 @@ Module Contents
       :param blur_radius: The radius for the blur
       :type blur_radius: float
       :param threshold: The threshold for edge detection
-      :type threshold: tuple
+      :type threshold: dict
 
       :returns: The filled edges
       :rtype: np.ndarray
