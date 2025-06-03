@@ -12,6 +12,7 @@
   --ppy-border-color: var(--jp-border-color2, #e0e0e0);
   --ppy-disabled-color: var(--jp-layout-color3, #bdbdbd);
   --ppy-background-color: var(--jp-layout-color, white);
+  --ppy-background-color2: var(--jp-layout-color3, rgba(212, 212, 212, 0.15));
 }
 
 
@@ -72,11 +73,11 @@ body.vscode-dark {
   cursor: pointer;
   padding: 10px;
   width: max-content;
-  height: 80px;
+  height: 150px;
   margin: 10px;
   border: 1px solid #000;
   text-align: center;
-  line-height: 80px;
+  /* line-height: 80px; */
 }
 
 .ppy-pipeline-clear-fix {
@@ -170,4 +171,79 @@ body.vscode-dark {
 }
 .ppy-json-null {
   color: var(--ppy-font-color-gray);
+}
+
+
+.ppy-pn-title-0 {
+  font-size: 30px;
+}
+
+.ppy-pn-title-1 {
+  font-size: 20px;
+}
+.ppy-pn-title-2 {
+  font-size: 17px;
+}
+.ppy-pn-title-3 {
+  font-size: 14px;
+}
+.ppy-pn-title-4 {
+  font-size: 12px;
+}
+
+.ppy-pn-bold {
+  font-weight: bold;
+}
+.ppy-pn-italic {
+  font-style: italic;
+}
+.ppy-pn-description {
+  font-size: 14px;
+  margin-bottom: 1px;
+}
+
+.bk-root {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+}
+
+input, .bk-input, .bk-input-group {
+  margin-top: 0px;
+  margin-bottom: 3px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+
+.ppy-pn-header-button .bk-btn {
+  background: none !important;
+  border: none !important;
+  font-weight: bold;
+  font-size: 16px;
+  text-align: left;
+  padding-left: 0;
+  cursor: pointer;
+  box-shadow: none !important;
+  color: black;
+}
+
+.ppy-pn-danger-modal{
+  border: 2px solid red;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(255, 0, 0, 0.5);
+}
+
+.ppy-pn-config-form{
+  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  background-color: var(--ppy-background-color2);
+  border-radius: 5px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+.ppy-pn-align-right {
+  display: flex;
+  justify-content: flex-end;
 }

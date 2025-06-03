@@ -22,7 +22,7 @@ Classes
 Module Contents
 ---------------
 
-.. py:class:: MetadataParser(config: paidiverpy.config.config.Configuration = None, metadata_path: str | None = None, metadata_type: str | None = None, metadata_conventions: str | None = None, append_data_to_metadata: str | None = None, logger: logging.Logger | None = None)
+.. py:class:: MetadataParser(config: paidiverpy.config.configuration.Configuration = None, metadata_path: str | None = None, metadata_type: str | None = None, metadata_conventions: str | None = None, append_data_to_metadata: str | None = None, logger: logging.Logger | None = None)
 
    
    Class for parsing metadata files.
@@ -57,30 +57,6 @@ Module Contents
 
    ..
        !! processed by numpydoc !!
-
-   .. py:method:: set_new_attributes(**kwargs: dict) -> None
-
-      
-      Set new attributes for the metadata parser.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      ..
-          !! processed by numpydoc !!
-
 
    .. py:method:: open_metadata() -> dask.dataframe.DataFrame
 
@@ -186,6 +162,76 @@ Module Contents
 
       "json", "IFDO", or "croissant".
           from_step (int): Step to filter metadata. Default is -1, which means the last step.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: group_metadata_and_dataset_metadata(metadata: pandas.DataFrame | dask.dataframe.DataFrame, dataset_metadata: dict) -> tuple[pandas.DataFrame, dict]
+      :staticmethod:
+
+
+      
+      Group metadata and dataset metadata.
+
+      :param metadata: Metadata DataFrame.
+      :type metadata: pd.DataFrame | dd.DataFrame
+      :param dataset_metadata: Dataset metadata.
+      :type dataset_metadata: dict
+      :param metadata_type: Metadata type. Defaults to "IFDO".
+      :type metadata_type: str
+
+      :returns: Grouped metadata and dataset metadata.
+      :rtype: tuple[pd.DataFrame, dict]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: metadata_to_exif(filename: str, metadata: pandas.DataFrame, image_format: str = 'png') -> None | dict
+      :staticmethod:
+
+
+      
+      Convert metadata to EXIF format.
+
+      :param filename: Filename to convert.
+      :type filename: str
+      :param metadata: Metadata DataFrame.
+      :type metadata: pd.DataFrame
+      :param image_format: Image format. Defaults to "png".
+      :type image_format: str
+
+      :returns: EXIF data or None if not found.
+      :rtype: None | dict
 
 
 

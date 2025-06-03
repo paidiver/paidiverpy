@@ -21,6 +21,7 @@ Functions
    paidiverpy.utils.object_store.create_client
    paidiverpy.utils.object_store.check_create_bucket_exists
    paidiverpy.utils.object_store.upload_file_to_bucket
+   paidiverpy.utils.object_store.path_is_remote
 
 
 Module Contents
@@ -149,6 +150,34 @@ Module Contents
    :type output_path: str
    :param client: The boto3 client for S3.
    :type client: boto3.client
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: path_is_remote(path: str) -> bool
+
+   
+   Check if the path is a remote path.
+
+   :param path: The path to check.
+   :type path: str
+
+   :returns: True if the path is remote, False otherwise.
+   :rtype: bool
 
 
 

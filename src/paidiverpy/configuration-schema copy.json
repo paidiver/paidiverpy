@@ -1,0 +1,1454 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "general": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "sample_data": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "input_path": {
+          "type": "string"
+        },
+        "metadata_path": {
+          "type": "string"
+        },
+        "metadata_type": {
+          "type": "string",
+          "enum": [
+            "IFDO",
+            "CSV_FILE"
+          ]
+        },
+        "metadata_conventions": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "image_open_args": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "image_type": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object"
+                }
+              },
+              "required": [
+                "image_type"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "append_data_to_metadata": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "output_path": {
+          "type": "string"
+        },
+        "n_jobs": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "client": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "cluster_type": {
+              "type": "string",
+              "enum": [
+                "local",
+                "slurm"
+              ]
+            },
+            "params": {
+              "type": [
+                "object",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "cluster_type"
+          ],
+          "if": {
+            "properties": {
+              "cluster_type": {
+                "const": "local"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "$ref": "#/definitions/client_params/local_params"
+              }
+            }
+          },
+          "else": {
+            "if": {
+              "properties": {
+                "cluster_type": {
+                  "const": "slurm"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "params": {
+                  "$ref": "#/definitions/client_params/slurm_params"
+                }
+              }
+            }
+          }
+        },
+        "track_changes": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "rename": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "datetime",
+            "UUID",
+            null
+          ]
+        },
+        "sampling": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/sampling"
+          }
+        },
+        "convert": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/convert"
+          }
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "input_path",
+            "output_path"
+          ],
+          "not": {
+            "required": [
+              "sample_data"
+            ]
+          }
+        },
+        {
+          "required": [
+            "sample_data"
+          ]
+        }
+      ]
+    },
+    "steps": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "object",
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "colour": {
+                "$ref": "#/definitions/colour"
+              }
+            },
+            "required": [
+              "colour"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "sampling": {
+                "$ref": "#/definitions/sampling"
+              }
+            },
+            "required": [
+              "sampling"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "convert": {
+                "$ref": "#/definitions/convert"
+              }
+            },
+            "required": [
+              "convert"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "position": {
+                "$ref": "#/definitions/position"
+              }
+            },
+            "required": [
+              "position"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "custom": {
+                "$ref": "#/definitions/custom"
+              }
+            },
+            "required": [
+              "custom"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "required": [
+    "general"
+  ],
+  "definitions": {
+    "client_params": {
+      "local_params": {
+        "type": "object",
+        "properties": {
+          "n_workers": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "threads_per_worker": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "memory_limit": {
+            "type": "string",
+            "pattern": "^[0-9]+(KB|MB|GB|TB)$"
+          }
+        }
+      },
+      "slurm_params": {
+        "type": "object",
+        "properties": {
+          "queue": {
+            "type": "string"
+          },
+          "cores": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "processes": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "memory": {
+            "type": "string",
+            "pattern": "^[0-9]+(KB|MB|GB|TB)$"
+          },
+          "scale": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "walltime": {
+            "type": "string",
+            "pattern": "^([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$"
+          },
+          "job_extra_directives": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "position": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "step_name": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string"
+        },
+        "test": {
+          "type": "boolean"
+        },
+        "params": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "mode"
+      ],
+      "if": {
+        "properties": {
+          "mode": {
+            "const": "calculate_corners"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "params": {
+            "$ref": "#/definitions/position_params/calculate_corners"
+          }
+        }
+      }
+    },
+    "convert": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "step_name": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "bits",
+            "to",
+            "normalize",
+            "resize",
+            "crop"
+          ]
+        },
+        "test": {
+          "type": "boolean"
+        },
+        "params": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "mode"
+      ],
+      "if": {
+        "properties": {
+          "mode": {
+            "const": "bits"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "params": {
+            "$ref": "#/definitions/convert_params/bit_params"
+          }
+        }
+      },
+      "else": {
+        "if": {
+          "properties": {
+            "mode": {
+              "const": "to"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "params": {
+              "$ref": "#/definitions/convert_params/to_params"
+            }
+          }
+        },
+        "else": {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "normalize"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "$ref": "#/definitions/convert_params/normalize_params"
+              }
+            }
+          },
+          "else": {
+            "if": {
+              "properties": {
+                "mode": {
+                  "const": "resize"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "params": {
+                  "$ref": "#/definitions/convert_params/resize_params"
+                }
+              }
+            },
+            "else": {
+              "if": {
+                "properties": {
+                  "mode": {
+                    "const": "crop"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "params": {
+                    "$ref": "#/definitions/convert_params/crop_params"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "custom": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "step_name": {
+          "type": "string"
+        },
+        "file_path": {
+          "type": "string"
+        },
+        "class_name": {
+          "type": "string"
+        },
+        "test": {
+          "type": "boolean"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dependencies_path": {
+          "type": "string"
+        },
+        "full_dataset": {
+          "type": "boolean"
+        },
+        "params": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "file_path",
+        "class_name"
+      ]
+    },
+    "colour": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "step_name": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "grayscale",
+            "gaussian_blur",
+            "edge_detection",
+            "sharpen",
+            "contrast",
+            "illumination_correction",
+            "deblur",
+            "colour_alteration"
+          ]
+        },
+        "test": {
+          "type": "boolean"
+        },
+        "params": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "mode"
+      ],
+      "if": {
+        "properties": {
+          "mode": {
+            "const": "grayscale"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "params": {
+            "$ref": "#/definitions/colour_params/grayscale"
+          }
+        }
+      },
+      "else": {
+        "if": {
+          "properties": {
+            "mode": {
+              "const": "gaussian_blur"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "params": {
+              "$ref": "#/definitions/colour_params/gaussian_blur"
+            }
+          }
+        },
+        "else": {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "edge_detection"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "$ref": "#/definitions/colour_params/edge_detection"
+              }
+            }
+          },
+          "else": {
+            "if": {
+              "properties": {
+                "mode": {
+                  "const": "sharpen"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "params": {
+                  "$ref": "#/definitions/colour_params/sharpen"
+                }
+              }
+            },
+            "else": {
+              "if": {
+                "properties": {
+                  "mode": {
+                    "const": "contrast"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "params": {
+                    "$ref": "#/definitions/colour_params/contrast"
+                  }
+                }
+              },
+              "else": {
+                "if": {
+                  "properties": {
+                    "mode": {
+                      "const": "illumination_correction"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "params": {
+                      "$ref": "#/definitions/colour_params/illumination_correction"
+                    }
+                  }
+                },
+                "else": {
+                  "if": {
+                    "properties": {
+                      "mode": {
+                        "const": "deblur"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "params": {
+                        "$ref": "#/definitions/colour_params/deblur"
+                      }
+                    }
+                  },
+                  "else": {
+                    "if": {
+                      "properties": {
+                        "mode": {
+                          "const": "colour_alteration"
+                        }
+                      }
+                    },
+                    "then": {
+                      "properties": {
+                        "params": {
+                          "$ref": "#/definitions/colour_params/colour_alteration"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "sampling": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "step_name": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "datetime",
+            "depth",
+            "altitude",
+            "pitch_roll",
+            "overlapping",
+            "fixed",
+            "percent",
+            "region",
+            "obscure"
+          ]
+        },
+        "test": {
+          "type": "boolean"
+        },
+        "params": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "mode"
+      ],
+      "if": {
+        "properties": {
+          "mode": {
+            "const": "datetime"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "params": {
+            "$ref": "#/definitions/sampling_params/datetime_params"
+          }
+        }
+      },
+      "else": {
+        "if": {
+          "properties": {
+            "mode": {
+              "const": "depth"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "params": {
+              "$ref": "#/definitions/sampling_params/depth_params"
+            }
+          }
+        },
+        "else": {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "altitude"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "$ref": "#/definitions/sampling_params/altitude_params"
+              }
+            }
+          },
+          "else": {
+            "if": {
+              "properties": {
+                "mode": {
+                  "const": "pitch_roll"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "params": {
+                  "$ref": "#/definitions/sampling_params/pitch_roll_params"
+                }
+              }
+            },
+            "else": {
+              "if": {
+                "properties": {
+                  "mode": {
+                    "const": "overlapping"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "params": {
+                    "$ref": "#/definitions/sampling_params/overlapping_params"
+                  }
+                }
+              },
+              "else": {
+                "if": {
+                  "properties": {
+                    "mode": {
+                      "const": "fixed"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "params": {
+                      "$ref": "#/definitions/sampling_params/fixed_params"
+                    }
+                  }
+                },
+                "else": {
+                  "if": {
+                    "properties": {
+                      "mode": {
+                        "const": "percent"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "params": {
+                        "$ref": "#/definitions/sampling_params/percent_params"
+                      }
+                    }
+                  },
+                  "else": {
+                    "if": {
+                      "properties": {
+                        "mode": {
+                          "const": "region"
+                        }
+                      }
+                    },
+                    "then": {
+                      "properties": {
+                        "params": {
+                          "$ref": "#/definitions/sampling_params/region_params"
+                        }
+                      }
+                    },
+                    "else": {
+                      "if": {
+                        "properties": {
+                          "mode": {
+                            "const": "obscure"
+                          }
+                        }
+                      },
+                      "then": {
+                        "properties": {
+                          "params": {
+                            "$ref": "#/definitions/sampling_params/obscure_params"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "position_params": {
+      "calculate_corners": {
+        "type": "object",
+        "properties": {
+          "omega": {
+            "type": "number",
+            "minimum": 0
+          },
+          "theta": {
+            "type": "number",
+            "minimum": 0
+          },
+          "camera_distance": {
+            "type": "number",
+            "default": 1.12
+          },
+          "raise_error": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "omega",
+          "theta"
+        ]
+      }
+    },
+    "colour_params": {
+      "grayscale": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "opencv",
+              "average",
+              "luminosity",
+              "desaturation"
+            ]
+          },
+          "invert_colours": {
+            "type": "boolean"
+          },
+          "raise_error": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "deblur": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "wiener",
+              "other_method"
+            ]
+          },
+          "psf_type": {
+            "type": "string",
+            "enum": [
+              "gaussian",
+              "motion"
+            ]
+          },
+          "sigma": {
+            "type": "number"
+          },
+          "angle": {
+            "type": "integer"
+          },
+          "raise_error": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "colour_alteration": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "white_balance",
+              "other_method"
+            ]
+          },
+          "raise_error": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "method"
+        ]
+      },
+      "gaussian_blur": {
+        "type": "object",
+        "properties": {
+          "sigma": {
+            "type": "number"
+          },
+          "raise_error": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "sigma"
+        ]
+      },
+      "edge_detection": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "sobel",
+              "scharr",
+              "scharr_with_mean",
+              "canny",
+              "chan_vese"
+            ]
+          },
+          "blur_radius": {
+            "type": "number"
+          },
+          "threshold": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "object_type": {
+            "type": "string",
+            "enum": [
+              "aggregate",
+              "isolated"
+            ]
+          },
+          "object_selection": {
+            "type": "string",
+            "enum": [
+              "full_ROI",
+              "largest_area"
+            ]
+          },
+          "estimate_sharpness": {
+            "type": "boolean"
+          },
+          "deconv": {
+            "type": "boolean"
+          },
+          "deconv_method": {
+            "type": "string",
+            "enum": [
+              "UM",
+              "LR"
+            ]
+          },
+          "deconv_iter": {
+            "type": "integer"
+          },
+          "deconv_mask_weight": {
+            "type": "number"
+          },
+          "small_float_val": {
+            "type": "number"
+          },
+          "raise_error": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "sharpen": {
+        "type": "object",
+        "properties": {
+          "alpha": {
+            "type": "number"
+          },
+          "beta": {
+            "type": "number"
+          },
+          "raise_error": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "alpha",
+          "beta"
+        ]
+      },
+      "contrast": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "clahe",
+              "gamma"
+            ]
+          },
+          "kernel_size": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              }
+            ]
+          },
+          "clip_limit": {
+            "type": "number"
+          },
+          "gamma_value": {
+            "type": "number"
+          },
+          "raise_error": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "illumination_correction": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "rolling",
+              "other_method"
+            ]
+          },
+          "radius": {
+            "type": "integer"
+          },
+          "raise_error": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "method",
+          "radius"
+        ]
+      }
+    },
+    "convert_params": {
+      "bit_params": {
+        "type": "object",
+        "properties": {
+          "output_bits": {
+            "type": "integer",
+            "enum": [
+              8,
+              16,
+              32
+            ]
+          },
+          "raise_error": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "output_bits"
+        ]
+      },
+      "to_params": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "string",
+            "enum": [
+              "RGB",
+              "RGBA",
+              "gray"
+            ]
+          },
+          "channel_selector": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "raise_error": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "to"
+        ]
+      },
+      "normalize_params": {
+        "type": "object",
+        "properties": {
+          "min": {
+            "type": "number"
+          },
+          "max": {
+            "type": "number"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "minmax"
+            ]
+          },
+          "raise_error": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "min",
+          "max"
+        ]
+      },
+      "resize_params": {
+        "type": "object",
+        "properties": {
+          "interpolation": {
+            "type": "string",
+            "enum": [
+              "nearest",
+              "linear",
+              "cubic",
+              "area",
+              "lanczos"
+            ]
+          },
+          "size": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "preserve_aspect": {
+            "type": "boolean"
+          },
+          "scale": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 2,
+                "maxItems": 2
+              }
+            ]
+          },
+          "raise_error": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "crop_params": {
+        "type": "object",
+        "properties": {
+          "size": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 2,
+                "maxItems": 2
+              }
+            ]
+          },
+          "size_type": {
+            "type": "string",
+            "enum": [
+              "percent",
+              "fixed"
+            ]
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "center",
+              "random",
+              "top_left"
+            ]
+          },
+          "top_left": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "raise_error": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    },
+    "sampling_params": {
+      "datetime_params": {
+        "type": "object",
+        "properties": {
+          "min": {
+            "type": "string"
+          },
+          "max": {
+            "type": "string"
+          },
+          "raise_error": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "depth_params": {
+        "type": "object",
+        "properties": {
+          "by": {
+            "type": "string",
+            "enum": [
+              "lower",
+              "upper"
+            ],
+            "default": "lower"
+          },
+          "value": {
+            "type": "number"
+          },
+          "raise_error": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "value"
+        ]
+      },
+      "altitude_params": {
+        "type": "object",
+        "properties": {
+          "by": {
+            "type": "string",
+            "enum": [
+              "lower",
+              "upper"
+            ],
+            "default": "lower"
+          },
+          "value": {
+            "type": "number"
+          },
+          "raise_error": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "value"
+        ]
+      },
+      "pitch_roll_params": {
+        "type": "object",
+        "properties": {
+          "pitch": {
+            "type": "number"
+          },
+          "roll": {
+            "type": "number"
+          },
+          "raise_error": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "pitch",
+          "roll"
+        ]
+      },
+      "overlapping_params": {
+        "type": "object",
+        "properties": {
+          "omega": {
+            "type": "number",
+            "minimum": 0
+          },
+          "theta": {
+            "type": "number",
+            "minimum": 0
+          },
+          "threshold": {
+            "type": "number"
+          },
+          "camera_distance": {
+            "type": "number",
+            "default": 1.12
+          },
+          "raise_error": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "omega",
+          "theta"
+        ]
+      },
+      "fixed_params": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "integer",
+            "default": 10
+          },
+          "raise_error": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "value"
+        ]
+      },
+      "percent_params": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "raise_error": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "value"
+        ]
+      },
+      "region_params": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "string"
+          },
+          "limits": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "raise_error": {
+            "type": "boolean",
+            "default": false
+          },
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "anyOf": [
+          {
+            "required": [
+              "file"
+            ],
+            "not": {
+              "required": [
+                "limits"
+              ]
+            }
+          },
+          {
+            "required": [
+              "limits"
+            ]
+          }
+        ]
+      },
+      "obscure_params": {
+        "type": "object",
+        "properties": {
+          "min": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "max": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "1",
+              "2",
+              "3",
+              "all",
+              "mean"
+            ]
+          },
+          "raise_error": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "min",
+          "max"
+        ]
+      }
+    }
+  }
+}

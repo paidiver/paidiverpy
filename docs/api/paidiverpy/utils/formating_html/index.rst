@@ -83,7 +83,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: config_repr(config: paidiverpy.config.config.Configuration) -> str
+.. py:function:: config_repr(config: paidiverpy.config.configuration.Configuration) -> str
 
    
    Generate HTML representation of the config.

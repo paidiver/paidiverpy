@@ -9,16 +9,16 @@ import cv2
 import numpy as np
 from dask.distributed import Client
 from paidiverpy import Paidiverpy
-from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
-from paidiverpy.config.convert_params import CONVERT_LAYER_METHODS
-from paidiverpy.config.convert_params import BitParams
-from paidiverpy.config.convert_params import CropParams
-from paidiverpy.config.convert_params import NormalizeParams
-from paidiverpy.config.convert_params import ResizeParams
-from paidiverpy.config.convert_params import ToParams
+from paidiverpy.config.configuration import Configuration
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
+from paidiverpy.models.convert_params import CONVERT_LAYER_METHODS
+from paidiverpy.models.convert_params import BitParams
+from paidiverpy.models.convert_params import CropParams
+from paidiverpy.models.convert_params import NormalizeParams
+from paidiverpy.models.convert_params import ResizeParams
+from paidiverpy.models.convert_params import ToParams
 from paidiverpy.utils.data import EIGHT_BITS
 from paidiverpy.utils.data import EIGHT_BITS_SIZE
 from paidiverpy.utils.data import NUM_CHANNELS_GREY
@@ -91,7 +91,7 @@ class ConvertLayer(Paidiverpy):
         )
 
         self.step_name = step_name
-        self.config_index = self.config.add_step(config_index, parameters)
+        self.config_index = self.config.add_step(config_index, parameters, step_class=ConvertLayer)
         self.step_metadata = self._calculate_steps_metadata(self.config.steps[self.config_index])
         self.raise_error = self._calculate_raise_error()
         self.layer_methods = CONVERT_LAYER_METHODS
@@ -258,16 +258,19 @@ class ConvertLayer(Paidiverpy):
             if params.size is not None:
                 if params.preserve_aspect:
                     heigth, width = image_data.shape[:2]
-                    target_w, target_h = params.size
+                    target_w = params.size["width"]
+                    target_h = params.size["height"]
                     scale = min(target_w / width, target_h / heigth)
                     new_w, new_h = int(width * scale), int(heigth * scale)
                 else:
-                    new_w, new_h = params.size
+                    new_w = params.size["width"]
+                    new_h = params.size["height"]
             elif params.scale is not None:
                 if isinstance(params.scale, int | float):
                     fx = fy = params.scale
                 else:
-                    fx, fy = params.scale
+                    fx = params.scale["x"]
+                    fy = params.scale["y"]
                 new_w = int(image_data.shape[1] * fx)
                 new_h = int(image_data.shape[0] * fy)
             image_data = cv2.resize(image_data, (new_w, new_h), interpolation=interp_map[params.interpolation])
@@ -306,9 +309,9 @@ class ConvertLayer(Paidiverpy):
                 x1 = rng.integers(0, max(width - crop_w + 1, 1))
                 y1 = rng.integers(0, max(height - crop_h + 1, 1))
             elif params.mode == "top_left":
-                y1, x1 = params.top_left
+                y1 = params.top_left["top"]
+                x1 = params.top_left["left"]
             y2, x2 = y1 + crop_h, x1 + crop_w
-            # If crop goes outside, pad the image
             pad_top = max(-y1, 0)
             pad_left = max(-x1, 0)
             pad_bottom = max(y2 - height, 0)
@@ -346,8 +349,12 @@ class ConvertLayer(Paidiverpy):
         """
         if isinstance(size, int | float):
             crop_h = crop_w = size
-        elif isinstance(size, list):
-            crop_h, crop_w = size
+        elif isinstance(size, dict):
+            crop_h = size["height"]
+            crop_w = size["width"]
+        else:
+            msg = "Size must be a float or dict"
+            raise_value_error(msg)
         if size_type == "percent":
             crop_h = int(height * crop_h)
             crop_w = int(width * crop_w)

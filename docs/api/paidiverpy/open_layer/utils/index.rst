@@ -29,7 +29,7 @@ Functions
 Module Contents
 ---------------
 
-.. py:function:: open_image_remote(img_path: str, image_type: str | None, image_open_args: dict | None = None, **kwargs: dict) -> tuple[numpy.ndarray | dask.array.core.Array, dict]
+.. py:function:: open_image_remote(img_path: str, image_type: str | None, image_open_args: dict | None = None, **kwargs: dict) -> tuple[numpy.ndarray | dask.array.core.Array, dict, str]
 
    
    Open an image file.
@@ -47,8 +47,8 @@ Module Contents
 
    :raises ValueError: Failed to open the image
 
-   :returns: The image data and the EXIF data
-   :rtype: tuple[np.ndarray | dask.array.core.Array, dict]
+   :returns: The image data, the EXIF data, and the image path
+   :rtype: tuple[np.ndarray | dask.array.core.Array, dict, str]
 
 
 
@@ -67,7 +67,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: open_image_local(img_path: str, image_type: str | None, image_open_args: dict | None = None, **kwargs: dict) -> tuple[numpy.ndarray | dask.array.core.Array, dict]
+.. py:function:: open_image_local(img_path: str, image_type: str | None, image_open_args: dict | None = None, **kwargs: dict) -> tuple[numpy.ndarray | dask.array.core.Array, dict, str]
 
    
    Open an image file.
@@ -84,8 +84,8 @@ Module Contents
 
    :raises ValueError: Failed to open the image
 
-   :returns: The image data and the EXIF data
-   :rtype: tuple[np.ndarray | dask.array.core.Array, dict]
+   :returns: The image data, the EXIF data, and the image path
+   :rtype: tuple[np.ndarray | dask.array.core.Array, dict, str]
 
 
 

@@ -1,7 +1,7 @@
 .. _guide_custom_algorithms:
 
-Custom Algorithm Guide
-======================
+Custom Algorithm
+================
 
 In `paidiverpy`, you have the flexibility to add your own algorithm to the suite of available algorithms. This guide walks you through the steps to create, implement, and configure a custom algorithm.
 
@@ -12,7 +12,7 @@ To create a custom algorithm, start by creating a new file that contains a class
 
 .. literalinclude:: ../../../src/paidiverpy/custom_layer/base_custom_algorithm.py
 
-Your custom algorithm class should extend `BaseCustomAlgorithm` and implement the `process` method. Here’s a simple example:
+Your custom algorithm class should extend `BaseCustomAlgorithm` and implement the `process` method. Here's a simple example:
 
 .. code-block:: python
 
@@ -22,25 +22,34 @@ Your custom algorithm class should extend `BaseCustomAlgorithm` and implement th
         def process(self):
             return self.image_data * self.params.some_param, self.metadata
 
-In the `process` method:
 
-* The input, `image_data`, is either a NumPy or Dask array.
-* `metadata` is a dictionary containing metadata related to the image data.
-* `params` is an object containing the parameters specific to your algorithm.
-* The method should return a processed NumPy or Dask array and the metadata.
+Your `process` method will receive different inputs based on the processing type:
+
+**Image-level processing** (default):
+
+- `image_data`: a single NumPy or Dask array with shape `(height, width, channels)`
+- `metadata`: a dictionary of image-related metadata
+- `params`: an object with algorithm-specific parameters
+- **Returns**: a tuple `(processed_image, metadata)`
+
+**Dataset-level processing**:
+
+- `image_data`: a list of NumPy or Dask arrays
+- `metadata`: a dictionary of dataset-level metadata
+- `params`: an object with algorithm-specific parameters
+- **Returns**: a tuple `(list_of_processed_images, metadata)`
+
 
 .. admonition:: Important
 
-  The `image_data` is either a NumPy or Dask array, depending on the input. To standardize the format, all image data
-  will have a shape of length 3: `(height, width, channels)`. Grayscale images will include a singleton channel dimension.
-  For multi-channel images, the channel order will be RGB (for 3 channels) or RGBA (for 4 channels).
+   - Each `image_data` (or `image_data[i]`) is a 3D array, even for grayscale images (singleton channel dimension).
+   - Multi-channel images follow RGB or RGBA conventions.
+   - The `process` method **must** return both the processed data and metadata in the same format it was received.
 
-.. admonition:: Important
+.. note::
 
-  The `process` method must return a tuple containing the processed data and metadata. The metadata can be used in the process and it can be modified.
-  However, the metadata must be returned in the same format as it was received (i.e., as a dictionary).
+   If your algorithm requires external libraries, import them directly within the file containing your custom class.
 
-If your algorithm relies on external libraries, import them within this file, ensuring the `process` method follows this signature.
 
 Configuration File
 ------------------
@@ -59,9 +68,7 @@ After creating your custom algorithm, specify it in the configuration file as a 
         name: "my_custom_algorithm"   # Name of the algorithm
         file_path: "/path/to/file.py" # Path to the module implementing the custom algorithm
         class_name: "MyMethod"        # Name of the custom algorithm class
-        dependencies:                 # List of dependencies
-          - "marimba"
-          - "scikit-learn==0.24.2"
+        dependencies: "marimba,scikit-learn==0.24.2"
         dependencies_path: "/path/to/requirements.txt"  # Optional path to a requirements file
         params:                       # Algorithm parameters
           some_param: 10
@@ -71,18 +78,52 @@ After creating your custom algorithm, specify it in the configuration file as a 
 
 In this example:
 
-* The custom algorithm, named `my_custom_algorithm`, is defined in `/path/to/file.py` and implemented in the class `MyMethod`.
-* The algorithm parameters include `some_param` (10) and `another_param` (0.5).
-* Dependencies are specified both as a list and optionally via a requirements file. Both sets of dependencies are installed before executing the algorithm.
+* The custom algorithm, named `my_custom_algorithm`, is defined in the file `/path/to/file.py` and implemented in the class `MyMethod`.
+* The algorithm accepts parameters such as `some_param` (set to 10) and `another_param` (set to 0.5).
+* External dependencies are declared in two ways:
+
+  * As a comma-separated string in the `dependencies` field (e.g., `marimba`, `scikit-learn==0.24.2`).
+  * Via a `requirements.txt` file specified with the `dependencies_path` field.
+* There is no preferred method for declaring dependencies—either or both can be used. If both are provided, **both sets** will be installed before executing the algorithm.
+* Since the `processing_type` parameter is not explicitly set, the algorithm defaults to **image-level processing**, meaning each image will be processed individually.
 
 .. admonition:: Important
 
   You only need to specify external packages as dependencies; packages already available in your environment or included with `paidiverpy` do not need to be listed and will be ignored.
 
+Dataset-level Processing
+-------------------------
+
+If your custom algorithm processes the entire dataset at once, you can set the `processing_type` parameter to `dataset` in the configuration file.
+This will ensure that the `process` method receives a list of images instead of a single image. Here's how to configure it:
+
+.. code-block:: text
+
+  general:
+    # General configurations here
+
+  steps:
+    # Steps before the custom algorithm
+
+    - custom:
+        name: "my_custom_algorithm"
+        file_path: "/path/to/file.py"
+        class_name: "MyMethod"
+        dependencies: "marimba,scikit-learn==0.24.2"
+        dependencies_path: "/path/to/requirements.txt"
+        processing_type: "dataset"  # Set to 'dataset' for dataset-level processing
+        params:
+          some_param: 10
+          another_param: 0.5
+
+    # Steps following the custom algorithm
+
+
+
 Real Example
 ------------
 
-For a more concrete example, consider the following code snippet (available in `examples/custom_algorithms files <https://github.com/paidiver/paidiverpy/blob/dev/src/paidiverpy/custom_layer/_custom_algorithm_example.py>`_ of the `paidiverpy` package):
+For a more concrete example, consider the following code snippet (available in `examples/custom_algorithms files <https://github.com/paidiver/paidiverpy/blob/main/src/paidiverpy/custom_layer/_custom_algorithm_example.py>`_ of the `paidiverpy` package):
 
 .. literalinclude:: ../../../src/paidiverpy/custom_layer/_custom_algorithm_example.py
 

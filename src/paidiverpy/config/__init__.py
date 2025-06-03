@@ -1,5 +1,5 @@
 """__init__.py for config module."""
 
-from .config import Configuration
+from .configuration import Configuration
 
 __all__ = ["Configuration"]

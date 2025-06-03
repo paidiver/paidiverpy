@@ -13,16 +13,21 @@ from dask import delayed
 from dask.diagnostics import ProgressBar
 from tqdm import tqdm
 from paidiverpy import Paidiverpy
-from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
+from paidiverpy.config.configuration import Configuration
 from paidiverpy.convert_layer import ConvertLayer
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
+from paidiverpy.models.open_params import SUPPORTED_OPENCV_IMAGE_TYPES
+from paidiverpy.models.open_params import SUPPORTED_RAWPY_IMAGE_TYPES
+from paidiverpy.models.open_params import ImageOpenArgsOpenCVParams
+from paidiverpy.models.open_params import ImageOpenArgsRawParams
+from paidiverpy.models.open_params import ImageOpenArgsRawPyParams
 from paidiverpy.open_layer.utils import open_image_local
 from paidiverpy.open_layer.utils import open_image_remote
-from paidiverpy.resample_layer import ResampleLayer
+from paidiverpy.sampling_layer import SamplingLayer
+from paidiverpy.utils.base_model import BaseModel
 from paidiverpy.utils.docker import is_running_in_docker
-from paidiverpy.utils.dynamic_classes import DynamicConfig
 from paidiverpy.utils.object_store import define_storage_options
 
 
@@ -75,14 +80,13 @@ class OpenLayer(Paidiverpy):
             raise_error=raise_error,
             verbose=verbose,
         )
-
         self.step_name = step_name
         if parameters:
             self.config.add_general(parameters)
         is_docker = is_running_in_docker()
         self.storage_options = define_storage_options(self.config.general.input_path)
 
-        if self.config.general.sample_data or self.config.general.is_remote:
+        if self.config.general.sample_data or self.config.is_remote:
             self.correct_input_path = self.config.general.input_path
         else:
             self.correct_input_path = "/app/input/" if is_docker else self.config.general.input_path
@@ -95,7 +99,7 @@ class OpenLayer(Paidiverpy):
             self.import_image()
             if self.step_metadata.get("convert"):
                 for step in self.step_metadata.get("convert"):
-                    dict_step = step.to_dict() if issubclass(type(step), DynamicConfig) else step
+                    dict_step = step.to_dict() if issubclass(type(step), BaseModel) else step
                     step_params = {
                         "step_name": "convert",
                         "name": dict_step.get("mode"),
@@ -122,7 +126,7 @@ class OpenLayer(Paidiverpy):
         """Import images with optional Dask parallelization."""
         if self.step_metadata.get("sampling"):
             for step in self.step_metadata.get("sampling"):
-                dict_step = step.to_dict() if issubclass(type(step), DynamicConfig) else step
+                dict_step = step.to_dict() if issubclass(type(step), BaseModel) else step
                 step_params = {
                     "step_name": "sampling",
                     "name": dict_step.get("mode"),
@@ -131,7 +135,7 @@ class OpenLayer(Paidiverpy):
                 }
                 new_config = copy.copy(self.config)
                 self.set_metadata(
-                    ResampleLayer(
+                    SamplingLayer(
                         config=new_config,
                         metadata=self.metadata,
                         parameters=step_params,
@@ -141,24 +145,28 @@ class OpenLayer(Paidiverpy):
                 )
                 gc.collect()
                 self.config.steps.pop()
-        if self.config.general.is_remote:
+        if self.config.is_remote:
             img_path_list = [self.correct_input_path + filename for filename in self.get_metadata()["image-filename"]]
         else:
             img_path_list = [self.correct_input_path / filename for filename in self.get_metadata()["image-filename"]]
         if self.client:
-            images_and_exifs = self._process_image_client(img_path_list, remote=self.config.general.is_remote)
+            images_and_exifs = self._process_image_client(img_path_list, remote=self.config.is_remote)
         elif self.n_jobs == 1:
             images_and_exifs = []
             for img_path in tqdm(img_path_list, total=len(img_path_list), desc="Open Images"):
-                images_and_exifs.append(self.process_image_sequential(img_path, remote=self.config.general.is_remote))
+                images_and_exifs.append(self.process_image_sequential(img_path, remote=self.config.is_remote))
         else:
-            images_and_exifs = self._process_image_threads(img_path_list, remote=self.config.general.is_remote)
-        exifs, image_list = [], []
-        for img, exif in images_and_exifs:
-            image_list.append(img)
-            exifs.append(exif)
+            images_and_exifs = self._process_image_threads(img_path_list, remote=self.config.is_remote)
+        exifs, image_list, img_paths = [], [], []
+        for img, exif, img_path in images_and_exifs:
+            if img is not None:
+                image_list.append(img)
+                exifs.append(exif)
+                img_paths.append(str(img_path).split("/")[-1])
+        metadata = self.get_metadata()
+        metadata = metadata.loc[metadata["image-filename"].isin(img_paths)]
         with contextlib.suppress(KeyError):
-            self.set_metadata(self.get_metadata().merge(pd.DataFrame(exifs), on="image-filename", how="left"))
+            self.set_metadata(metadata.merge(pd.DataFrame(exifs), on="image-filename", how="left"))
         metadata = self.get_metadata()
         rename = self.step_metadata.get("rename")
         if rename:
@@ -174,7 +182,7 @@ class OpenLayer(Paidiverpy):
         del image_list
         gc.collect()
 
-    def process_image_sequential(self, img_path: str, remote: bool = False) -> tuple[np.ndarray | dask.array.core.Array, dict]:
+    def process_image_sequential(self, img_path: str, remote: bool = False) -> tuple[np.ndarray | dask.array.core.Array, dict, str]:
         """Process a single image file.
 
         Args:
@@ -182,13 +190,13 @@ class OpenLayer(Paidiverpy):
             remote (bool, optional): Whether the image is remote. Defaults to False.
 
         Returns:
-            np.ndarray | dask.array.core.Array: The processed image data
+            np.ndarray | dask.array.core.Array, dict, str: The processed image, EXIF data, and image path.
         """
         func = open_image_remote if remote else open_image_local
-        img, exif = func(
+        img, exif, img_path = func(
             img_path, image_type=self.image_type, image_open_args=self.image_open_args, storage_options=self.storage_options, parallel=False
         )
-        return img, exif
+        return img, exif, img_path
 
     def _process_image_threads(self, img_path_list: list[str], remote: bool = False) -> list[np.ndarray]:
         """Process images using Dask threads.
@@ -292,7 +300,32 @@ class OpenLayer(Paidiverpy):
         Returns:
             tuple[str | None, str | None]: The image type and parameters
         """
-        if isinstance(image_open_args, dict):
-            return image_open_args.get("image_type", "").lower(), image_open_args.get("params", {})
-        image_type = image_open_args.lower() if image_open_args else ""
-        return image_type, {}
+        if isinstance(image_open_args, str):
+            image_type = image_open_args.lower()
+            image_open_args = self._define_image_open_args(image_type, {})
+        elif isinstance(image_open_args, ConfigParams):
+            image_open_args = image_open_args.to_dict()
+            image_type = image_open_args["image_type"].lower()
+            image_open_args = image_open_args["params"]
+        else:
+            image_type = image_open_args["image_type"].lower()
+            image_open_args = self._define_image_open_args(image_type, image_open_args.get("params", {}))
+        return image_type, image_open_args
+
+    def _define_image_open_args(self, image_type: str, params: dict) -> str | dict:
+        """Define the image open arguments based on the image type.
+
+        Args:
+            image_type (str): The image type
+            params (dict): The parameters
+
+        Returns:
+            str | dict: The image open arguments
+        """
+        if image_type in SUPPORTED_RAWPY_IMAGE_TYPES:
+            image_open_args = ImageOpenArgsRawPyParams(**params)
+        elif image_type in SUPPORTED_OPENCV_IMAGE_TYPES:
+            image_open_args = ImageOpenArgsOpenCVParams(**params)
+        else:
+            image_open_args = ImageOpenArgsRawParams(**params)
+        return image_open_args.to_dict()

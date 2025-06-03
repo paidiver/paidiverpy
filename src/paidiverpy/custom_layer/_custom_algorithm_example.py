@@ -15,7 +15,7 @@ class MyMethod(BaseCustomAlgorithm):
         """This method scales the image data using MinMaxScaler from sklearn.preprocessing.
 
         Returns:
-            np.ndarray: The scaled image data.
+            tuple[list[np.ndarray], dict]: The dataset with scaled image data and metadata.
         """
         if len(self.image_data.shape) == NUM_DIMENSIONS and self.image_data.shape[-1] == 1:
             self.image_data = np.squeeze(self.image_data, axis=-1)

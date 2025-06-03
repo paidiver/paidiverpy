@@ -17,7 +17,7 @@ steps:
         object_type: "aggregate"
         object_selection: "full_ROI"
         blur_radius: 3
-        threshold: [2.5, 3.0]
+        threshold: {"low": 0.5, "high": 1.0}
         deconv: True
         deconv_method: "UM"
         deconv_iter: 7
@@ -37,7 +37,7 @@ steps:
         object_type: "isolated"
         object_selection: "largest_area"
         blur_radius: 3
-        threshold: [2.5, 3.0]
+        threshold: {"low": 0.5, "high": 1.0}
         deconv: false
         deconv_iter: 7
         deconv_mask_weight: 0.5
