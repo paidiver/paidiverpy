@@ -11,6 +11,8 @@ on:
 jobs:
 
   build:
+    env:
+      PYTHONIOENCODING: utf-8
     if: github.actor != 'github-actions[bot]'
     name: Build for (${{ matrix.python-version }}, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
