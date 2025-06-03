@@ -34,7 +34,7 @@ jobs:
         run: |
           source ~/.bashrc
           conda activate Paidiverpy
-          python src/paidiverpy/config/schema_json_handler.py src/paidiverpy/configuration-schema.json
+          python src/paidiverpy/utils/schema_json_handler.py src/paidiverpy/configuration-schema.json
 
       - name: Commit and push changes (if any)
         run: |

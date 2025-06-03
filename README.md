@@ -9,7 +9,7 @@
 [rtd-link]: https://paidiverpy.readthedocs.io/en/latest/?badge=latest
 [pip-badge]: https://img.shields.io/pypi/v/paidiverpy
 [pip-link]: https://pypi.org/project/paidiverpy/
-[cov-badge]: https://codecov.io/gh/paidiver/paidiverpy/branch/main/graph/badge.svg
+[cov-badge]: https://codecov.io/gh/paidiver/paidiverpy/branch/dev/graph/badge.svg
 [cov-link]: https://codecov.io/gh/paidiver/paidiverpy
 
 ![Logo](docs/_static/logo_paidiver_docs.png)
