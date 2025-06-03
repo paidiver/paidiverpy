@@ -1,7 +1,7 @@
-paidiverpy.config.position_params
+paidiverpy.models.position_params
 =================================
 
-.. py:module:: paidiverpy.config.position_params
+.. py:module:: paidiverpy.models.position_params
 
 .. autoapi-nested-parse::
 
@@ -16,7 +16,7 @@ Classes
 
 .. autoapisummary::
 
-   paidiverpy.config.position_params.CalculateCornersParams
+   paidiverpy.models.position_params.CalculateCornersParams
 
 
 Module Contents

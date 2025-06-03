@@ -1,7 +1,7 @@
-paidiverpy.config.open_params
+paidiverpy.models.open_params
 =============================
 
-.. py:module:: paidiverpy.config.open_params
+.. py:module:: paidiverpy.models.open_params
 
 .. autoapi-nested-parse::
 
@@ -18,10 +18,10 @@ Classes
 
 .. autoapisummary::
 
-   paidiverpy.config.open_params.ImageOpenArgsRawPyParams
-   paidiverpy.config.open_params.ImageOpenArgsRawParams
-   paidiverpy.config.open_params.ImageOpenArgsOpenCVParams
-   paidiverpy.config.open_params.ImageOpenArgs
+   paidiverpy.models.open_params.ImageOpenArgsRawPyParams
+   paidiverpy.models.open_params.ImageOpenArgsRawParams
+   paidiverpy.models.open_params.ImageOpenArgsOpenCVParams
+   paidiverpy.models.open_params.ImageOpenArgs
 
 
 Module Contents
@@ -52,6 +52,30 @@ Module Contents
 
    ..
        !! processed by numpydoc !!
+
+   .. py:class:: Config
+
+      
+      Configuration for the RawPy parameters model.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
 
 .. py:class:: ImageOpenArgsRawParams(/, **data: Any)
 

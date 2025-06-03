@@ -33,17 +33,8 @@ Submodules
 .. toctree::
    :maxdepth: 1
 
-   /api/paidiverpy/config/client_params/index
-   /api/paidiverpy/config/colour_params/index
    /api/paidiverpy/config/config_params/index
    /api/paidiverpy/config/configuration/index
-   /api/paidiverpy/config/convert_params/index
-   /api/paidiverpy/config/custom_params/index
-   /api/paidiverpy/config/general_config/index
-   /api/paidiverpy/config/open_params/index
-   /api/paidiverpy/config/position_params/index
-   /api/paidiverpy/config/sampling_params/index
-   /api/paidiverpy/config/step_config/index
 
 
 Classes
@@ -185,13 +176,19 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: export(output_path: str) -> None
+   .. py:method:: export(output_path: str | None) -> None | str
 
       
       Export the configuration to a file.
 
-      :param output_path: The output path.
-      :type output_path: str
+      :param output_path: The path to save the configuration file. If None, returns the configuration as a YAML string.
+      :type output_path: str, optional
+
+      :returns:
+
+                If output_path is None, returns the configuration as a YAML string.
+                            Otherwise, writes the configuration to the specified file.
+      :rtype: None | str
 
 
 

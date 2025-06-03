@@ -110,5 +110,5 @@ You can run your preprocessing pipeline using **Paidiverpy** in several ways, ty
        paidiverpy -gui
 
 
-   This will open a window where you can select your configuration file and run the pipeline interactively.
+   The GUI will open in your default web browser, where you can select your configuration file and run the pipeline interactively.
    More details on the GUI can be found in the :ref:`gui` section.

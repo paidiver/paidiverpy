@@ -37,9 +37,11 @@ Submodules
    /api/paidiverpy/config/index
    /api/paidiverpy/convert_layer/index
    /api/paidiverpy/custom_layer/index
+   /api/paidiverpy/frontend/index
    /api/paidiverpy/images_layer/index
    /api/paidiverpy/investigation_layer/index
    /api/paidiverpy/metadata_parser/index
+   /api/paidiverpy/models/index
    /api/paidiverpy/open_layer/index
    /api/paidiverpy/paidiverpy/index
    /api/paidiverpy/pipeline/index

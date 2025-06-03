@@ -106,13 +106,19 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: export_config(output_path: str) -> None
+   .. py:method:: export_config(output_path: str | None = None) -> None | str
 
       
       Export the configuration to a yaml file.
 
-      :param output_path: The path to the output file.
-      :type output_path: str
+      :param output_path: The path to save the configuration file.
+      :type output_path: str, optional
+
+      :returns:
+
+                The config file as string if output_path is None,
+                    otherwise None.
+      :rtype: None | str
 
 
 
