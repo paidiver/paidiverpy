@@ -104,11 +104,9 @@ class PositionConfig(StepConfig):
     params: PositionParamsUnion | None = Field(default=None, description="Position parameters")
     processing_type: Literal["image", "dataset"] = Field(
         "image",
-        description=(
-            "If the images are processed individually (image option) "
-            "or as a dataset (dataset option)"
-        ),
+        description=("If the images are processed individually (image option) or as a dataset (dataset option)"),
     )
+
 
 class ColourConfig(StepConfig):
     """Colour configuration model."""
@@ -121,11 +119,9 @@ class ColourConfig(StepConfig):
     params: ColourParamsUnion | None = Field(default=None, description="Colour parameters")
     processing_type: Literal["image", "dataset"] = Field(
         "image",
-        description=(
-            "If the images are processed individually (image option) "
-            "or as a dataset (dataset option)"
-        ),
+        description=("If the images are processed individually (image option) or as a dataset (dataset option)"),
     )
+
 
 class ConvertConfig(StepConfig):
     """Convert configuration model."""
@@ -136,11 +132,9 @@ class ConvertConfig(StepConfig):
     params: ConvertParamsUnion | None = Field(default=None, description="Convert parameters")
     processing_type: Literal["image", "dataset"] = Field(
         "image",
-        description=(
-            "If the images are processed individually (image option) "
-            "or as a dataset (dataset option)"
-        ),
+        description=("If the images are processed individually (image option) or as a dataset (dataset option)"),
     )
+
 
 class SamplingConfig(StepConfig):
     """Sampling configuration model."""
@@ -151,11 +145,9 @@ class SamplingConfig(StepConfig):
     params: SamplingParamsUnion | None = Field(default=None, description="Sampling parameters")
     processing_type: Literal["image", "dataset"] = Field(
         "image",
-        description=(
-            "If the images are processed individually (image option) "
-            "or as a dataset (dataset option)"
-        ),
+        description=("If the images are processed individually (image option) or as a dataset (dataset option)"),
     )
+
 
 class CustomConfig(BaseModel):
     """Custom configuration model."""
@@ -167,10 +159,7 @@ class CustomConfig(BaseModel):
     test: bool = Field(False, description="Test mode")
     processing_type: Literal["image", "dataset"] = Field(
         "image",
-        description=(
-            "If the images are processed individually (image option) "
-            "or as a dataset (dataset option)"
-        ),
+        description=("If the images are processed individually (image option) or as a dataset (dataset option)"),
     )
     dependencies: str | None = Field(
         None,

@@ -127,11 +127,7 @@ class Paidiverpy:
         return None
 
     def process_sequentially(
-        self,
-        images: list[np.ndarray],
-        method: callable,
-        params: dict,
-        custom: bool = False
+        self, images: list[np.ndarray], method: callable, params: dict, custom: bool = False
     ) -> tuple[list[np.ndarray], pd.DataFrame]:
         """Process the images sequentially.
 
@@ -240,7 +236,6 @@ class Paidiverpy:
         metadata = pd.DataFrame(metadata)
 
         return processed_images, metadata
-
 
     def _set_variables_from_paidiverpy(self, paidiverpy: "Paidiverpy") -> None:
         """Set the variables from the paidiverpy object.
