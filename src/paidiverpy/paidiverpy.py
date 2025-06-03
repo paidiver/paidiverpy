@@ -126,7 +126,13 @@ class Paidiverpy:
             return self.images
         return None
 
-    def process_sequentially(self, images: list[np.ndarray], method: callable, params: dict, custom: bool = False) -> list[np.ndarray]:
+    def process_sequentially(
+        self,
+        images: list[np.ndarray],
+        method: callable,
+        params: dict,
+        custom: bool = False
+    ) -> tuple[list[np.ndarray], pd.DataFrame]:
         """Process the images sequentially.
 
         Method to process the images sequentially.
@@ -138,7 +144,7 @@ class Paidiverpy:
             custom (bool, optional): Whether the method is a custom method. Defaults to False.
 
         Returns:
-            List[np.ndarray]: The list of processed images.
+            tuple[list[np.ndarray], pd.DataFrame]: A tuple containing the list of processed images and the metadata DataFrame.
         """
         func = partial(method, params=params)
         metadata = self.get_metadata().to_dict(orient="records")
@@ -162,7 +168,7 @@ class Paidiverpy:
         method: callable,
         params: BaseModel,
         custom: bool = False,
-    ) -> list[np.ndarray]:
+    ) -> tuple[list[np.ndarray], pd.DataFrame]:
         """Process the images in parallel.
 
         Method to process the images in parallel.
@@ -174,7 +180,7 @@ class Paidiverpy:
             custom (bool, optional): Whether the method is a custom method. Defaults to False.
 
         Returns:
-            List[da.core.Array]: The list of processed images.
+            tuple[list[np.ndarray], pd.DataFrame]: A tuple containing the list of processed images and the metadata DataFrame.
         """
         func = partial(method, params=params)
         metadata = self.get_metadata().to_dict(orient="records")
@@ -205,6 +211,36 @@ class Paidiverpy:
         metadata = pd.DataFrame(metadata)
 
         return list(processed_images), metadata
+
+    def process_dataset(
+        self,
+        images: list[da.core.Array],
+        method: callable,
+        params: BaseModel,
+        custom: bool = False,
+    ) -> tuple[list[np.ndarray], pd.DataFrame]:
+        """Process the images as a dataset.
+
+        Args:
+            images (List[da.core.Array]): The list of images to process.
+            method (callable): The method to apply to the images.
+            params (BaseModel): The parameters for the method.
+            custom (bool, optional): Whether the method is a custom method. Defaults to False.
+
+        Returns:
+            tuple[list[np.ndarray], pd.DataFrame]: A tuple containing the list of processed images and the metadata DataFrame.
+        """
+        func = partial(method, params=params)
+        metadata = self.get_metadata().to_dict(orient="records")
+        if custom:
+            processed_images, metadata = func(images, metadata=metadata).process()
+        else:
+            processed_images, metadata = func(images, metadata=metadata)
+
+        metadata = pd.DataFrame(metadata)
+
+        return processed_images, metadata
+
 
     def _set_variables_from_paidiverpy(self, paidiverpy: "Paidiverpy") -> None:
         """Set the variables from the paidiverpy object.

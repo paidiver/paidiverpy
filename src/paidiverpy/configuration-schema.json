@@ -180,6 +180,16 @@
                     ],
                     "title": "Mode",
                     "type": "string"
+                },
+                "processing_type": {
+                    "default": "image",
+                    "description": "If the images are processed individually (image option) or as a dataset (dataset option)",
+                    "enum": [
+                        "image",
+                        "dataset"
+                    ],
+                    "title": "Processing Type",
+                    "type": "string"
                 }
             },
             "required": [
@@ -309,6 +319,16 @@
                     ],
                     "title": "Mode",
                     "type": "string"
+                },
+                "processing_type": {
+                    "default": "image",
+                    "description": "If the images are processed individually (image option) or as a dataset (dataset option)",
+                    "enum": [
+                        "image",
+                        "dataset"
+                    ],
+                    "title": "Processing Type",
+                    "type": "string"
                 }
             },
             "required": [
@@ -329,7 +349,8 @@
                             "type": "number"
                         }
                     ],
-                    "description": "Crop size. Format {'width': value, 'height': value} or float for percentage)",
+                    "default": 1,
+                    "description": "Crop size. Format {'width': value, 'height': value} or float for percentage",
                     "title": "Size"
                 },
                 "size_type": {
@@ -360,9 +381,6 @@
                     "type": "boolean"
                 }
             },
-            "required": [
-                "size"
-            ],
             "title": "CropParams",
             "type": "object"
         },
@@ -413,7 +431,7 @@
                 },
                 "processing_type": {
                     "default": "image",
-                    "description": "If the images are processed individually or as a dataset",
+                    "description": "If the images are processed individually (image option) or as a dataset (dataset option)",
                     "enum": [
                         "image",
                         "dataset"
@@ -1175,6 +1193,16 @@
                     ],
                     "title": "Mode",
                     "type": "string"
+                },
+                "processing_type": {
+                    "default": "image",
+                    "description": "If the images are processed individually (image option) or as a dataset (dataset option)",
+                    "enum": [
+                        "image",
+                        "dataset"
+                    ],
+                    "title": "Processing Type",
+                    "type": "string"
                 }
             },
             "required": [
@@ -1360,6 +1388,16 @@
                     ],
                     "title": "Mode",
                     "type": "string"
+                },
+                "processing_type": {
+                    "default": "image",
+                    "description": "If the images are processed individually (image option) or as a dataset (dataset option)",
+                    "enum": [
+                        "image",
+                        "dataset"
+                    ],
+                    "title": "Processing Type",
+                    "type": "string"
                 }
             },
             "required": [
@@ -1469,13 +1507,13 @@
                     "default": 0,
                     "description": "Minimum threshold for obscuring",
                     "title": "Min",
-                    "type": "integer"
+                    "type": "number"
                 },
                 "max": {
                     "default": 1,
                     "description": "Maximum threshold for obscuring",
                     "title": "Max",
-                    "type": "integer"
+                    "type": "number"
                 },
                 "channel": {
                     "default": "mean",

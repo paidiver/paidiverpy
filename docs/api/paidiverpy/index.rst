@@ -145,7 +145,7 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: process_sequentially(images: list[numpy.ndarray], method: callable, params: dict, custom: bool = False) -> list[numpy.ndarray]
+   .. py:method:: process_sequentially(images: list[numpy.ndarray], method: callable, params: dict, custom: bool = False) -> tuple[list[numpy.ndarray], pandas.DataFrame]
 
       
       Process the images sequentially.
@@ -161,8 +161,8 @@ Package Contents
       :param custom: Whether the method is a custom method. Defaults to False.
       :type custom: bool, optional
 
-      :returns: The list of processed images.
-      :rtype: List[np.ndarray]
+      :returns: A tuple containing the list of processed images and the metadata DataFrame.
+      :rtype: tuple[list[np.ndarray], pd.DataFrame]
 
 
 
@@ -182,7 +182,7 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: process_parallel(images: list[dask.array.core.Array], method: callable, params: paidiverpy.utils.base_model.BaseModel, custom: bool = False) -> list[numpy.ndarray]
+   .. py:method:: process_parallel(images: list[dask.array.core.Array], method: callable, params: paidiverpy.utils.base_model.BaseModel, custom: bool = False) -> tuple[list[numpy.ndarray], pandas.DataFrame]
 
       
       Process the images in parallel.
@@ -198,8 +198,43 @@ Package Contents
       :param custom: Whether the method is a custom method. Defaults to False.
       :type custom: bool, optional
 
-      :returns: The list of processed images.
-      :rtype: List[da.core.Array]
+      :returns: A tuple containing the list of processed images and the metadata DataFrame.
+      :rtype: tuple[list[np.ndarray], pd.DataFrame]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: process_dataset(images: list[dask.array.core.Array], method: callable, params: paidiverpy.utils.base_model.BaseModel, custom: bool = False) -> tuple[list[numpy.ndarray], pandas.DataFrame]
+
+      
+      Process the images as a dataset.
+
+      :param images: The list of images to process.
+      :type images: List[da.core.Array]
+      :param method: The method to apply to the images.
+      :type method: callable
+      :param params: The parameters for the method.
+      :type params: BaseModel
+      :param custom: Whether the method is a custom method. Defaults to False.
+      :type custom: bool, optional
+
+      :returns: A tuple containing the list of processed images and the metadata DataFrame.
+      :rtype: tuple[list[np.ndarray], pd.DataFrame]
 
 
 
