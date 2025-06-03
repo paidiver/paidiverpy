@@ -1,0 +1,20 @@
+general:
+  sample_data: "plankton_csv"
+  output_path: "./output"
+  n_jobs: 1
+  image_open_args: "BMP"
+
+steps:
+  - colour:
+      name: "colour_correction"
+      mode: "gaussian_blur"
+  - colour:
+      name: "colour_correction"
+      mode: "gaussian_blur"
+      params:
+        sigma: 1.0
+  - colour:
+      name: "colour_correction"
+      mode: "gaussian_blur"
+      params:
+        sigma: -1.0

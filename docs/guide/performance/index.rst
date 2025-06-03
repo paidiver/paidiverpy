@@ -34,7 +34,7 @@ Example Configuration File for Local Execution
       output_path: '/output/data/path/'
       metadata_path: '/metadata/path/metadata.json'
       metadata_type: 'IFDO'
-      image_type: 'JPG'
+      image_open_args: 'JPG'
       n_jobs: -1
 
     steps:
@@ -61,7 +61,7 @@ To create a **LocalCluster**, configure the ``client`` parameter as follows:
       output_path: '/output/data/path/'
       metadata_path: '/metadata/path/metadata.json'
       metadata_type: 'IFDO'
-      image_type: 'JPG'
+      image_open_args: 'JPG'
       n_jobs: 2
       client:
         cluster_type: "local"
@@ -94,7 +94,7 @@ To create a **SLURMCluster**, configure the ``client`` parameter as follows:
       output_path: '/output/data/path/'
       metadata_path: '/metadata/path/metadata.json'
       metadata_type: 'IFDO'
-      image_type: 'JPG'
+      image_open_args: 'JPG'
       client:
         cluster_type: "slurm"
         params:
@@ -121,6 +121,6 @@ Key Considerations
 Examples and Resources
 ----------------------
 
-- **Configuration Files**: Find example configuration files for parallel execution in the `GitHub repository <https://github.com/paidiver/paidiverpy/tree/dev/examples/config_files>`_.
+- **Configuration Files**: Find example configuration files for parallel execution in the `GitHub repository <https://github.com/paidiver/paidiverpy/tree/main/examples/config_files>`_.
 
 - **Interactive Examples**: Explore example notebooks with custom algorithms in the :ref:`gallery` section.

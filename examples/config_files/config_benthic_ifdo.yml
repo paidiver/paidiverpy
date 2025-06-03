@@ -6,10 +6,6 @@ general:
     - mode: "fixed"
       params:
         value: 5
-  convert:
-    - mode: "bits"
-      params:
-        output_bits: 8
 steps:
   - colour:
       name: "colour_correction"

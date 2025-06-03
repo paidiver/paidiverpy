@@ -82,35 +82,6 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: remove_steps_by_name(step: tuple) -> int
-
-      
-      Remove steps by name.
-
-      :param step: The step to remove
-      :type step: str
-
-      :returns: The index of the removed step
-      :rtype: int
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      ..
-          !! processed by numpydoc !!
-
-
    .. py:method:: remove_steps_by_order(step_order: int) -> None
 
       
@@ -137,41 +108,13 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: get_last_step_order() -> int
-
-      
-      Get the last step order.
-
-      :returns: The last step order
-      :rtype: int
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      ..
-          !! processed by numpydoc !!
-
-
-   .. py:method:: get_step(step: str | int | None = None, by_order: bool = False, last: bool = False) -> list[numpy.ndarray | dask.array.core.Array]
+   .. py:method:: get_step(step: str | int | None = None, last: bool = False) -> list[numpy.ndarray | dask.array.core.Array]
 
       
       Get a step by name or order.
 
       :param step: The step to get. Defaults to None.
       :type step: str | int, optional
-      :param by_order: If True, get the step by order. Defaults to False.
-      :type by_order: bool, optional
       :param last: If True, get the last step. Defaults to False.
       :type last: bool, optional
 
@@ -196,13 +139,16 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: show(image_number: int = 0) -> None
+   .. py:method:: show(image_number: int = 0) -> IPython.display.HTML
 
       
       Show the images in the pipeline.
 
       :param image_number: The index of the image to show. Defaults to 0.
       :type image_number: int, optional
+
+      :returns: The HTML representation of the images
+      :rtype: HTML
 
 
 
@@ -222,21 +168,23 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: save(step: str | int | None = None, by_order: bool = False, last: bool = False, output_path: str | None = None, image_format: str = 'png', client: dask.distributed.Client = None, n_jobs: int = 1, logger: logging.Logger | None = None) -> None
+   .. py:method:: save(step: str | int | None = None, last: bool = True, output_path: str | None = None, image_format: str = 'png', config: paidiverpy.config.configuration.Configuration | None = None, metadata: pandas.DataFrame | None = None, client: dask.distributed.Client = None, n_jobs: int = 1, logger: logging.Logger | None = None) -> None
 
       
       Save the images in the pipeline.
 
       :param step: The step to save. Defaults to None.
       :type step: str| int, optional
-      :param by_order: If True, save the step by order. Defaults to False.
-      :type by_order: bool, optional
       :param last: If True, save the last step. Defaults to False.
       :type last: bool, optional
       :param output_path: The output path to save the images. Defaults to None.
       :type output_path: str, optional
       :param image_format: The image format to save. Defaults to "png".
       :type image_format: str, optional
+      :param config: The configuration object. Defaults to None.
+      :type config: Configuration, optional
+      :param metadata: The metadata object. Defaults to None.
+      :type metadata: pd.DataFrame, optional
       :param client: The Dask client. Defaults to None.
       :type client: Client, optional
       :param n_jobs: The number of jobs to use. Defaults to 1.
@@ -262,7 +210,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: save_remote(images: list[numpy.ndarray | dask.array.core.Array], output_path: str, image_format: str, client: dask.distributed.Client, n_jobs: int, step_order: int, logger: logging.Logger) -> None
+   .. py:method:: save_remote(images: list[numpy.ndarray | dask.array.core.Array], output_path: str, image_format: str, metadata: pandas.DataFrame, client: dask.distributed.Client, n_jobs: int, step_order: int, logger: logging.Logger) -> None
 
       
       Save the images to a remote location.
@@ -273,6 +221,8 @@ Module Contents
       :type output_path: str
       :param image_format: The image format to save.
       :type image_format: str
+      :param metadata: The metadata object.
+      :type metadata: pd.DataFrame
       :param client: The Dask client.
       :type client: Client
       :param n_jobs: The number of jobs to use.
@@ -300,7 +250,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: save_local(images: list[numpy.ndarray | dask.array.core.Array], output_path: str, image_format: str, client: dask.distributed.Client, n_jobs: int, step_order: int, logger: logging.Logger) -> None
+   .. py:method:: save_local(images: list[numpy.ndarray | dask.array.core.Array], output_path: str, image_format: str, metadata: pandas.DataFrame, client: dask.distributed.Client, n_jobs: int, step_order: int, logger: logging.Logger) -> None
 
       
       Save the images to a local location.
@@ -311,6 +261,8 @@ Module Contents
       :type output_path: str
       :param image_format: The image format to save.
       :type image_format: str
+      :param metadata: The metadata object.
+      :type metadata: pd.DataFrame
       :param client: The Dask client.
       :type client: Client
       :param n_jobs: The number of jobs to use.
@@ -338,7 +290,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: process_and_upload(image: numpy.ndarray | dask.array.core.Array, img_path: str | pathlib.Path, image_format: str, s3_client: dask.distributed.Client | None = None) -> None
+   .. py:method:: process_and_upload(image: numpy.ndarray | dask.array.core.Array, img_path: str | pathlib.Path, image_format: str, s3_client: dask.distributed.Client | None = None, metadata: pandas.DataFrame | None = None) -> None
 
       
       Process and upload the images.
@@ -351,6 +303,8 @@ Module Contents
       :type image_format: str
       :param s3_client: The S3 client. Defaults to None.
       :type s3_client: boto3.client, optional
+      :param metadata: The metadata object. Defaults to None.
+      :type metadata: pd.DataFrame, optional
 
 
 
@@ -463,39 +417,6 @@ Module Contents
 
       :returns: The HTML representation of the object
       :rtype: HTML
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      ..
-          !! processed by numpydoc !!
-
-
-   .. py:method:: numpy_array_to_base64(image_array: numpy.ndarray | dask.array.core.Array, size: tuple = (150, 150)) -> str
-      :staticmethod:
-
-
-      
-      Convert a numpy array to a base64 image.
-
-      :param image_array: The image array
-      :type image_array: np.ndarray | da.core.Array
-      :param size: _description_. Defaults to (150, 150).
-      :type size: tuple, optional
-
-      :returns: The base64 image
-      :rtype: str
 
 
 

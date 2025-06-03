@@ -1,0 +1,20 @@
+general:
+  sample_data: "plankton_csv"
+  output_path: "./output"
+  image_open_args: "BMP"
+
+steps:
+  - convert:
+      mode: "normalize"
+  - convert:
+      mode: "normalize"
+      params:
+        min: 0
+        max: 255
+        method: "minmax"
+  - convert:
+      mode: "normalize"
+      params:
+        min: 1
+        max: 0
+        method: "minmax"

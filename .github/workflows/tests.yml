@@ -1,6 +1,14 @@
 name: Run tests
 
-on: pull_request
+on:
+  push:
+    branches:
+    - dev
+    - main
+  pull_request:
+    branches:
+    - dev
+    - main
 
 jobs:
   run-tests:
@@ -11,7 +19,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up Miniconda
         uses: conda-incubator/setup-miniconda@v3
         with:
@@ -26,9 +33,17 @@ jobs:
           conda env create -f environment.yml
           source ~/.bashrc
           conda activate Paidiverpy
-          pip install .
-          pip install ".[test]"
+          pip install -e .
+          pip install -e ".[test]"
 
       - name: Test with pytest
         run: |
-          conda run -n Paidiverpy pytest tests/
+          source ~/.bashrc
+          conda activate Paidiverpy
+          pytest -ra -v -s --cov=src/paidiverpy --cov-config=.coveragerc --cov-report xml:cov.xml --cov-report term-missing --junitxml=junit.xml -o junit_family=legacy
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./cov.xml
+          fail_ci_if_error: true

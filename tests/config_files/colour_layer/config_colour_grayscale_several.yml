@@ -1,0 +1,54 @@
+general:
+  sample_data: "benthic_csv"
+  output_path: "./output"
+  n_jobs: 1
+  image_open_args: "PNG"
+  sampling:
+    - mode: "fixed"
+      params:
+        value: 5
+
+steps:
+  - colour:
+      name: "colour_correction"
+      mode: "grayscale"
+  - convert:
+      mode: "to"
+      params:
+        to: "RGB"
+  - colour:
+      name: "colour_correction"
+      mode: "grayscale"
+      params:
+        method: "average"
+  - convert:
+      mode: "to"
+      params:
+        to: "RGB"
+  - colour:
+      name: "colour_correction"
+      mode: "grayscale"
+      params:
+        method: "luminosity"
+  - convert:
+      mode: "to"
+      params:
+        to: "RGB"
+  - colour:
+      name: "colour_correction"
+      mode: "grayscale"
+      params:
+        method: "desaturation"
+  - convert:
+      mode: "to"
+      params:
+        to: "RGB"
+  - colour:
+      name: "colour_correction"
+      mode: "grayscale"
+      params:
+        method: "opencv"
+        invert_colours: true
+  - colour:
+      name: "colour_correction"
+      mode: "grayscale"

@@ -1,6 +1,7 @@
 [![DOI][zenodo-badge]][zenodo-link]
 [![Documentation][rtd-badge]][rtd-link]
 [![Pypi][pip-badge]][pip-link]
+[![codecov][cov-badge]][cov-link]
 
 [zenodo-badge]: https://zenodo.org/badge/DOI/10.5281/zenodo.14641878.svg
 [zenodo-link]: https://doi.org/10.5281/zenodo.14641878
@@ -8,7 +9,8 @@
 [rtd-link]: https://paidiverpy.readthedocs.io/en/latest/?badge=latest
 [pip-badge]: https://img.shields.io/pypi/v/paidiverpy
 [pip-link]: https://pypi.org/project/paidiverpy/
-
+[cov-badge]: https://codecov.io/gh/paidiver/paidiverpy/branch/dev/graph/badge.svg
+[cov-link]: https://codecov.io/gh/paidiver/paidiverpy
 
 ![Logo](docs/_static/logo_paidiver_docs.png)
 
@@ -115,6 +117,8 @@ Together with the documentation, you can explore various use cases through sampl
 - [Run a pipeline using a public dataset with IFDO metadata](examples/example_notebooks/pipeline_ifdo.ipynb)
 - [Run a pipeline using a data on a object store](examples/example_notebooks/pipeline_remote_data.ipynb)
 - [Add a custom algorithm to a pipeline](examples/example_notebooks/pipeline_custom_algorithm.ipynb)
+- [Open and process raw images](examples/example_notebooks/working_with_raw_images.ipynb)
+- [Export and validate metadata](examples/example_notebooks/export_validate_metadata.ipynb)
 
 ### Example Data
 
@@ -127,11 +131,37 @@ PaidiverpyData().load(DATASET_NAME)
 
 Available datasets:
 
-- plankton_csv
-- benthic_csv
-- benthic_ifdo
+- plankton_csv: Plankton dataset with CSV file metadata
+- benthic_csv: Benthic dataset with CSV file metadata
+- benthic_ifdo: Benthic dataset with IFDO metadata
+- nef_raw: Sample images in Nef format (raw images) with CSV file metadata
+- benthic_raw_images: Benthic dataset in raw format with CSV file metadata
 
 Example data will be automatically downloaded when running the example notebooks.
 
 
 > **Note:** Please check the documentation for more information about Paidiverpy: https://paidiverpy.readthedocs.io/
+
+<!--
+## 🌍📉 Environmental Impact Report for **paidiverpy**
+
+We care about the environmental footprint of our development process. That’s why we’ve integrated [Green Coding](https://www.green-coding.io/)’s [Green Metrics Tools](https://metrics.green-coding.io) to monitor and estimate the energy consumption and CO₂-equivalent emissions of our GitHub-based CI/CD workflows.
+
+Below are the latest insights from our development activities:
+
+| 🛠️ Activity                      | 🔍 Green Coding Metrics                                                                                                                   |
+|----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| CI tests triggered on each commit  | [![CI Energy][ci-energy-badge]][ci-energy-link] [![CI CO₂][ci-energy-badge-co2]][ci-energy-link]                                           |
+| Upstream CI tests (daily runs)     | [![Upstream CI Energy][ci-energy-badge-upstream]][ci-energy-link-upstream] [![Upstream CI CO₂][ci-energy-badge-upstream-co2]][ci-energy-link-upstream] |
+-->
+
+## Contributing to **paidiverpy**
+
+Want to support or improve **paidiverpy**? Check out our [contribution guide](https://paidiverpy.readthedocs.io/en/latest/contributing.html) to learn how to get started.
+
+
+## Acknowledgements
+
+This project was supported by the UK Natural Environment Research Council (NERC)
+through the *Tools for automating image analysis for biodiversity monitoring (AIAB)*
+Funding Opportunity, reference code **UKRI052**.

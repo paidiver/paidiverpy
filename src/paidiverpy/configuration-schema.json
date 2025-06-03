@@ -1,1383 +1,1807 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "general": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "sample_data": {
-          "type": "string"
-        },
-        "input_path": {
-          "type": "string"
-        },
-        "metadata_path": {
-          "type": "string"
-        },
-        "metadata_type": {
-          "type": "string"
-        },
-        "image_type": {
-          "type": "string"
-        },
-        "append_data_to_metadata": {
-          "type": [
-            "string",
-            "boolean"
-          ]
-        },
-        "output_path": {
-          "type": "string"
-        },
-        "n_jobs": {
-          "type": [
-            "number",
-            "null"
-          ]
-        },
-        "client": {
-          "type": [
-            "object",
-            "null"
-          ],
-          "properties": {
-            "cluster_type": {
-              "type": "string",
-              "enum": [
-                "local",
-                "slurm"
-              ]
+    "$defs": {
+        "BitParams": {
+            "description": "This class contains the parameters for the bit conversion.",
+            "properties": {
+                "output_bits": {
+                    "default": 8,
+                    "description": "Number of bits in output image",
+                    "title": "Output Bits",
+                    "type": "integer"
+                },
+                "raise_error": {
+                    "default": false,
+                    "description": "Raise error on failure",
+                    "title": "Raise Error",
+                    "type": "boolean"
+                }
             },
-            "params": {
-              "type": [
-                "object",
-                "null"
-              ]
-            }
-          },
-          "required": [
-            "cluster_type"
-          ],
-          "if": {
+            "title": "BitParams",
+            "type": "object"
+        },
+        "CalculateCornersParams": {
+            "description": "Parameters for the overlapping resampling calculation.",
             "properties": {
-              "cluster_type": {
-                "const": "local"
-              }
-            }
-          },
-          "then": {
+                "omega": {
+                    "default": 0.5,
+                    "description": "Horizontal angle of view (in radians or normalized units)",
+                    "title": "Omega",
+                    "type": "number"
+                },
+                "theta": {
+                    "default": 0.5,
+                    "description": "Vertical angle of view (in radians or normalized units)",
+                    "title": "Theta",
+                    "type": "number"
+                },
+                "camera_distance": {
+                    "default": 1.12,
+                    "description": "Distance from camera to the scene (in meters)",
+                    "title": "Camera Distance",
+                    "type": "number"
+                },
+                "raise_error": {
+                    "default": false,
+                    "description": "Raise error on failure",
+                    "title": "Raise Error",
+                    "type": "boolean"
+                }
+            },
+            "title": "CalculateCornersParams",
+            "type": "object"
+        },
+        "ClientParams": {
+            "description": "Client parameters class.\n\nThis class is used to define the client parameters for Dask parallel processing.",
             "properties": {
-              "params": {
-                "$ref": "#/definitions/client_params/local_params"
-              }
-            }
-          },
-          "else": {
-            "if": {
-              "properties": {
                 "cluster_type": {
-                  "const": "slurm"
-                }
-              }
-            },
-            "then": {
-              "properties": {
-                "params": {
-                  "$ref": "#/definitions/client_params/slurm_params"
-                }
-              }
-            }
-          }
-        },
-        "track_changes": {
-          "type": [
-            "boolean",
-            "null"
-          ]
-        },
-        "rename": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "sampling": {
-          "type": [
-            "array",
-            "null"
-          ],
-          "items": {
-            "$ref": "#/definitions/sampling"
-          }
-        },
-        "convert": {
-          "type": [
-            "array",
-            "null"
-          ],
-          "items": {
-            "$ref": "#/definitions/convert"
-          }
-        }
-      },
-      "anyOf": [
-        {
-          "required": [
-            "input_path",
-            "output_path"
-          ],
-          "not": {
-            "required": [
-              "sample_data"
-            ]
-          }
-        },
-        {
-          "required": [
-            "sample_data"
-          ]
-        }
-      ]
-    },
-    "steps": {
-      "type": [
-        "array",
-        "null"
-      ],
-      "items": {
-        "type": "object",
-        "oneOf": [
-          {
-            "type": "object",
-            "properties": {
-              "colour": {
-                "$ref": "#/definitions/colour"
-              }
-            },
-            "required": [
-              "colour"
-            ]
-          },
-          {
-            "type": "object",
-            "properties": {
-              "sampling": {
-                "$ref": "#/definitions/sampling"
-              }
-            },
-            "required": [
-              "sampling"
-            ]
-          },
-          {
-            "type": "object",
-            "properties": {
-              "convert": {
-                "$ref": "#/definitions/convert"
-              }
-            },
-            "required": [
-              "convert"
-            ]
-          },
-          {
-            "type": "object",
-            "properties": {
-              "position": {
-                "$ref": "#/definitions/position"
-              }
-            },
-            "required": [
-              "position"
-            ]
-          },
-          {
-            "type": "object",
-            "properties": {
-              "position": {
-                "$ref": "#/definitions/custom"
-              }
-            },
-            "required": [
-              "custom"
-            ]
-          }
-        ]
-      }
-    }
-  },
-  "required": [
-    "general"
-  ],
-  "definitions": {
-    "client_params": {
-      "local_params": {
-        "type": "object",
-        "properties": {
-          "n_workers": {
-            "type": "integer",
-            "minimum": 1
-          },
-          "threads_per_worker": {
-            "type": "integer",
-            "minimum": 1
-          },
-          "memory_limit": {
-            "type": "string",
-            "pattern": "^[0-9]+(KB|MB|GB|TB)$"
-          }
-        }
-      },
-      "slurm_params": {
-        "type": "object",
-        "properties": {
-          "queue": {
-            "type": "string"
-          },
-          "cores": {
-            "type": "integer",
-            "minimum": 1
-          },
-          "processes": {
-            "type": "integer",
-            "minimum": 1
-          },
-          "memory": {
-            "type": "string",
-            "pattern": "^[0-9]+(KB|MB|GB|TB)$"
-          },
-          "scale": {
-            "type": "integer",
-            "minimum": 1
-          },
-          "walltime": {
-            "type": "string",
-            "pattern": "^([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$"
-          },
-          "job_extra_directives": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      }
-    },
-    "position": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "step_name": {
-          "type": "string"
-        },
-        "mode": {
-          "type": "string"
-        },
-        "test": {
-          "type": "boolean"
-        },
-        "params": {
-          "type": "object"
-        }
-      },
-      "required": [
-        "mode"
-      ],
-      "if": {
-        "properties": {
-          "mode": {
-            "const": "reproject"
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "params": {
-            "$ref": "#/definitions/position_params/reproject"
-          }
-        }
-      }
-    },
-    "convert": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "step_name": {
-          "type": "string"
-        },
-        "mode": {
-          "type": "string",
-          "enum": [
-            "bits",
-            "to",
-            "bayer_pattern",
-            "normalize",
-            "resize",
-            "crop"
-          ]
-        },
-        "test": {
-          "type": "boolean"
-        },
-        "params": {
-          "type": "object"
-        }
-      },
-      "required": [
-        "mode"
-      ],
-      "if": {
-        "properties": {
-          "mode": {
-            "const": "bits"
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "params": {
-            "$ref": "#/definitions/convert_params/bit_params"
-          }
-        }
-      },
-      "else": {
-        "if": {
-          "properties": {
-            "mode": {
-              "const": "to"
-            }
-          }
-        },
-        "then": {
-          "properties": {
-            "params": {
-              "$ref": "#/definitions/convert_params/to_params"
-            }
-          }
-        },
-        "else": {
-          "if": {
-            "properties": {
-              "mode": {
-                "const": "bayer_pattern"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "params": {
-                "$ref": "#/definitions/convert_params/bayer_pattern_params"
-              }
-            }
-          },
-          "else": {
-            "if": {
-              "properties": {
-                "mode": {
-                  "const": "normalize"
-                }
-              }
-            },
-            "then": {
-              "properties": {
-                "params": {
-                  "$ref": "#/definitions/convert_params/normalize_params"
-                }
-              }
-            },
-            "else": {
-              "if": {
-                "properties": {
-                  "mode": {
-                    "const": "resize"
-                  }
-                }
-              },
-              "then": {
-                "properties": {
-                  "params": {
-                    "$ref": "#/definitions/convert_params/resize_params"
-                  }
-                }
-              },
-              "else": {
-                "if": {
-                  "properties": {
-                    "mode": {
-                      "const": "crop"
-                    }
-                  }
+                    "default": "local",
+                    "description": "Type of cluster",
+                    "enum": [
+                        "local",
+                        "slurm"
+                    ],
+                    "title": "Cluster Type",
+                    "type": "string"
                 },
-                "then": {
-                  "properties": {
-                    "params": {
-                      "$ref": "#/definitions/convert_params/crop_params"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "custom": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "step_name": {
-          "type": "string"
-        },
-        "file_path": {
-          "type": "string"
-        },
-        "class_name": {
-          "type": "string"
-        },
-        "test": {
-          "type": "boolean"
-        },
-        "dependencies": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "dependencies_path": {
-          "type": "string"
-        },
-        "params": {
-          "type": "object"
-        }
-      },
-      "required": [
-        "file_path",
-        "class_name"
-      ]
-    },
-    "colour": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "step_name": {
-          "type": "string"
-        },
-        "mode": {
-          "type": "string",
-          "enum": [
-            "grayscale",
-            "gaussian_blur",
-            "edge_detection",
-            "sharpen",
-            "contrast",
-            "illumination_correction",
-            "deblur",
-            "colour_alteration"
-          ]
-        },
-        "test": {
-          "type": "boolean"
-        },
-        "params": {
-          "type": "object"
-        }
-      },
-      "required": [
-        "mode"
-      ],
-      "if": {
-        "properties": {
-          "mode": {
-            "const": "grayscale"
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "params": {
-            "$ref": "#/definitions/colour_params/grayscale"
-          }
-        }
-      },
-      "else": {
-        "if": {
-          "properties": {
-            "mode": {
-              "const": "gaussian_blur"
-            }
-          }
-        },
-        "then": {
-          "properties": {
-            "params": {
-              "$ref": "#/definitions/colour_params/gaussian_blur"
-            }
-          }
-        },
-        "else": {
-          "if": {
-            "properties": {
-              "mode": {
-                "const": "edge_detection"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "params": {
-                "$ref": "#/definitions/colour_params/edge_detection"
-              }
-            }
-          },
-          "else": {
-            "if": {
-              "properties": {
-                "mode": {
-                  "const": "sharpen"
-                }
-              }
-            },
-            "then": {
-              "properties": {
                 "params": {
-                  "$ref": "#/definitions/colour_params/sharpen"
-                }
-              }
-            },
-            "else": {
-              "if": {
-                "properties": {
-                  "mode": {
-                    "const": "contrast"
-                  }
-                }
-              },
-              "then": {
-                "properties": {
-                  "params": {
-                    "$ref": "#/definitions/colour_params/contrast"
-                  }
-                }
-              },
-              "else": {
-                "if": {
-                  "properties": {
-                    "mode": {
-                      "const": "illumination_correction"
-                    }
-                  }
-                },
-                "then": {
-                  "properties": {
-                    "params": {
-                      "$ref": "#/definitions/colour_params/illumination_correction"
-                    }
-                  }
-                },
-                "else": {
-                  "if": {
-                    "properties": {
-                      "mode": {
-                        "const": "deblur"
-                      }
-                    }
-                  },
-                  "then": {
-                    "properties": {
-                      "params": {
-                        "$ref": "#/definitions/colour_params/deblur"
-                      }
-                    }
-                  },
-                  "else": {
-                    "if": {
-                      "properties": {
-                        "mode": {
-                          "const": "colour_alteration"
-                        }
-                      }
+                    "additionalProperties": true,
+                    "default": {
+                        "n_workers": 0
                     },
-                    "then": {
-                      "properties": {
-                        "params": {
-                          "$ref": "#/definitions/colour_params/colour_alteration"
-                        }
-                      }
-                    }
-                  }
+                    "description": "Parameters for the cluster",
+                    "title": "Params",
+                    "type": "object"
                 }
-              }
-            }
-          }
-        }
-      }
-    },
-    "sampling": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "step_name": {
-          "type": "string"
-        },
-        "mode": {
-          "type": "string",
-          "enum": [
-            "datetime",
-            "depth",
-            "altitude",
-            "pitch_roll",
-            "overlapping",
-            "fixed",
-            "percent",
-            "region",
-            "obscure"
-          ]
-        },
-        "test": {
-          "type": "boolean"
-        },
-        "params": {
-          "type": "object"
-        }
-      },
-      "required": [
-        "mode"
-      ],
-      "if": {
-        "properties": {
-          "mode": {
-            "const": "datetime"
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "params": {
-            "$ref": "#/definitions/sampling_params/datetime_params"
-          }
-        }
-      },
-      "else": {
-        "if": {
-          "properties": {
-            "mode": {
-              "const": "depth"
-            }
-          }
-        },
-        "then": {
-          "properties": {
-            "params": {
-              "$ref": "#/definitions/sampling_params/depth_params"
-            }
-          }
-        },
-        "else": {
-          "if": {
-            "properties": {
-              "mode": {
-                "const": "altitude"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "params": {
-                "$ref": "#/definitions/sampling_params/altitude_params"
-              }
-            }
-          },
-          "else": {
-            "if": {
-              "properties": {
-                "mode": {
-                  "const": "pitch_roll"
-                }
-              }
             },
-            "then": {
-              "properties": {
+            "title": "ClientParams",
+            "type": "object"
+        },
+        "ColourAlterationParams": {
+            "description": "Parameters for colour alteration.",
+            "properties": {
+                "method": {
+                    "default": "white_balance",
+                    "description": "Colour alteration method",
+                    "title": "Method",
+                    "type": "string"
+                },
+                "raise_error": {
+                    "default": false,
+                    "description": "Raise error on failure",
+                    "title": "Raise Error",
+                    "type": "boolean"
+                }
+            },
+            "title": "ColourAlterationParams",
+            "type": "object"
+        },
+        "ColourConfig": {
+            "description": "Colour configuration model.",
+            "properties": {
+                "name": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": "colour",
+                    "description": "Name of the step",
+                    "title": "Name"
+                },
+                "step_name": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Step name",
+                    "title": "Step Name"
+                },
+                "test": {
+                    "default": false,
+                    "description": "Test mode",
+                    "title": "Test",
+                    "type": "boolean"
+                },
                 "params": {
-                  "$ref": "#/definitions/sampling_params/pitch_roll_params"
-                }
-              }
-            },
-            "else": {
-              "if": {
-                "properties": {
-                  "mode": {
-                    "const": "overlapping"
-                  }
-                }
-              },
-              "then": {
-                "properties": {
-                  "params": {
-                    "$ref": "#/definitions/sampling_params/overlapping_params"
-                  }
-                }
-              },
-              "else": {
-                "if": {
-                  "properties": {
-                    "mode": {
-                      "const": "fixed"
-                    }
-                  }
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/GrayScaleParams"
+                        },
+                        {
+                            "$ref": "#/$defs/GaussianBlurParams"
+                        },
+                        {
+                            "$ref": "#/$defs/EdgeDetectionParams"
+                        },
+                        {
+                            "$ref": "#/$defs/SharpenParams"
+                        },
+                        {
+                            "$ref": "#/$defs/ContrastAdjustmentParams"
+                        },
+                        {
+                            "$ref": "#/$defs/DeblurParams"
+                        },
+                        {
+                            "$ref": "#/$defs/IlluminationCorrectionParams"
+                        },
+                        {
+                            "$ref": "#/$defs/ColourAlterationParams"
+                        },
+                        {
+                            "additionalProperties": true,
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Colour parameters",
+                    "title": "Params"
                 },
-                "then": {
-                  "properties": {
-                    "params": {
-                      "$ref": "#/definitions/sampling_params/fixed_params"
-                    }
-                  }
+                "mode": {
+                    "description": "Mode for the colour step",
+                    "enum": [
+                        "grayscale",
+                        "gaussian_blur",
+                        "edge_detection",
+                        "sharpen",
+                        "contrast",
+                        "deblur",
+                        "illumination_correction",
+                        "colour_alteration"
+                    ],
+                    "title": "Mode",
+                    "type": "string"
                 },
-                "else": {
-                  "if": {
-                    "properties": {
-                      "mode": {
-                        "const": "percent"
-                      }
-                    }
-                  },
-                  "then": {
-                    "properties": {
-                      "params": {
-                        "$ref": "#/definitions/sampling_params/percent_params"
-                      }
-                    }
-                  },
-                  "else": {
-                    "if": {
-                      "properties": {
-                        "mode": {
-                          "const": "region"
-                        }
-                      }
-                    },
-                    "then": {
-                      "properties": {
-                        "params": {
-                          "$ref": "#/definitions/sampling_params/region_params"
-                        }
-                      }
-                    },
-                    "else": {
-                      "if": {
-                        "properties": {
-                          "mode": {
-                            "const": "obscure"
-                          }
-                        }
-                      },
-                      "then": {
-                        "properties": {
-                          "params": {
-                            "$ref": "#/definitions/sampling_params/obscure_params"
-                          }
-                        }
-                      }
-                    }
-                  }
+                "processing_type": {
+                    "default": "image",
+                    "description": "If the images are processed individually (image option) or as a dataset (dataset option)",
+                    "enum": [
+                        "image",
+                        "dataset"
+                    ],
+                    "title": "Processing Type",
+                    "type": "string"
                 }
-              }
-            }
-          }
-        }
-      }
-    },
-    "position_params": {
-      "reproject": {
-        "type": "object",
-        "properties": {
-          "placeholder": {
-            "type": "string"
-          },
-          "raise_error": {
-            "type": "boolean",
-            "default": false
-          }
-        },
-        "required": [
-          "placeholder"
-        ]
-      }
-    },
-    "colour_params": {
-      "grayscale": {
-        "type": "object",
-        "properties": {
-          "keep_alpha": {
-            "type": "boolean"
-          },
-          "method": {
-            "type": "string",
-            "enum": [
-              "opencv",
-              "average",
-              "luminosity",
-              "desaturation"
-            ]
-          },
-          "invert_colours": {
-            "type": "boolean"
-          },
-          "raise_error": {
-            "type": "boolean",
-            "default": false
-          }
-        }
-      },
-      "deblur": {
-        "type": "object",
-        "properties": {
-          "method": {
-            "type": "string",
-            "enum": [
-              "wiener"
-            ]
-          },
-          "psf_type": {
-            "type": "string",
-            "enum": [
-              "gaussian",
-              "motion"
-            ]
-          },
-          "sigma": {
-            "type": "number"
-          },
-          "angle": {
-            "type": "integer"
-          },
-          "raise_error": {
-            "type": "boolean",
-            "default": false
-          }
-        },
-        "required": [
-          "method"
-        ]
-      },
-      "colour_alteration": {
-        "type": "object",
-        "properties": {
-          "method": {
-            "type": "string",
-            "enum": [
-              "white_balance"
-            ]
-          },
-          "raise_error": {
-            "type": "boolean",
-            "default": false
-          }
-        },
-        "required": [
-          "method"
-        ]
-      },
-      "gaussian_blur": {
-        "type": "object",
-        "properties": {
-          "sigma": {
-            "type": "number"
-          },
-          "raise_error": {
-            "type": "boolean",
-            "default": false
-          }
-        },
-        "required": [
-          "sigma"
-        ]
-      },
-      "edge_detection": {
-        "type": "object",
-        "properties": {
-          "method": {
-            "type": "string",
-            "enum": [
-              "sobel",
-              "scharr",
-              "scharr_with_mean",
-              "canny"
-            ]
-          },
-          "blur_radius": {
-            "type": "number"
-          },
-          "threshold": {
-            "type": "array",
-            "items": {
-              "type": "number"
-            }
-          },
-          "object_type": {
-            "type": "string",
-            "enum": [
-              "aggregate",
-              "isolated"
-            ]
-          },
-          "object_selection": {
-            "type": "string",
-            "enum": [
-              "full_ROI",
-              "largest_area"
-            ]
-          },
-          "estimate_sharpness": {
-            "type": "boolean"
-          },
-          "deconv": {
-            "type": "boolean"
-          },
-          "deconv_method": {
-            "type": "string",
-            "enum": [
-              "UM",
-              "LR"
-            ]
-          },
-          "deconv_iter": {
-            "type": "integer"
-          },
-          "deconv_mask_weight": {
-            "type": "number"
-          },
-          "small_float_val": {
-            "type": "number"
-          },
-          "raise_error": {
-            "type": "boolean",
-            "default": false
-          }
-        },
-        "required": [
-          "method",
-          "blur_radius",
-          "threshold"
-        ]
-      },
-      "sharpen": {
-        "type": "object",
-        "properties": {
-          "alpha": {
-            "type": "number"
-          },
-          "beta": {
-            "type": "number"
-          },
-          "raise_error": {
-            "type": "boolean",
-            "default": false
-          }
-        },
-        "required": [
-          "alpha",
-          "beta"
-        ]
-      },
-      "contrast": {
-        "type": "object",
-        "properties": {
-          "method": {
-            "type": "string",
-            "enum": [
-              "clahe",
-              "gamma"
-            ]
-          },
-          "kernel_size": {
-            "type": [
-              "integer",
-              "null"
-            ]
-          },
-          "clip_limit": {
-            "type": "number"
-          },
-          "gamma_value": {
-            "type": "number"
-          },
-          "raise_error": {
-            "type": "boolean",
-            "default": false
-          }
-        },
-        "required": [
-          "method",
-          "clip_limit",
-          "gamma_value"
-        ]
-      },
-      "illumination_correction": {
-        "type": "object",
-        "properties": {
-          "method": {
-            "type": "string",
-            "enum": [
-              "rolling",
-              "other_method"
-            ]
-          },
-          "radius": {
-            "type": "integer"
-          },
-          "raise_error": {
-            "type": "boolean",
-            "default": false
-          }
-        },
-        "required": [
-          "method",
-          "radius"
-        ]
-      }
-    },
-    "convert_params": {
-      "bit_params": {
-        "type": "object",
-        "properties": {
-          "output_bits": {
-            "type": "integer",
-            "enum": [
-              8,
-              16,
-              32
-            ]
-          },
-          "raise_error": {
-            "type": "boolean",
-            "default": false
-          }
-        },
-        "required": [
-          "output_bits"
-        ]
-      },
-      "to_params": {
-        "type": "object",
-        "properties": {
-          "to": {
-            "type": "string",
-            "enum": [
-              "RGB",
-              "gray"
-            ]
-          },
-          "channel_selector": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "raise_error": {
-            "type": "boolean",
-            "default": false
-          }
-        },
-        "required": [
-          "to"
-        ]
-      },
-      "bayer_pattern_params": {
-        "type": "object",
-        "properties": {
-          "bayer_pattern": {
-            "type": "string",
-            "enum": [
-              "RG",
-              "BG",
-              "GR",
-              "GB"
-            ]
-          },
-          "raise_error": {
-            "type": "boolean",
-            "default": false
-          }
-        },
-        "required": [
-          "bayer_pattern"
-        ]
-      },
-      "normalize_params": {
-        "type": "object",
-        "properties": {
-          "min": {
-            "type": "number"
-          },
-          "max": {
-            "type": "number"
-          },
-          "raise_error": {
-            "type": "boolean",
-            "default": false
-          }
-        },
-        "required": [
-          "min",
-          "max"
-        ]
-      },
-      "resize_params": {
-        "type": "object",
-        "properties": {
-          "min": {
-            "type": "integer",
-            "minimum": 1
-          },
-          "max": {
-            "type": "integer",
-            "minimum": 1
-          },
-          "raise_error": {
-            "type": "boolean",
-            "default": false
-          }
-        },
-        "required": [
-          "min",
-          "max"
-        ]
-      },
-      "crop_params": {
-        "type": "object",
-        "properties": {
-          "x": {
-            "type": "array",
-            "items": {
-              "type": "integer"
             },
-            "minItems": 2,
-            "maxItems": 2
-          },
-          "y": {
-            "type": "array",
-            "items": {
-              "type": "integer"
-            },
-            "minItems": 2,
-            "maxItems": 2
-          },
-          "raise_error": {
-            "type": "boolean",
-            "default": false
-          }
-        },
-        "required": [
-          "x",
-          "y"
-        ]
-      }
-    },
-    "sampling_params": {
-      "datetime_params": {
-        "type": "object",
-        "properties": {
-          "min": {
-            "type": "string"
-          },
-          "max": {
-            "type": "string"
-          },
-          "raise_error": {
-            "type": "boolean",
-            "default": false
-          }
-        }
-      },
-      "depth_params": {
-        "type": "object",
-        "properties": {
-          "by": {
-            "type": "string",
-            "enum": [
-              "lower",
-              "upper"
+            "required": [
+                "mode"
             ],
-            "default": "lower"
-          },
-          "value": {
-            "type": "number"
-          },
-          "raise_error": {
-            "type": "boolean",
-            "default": false
-          }
+            "title": "ColourConfig",
+            "type": "object"
         },
-        "required": [
-          "value"
-        ]
-      },
-      "altitude_params": {
-        "type": "object",
-        "properties": {
-          "value": {
-            "type": "number"
-          },
-          "raise_error": {
-            "type": "boolean",
-            "default": false
-          }
+        "ContrastAdjustmentParams": {
+            "description": "Parameters for contrast adjustment.",
+            "properties": {
+                "method": {
+                    "default": "clahe",
+                    "description": "Contrast adjustment method",
+                    "title": "Method",
+                    "type": "string"
+                },
+                "kernel_size": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": true,
+                            "type": "object"
+                        },
+                        {
+                            "type": "integer"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Kernel size for CLAHE. It can be a dict with the format {'dim1': value, 'dim2': value} until the ndim, or an integer for square kernel size.",
+                    "title": "Kernel Size"
+                },
+                "clip_limit": {
+                    "default": 0.01,
+                    "description": "Clip limit for CLAHE",
+                    "title": "Clip Limit",
+                    "type": "number"
+                },
+                "gamma_value": {
+                    "default": 0.5,
+                    "description": "Gamma correction value",
+                    "title": "Gamma Value",
+                    "type": "number"
+                },
+                "raise_error": {
+                    "default": false,
+                    "description": "Raise error on failure",
+                    "title": "Raise Error",
+                    "type": "boolean"
+                }
+            },
+            "title": "ContrastAdjustmentParams",
+            "type": "object"
         },
-        "required": [
-          "value"
-        ]
-      },
-      "pitch_roll_params": {
-        "type": "object",
-        "properties": {
-          "pitch": {
-            "type": "number"
-          },
-          "roll": {
-            "type": "number"
-          },
-          "raise_error": {
-            "type": "boolean",
-            "default": false
-          }
-        },
-        "required": [
-          "pitch",
-          "roll"
-        ]
-      },
-      "overlapping_params": {
-        "type": "object",
-        "properties": {
-          "omega": {
-            "type": "number",
-            "minimum": 0
-          },
-          "theta": {
-            "type": "number",
-            "minimum": 0
-          },
-          "threshold": {
-            "type": "number"
-          },
-          "camera_distance": {
-            "type": "number",
-            "default": 1.12
-          },
-          "raise_error": {
-            "type": "boolean",
-            "default": false
-          }
-        },
-        "required": [
-          "omega",
-          "theta"
-        ]
-      },
-      "fixed_params": {
-        "type": "object",
-        "properties": {
-          "value": {
-            "type": "integer",
-            "default": 10
-          },
-          "raise_error": {
-            "type": "boolean",
-            "default": false
-          }
-        },
-        "required": [
-          "value"
-        ]
-      },
-      "percent_params": {
-        "type": "object",
-        "properties": {
-          "value": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
-          },
-          "raise_error": {
-            "type": "boolean",
-            "default": false
-          }
-        },
-        "required": [
-          "value"
-        ]
-      },
-      "region_params": {
-        "type": "object",
-        "properties": {
-          "file": {
-            "type": "string"
-          },
-          "limits": {
-            "type": "array",
-            "items": {
-              "type": "number"
-            }
-          },
-          "raise_error": {
-            "type": "boolean",
-            "default": false
-          },
-          "minItems": 4,
-          "maxItems": 4
-        },
-        "anyOf": [
-          {
+        "ConvertConfig": {
+            "description": "Convert configuration model.",
+            "properties": {
+                "name": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": "convert",
+                    "description": "Name of the step",
+                    "title": "Name"
+                },
+                "step_name": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Step name",
+                    "title": "Step Name"
+                },
+                "test": {
+                    "default": false,
+                    "description": "Test mode",
+                    "title": "Test",
+                    "type": "boolean"
+                },
+                "params": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/BitParams"
+                        },
+                        {
+                            "$ref": "#/$defs/ToParams"
+                        },
+                        {
+                            "$ref": "#/$defs/NormalizeParams"
+                        },
+                        {
+                            "$ref": "#/$defs/ResizeParams"
+                        },
+                        {
+                            "$ref": "#/$defs/CropParams"
+                        },
+                        {
+                            "additionalProperties": true,
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Convert parameters",
+                    "title": "Params"
+                },
+                "mode": {
+                    "description": "Mode for the convert step",
+                    "enum": [
+                        "bits",
+                        "to",
+                        "normalize",
+                        "resize",
+                        "crop"
+                    ],
+                    "title": "Mode",
+                    "type": "string"
+                },
+                "processing_type": {
+                    "default": "image",
+                    "description": "If the images are processed individually (image option) or as a dataset (dataset option)",
+                    "enum": [
+                        "image",
+                        "dataset"
+                    ],
+                    "title": "Processing Type",
+                    "type": "string"
+                }
+            },
             "required": [
-              "file"
+                "mode"
             ],
-            "not": {
-              "required": [
-                "limits"
-              ]
-            }
-          },
-          {
-            "required": [
-              "limits"
-            ]
-          }
-        ]
-      },
-      "obscure_params": {
-        "type": "object",
-        "properties": {
-          "min": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 1
-          },
-          "max": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 1
-          },
-          "raise_error": {
-            "type": "boolean",
-            "default": false
-          }
+            "title": "ConvertConfig",
+            "type": "object"
         },
-        "required": [
-          "min",
-          "max"
-        ]
-      }
-    }
-  }
+        "CropParams": {
+            "description": "This class contains the parameters for the image cropping.",
+            "properties": {
+                "size": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": true,
+                            "type": "object"
+                        },
+                        {
+                            "type": "number"
+                        }
+                    ],
+                    "default": 1,
+                    "description": "Crop size. Format {'width': value, 'height': value} or float for percentage",
+                    "title": "Size"
+                },
+                "size_type": {
+                    "default": "percent",
+                    "description": "Size type: percent or pixels",
+                    "title": "Size Type",
+                    "type": "string"
+                },
+                "mode": {
+                    "default": "center",
+                    "description": "Crop mode",
+                    "title": "Mode",
+                    "type": "string"
+                },
+                "top_left": {
+                    "additionalProperties": true,
+                    "default": {
+                        "top": 0,
+                        "left": 0
+                    },
+                    "description": "Top-left corner for cropping. Format {'top': value, 'left': value}",
+                    "title": "Top Left",
+                    "type": "object"
+                },
+                "raise_error": {
+                    "default": false,
+                    "description": "Raise error on failure",
+                    "title": "Raise Error",
+                    "type": "boolean"
+                }
+            },
+            "title": "CropParams",
+            "type": "object"
+        },
+        "CustomConfig": {
+            "description": "Custom configuration model.",
+            "properties": {
+                "name": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": "custom",
+                    "description": "Name of the step",
+                    "title": "Name"
+                },
+                "file_path": {
+                    "description": "File path for custom step",
+                    "title": "File Path",
+                    "type": "string"
+                },
+                "class_name": {
+                    "description": "Class name for custom step",
+                    "title": "Class Name",
+                    "type": "string"
+                },
+                "step_name": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Step name",
+                    "title": "Step Name"
+                },
+                "test": {
+                    "default": false,
+                    "description": "Test mode",
+                    "title": "Test",
+                    "type": "boolean"
+                },
+                "processing_type": {
+                    "default": "image",
+                    "description": "If the images are processed individually (image option) or as a dataset (dataset option)",
+                    "enum": [
+                        "image",
+                        "dataset"
+                    ],
+                    "title": "Processing Type",
+                    "type": "string"
+                },
+                "dependencies": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Dependencies for the custom step. It should be a string with each dependency separated by commas.",
+                    "title": "Dependencies"
+                },
+                "dependencies_path": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Path to the requirements file for the custom step",
+                    "title": "Dependencies Path"
+                },
+                "params": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/CustomParams"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Custom parameters"
+                }
+            },
+            "required": [
+                "file_path",
+                "class_name"
+            ],
+            "title": "CustomConfig",
+            "type": "object"
+        },
+        "CustomParams": {
+            "additionalProperties": true,
+            "description": "Parameters for the custom_params module with support for arbitrary fields.",
+            "properties": {
+                "raise_error": {
+                    "default": false,
+                    "description": "Raise error on failure",
+                    "title": "Raise Error",
+                    "type": "boolean"
+                }
+            },
+            "title": "CustomParams",
+            "type": "object"
+        },
+        "DeblurParams": {
+            "description": "Parameters for deblurring.",
+            "properties": {
+                "method": {
+                    "default": "wiener",
+                    "description": "Deblurring method",
+                    "title": "Method",
+                    "type": "string"
+                },
+                "psf_type": {
+                    "default": "gaussian",
+                    "description": "Point Spread Function type",
+                    "title": "Psf Type",
+                    "type": "string"
+                },
+                "sigma": {
+                    "default": 20,
+                    "description": "Sigma for Gaussian PSF",
+                    "title": "Sigma",
+                    "type": "integer"
+                },
+                "angle": {
+                    "default": 45,
+                    "description": "Angle for motion blur PSF",
+                    "title": "Angle",
+                    "type": "integer"
+                },
+                "raise_error": {
+                    "default": false,
+                    "description": "Raise error on failure",
+                    "title": "Raise Error",
+                    "type": "boolean"
+                }
+            },
+            "title": "DeblurParams",
+            "type": "object"
+        },
+        "EdgeDetectionParams": {
+            "description": "Parameters for edge detection.",
+            "properties": {
+                "method": {
+                    "default": "sobel",
+                    "description": "Edge detection method",
+                    "title": "Method",
+                    "type": "string"
+                },
+                "blur_radius": {
+                    "default": 1,
+                    "description": "Blur radius before edge detection",
+                    "title": "Blur Radius",
+                    "type": "integer"
+                },
+                "threshold": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": true,
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Threshold for edge detection. It should have the format {'low': value, 'high': value}. High value is optional.",
+                    "title": "Threshold"
+                },
+                "object_type": {
+                    "default": "bright",
+                    "description": "Type of object (bright or dark)",
+                    "title": "Object Type",
+                    "type": "string"
+                },
+                "object_selection": {
+                    "default": "largest",
+                    "description": "Object selection strategy",
+                    "title": "Object Selection",
+                    "type": "string"
+                },
+                "estimate_sharpness": {
+                    "default": false,
+                    "description": "Estimate image sharpness",
+                    "title": "Estimate Sharpness",
+                    "type": "boolean"
+                },
+                "deconv": {
+                    "default": false,
+                    "description": "Apply deconvolution",
+                    "title": "Deconv",
+                    "type": "boolean"
+                },
+                "deconv_method": {
+                    "default": "LR",
+                    "description": "Deconvolution method",
+                    "title": "Deconv Method",
+                    "type": "string"
+                },
+                "deconv_iter": {
+                    "default": 10,
+                    "description": "Deconvolution iterations",
+                    "title": "Deconv Iter",
+                    "type": "integer"
+                },
+                "deconv_mask_weight": {
+                    "default": 0.03,
+                    "description": "Deconvolution mask weighting",
+                    "title": "Deconv Mask Weight",
+                    "type": "number"
+                },
+                "small_float_val": {
+                    "default": 1e-06,
+                    "description": "Small float to avoid division by zero",
+                    "title": "Small Float Val",
+                    "type": "number"
+                },
+                "raise_error": {
+                    "default": false,
+                    "description": "Raise error on failure",
+                    "title": "Raise Error",
+                    "type": "boolean"
+                }
+            },
+            "title": "EdgeDetectionParams",
+            "type": "object"
+        },
+        "GaussianBlurParams": {
+            "description": "Parameters for Gaussian blur.",
+            "properties": {
+                "sigma": {
+                    "default": 1.0,
+                    "description": "Sigma value for Gaussian kernel",
+                    "title": "Sigma",
+                    "type": "number"
+                },
+                "raise_error": {
+                    "default": false,
+                    "description": "Raise error on failure",
+                    "title": "Raise Error",
+                    "type": "boolean"
+                }
+            },
+            "title": "GaussianBlurParams",
+            "type": "object"
+        },
+        "GeneralConfig": {
+            "anyOf": [
+                {
+                    "not": {
+                        "required": [
+                            "sample_data"
+                        ]
+                    },
+                    "required": [
+                        "input_path",
+                        "metadata_path",
+                        "metadata_type"
+                    ]
+                },
+                {
+                    "required": [
+                        "sample_data"
+                    ]
+                }
+            ],
+            "description": "General configuration class.\n\nThis class is used to define the general configuration from the configuration file\n    or from the input from the user.",
+            "properties": {
+                "name": {
+                    "default": "raw",
+                    "description": "Name of the first step (the step to open images)",
+                    "title": "Name",
+                    "type": "string"
+                },
+                "step_name": {
+                    "default": "open",
+                    "description": "Step name. This is a placeholder for the first step name and should not be used in the configuration file.",
+                    "title": "Step Name",
+                    "type": "string"
+                },
+                "sample_data": {
+                    "anyOf": [
+                        {
+                            "enum": [
+                                "plankton_csv",
+                                "benthic_csv",
+                                "benthic_ifdo",
+                                "nef_raw",
+                                "benthic_raw_images"
+                            ],
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Sample data to use for testing. If provided, it will override input_path, metadata_path, and metadata_type.",
+                    "title": "Sample Data"
+                },
+                "input_path": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "format": "path",
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Input path for image data. Can be a local path or a remote URL.",
+                    "title": "Input Path"
+                },
+                "output_path": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "format": "path",
+                            "type": "string"
+                        }
+                    ],
+                    "default": "output",
+                    "description": "Output path for results. Can be a local path or a remote URL.",
+                    "title": "Output Path"
+                },
+                "metadata_path": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "format": "path",
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Path to metadata. Can be a local path or a remote URL.",
+                    "title": "Metadata Path"
+                },
+                "metadata_type": {
+                    "anyOf": [
+                        {
+                            "enum": [
+                                "IFDO",
+                                "CSV_FILE"
+                            ],
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Type of metadata. Can be 'IFDO' or 'CSV_FILE'",
+                    "title": "Metadata Type"
+                },
+                "image_open_args": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "$ref": "#/$defs/ImageOpenArgs"
+                        }
+                    ],
+                    "default": "",
+                    "description": "Arguments to use when opening images. It can be a string with the image format or an ImageOpenArgs object. If it is a empty string, the type will be inferred from the file extension.",
+                    "title": "Image Open Args"
+                },
+                "append_data_to_metadata": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Path to append data to metadata. If provided, it will be used to append data to the metadata file.",
+                    "title": "Append Data To Metadata"
+                },
+                "metadata_conventions": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Metadata conventions to apply. If not provided, it will use the default conventions name described in the documentation.",
+                    "title": "Metadata Conventions"
+                },
+                "n_jobs": {
+                    "default": 1,
+                    "description": "Number of jobs for parallel processing",
+                    "title": "N Jobs",
+                    "type": "integer"
+                },
+                "client": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/ClientParams"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Dask Client configuration. If None, it will not use Dask Client."
+                },
+                "track_changes": {
+                    "default": true,
+                    "description": "Whether to track config changes. If True, it will store in memory the output images on each step",
+                    "title": "Track Changes",
+                    "type": "boolean"
+                },
+                "rename": {
+                    "anyOf": [
+                        {
+                            "enum": [
+                                "UUID",
+                                "datetime"
+                            ],
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Field name to use for renaming. If not provided, the name will be the same as the input file name.",
+                    "title": "Rename"
+                },
+                "sampling": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "$ref": "#/$defs/SamplingConfig"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Sampling step configurations to be applied to the images before processing them. If not provided, no sampling will be applied.",
+                    "title": "Sampling"
+                },
+                "convert": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "$ref": "#/$defs/ConvertConfig"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Convert step configurations to be applied to the images before processing them. If not provided, no conversion will be applied.",
+                    "title": "Convert"
+                }
+            },
+            "title": "GeneralConfig",
+            "type": "object"
+        },
+        "GrayScaleParams": {
+            "description": "Parameters for the grayscale conversion.",
+            "properties": {
+                "method": {
+                    "default": "opencv",
+                    "description": "Grayscale conversion method",
+                    "title": "Method",
+                    "type": "string"
+                },
+                "invert_colours": {
+                    "default": false,
+                    "description": "Invert grayscale values",
+                    "title": "Invert Colours",
+                    "type": "boolean"
+                },
+                "raise_error": {
+                    "default": false,
+                    "description": "Raise error on failure",
+                    "title": "Raise Error",
+                    "type": "boolean"
+                }
+            },
+            "title": "GrayScaleParams",
+            "type": "object"
+        },
+        "IlluminationCorrectionParams": {
+            "description": "Parameters for illumination correction.",
+            "properties": {
+                "method": {
+                    "default": "rolling",
+                    "description": "Correction method (e.g. rolling ball)",
+                    "title": "Method",
+                    "type": "string"
+                },
+                "radius": {
+                    "default": 5,
+                    "description": "Radius of the illumination filter",
+                    "title": "Radius",
+                    "type": "integer"
+                },
+                "raise_error": {
+                    "default": false,
+                    "description": "Raise error on failure",
+                    "title": "Raise Error",
+                    "type": "boolean"
+                }
+            },
+            "title": "IlluminationCorrectionParams",
+            "type": "object"
+        },
+        "ImageOpenArgs": {
+            "description": "Wrapper for specifying image format and associated parameters.",
+            "properties": {
+                "image_type": {
+                    "default": "",
+                    "description": "Image format (e.g., 'PNG', 'JPEG', 'RAW', and others). ",
+                    "title": "Image Type",
+                    "type": "string"
+                },
+                "params": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/ImageOpenArgsRawPyParams"
+                        },
+                        {
+                            "$ref": "#/$defs/ImageOpenArgsRawParams"
+                        },
+                        {
+                            "$ref": "#/$defs/ImageOpenArgsOpenCVParams"
+                        }
+                    ],
+                    "description": "Parameters for the image",
+                    "title": "Params"
+                }
+            },
+            "title": "ImageOpenArgs",
+            "type": "object"
+        },
+        "ImageOpenArgsOpenCVParams": {
+            "description": "Parameters for OpenCV image loading.",
+            "properties": {
+                "dtype": {
+                    "default": "uint8",
+                    "description": "Data type of the image (e.g., 'uint8', 'float32')",
+                    "title": "Dtype",
+                    "type": "string"
+                },
+                "flags": {
+                    "default": -1,
+                    "description": "OpenCV flags for image loading (e.g., cv2.IMREAD_COLOR). Default is -1 for loading the image as is.",
+                    "enum": [
+                        -1,
+                        0,
+                        1,
+                        2,
+                        4,
+                        8,
+                        16,
+                        17,
+                        32,
+                        33,
+                        64,
+                        65,
+                        128
+                    ],
+                    "title": "Flags",
+                    "type": "integer"
+                }
+            },
+            "title": "ImageOpenArgsOpenCVParams",
+            "type": "object"
+        },
+        "ImageOpenArgsRawParams": {
+            "description": "Parameters for manually loading raw images with specific metadata.\n\nThese parameters are required when the image format is not supported by standard libraries.",
+            "properties": {
+                "width": {
+                    "default": 0,
+                    "description": "Image width in pixels.",
+                    "title": "Width",
+                    "type": "integer"
+                },
+                "height": {
+                    "default": 0,
+                    "description": "Image height in pixels.",
+                    "title": "Height",
+                    "type": "integer"
+                },
+                "bit_depth": {
+                    "default": 8,
+                    "description": "Bit depth of the image: 8 or 16.",
+                    "enum": [
+                        8,
+                        16
+                    ],
+                    "title": "Bit Depth",
+                    "type": "integer"
+                },
+                "endianness": {
+                    "anyOf": [
+                        {
+                            "enum": [
+                                "little",
+                                "big"
+                            ],
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Endianness of the image data. Only applicable to 16-bit images.",
+                    "title": "Endianness"
+                },
+                "layout": {
+                    "anyOf": [
+                        {
+                            "enum": [
+                                "5:6:5",
+                                "5:5:5",
+                                "6:5:5",
+                                "5:5:6"
+                            ],
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": "5:6:5",
+                    "description": "RGB layout format (e.g. RGB565). Only for 16-bit images.",
+                    "title": "Layout"
+                },
+                "image_misc": {
+                    "default": "",
+                    "description": "Comma-separated string for image flags (e.g., 'bayer,vertical_flip').",
+                    "title": "Image Misc",
+                    "type": "string"
+                },
+                "bayer_pattern": {
+                    "anyOf": [
+                        {
+                            "enum": [
+                                "GB",
+                                "RG",
+                                "BG",
+                                "GR"
+                            ],
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Bayer pattern (e.g., GB, RG, BG, GR). Only for 8-bit bayer images.",
+                    "title": "Bayer Pattern"
+                },
+                "file_header_size": {
+                    "default": 0,
+                    "description": "Number of bytes to skip at the beginning of the file.",
+                    "title": "File Header Size",
+                    "type": "integer"
+                },
+                "swap_bytes": {
+                    "default": false,
+                    "description": "Swap bytes for endianness conversion. Only applicable for 16-bit images.",
+                    "title": "Swap Bytes",
+                    "type": "boolean"
+                },
+                "channels": {
+                    "default": 1,
+                    "description": "Number of channels in the image. Default is 1 (grayscale).",
+                    "title": "Channels",
+                    "type": "integer"
+                }
+            },
+            "title": "ImageOpenArgsRawParams",
+            "type": "object"
+        },
+        "ImageOpenArgsRawPyParams": {
+            "additionalProperties": true,
+            "description": "Parameters for RawPy postprocessing (rawpy.RawPy.postprocess).",
+            "properties": {},
+            "title": "ImageOpenArgsRawPyParams",
+            "type": "object"
+        },
+        "NormalizeParams": {
+            "description": "This class contains the parameters for the image normalization.",
+            "properties": {
+                "min": {
+                    "default": 0,
+                    "description": "Minimum normalization value",
+                    "title": "Min",
+                    "type": "number"
+                },
+                "max": {
+                    "default": 1,
+                    "description": "Maximum normalization value",
+                    "title": "Max",
+                    "type": "number"
+                },
+                "method": {
+                    "default": "minmax",
+                    "description": "Normalization method",
+                    "title": "Method",
+                    "type": "string"
+                },
+                "raise_error": {
+                    "default": false,
+                    "description": "Raise error on failure",
+                    "title": "Raise Error",
+                    "type": "boolean"
+                }
+            },
+            "title": "NormalizeParams",
+            "type": "object"
+        },
+        "PositionConfig": {
+            "description": "Position configuration model.",
+            "properties": {
+                "name": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": "position",
+                    "description": "Name of the step",
+                    "title": "Name"
+                },
+                "step_name": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Step name",
+                    "title": "Step Name"
+                },
+                "test": {
+                    "default": false,
+                    "description": "Test mode",
+                    "title": "Test",
+                    "type": "boolean"
+                },
+                "params": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/CalculateCornersParams"
+                        },
+                        {
+                            "additionalProperties": true,
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Position parameters",
+                    "title": "Params"
+                },
+                "mode": {
+                    "const": "calculate_corners",
+                    "description": "Mode for the position step",
+                    "title": "Mode",
+                    "type": "string"
+                },
+                "processing_type": {
+                    "default": "image",
+                    "description": "If the images are processed individually (image option) or as a dataset (dataset option)",
+                    "enum": [
+                        "image",
+                        "dataset"
+                    ],
+                    "title": "Processing Type",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "mode"
+            ],
+            "title": "PositionConfig",
+            "type": "object"
+        },
+        "ResizeParams": {
+            "description": "This class contains the parameters for the image resizing.",
+            "properties": {
+                "size": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": true,
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Target size {'width': value, 'height': value}",
+                    "title": "Size"
+                },
+                "preserve_aspect": {
+                    "default": true,
+                    "description": "Preserve aspect ratio",
+                    "title": "Preserve Aspect",
+                    "type": "boolean"
+                },
+                "scale": {
+                    "anyOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "additionalProperties": true,
+                            "type": "object"
+                        }
+                    ],
+                    "default": 1,
+                    "description": "Scale factor. Format {'width': value, 'height': value} or float for uniform scaling",
+                    "title": "Scale"
+                },
+                "interpolation": {
+                    "default": "linear",
+                    "description": "Interpolation method",
+                    "title": "Interpolation",
+                    "type": "string"
+                },
+                "raise_error": {
+                    "default": false,
+                    "description": "Raise error on failure",
+                    "title": "Raise Error",
+                    "type": "boolean"
+                }
+            },
+            "title": "ResizeParams",
+            "type": "object"
+        },
+        "SamplingAltitudeParams": {
+            "description": "Parameters for altitude resampling.",
+            "properties": {
+                "by": {
+                    "default": "lower",
+                    "description": "Resampling strategy (e.g., 'lower', 'upper')",
+                    "enum": [
+                        "lower",
+                        "upper"
+                    ],
+                    "title": "By",
+                    "type": "string"
+                },
+                "value": {
+                    "anyOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Altitude value threshold",
+                    "title": "Value"
+                },
+                "raise_error": {
+                    "default": false,
+                    "description": "Raise error on failure",
+                    "title": "Raise Error",
+                    "type": "boolean"
+                }
+            },
+            "title": "SamplingAltitudeParams",
+            "type": "object"
+        },
+        "SamplingConfig": {
+            "description": "Sampling configuration model.",
+            "properties": {
+                "name": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": "sampling",
+                    "description": "Name of the step",
+                    "title": "Name"
+                },
+                "step_name": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Step name",
+                    "title": "Step Name"
+                },
+                "test": {
+                    "default": false,
+                    "description": "Test mode",
+                    "title": "Test",
+                    "type": "boolean"
+                },
+                "params": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/SamplingDatetimeParams"
+                        },
+                        {
+                            "$ref": "#/$defs/SamplingDepthParams"
+                        },
+                        {
+                            "$ref": "#/$defs/SamplingAltitudeParams"
+                        },
+                        {
+                            "$ref": "#/$defs/SamplingPitchRollParams"
+                        },
+                        {
+                            "$ref": "#/$defs/SamplingOverlappingParams"
+                        },
+                        {
+                            "$ref": "#/$defs/SamplingFixedParams"
+                        },
+                        {
+                            "$ref": "#/$defs/SamplingPercentParams"
+                        },
+                        {
+                            "$ref": "#/$defs/SamplingRegionParams"
+                        },
+                        {
+                            "$ref": "#/$defs/SamplingObscureParams"
+                        },
+                        {
+                            "additionalProperties": true,
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Sampling parameters",
+                    "title": "Params"
+                },
+                "mode": {
+                    "description": "Mode for the sampling step",
+                    "enum": [
+                        "datetime",
+                        "depth",
+                        "altitude",
+                        "pitch_roll",
+                        "overlapping",
+                        "fixed",
+                        "percent",
+                        "region",
+                        "obscure"
+                    ],
+                    "title": "Mode",
+                    "type": "string"
+                },
+                "processing_type": {
+                    "default": "image",
+                    "description": "If the images are processed individually (image option) or as a dataset (dataset option)",
+                    "enum": [
+                        "image",
+                        "dataset"
+                    ],
+                    "title": "Processing Type",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "mode"
+            ],
+            "title": "SamplingConfig",
+            "type": "object"
+        },
+        "SamplingDatetimeParams": {
+            "description": "Parameters for datetime resampling.",
+            "properties": {
+                "min": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Minimum datetime bound (ISO 8601 format). If not provided, it will use the earliest datetime in the dataset.",
+                    "title": "Min"
+                },
+                "max": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Maximum datetime bound (ISO 8601 format). If not provided, it will use the latest datetime in the dataset.",
+                    "title": "Max"
+                },
+                "raise_error": {
+                    "default": false,
+                    "description": "Raise error on failure",
+                    "title": "Raise Error",
+                    "type": "boolean"
+                }
+            },
+            "title": "SamplingDatetimeParams",
+            "type": "object"
+        },
+        "SamplingDepthParams": {
+            "description": "Parameters for depth resampling.",
+            "properties": {
+                "by": {
+                    "default": "lower",
+                    "description": "Resampling strategy (e.g., 'lower', 'upper')",
+                    "enum": [
+                        "lower",
+                        "upper"
+                    ],
+                    "title": "By",
+                    "type": "string"
+                },
+                "value": {
+                    "anyOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Depth value threshold",
+                    "title": "Value"
+                },
+                "raise_error": {
+                    "default": false,
+                    "description": "Raise error on failure",
+                    "title": "Raise Error",
+                    "type": "boolean"
+                }
+            },
+            "title": "SamplingDepthParams",
+            "type": "object"
+        },
+        "SamplingFixedParams": {
+            "description": "Parameters for fixed interval resampling.",
+            "properties": {
+                "value": {
+                    "default": 10,
+                    "description": "Fixed interval value",
+                    "title": "Value",
+                    "type": "integer"
+                },
+                "raise_error": {
+                    "default": false,
+                    "description": "Raise error on failure",
+                    "title": "Raise Error",
+                    "type": "boolean"
+                }
+            },
+            "title": "SamplingFixedParams",
+            "type": "object"
+        },
+        "SamplingObscureParams": {
+            "description": "Parameters for obscure-based resampling.",
+            "properties": {
+                "min": {
+                    "default": 0,
+                    "description": "Minimum threshold for obscuring",
+                    "title": "Min",
+                    "type": "number"
+                },
+                "max": {
+                    "default": 1,
+                    "description": "Maximum threshold for obscuring",
+                    "title": "Max",
+                    "type": "number"
+                },
+                "channel": {
+                    "default": "mean",
+                    "description": "Channel selection strategy",
+                    "title": "Channel",
+                    "type": "string"
+                },
+                "raise_error": {
+                    "default": false,
+                    "description": "Raise error on failure",
+                    "title": "Raise Error",
+                    "type": "boolean"
+                }
+            },
+            "title": "SamplingObscureParams",
+            "type": "object"
+        },
+        "SamplingOverlappingParams": {
+            "description": "Parameters for overlapping resampling.",
+            "properties": {
+                "omega": {
+                    "default": 0.5,
+                    "description": "Horizontal angle of view",
+                    "title": "Omega",
+                    "type": "number"
+                },
+                "theta": {
+                    "default": 0.5,
+                    "description": "Vertical angle of view",
+                    "title": "Theta",
+                    "type": "number"
+                },
+                "threshold": {
+                    "default": 1,
+                    "description": "Overlap threshold in percentage",
+                    "title": "Threshold",
+                    "type": "number"
+                },
+                "camera_distance": {
+                    "default": 1.12,
+                    "description": "Distance from camera to subject",
+                    "title": "Camera Distance",
+                    "type": "number"
+                },
+                "raise_error": {
+                    "default": false,
+                    "description": "Raise error on failure",
+                    "title": "Raise Error",
+                    "type": "boolean"
+                }
+            },
+            "title": "SamplingOverlappingParams",
+            "type": "object"
+        },
+        "SamplingPercentParams": {
+            "description": "Parameters for percent-based resampling.",
+            "properties": {
+                "value": {
+                    "default": 0.1,
+                    "description": "Percent value to resample",
+                    "title": "Value",
+                    "type": "number"
+                },
+                "raise_error": {
+                    "default": false,
+                    "description": "Raise error on failure",
+                    "title": "Raise Error",
+                    "type": "boolean"
+                }
+            },
+            "title": "SamplingPercentParams",
+            "type": "object"
+        },
+        "SamplingPitchRollParams": {
+            "description": "Parameters for pitch and roll resampling.",
+            "properties": {
+                "pitch": {
+                    "default": 9999,
+                    "description": "Pitch tolerance value",
+                    "title": "Pitch",
+                    "type": "number"
+                },
+                "roll": {
+                    "default": 9999,
+                    "description": "Roll tolerance value",
+                    "title": "Roll",
+                    "type": "number"
+                },
+                "raise_error": {
+                    "default": false,
+                    "description": "Raise error on failure",
+                    "title": "Raise Error",
+                    "type": "boolean"
+                }
+            },
+            "title": "SamplingPitchRollParams",
+            "type": "object"
+        },
+        "SamplingRegionParams": {
+            "description": "Parameters for region-based resampling.",
+            "properties": {
+                "file": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "format": "path",
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Path to the region file",
+                    "title": "File"
+                },
+                "limits": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": true,
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Dict of region limits. Format {'min_lon': value, 'max_lon': value, 'min_lat': value, 'max_lat': value}",
+                    "title": "Limits"
+                },
+                "raise_error": {
+                    "default": false,
+                    "description": "Raise error on failure",
+                    "title": "Raise Error",
+                    "type": "boolean"
+                }
+            },
+            "title": "SamplingRegionParams",
+            "type": "object"
+        },
+        "SharpenParams": {
+            "description": "Parameters for sharpening.",
+            "properties": {
+                "alpha": {
+                    "default": 1.5,
+                    "description": "Weight of original image",
+                    "title": "Alpha",
+                    "type": "number"
+                },
+                "beta": {
+                    "default": -0.5,
+                    "description": "Weight of blurred image",
+                    "title": "Beta",
+                    "type": "number"
+                },
+                "raise_error": {
+                    "default": false,
+                    "description": "Raise error on failure",
+                    "title": "Raise Error",
+                    "type": "boolean"
+                }
+            },
+            "title": "SharpenParams",
+            "type": "object"
+        },
+        "ToParams": {
+            "description": "This class contains the parameters for the channel conversion.",
+            "properties": {
+                "to": {
+                    "default": "uint8",
+                    "description": "Target data type",
+                    "title": "To",
+                    "type": "string"
+                },
+                "channel_selector": {
+                    "default": 0,
+                    "description": "Index of channel to select",
+                    "title": "Channel Selector",
+                    "type": "integer"
+                },
+                "raise_error": {
+                    "default": false,
+                    "description": "Raise error on failure",
+                    "title": "Raise Error",
+                    "type": "boolean"
+                }
+            },
+            "title": "ToParams",
+            "type": "object"
+        }
+    },
+    "description": "Step configuration model.",
+    "properties": {
+        "general": {
+            "$ref": "#/$defs/GeneralConfig",
+            "description": "General configuration"
+        },
+        "steps": {
+            "anyOf": [
+                {
+                    "items": {
+                        "anyOf": [
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "colour": {
+                                        "$ref": "#/$defs/ColourConfig"
+                                    }
+                                },
+                                "required": [
+                                    "colour"
+                                ],
+                                "additionalProperties": false
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "convert": {
+                                        "$ref": "#/$defs/ConvertConfig"
+                                    }
+                                },
+                                "required": [
+                                    "convert"
+                                ],
+                                "additionalProperties": false
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "custom": {
+                                        "$ref": "#/$defs/CustomConfig"
+                                    }
+                                },
+                                "required": [
+                                    "custom"
+                                ],
+                                "additionalProperties": false
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "position": {
+                                        "$ref": "#/$defs/PositionConfig"
+                                    }
+                                },
+                                "required": [
+                                    "position"
+                                ],
+                                "additionalProperties": false
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "sampling": {
+                                        "$ref": "#/$defs/SamplingConfig"
+                                    }
+                                },
+                                "required": [
+                                    "sampling"
+                                ],
+                                "additionalProperties": false
+                            }
+                        ]
+                    },
+                    "type": "array"
+                },
+                {
+                    "type": "null"
+                }
+            ],
+            "default": null,
+            "description": "List of step configurations",
+            "title": "Steps"
+        }
+    },
+    "required": [
+        "general"
+    ],
+    "title": "ConfigModel",
+    "type": "object"
 }

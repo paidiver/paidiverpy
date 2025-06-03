@@ -7,24 +7,22 @@ from io import BytesIO
 from json import JSONDecodeError
 from pathlib import Path
 import dask.dataframe as dd
-import jsonschema
 import pandas as pd
-from jsonschema import Draft202012Validator
+from PIL import TiffImagePlugin
 from shapely.geometry import Point
-from paidiverpy.config.config import Configuration
+from paidiverpy.config.configuration import Configuration
+from paidiverpy.metadata_parser.ifdo_tools import convert_to_ifdo
+from paidiverpy.metadata_parser.ifdo_tools import format_ifdo_validation_error
+from paidiverpy.metadata_parser.ifdo_tools import validate_ifdo
+from paidiverpy.utils import formating_html
 from paidiverpy.utils.docker import is_running_in_docker
+from paidiverpy.utils.exceptions import raise_value_error
 from paidiverpy.utils.logging_functions import initialise_logging
 from paidiverpy.utils.object_store import define_storage_options
 from paidiverpy.utils.object_store import get_file_from_bucket
+from paidiverpy.utils.object_store import path_is_remote
 
 warnings.filterwarnings("ignore", category=UserWarning)
-
-filename_columns = ["image-filename", "filename", "file_name", "FileName", "File Name"]
-index_columns = ["id", "index", "ID", "Index", "Id"]
-datetime_columns = ["image-datetime", "datetime", "date_time", "DateTime", "Datetime"]
-lat_columns = ["image-latitude", "lat", "latitude_deg", "latitude", "Latitude", "Latitude_deg", "Lat"]
-lon_columns = ["image-longitude", "lon", "longitude_deg", "longitude", "Longitude", "Longitude_deg", "Lon"]
-depth_columns = ["image-altitude-meters", "depth", "depth_m", "depth_metres", "depth_metre", "depth_meters", "depth_meter"]
 
 
 class MetadataParser:
@@ -47,32 +45,46 @@ class MetadataParser:
         config: Configuration = None,
         metadata_path: str | None = None,
         metadata_type: str | None = None,
+        metadata_conventions: str | None = None,
         append_data_to_metadata: str | None = None,
         logger: logging.Logger | None = None,
     ):
         self.logger = logger or initialise_logging()
-        self.config = config or self._build_config(metadata_path, metadata_type, append_data_to_metadata)
+        self.config = config or self._build_config(metadata_path, metadata_type, metadata_conventions, append_data_to_metadata)
         self.metadata_type = getattr(self.config.general, "metadata_type", None)
         self.append_data_to_metadata = getattr(self.config.general, "append_data_to_metadata", None)
         self.metadata_path = getattr(self.config.general, "metadata_path", None)
         self.storage_options = define_storage_options(self.metadata_path)
+        self.metadata_conventions = self._calculate_metadata_conventions()
 
-        if not self.metadata_path:
-            msg = "Metadata path is not specified."
-            raise ValueError(msg)
-        if not self.metadata_type:
-            msg = "Metadata type is not specified."
-            raise ValueError(msg)
-
+        self.dataset_metadata = {}
         self.metadata = self.open_metadata()
-        self.dataset_metadata = None
 
-    def _build_config(self, metadata_path: str, metadata_type: str, append_data_to_metadata: str) -> Configuration:
+    def _calculate_metadata_conventions(self) -> str:
+        """Calculate metadata conventions.
+
+        Returns:
+            str: Metadata conventions.
+        """
+        file_path = Path(__file__).parent / "metadata_conventions.json"
+        metadata_conventions = getattr(self.config.general, "metadata_conventions", None)
+        if metadata_conventions:
+            metadata_conventions = metadata_conventions if isinstance(metadata_conventions, Path) else Path(metadata_conventions)
+            if metadata_conventions.is_file():
+                file_path = metadata_conventions
+            else:
+                self.logger.warning("Metadata conventions file not found: %s", metadata_conventions)
+                self.logger.warning("Using default metadata conventions file: %s", file_path)
+        with file_path.open() as file:
+            return json.load(file)
+
+    def _build_config(self, metadata_path: str, metadata_type: str, metadata_conventions: str, append_data_to_metadata: str) -> Configuration:
         """Build a configuration object.
 
         Args:
             metadata_path (str): Metadata file path.
             metadata_type (str): Metadata file type.
+            metadata_conventions (str): Metadata conventions.
             append_data_to_metadata (str): Additional data file path.
 
         Returns:
@@ -83,11 +95,10 @@ class MetadataParser:
             "output_path": "placeholder",
             "metadata_path": metadata_path,
             "metadata_type": metadata_type,
+            "metadata_conventions": metadata_conventions,
             "append_data_to_metadata": append_data_to_metadata,
         }
-        config = Configuration(input_path="placeholder", output_path="placeholder")
-        config.add_config("general", general_params)
-        return config
+        return Configuration(add_general=general_params)
 
     def open_metadata(self) -> dd.DataFrame:
         """Open metadata file.
@@ -102,19 +113,51 @@ class MetadataParser:
             metadata = self._open_ifdo_metadata()
         elif self.metadata_type == "CSV_FILE":
             metadata = self._open_csv_metadata()
-        else:
-            msg = "Metadata type is not supported."
-            raise ValueError(msg)
-
         if self.append_data_to_metadata:
             metadata = self._add_data_to_metadata(metadata)
 
         metadata["flag"] = 0
-        metadata = self._rename_columns(metadata, depth_columns)
-        return self._process_coordinates(metadata)
+        return self._prepare_metadata(metadata)
 
-    def _process_coordinates(self, metadata: dd.DataFrame) -> dd.DataFrame:
-        """Process coordinates in the metadata.
+    def export_metadata(
+        self,
+        output_format: str = "csv",
+        output_path: str | None = "metadata",
+        metadata: pd.DataFrame | None = None,
+        dataset_metadata: dict | None = None,
+        from_step: int = -1,
+    ) -> None:
+        """Export metadata to a file.
+
+        Args:
+            output_format (str, optional): Format of the output file. It can be
+        "csv", "json", "IFDO", or "croissant". Defaults to "csv".
+            output_path (str, optional): Path to the output file. Defaults to "metadata".
+            metadata (pd.DataFrame, optional): Metadata DataFrame. Defaults to None.
+            dataset_metadata (dict, optional): Dataset metadata. Defaults to None.
+            from_step (int, optional): Step from which to export metadata. Defaults to None, which means last step.
+        """
+        if not dataset_metadata or not isinstance(dataset_metadata, dict):
+            dataset_metadata = self.dataset_metadata
+        if not metadata:
+            if self.metadata is None or self.metadata.empty:
+                raise_value_error("Metadata is not defined.")
+            metadata = self.metadata
+        metadata = metadata.compute() if isinstance(metadata, dd.DataFrame) else metadata
+        if output_format.lower() not in ["csv", "json", "ifdo", "croissant"]:
+            self.logger.error("Unsupported output format: %s", output_format)
+            raise_value_error(f"Unsupported output format: {output_format}")
+        try:
+            MetadataParser.convert_metadata_to(
+                dataset_metadata=dataset_metadata, metadata=metadata, output_path=output_path, output_format=output_format, from_step=from_step
+            )
+            self.logger.info("Metadata exported to %s file in format %s", output_path, output_format)
+        except Exception as error:  # noqa: BLE001
+            self.logger.error("Failed to export metadata: %s", error)
+            raise_value_error(f"Failed to export metadata: {error}")
+
+    def _prepare_metadata(self, metadata: dd.DataFrame) -> dd.DataFrame:
+        """Prepare metadata for processing.
 
         Args:
             metadata (dd.DataFrame): Metadata DataFrame.
@@ -122,19 +165,29 @@ class MetadataParser:
         Returns:
             dd.DataFrame: Metadata DataFrame.
         """
-        metadata = self._rename_columns(metadata, lat_columns)
-        metadata = self._rename_columns(metadata, lon_columns)
+        errors = []
+        metadata = self._rename_columns(metadata, "image-altitude-meters", errors=errors)
+        metadata = self._rename_columns(metadata, "image-depth", errors=errors)
+        metadata = self._rename_columns(metadata, "image-latitude", errors=errors)
+        metadata = self._rename_columns(metadata, "image-longitude", errors=errors)
+        metadata = self._rename_columns(metadata, "image-camera-pitch-degrees", errors=errors)
+        metadata = self._rename_columns(metadata, "image-camera-roll-degrees", errors=errors)
+        for error in errors:
+            self.logger.warning(error)
+        if errors:
+            self.logger.warning("Some functions may not work properly.")
         if "image-longitude" in metadata.columns and "image-latitude" in metadata.columns:
             metadata["point"] = metadata.apply(lambda x: Point(x["image-longitude"], x["image-latitude"]), axis=1)
-
         return metadata
 
-    def _rename_columns(self, metadata: dd.DataFrame, columns: list, raise_error: bool = False) -> dd.DataFrame:
+    def _rename_columns(self, metadata: dd.DataFrame, column_name: str, errors: list | None = None, raise_error: bool = False) -> dd.DataFrame:
         """Rename columns in the metadata.
 
         Args:
             metadata (dd.DataFrame): Metadata DataFrame.
+            column_name (str): Column name to rename.
             columns (list): List of columns to rename.
+            errors (list, optional): List of errors to append to.
             raise_error (bool, optional): Raise error if column is not found.
         Defaults to False.
 
@@ -144,33 +197,29 @@ class MetadataParser:
         Returns:
             dd.DataFrame: Metadata DataFrame.
         """
-        if not any(col in metadata.columns for col in columns):
-            if raise_error:
-                self.logger.error(
-                    "Metadata does not have a %s type column. It should have one of the following columns: %s",
-                    columns[0],
-                    columns,
-                )
-                msg = f"Metadata does not have any column like: {columns}"
-                raise ValueError(
-                    msg,
-                )
-            self.logger.warning(
-                "Metadata does not have a %s type column. It should have one of the following columns: %s",
-                columns[0],
-                columns,
-            )
-            self.logger.warning("Some functions may not work properly.")
-
-            return metadata
-
+        if column_name not in self.metadata_conventions:
+            raise_value_error(f"Column {column_name} is not in the metadata conventions file. Please add to the file and try again.")
+        columns = self.metadata_conventions[column_name].copy()
+        columns.append(column_name)
         for col in columns:
             if col in metadata.columns:
-                metadata = metadata.rename(columns={col: columns[0]})
+                metadata = metadata.rename(columns={col: columns[-1]})
                 columns_1 = columns.copy()
-                columns_1.remove(columns_1[0])
+                columns_1.remove(columns_1[-1])
                 return metadata.drop(columns_1, errors="ignore", axis=1)
-        return None
+        if column_name == "ID":
+            msg = f"Metadata does not have a {columns[0]} type column. This column will be created. \n"
+        else:
+            msg = f"Metadata does not have a {columns[0]} type column. It should have one of the following columns: {columns}. \n"
+        if raise_error:
+            raise ValueError(
+                msg,
+            )
+        if errors is not None:
+            errors.append(msg)
+        else:
+            self.logger.warning(msg)
+        return metadata
 
     def _add_data_to_metadata(self, metadata: dd.DataFrame) -> dd.DataFrame:
         """Add additional data to the metadata.
@@ -184,15 +233,13 @@ class MetadataParser:
         Returns:
             dd.DataFrame: Metadata DataFrame.
         """
-        new_metadata = pd.read_csv(self.append_data_to_metadata).drop_duplicates(subset="filename", keep="first")
-
-        if not any(col in new_metadata.columns for col in filename_columns):
-            msg = f"Metadata does not have a filename column: {filename_columns}"
-            raise ValueError(
-                msg,
-            )
-
-        new_metadata = self._rename_columns(new_metadata, filename_columns)
+        new_metadata = pd.read_csv(self.append_data_to_metadata)
+        try:
+            new_metadata = self._rename_columns(new_metadata, "image-filename", raise_error=True)
+        except ValueError:
+            self.logger.warning("The new metadata will not be added to the metadata.")
+            return metadata
+        new_metadata = new_metadata.drop_duplicates(subset="image-filename", keep="first")
         return metadata.merge(new_metadata, how="left", on="image-filename")
 
     def _open_ifdo_metadata(self) -> dd.DataFrame:
@@ -203,7 +250,7 @@ class MetadataParser:
         """
         metadata_path = self.metadata_path if isinstance(self.metadata_path, str) else str(self.metadata_path)
 
-        if self.config.general.is_remote:
+        if path_is_remote(metadata_path):
             file_bytes = get_file_from_bucket(metadata_path, self.storage_options)
             metadata = json.loads(file_bytes.decode("utf-8"))
         else:
@@ -228,9 +275,12 @@ class MetadataParser:
         metadata = metadata.reset_index()
         metadata = metadata.rename(columns={"index": "ID"})
 
-        if "image-datetime" in metadata.columns:
-            metadata["image-datetime"] = dd.to_datetime(metadata["image-datetime"])
-            metadata = metadata.sort_values(by="image-datetime")
+        if "image-datetime" not in metadata.columns:
+            self.logger.warning("Metadata does not have a datetime column")
+            self.logger.warning("Some functions may not work properly.")
+
+        metadata["image-datetime"] = dd.to_datetime(metadata["image-datetime"])
+        metadata = metadata.sort_values(by="image-datetime")
         return metadata.compute()
 
     def _open_csv_metadata(self) -> dd.DataFrame:
@@ -239,7 +289,7 @@ class MetadataParser:
         Returns:
             dd.DataFrame: Metadata DataFrame
         """
-        if self.config.general.is_remote:
+        if path_is_remote(self.metadata_path):
             file_bytes = get_file_from_bucket(self.metadata_path, self.storage_options)
             file_bytes = BytesIO(file_bytes)
             df_pandas = pd.read_csv(file_bytes)
@@ -250,35 +300,24 @@ class MetadataParser:
                 self.metadata_path = f"/app/metadata/{metadata_filename}"
 
             metadata = dd.read_csv(self.metadata_path, assume_missing=True)
-
-        if not any(col in metadata.columns for col in index_columns):
+        metadata = self._rename_columns(metadata, "image-filename", raise_error=True)
+        try:
+            metadata = self._rename_columns(metadata, "ID", raise_error=True)
+        except ValueError:
             metadata = metadata.reset_index().rename(columns={"index": "ID"})
-
-        metadata = self._rename_columns(metadata, filename_columns, raise_error=True)
-        metadata = self._rename_columns(metadata, datetime_columns)
+        metadata = self._rename_columns(metadata, "image-datetime")
         if "image-datetime" in metadata.columns:
             metadata["image-datetime"] = dd.to_datetime(metadata["image-datetime"])
             metadata = metadata.sort_values(by="image-datetime")
-
         return metadata.compute()
 
-    def _validate_ifdo(self, ifdo_data: dict) -> None:
-        """validate_ifdo method.
-
-        Validates input data against iFDO scheme. Raises an exception if the
-        data is invalid.
+    def _validate_ifdo(self, metadata: dict) -> None:
+        """Validate iFDO metadata.
 
         Args:
-            ifdo_data (Dict): parsed iFDO data.
+            metadata (dict): Metadata dictionary.
         """
-        ifdo_version = ifdo_data.get("image-set-header", {}).get("image-set-ifdo-version", None)
-        if not ifdo_version:
-            msg = "No iFDO version found in metadata."
-            raise jsonschema.exceptions.ValidationError(msg)
-        schema_file_path = f"https://www.marine-imaging.com/fair/schemas/ifdo-{ifdo_version}.json"
-        schema = json.loads(get_file_from_bucket(schema_file_path))
-        validator = Draft202012Validator(schema)
-        errors = sorted(validator.iter_errors(ifdo_data), key=lambda e: e.path)
+        errors = validate_ifdo(ifdo_data=metadata)
         if errors:
             msg_warn = "Failed to validate the IFDO metadata.\n"
             msg_warn += "You can continue, but some functions may not work properly.\n"
@@ -286,7 +325,7 @@ class MetadataParser:
             self.logger.warning(msg_warn)
             msg_debug = "Validation errors with the metadata:\n"
             for error in errors:
-                msg_debug += f"{MetadataParser.format_error(error.path)}: {error.message}\n"
+                msg_debug += f"{format_ifdo_validation_error(error['path'])}: {error['message']}\n"
             self.logger.debug(msg_debug)
         else:
             self.logger.info("Metadata file is valid.")
@@ -305,21 +344,99 @@ class MetadataParser:
         Returns:
             str: HTML representation of the metadata.
         """
-        message = "This is a instance of 'MetadataParser'<br><br>"
-        metadata = self.metadata
-
-        return message + metadata._repr_html_()
+        return formating_html.metadata_repr(self)
 
     @staticmethod
-    def format_error(text: list) -> str:
-        """Format error message.
+    def convert_metadata_to(dataset_metadata: dict, metadata: dict, output_path: str, output_format: str, from_step: int = -1) -> None:
+        """Convert metadata to specified format.
 
         Args:
-            text (list): List of error messages.
+            dataset_metadata (dict): Dataset metadata.
+            metadata (dict): Metadata to convert.
+            output_path (str): Path to save the converted metadata.
+            output_format (str): Type of metadata to convert to. It can be "csv",
+        "json", "IFDO", or "croissant".
+            from_step (int): Step to filter metadata. Default is -1, which means the last step.
+        """
+        if "flag" in metadata.columns:
+            metadata = metadata[metadata["flag"] == 0] if from_step < 0 else metadata[(metadata["flag"] == 0) | (metadata["flag"] > from_step)]
+            metadata = metadata.drop(columns=["flag"], errors="ignore")
+        if "point" in metadata.columns:
+            metadata = metadata.drop(columns=["point"], errors="ignore")
+        empty_cols = metadata.columns[metadata.isna().all()]
+        metadata = metadata.drop(columns=empty_cols)
+        if output_format.lower() in ["csv", "json"]:
+            output_path = f"{output_path}.{output_format}"
+            metadata = MetadataParser.group_metadata_and_dataset_metadata(metadata, dataset_metadata)
+            metadata.to_csv(output_path, index=False) if output_format == "csv" else metadata.to_json(output_path, orient="records")
+        elif output_format.lower() == "ifdo":
+            output_path = f"{output_path}.json"
+            convert_to_ifdo(dataset_metadata, metadata, output_path)
+        elif output_format.lower() == "croissant":
+            # output_path = f"{output_path}.json"
+            # convert_to_croissant(dataset_metadata, metadata, output_path)
+            msg = "Croissant format is not implemented yet."
+            raise NotImplementedError(msg)
+        else:
+            raise_value_error(f"Unsupported output format: {output_format}")
+
+    @staticmethod
+    def group_metadata_and_dataset_metadata(
+        metadata: pd.DataFrame | dd.DataFrame,
+        dataset_metadata: dict,
+    ) -> tuple[pd.DataFrame, dict]:
+        """Group metadata and dataset metadata.
+
+        Args:
+            metadata (pd.DataFrame | dd.DataFrame): Metadata DataFrame.
+            dataset_metadata (dict): Dataset metadata.
+            metadata_type (str): Metadata type. Defaults to "IFDO".
 
         Returns:
-            str: Formatted error message.
+            tuple[pd.DataFrame, dict]: Grouped metadata and dataset metadata.
         """
-        if len(text) > 3:  # noqa: PLR2004
-            return f"...{'.'.join(map(str, text[-3:]))}"
-        return ".".join(map(str, text))
+        metadata = metadata.compute() if isinstance(metadata, dd.DataFrame) else metadata
+        for key, value in dataset_metadata.items():
+            if key not in metadata.columns:
+                metadata[key] = value
+        for col in metadata.select_dtypes(include=["object"]).columns:
+            metadata[col] = metadata[col].astype(str)
+        return metadata
+
+    @staticmethod
+    def metadata_to_exif(
+        filename: str,
+        metadata: pd.DataFrame,
+        image_format: str = "png",
+    ) -> None | dict:
+        """Convert metadata to EXIF format.
+
+        Args:
+            filename (str): Filename to convert.
+            metadata (pd.DataFrame): Metadata DataFrame.
+            image_format (str): Image format. Defaults to "png".
+
+        Returns:
+            None | dict: EXIF data or None if not found.
+        """
+        _ = filename
+        exif_dict = None
+        if metadata is not None:
+            if image_format.lower() == "jpeg":
+                pass
+                # exif_dict = {"0th": {piexif.ImageIFD.Artist: "Tobias"}, "Exif": {}, "GPS": {}, "1st": {}, "thumbnail": None}
+                # exif_dict = piexif.dump(exif_dict)
+                # exif_dict = piexif.load(filename)
+            elif image_format.lower() == "tiff":
+                # For TIFF/PNG, we can use PIL to extract EXIF-like data
+                # Note: This is very limited and may not cover all EXIF tags
+                # TIFF/PNG does not have a standard EXIF format
+                # This is a placeholder for actual implementation
+                exif_dict = TiffImagePlugin.ImageFileDirectory_v2()
+                for key, value in metadata.items():
+                    if isinstance(value, str | int | float):
+                        exif_dict[key] = value
+            elif image_format.lower() == "png":
+                # PNG does not have EXIF, but we can use tEXt chunks
+                exif_dict = {}
+        return exif_dict

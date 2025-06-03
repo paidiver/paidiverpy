@@ -1,0 +1,18 @@
+general:
+  sample_data: "benthic_csv"
+  output_path: "./output"
+  image_open_args: "PNG"
+
+steps:
+  - convert:
+      mode: "bits"
+      params:
+        output_bits: 16
+  - convert:
+      mode: "bits"
+      params:
+        output_bits: 8
+  - convert:
+      mode: "bits"
+      params:
+        output_bits: 32

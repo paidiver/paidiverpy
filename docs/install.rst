@@ -80,7 +80,7 @@ Fetch the latest image from GitHub:
 Required and additional dependencies
 ------------------------------------
 
-Requirement dependencies details can be found `here <https://github.com/paidiver/paidiverpy/blob/dev/pyproject.toml>`_. These dependencies will be installed automatically when you install the package.
+Requirement dependencies details can be found `here <https://github.com/paidiver/paidiverpy/blob/main/pyproject.toml>`_. These dependencies will be installed automatically when you install the package.
 
 You may also need to install the following packages (required by opencv-python):
 
@@ -93,3 +93,9 @@ On Ubuntu/Debian, you can install these packages using the following command:
 .. code-block:: text
 
   sudo apt install -y libgl1 libegl1 libopengl0
+
+If you want to use the GUI features of **Paidiverpy**, you will need to install the `panel` package. You can do this by running the following command:
+
+.. code-block:: text
+
+  pip install panel

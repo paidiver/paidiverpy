@@ -7,10 +7,6 @@ general:
     - mode: "percent"
       params:
         value: 0.1
-  convert:
-    - mode: "bits"
-      params:
-        output_bits: 8
 
 steps:
   - colour:
@@ -22,7 +18,6 @@ steps:
       file_path: "example"
       # file_path: "/mnt/noc/code/paidiver/paidiverpy/examples/custom_algorithms/custom_algorithm_example.py"
       class_name: "MyMethod"
-      dependencies:
-        - "scikit-learn"
+      dependencies: "scikit-learn"
       params:
         feature_range: (0, 1)

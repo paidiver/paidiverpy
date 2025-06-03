@@ -7,6 +7,7 @@ import dask.config
 from dask.distributed import Client
 from dask.distributed import LocalCluster
 from dask_jobqueue import SLURMCluster
+from paidiverpy.models.client_params import ClientParams
 
 
 def get_n_jobs(n_jobs: int) -> int:
@@ -55,9 +56,6 @@ def parse_dask_job(job: dict, n_jobs: int) -> Client:
         cluster = LocalCluster(**job.get("params"))
         cluster_type = "LocalCluster"
         job_id = None
-    else:
-        msg = "Cluster type not supported"
-        raise ValueError(msg)
     cluster.scale(n_jobs)
     client = Client(cluster)
     logging.info("Created %s with Client: %s", cluster_type, client.dashboard_link)
@@ -66,11 +64,11 @@ def parse_dask_job(job: dict, n_jobs: int) -> Client:
     return client
 
 
-def get_client(config_client: dict, n_jobs: int) -> Client:
+def get_client(config_client: dict | ClientParams | None, n_jobs: int) -> Client:
     """Parse the client configuration.
 
     Args:
-        config_client (dict): Client configuration.
+        config_client (dict | ClientParams | None): Client configuration.
         n_jobs (int): Number of jobs.
 
     Returns:
@@ -78,15 +76,13 @@ def get_client(config_client: dict, n_jobs: int) -> Client:
     """
     if config_client is None:
         return None
+    config_client = config_client.to_dict() if isinstance(config_client, ClientParams) else config_client
     job_id = None
     cluster_type = config_client.get("cluster_type")
     if cluster_type == "slurm":
         client, job_id = parse_dask_job(config_client, n_jobs)
     elif cluster_type == "local":
         client = parse_dask_job(config_client, n_jobs)
-    else:
-        msg = f"Job type {cluster_type} not supported."
-        raise ValueError(msg)
     if cluster_type == "slurm":
         return client, job_id
     return client

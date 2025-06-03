@@ -1,0 +1,36 @@
+general:
+  sample_data: "plankton_csv"
+  output_path: "./output"
+  n_jobs: 1
+  image_open_args: "BMP"
+
+steps:
+  - colour:
+      name: "colour_correction"
+      mode: "colour_alteration"
+  - convert:
+      name: "change_to_rgb"
+      mode: "to"
+      params:
+        to: "RGB"
+  - colour:
+      name: "colour_correction"
+      mode: "colour_alteration"
+  - colour:
+      name: "colour_correction"
+      mode: "deblur"
+      params:
+        method: "wiener"
+        psf_type: "gaussian"
+        sigma: 10
+        angle: 20
+  - colour:
+      name: "colour_correction"
+      mode: "colour_alteration"
+      params:
+        method: "white_balance"
+  - colour:
+      name: "colour_correction"
+      mode: "colour_alteration"
+      params:
+        method: "other_method"

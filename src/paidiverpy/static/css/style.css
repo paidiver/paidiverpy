@@ -1,0 +1,249 @@
+/* CSS stylesheet for displaying Paidiverpy objects in jupyterlab.
+ *
+ */
+
+:root {
+  --ppy-font-color: var(--jp-content-font-color, rgba(0, 0, 0, 1));
+  --ppy-font-color-brown: var(--jp-content-font-color-brown, brown);
+  --ppy-font-color-olive: var(--jp-content-font-color-olive, olive);
+  --ppy-font-color-teal: var(--jp-content-font-color-teal, teal);
+  --ppy-font-color-blue: var(--jp-content-font-color-blue, blue);
+  --ppy-font-color-gray: var(--jp-content-font-color-gray, gray);
+  --ppy-border-color: var(--jp-border-color2, #e0e0e0);
+  --ppy-disabled-color: var(--jp-layout-color3, #bdbdbd);
+  --ppy-background-color: var(--jp-layout-color, white);
+  --ppy-background-color2: var(--jp-layout-color3, rgba(212, 212, 212, 0.15));
+}
+
+
+html[theme="dark"],
+html[data-theme="dark"],
+body[data-theme="dark"],
+body.vscode-dark {
+  --ppy-font-color: rgba(255, 255, 255, 1);
+  --ppy-font-color-brown: brown;
+  --ppy-font-color-olive: olive;
+  --ppy-font-color-teal: teal;
+  --ppy-font-color-blue: blue;
+  --ppy-font-color-gray: gray;
+  --ppy-border-color: #1f1f1f;
+  --ppy-disabled-color: #515151;
+  --ppy-background-color: #111111;
+}
+
+.ppy-background-color {
+  background-color: var(--ppy-background-color) !important;
+}
+
+.ppy-font-color-brown {
+  color: var(--ppy-font-color-brown) !important;
+}
+
+.ppy-font-color {
+  color: var(--ppy-font-color) !important;
+}
+.ppy-h2 {
+  font-size: 20px !important;
+}
+.ppy-h3 {
+  font-size: 13px !important;
+}
+.ppy-p {
+  font-size: 10px;
+}
+.ppy-p-error {
+  color: var(--ppy-font-color-brown);
+  font-weight: bold;
+  display: block;
+}
+
+.ppy-text-repr-fallback {
+  /* fallback to plain text repr when CSS is not injected (untrusted notebook) */
+  display: none;
+}
+
+.ppy-pipeline-wrap{
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.ppy-pipeline {
+  float:left;
+  cursor: pointer;
+  padding: 10px;
+  width: max-content;
+  height: 150px;
+  margin: 10px;
+  border: 1px solid #000;
+  text-align: center;
+  /* line-height: 80px; */
+}
+
+.ppy-pipeline-clear-fix {
+  clear: both;
+}
+
+.ppy-pipeline-parameters-all {
+  padding: 10px;
+  margin: 10px;
+}
+
+.ppy-images-step-header {
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+.ppy-images-metadata {
+  margin-left: 20px;
+  margin-bottom: 10px;
+}
+.ppy-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-left: 20px;
+}
+
+.ppy-show-more-button, .ppy-hide-button {
+  margin-left: 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+
+.ppy-pipeline-arrow {
+  float:left;
+  width: 50px;
+  height: 80px;
+  margin: 10px;
+  text-align: center;
+  line-height: 80px;
+}
+
+.ppy-images-img{
+  display: block;
+  max-width: 200px;
+  margin: 10px;
+}
+
+.ppy-images-toggle-arrow {
+  cursor: pointer;
+  margin-left: 5px;
+}
+
+.ppy-images-image-p {
+  cursor: pointer;
+}
+
+.ppy-arrow-right {
+  display: inline-block;
+  vertical-align: middle;
+  width: 1em;
+  height: 1.5em !important;
+  stroke-width: 0;
+  stroke: currentColor;
+  fill: currentColor;
+}
+
+
+.ppy-json-block {
+  font-family: monospace;
+  background: var(--ppy-background-color);
+  padding: 1em;
+  border-radius: 6px;
+}
+.ppy-json-key {
+  color: var(--ppy-font-color-brown);
+}
+.ppy-json-string {
+  color: var(--ppy-font-color-olive);
+}
+.ppy-json-number {
+  color: var(--ppy-font-color-teal);
+}
+.ppy-json-bool {
+  color: var(--ppy-font-color-blue);
+}
+.ppy-json-null {
+  color: var(--ppy-font-color-gray);
+}
+
+
+.ppy-pn-title-0 {
+  font-size: 30px;
+}
+
+.ppy-pn-title-1 {
+  font-size: 20px;
+}
+.ppy-pn-title-2 {
+  font-size: 17px;
+}
+.ppy-pn-title-3 {
+  font-size: 14px;
+}
+.ppy-pn-title-4 {
+  font-size: 12px;
+}
+
+.ppy-pn-bold {
+  font-weight: bold;
+}
+.ppy-pn-italic {
+  font-style: italic;
+}
+.ppy-pn-description {
+  font-size: 14px;
+  margin-bottom: 1px;
+}
+
+.bk-root {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+}
+
+input, .bk-input, .bk-input-group {
+  margin-top: 0px;
+  margin-bottom: 3px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+
+.ppy-pn-header-button .bk-btn {
+  background: none !important;
+  border: none !important;
+  font-weight: bold;
+  font-size: 16px;
+  text-align: left;
+  padding-left: 0;
+  cursor: pointer;
+  box-shadow: none !important;
+  color: black;
+}
+
+.ppy-pn-danger-modal{
+  border: 2px solid red;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(255, 0, 0, 0.5);
+}
+
+.ppy-pn-config-form{
+  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  background-color: var(--ppy-background-color2);
+  border-radius: 5px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+.ppy-pn-align-right {
+  display: flex;
+  justify-content: flex-end;
+}

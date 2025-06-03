@@ -1,0 +1,34 @@
+general:
+  sample_data: "benthic_csv"
+  output_path: "./output"
+  image_open_args: "PNG"
+
+steps:
+  - convert:
+      mode: "to"
+      params:
+        to: "RGB"
+  - convert:
+      mode: "to"
+      params:
+        to: "RGB"
+  - convert:
+      mode: "to"
+      params:
+        to: "RGBA"
+  - convert:
+      mode: "to"
+      params:
+        to: "RGBA"
+  - convert:
+      mode: "to"
+      params:
+        to: "RGB"
+  - convert:
+      mode: "to"
+      params:
+        to: "gray"
+  - convert:
+      mode: "to"
+      params:
+        to: "RGBA"

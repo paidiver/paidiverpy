@@ -1,0 +1,25 @@
+general:
+  sample_data: "plankton_csv"
+  output_path: "./output"
+  n_jobs: 1
+  image_open_args: "BMP"
+
+steps:
+  - colour:
+      name: "colour_correction"
+      mode: "contrast"
+  - colour:
+      name: "colour_correction"
+      mode: "contrast"
+      params:
+        method: "gamma"
+        kernel_size: 5
+        clip_limit: 0.01
+  - colour:
+      name: "colour_correction"
+      mode: "contrast"
+      params:
+        method: "gamma"
+        kernel_size: {"ndim1": 5, "ndim2": 10}
+        clip_limit: 0.01
+        gamma_value: -10

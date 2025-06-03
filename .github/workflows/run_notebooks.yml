@@ -1,11 +1,14 @@
 name: Run Jupyter Notebooks
 
 on:
-  push:
   pull_request:
+    branches:
+      - main
+      - dev
 
 jobs:
   run-notebooks:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
 
     steps:
