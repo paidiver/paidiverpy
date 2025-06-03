@@ -6,8 +6,9 @@
 
 **Implemented enhancements:**
 
+- Add the possibility to work with several images at the same time on the image processing \(instead of one image per time\) [\#200](https://github.com/paidiver/paidiverpy/issues/200)
 - Function to open and export metadata to different formats [\#187](https://github.com/paidiver/paidiverpy/issues/187)
-- Enhance EXIF Handling in Processed Images [\#186](https://github.com/paidiver/paidiverpy/issues/186)
+- Generate interactive notebook from config [\#184](https://github.com/paidiver/paidiverpy/issues/184)
 - Create a configuration file json schema automatically [\#164](https://github.com/paidiver/paidiverpy/issues/164)
 - Create an Output Class to Standardize Jupyter Notebook Outputs [\#29](https://github.com/paidiver/paidiverpy/issues/29)
 - Illumination correction [\#19](https://github.com/paidiver/paidiverpy/issues/19)
