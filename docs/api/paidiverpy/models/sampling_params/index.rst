@@ -1,7 +1,7 @@
-paidiverpy.config.sampling_params
+paidiverpy.models.sampling_params
 =================================
 
-.. py:module:: paidiverpy.config.sampling_params
+.. py:module:: paidiverpy.models.sampling_params
 
 .. autoapi-nested-parse::
 
@@ -19,15 +19,15 @@ Classes
 
 .. autoapisummary::
 
-   paidiverpy.config.sampling_params.SamplingDatetimeParams
-   paidiverpy.config.sampling_params.SamplingDepthParams
-   paidiverpy.config.sampling_params.SamplingAltitudeParams
-   paidiverpy.config.sampling_params.SamplingPitchRollParams
-   paidiverpy.config.sampling_params.SamplingOverlappingParams
-   paidiverpy.config.sampling_params.SamplingFixedParams
-   paidiverpy.config.sampling_params.SamplingPercentParams
-   paidiverpy.config.sampling_params.SamplingRegionParams
-   paidiverpy.config.sampling_params.SamplingObscureParams
+   paidiverpy.models.sampling_params.SamplingDatetimeParams
+   paidiverpy.models.sampling_params.SamplingDepthParams
+   paidiverpy.models.sampling_params.SamplingAltitudeParams
+   paidiverpy.models.sampling_params.SamplingPitchRollParams
+   paidiverpy.models.sampling_params.SamplingOverlappingParams
+   paidiverpy.models.sampling_params.SamplingFixedParams
+   paidiverpy.models.sampling_params.SamplingPercentParams
+   paidiverpy.models.sampling_params.SamplingRegionParams
+   paidiverpy.models.sampling_params.SamplingObscureParams
 
 
 Module Contents

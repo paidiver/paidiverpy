@@ -108,7 +108,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: get_client(config_client: dict | paidiverpy.config.client_params.ClientParams | None, n_jobs: int) -> dask.distributed.Client
+.. py:function:: get_client(config_client: dict | paidiverpy.models.client_params.ClientParams | None, n_jobs: int) -> dask.distributed.Client
 
    
    Parse the client configuration.

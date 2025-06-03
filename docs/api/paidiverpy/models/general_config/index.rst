@@ -1,7 +1,7 @@
-paidiverpy.config.general_config
+paidiverpy.models.general_config
 ================================
 
-.. py:module:: paidiverpy.config.general_config
+.. py:module:: paidiverpy.models.general_config
 
 .. autoapi-nested-parse::
 
@@ -16,7 +16,7 @@ Classes
 
 .. autoapisummary::
 
-   paidiverpy.config.general_config.GeneralConfig
+   paidiverpy.models.general_config.GeneralConfig
 
 
 Module Contents

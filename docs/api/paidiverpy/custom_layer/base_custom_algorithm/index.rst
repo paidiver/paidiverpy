@@ -22,7 +22,7 @@ Classes
 Module Contents
 ---------------
 
-.. py:class:: BaseCustomAlgorithm(image_data: numpy.ndarray | dask.array.core.Array, metadata: dict, params: paidiverpy.config.custom_params.CustomParams, metadata_core: pandas.DataFrame)
+.. py:class:: BaseCustomAlgorithm(image_data: numpy.ndarray | dask.array.core.Array, metadata: dict, params: paidiverpy.models.custom_params.CustomParams, metadata_core: pandas.DataFrame)
 
    
    Base class for custom algorithms.

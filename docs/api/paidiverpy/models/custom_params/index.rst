@@ -1,7 +1,7 @@
-paidiverpy.config.custom_params
+paidiverpy.models.custom_params
 ===============================
 
-.. py:module:: paidiverpy.config.custom_params
+.. py:module:: paidiverpy.models.custom_params
 
 .. autoapi-nested-parse::
 
@@ -18,7 +18,7 @@ Classes
 
 .. autoapisummary::
 
-   paidiverpy.config.custom_params.CustomParams
+   paidiverpy.models.custom_params.CustomParams
 
 
 Module Contents

@@ -94,11 +94,8 @@ On Ubuntu/Debian, you can install these packages using the following command:
 
   sudo apt install -y libgl1 libegl1 libopengl0
 
-If you want to use the GUI features of **Paidiverpy**, you will need to install the `panel`_ package. You can do this by running the following command:
+If you want to use the GUI features of **Paidiverpy**, you will need to install the `panel` package. You can do this by running the following command:
 
 .. code-block:: text
 
   pip install panel
-
-
-More information about the GUI features can be found in the :ref:`gui` section of the documentation.

@@ -37,6 +37,7 @@ Documentation
     images_metadata
     preprocessing_steps
     example_data
+    gui
     gallery
     scientific_background
 

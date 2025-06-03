@@ -1,7 +1,7 @@
-paidiverpy.config.convert_params
+paidiverpy.models.convert_params
 ================================
 
-.. py:module:: paidiverpy.config.convert_params
+.. py:module:: paidiverpy.models.convert_params
 
 .. autoapi-nested-parse::
 
@@ -16,11 +16,11 @@ Classes
 
 .. autoapisummary::
 
-   paidiverpy.config.convert_params.BitParams
-   paidiverpy.config.convert_params.ToParams
-   paidiverpy.config.convert_params.NormalizeParams
-   paidiverpy.config.convert_params.ResizeParams
-   paidiverpy.config.convert_params.CropParams
+   paidiverpy.models.convert_params.BitParams
+   paidiverpy.models.convert_params.ToParams
+   paidiverpy.models.convert_params.NormalizeParams
+   paidiverpy.models.convert_params.ResizeParams
+   paidiverpy.models.convert_params.CropParams
 
 
 Module Contents

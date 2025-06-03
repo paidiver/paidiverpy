@@ -1,7 +1,7 @@
-paidiverpy.config.step_config
+paidiverpy.models.step_config
 =============================
 
-.. py:module:: paidiverpy.config.step_config
+.. py:module:: paidiverpy.models.step_config
 
 .. autoapi-nested-parse::
 
@@ -16,12 +16,12 @@ Classes
 
 .. autoapisummary::
 
-   paidiverpy.config.step_config.StepConfig
-   paidiverpy.config.step_config.PositionConfig
-   paidiverpy.config.step_config.ColourConfig
-   paidiverpy.config.step_config.ConvertConfig
-   paidiverpy.config.step_config.SamplingConfig
-   paidiverpy.config.step_config.CustomConfig
+   paidiverpy.models.step_config.StepConfig
+   paidiverpy.models.step_config.PositionConfig
+   paidiverpy.models.step_config.ColourConfig
+   paidiverpy.models.step_config.ConvertConfig
+   paidiverpy.models.step_config.SamplingConfig
+   paidiverpy.models.step_config.CustomConfig
 
 
 Module Contents
@@ -239,7 +239,7 @@ Module Contents
 
 .. py:class:: CustomConfig(/, **data: Any)
 
-   Bases: :py:obj:`StepConfig`
+   Bases: :py:obj:`paidiverpy.utils.base_model.BaseModel`
 
 
    

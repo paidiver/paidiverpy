@@ -1,7 +1,7 @@
-paidiverpy.config.client_params
+paidiverpy.models.client_params
 ===============================
 
-.. py:module:: paidiverpy.config.client_params
+.. py:module:: paidiverpy.models.client_params
 
 .. autoapi-nested-parse::
 
@@ -16,7 +16,7 @@ Classes
 
 .. autoapisummary::
 
-   paidiverpy.config.client_params.ClientParams
+   paidiverpy.models.client_params.ClientParams
 
 
 Module Contents

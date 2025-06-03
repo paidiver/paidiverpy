@@ -11,14 +11,6 @@ paidiverpy.utils.schema_json_handler
        !! processed by numpydoc !!
 
 
-Classes
--------
-
-.. autoapisummary::
-
-   paidiverpy.utils.schema_json_handler.ConfigModel
-
-
 Functions
 ---------
 
@@ -30,32 +22,6 @@ Functions
 
 Module Contents
 ---------------
-
-.. py:class:: ConfigModel(/, **data: Any)
-
-   Bases: :py:obj:`paidiverpy.utils.base_model.BaseModel`
-
-
-   
-   Step configuration model.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   ..
-       !! processed by numpydoc !!
 
 .. py:function:: generate_schema(output_path: str) -> None
 

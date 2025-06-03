@@ -114,7 +114,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: calculate_corners(step_order: int | None = None, params: paidiverpy.config.position_params.CalculateCornersParams = None, test: bool = False) -> pandas.DataFrame
+   .. py:method:: calculate_corners(step_order: int | None = None, params: paidiverpy.models.position_params.CalculateCornersParams = None, test: bool = False) -> pandas.DataFrame
 
       
       Calculate the corners of the images.

@@ -1,7 +1,7 @@
-paidiverpy.config.colour_params
+paidiverpy.models.colour_params
 ===============================
 
-.. py:module:: paidiverpy.config.colour_params
+.. py:module:: paidiverpy.models.colour_params
 
 .. autoapi-nested-parse::
 
@@ -16,14 +16,14 @@ Classes
 
 .. autoapisummary::
 
-   paidiverpy.config.colour_params.GrayScaleParams
-   paidiverpy.config.colour_params.GaussianBlurParams
-   paidiverpy.config.colour_params.SharpenParams
-   paidiverpy.config.colour_params.ContrastAdjustmentParams
-   paidiverpy.config.colour_params.IlluminationCorrectionParams
-   paidiverpy.config.colour_params.DeblurParams
-   paidiverpy.config.colour_params.ColourAlterationParams
-   paidiverpy.config.colour_params.EdgeDetectionParams
+   paidiverpy.models.colour_params.GrayScaleParams
+   paidiverpy.models.colour_params.GaussianBlurParams
+   paidiverpy.models.colour_params.SharpenParams
+   paidiverpy.models.colour_params.ContrastAdjustmentParams
+   paidiverpy.models.colour_params.IlluminationCorrectionParams
+   paidiverpy.models.colour_params.DeblurParams
+   paidiverpy.models.colour_params.ColourAlterationParams
+   paidiverpy.models.colour_params.EdgeDetectionParams
 
 
 Module Contents

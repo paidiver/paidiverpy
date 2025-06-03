@@ -87,7 +87,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-   .. py:method:: convert_bits(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.config.convert_params.BitParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
+   .. py:method:: convert_bits(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.models.convert_params.BitParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
       :staticmethod:
 
 
@@ -125,7 +125,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: channel_convert(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.config.convert_params.ToParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
+   .. py:method:: channel_convert(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.models.convert_params.ToParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
       :staticmethod:
 
 
@@ -166,7 +166,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: normalize_image(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.config.convert_params.NormalizeParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
+   .. py:method:: normalize_image(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.models.convert_params.NormalizeParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
       :staticmethod:
 
 
@@ -207,7 +207,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: resize(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.config.convert_params.ResizeParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
+   .. py:method:: resize(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.models.convert_params.ResizeParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
       :staticmethod:
 
 
@@ -246,7 +246,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: crop_images(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.config.convert_params.CropParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
+   .. py:method:: crop_images(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.models.convert_params.CropParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
       :staticmethod:
 
 
