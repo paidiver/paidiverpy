@@ -1,6 +1,7 @@
 name: Paidiverpy
 channels:
   - conda-forge
+  - appfanu
 dependencies:
   - python>=3.10
   - numpy<2.0
@@ -24,7 +25,7 @@ dependencies:
   - python-dotenv>=1.0.1
   - boto3>=1.35.92
   - botocore>=1.35.92
-  - rawpy>=0.16.0
+  - appfanu::rawpy
   - opencv>=4.11
   - ipykernel>=6.29.5
   - pydantic>=2.9.2
