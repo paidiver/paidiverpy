@@ -64,6 +64,7 @@
                     "type": "string"
                 },
                 "params": {
+                    "additionalProperties": true,
                     "default": {
                         "n_workers": 0
                     },
@@ -156,6 +157,7 @@
                             "$ref": "#/$defs/ColourAlterationParams"
                         },
                         {
+                            "additionalProperties": true,
                             "type": "object"
                         },
                         {
@@ -210,6 +212,7 @@
                 "kernel_size": {
                     "anyOf": [
                         {
+                            "additionalProperties": true,
                             "type": "object"
                         },
                         {
@@ -298,6 +301,7 @@
                             "$ref": "#/$defs/CropParams"
                         },
                         {
+                            "additionalProperties": true,
                             "type": "object"
                         },
                         {
@@ -343,6 +347,7 @@
                 "size": {
                     "anyOf": [
                         {
+                            "additionalProperties": true,
                             "type": "object"
                         },
                         {
@@ -366,6 +371,7 @@
                     "type": "string"
                 },
                 "top_left": {
+                    "additionalProperties": true,
                     "default": {
                         "top": 0,
                         "left": 0
@@ -554,6 +560,7 @@
                 "threshold": {
                     "anyOf": [
                         {
+                            "additionalProperties": true,
                             "type": "object"
                         },
                         {
@@ -1175,6 +1182,7 @@
                             "$ref": "#/$defs/CalculateCornersParams"
                         },
                         {
+                            "additionalProperties": true,
                             "type": "object"
                         },
                         {
@@ -1188,9 +1196,6 @@
                 "mode": {
                     "const": "calculate_corners",
                     "description": "Mode for the position step",
-                    "enum": [
-                        "calculate_corners"
-                    ],
                     "title": "Mode",
                     "type": "string"
                 },
@@ -1217,6 +1222,7 @@
                 "size": {
                     "anyOf": [
                         {
+                            "additionalProperties": true,
                             "type": "object"
                         },
                         {
@@ -1239,6 +1245,7 @@
                             "type": "number"
                         },
                         {
+                            "additionalProperties": true,
                             "type": "object"
                         }
                     ],
@@ -1363,6 +1370,7 @@
                             "$ref": "#/$defs/SamplingObscureParams"
                         },
                         {
+                            "additionalProperties": true,
                             "type": "object"
                         },
                         {
@@ -1635,6 +1643,7 @@
                 "limits": {
                     "anyOf": [
                         {
+                            "additionalProperties": true,
                             "type": "object"
                         },
                         {
