@@ -95,6 +95,8 @@ class CustomLayer(Paidiverpy):
             file_path = "/app/custom_algorithms/" + file_name
         if self.step_metadata.get("file_path") == "example":
             file_path = files("paidiverpy").joinpath("custom_layer/_custom_algorithm_example.py")
+        elif self.step_metadata.get("file_path") == "example_dataset":
+            file_path = files("paidiverpy").joinpath("custom_layer/_custom_algorithm_example_dataset.py")
         class_name = self.step_metadata.get("class_name")
         check_and_install_dependencies(self.step_metadata.get("dependencies"), self.step_metadata.get("dependencies_path"))
         test = self.step_metadata.get("test")
@@ -102,11 +104,17 @@ class CustomLayer(Paidiverpy):
         params = CustomParams(**params) if isinstance(params, dict) else params
         method = self.load_custom_algorithm(file_path, class_name, algorithm_name)
         images = self.images.get_step(step=len(self.images.images) - 1)
-        image_list, metadata = (
-            self.process_sequentially(images, method, params, custom=True)
-            if self.n_jobs == 1
-            else self.process_parallel(images, method, params, custom=True)
-        )
+        processing_type = self.step_metadata.get("processing_type")
+        if processing_type == "dataset":
+            image_list, metadata = self.process_dataset(
+                images, method, params, custom=True
+            )
+        else:
+            image_list, metadata = (
+                self.process_sequentially(images, method, params, custom=True)
+                if self.n_jobs == 1
+                else self.process_parallel(images, method, params, custom=True)
+            )
         if not test:
             self.step_name = algorithm_name if not self.step_name else self.step_name
             self.set_metadata(metadata, flag=len(self.images.images))
@@ -117,8 +125,6 @@ class CustomLayer(Paidiverpy):
                 metadata=self.get_metadata(),
                 track_changes=self.track_changes,
             )
-        #     return None
-        # return None
 
     def load_custom_algorithm(self, file_path: str, class_name: str, algorithm_name: str) -> callable:
         """Load a custom algorithm class.

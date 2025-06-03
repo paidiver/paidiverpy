@@ -10,13 +10,20 @@ class BaseCustomAlgorithm:
     """Base class for custom algorithms.
 
     Args:
-        image_data (np.ndarray | dask.array.core.Array): The image data to process
-        metadata (dict): The metadata for the image data
+        image_data (np.ndarray | dask.array.core.Array | list[np.ndarray]): The image data to process (individual image or dataset)
+        metadata (dict): The metadata for the image data (individual image or dataset)
         params (CustomParams): The parameters for the custom algorithm
         metadata_object (pd.DataFrame, optional): The metadata object for the image data.
+    It is not required for datasets, but it is required for individual images.
     """
 
-    def __init__(self, image_data: np.ndarray | dask.array.core.Array, metadata: dict, params: CustomParams, metadata_core: pd.DataFrame):
+    def __init__(
+        self,
+        image_data: np.ndarray | dask.array.core.Array,
+        metadata: dict,
+        params: CustomParams,
+        metadata_core: pd.DataFrame | None = None,
+    ):
         self.image_data = image_data
         self.params = params
         self.metadata = metadata
