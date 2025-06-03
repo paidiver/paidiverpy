@@ -106,9 +106,7 @@ class CustomLayer(Paidiverpy):
         images = self.images.get_step(step=len(self.images.images) - 1)
         processing_type = self.step_metadata.get("processing_type")
         if processing_type == "dataset":
-            image_list, metadata = self.process_dataset(
-                images, method, params, custom=True
-            )
+            image_list, metadata = self.process_dataset(images, method, params, custom=True)
         else:
             image_list, metadata = (
                 self.process_sequentially(images, method, params, custom=True)
