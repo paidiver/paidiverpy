@@ -7,6 +7,8 @@
 **Implemented enhancements:**
 
 - Function to open and export metadata to different formats [\#187](https://github.com/paidiver/paidiverpy/issues/187)
+- Enhance EXIF Handling in Processed Images [\#186](https://github.com/paidiver/paidiverpy/issues/186)
+- Create a configuration file json schema automatically [\#164](https://github.com/paidiver/paidiverpy/issues/164)
 - Create an Output Class to Standardize Jupyter Notebook Outputs [\#29](https://github.com/paidiver/paidiverpy/issues/29)
 - Illumination correction [\#19](https://github.com/paidiver/paidiverpy/issues/19)
 - Addressing blur [\#17](https://github.com/paidiver/paidiverpy/issues/17)
@@ -17,6 +19,7 @@
 
 - Clean the configuration parser and correct bug with the default params for each step [\#196](https://github.com/paidiver/paidiverpy/issues/196)
 - Correct resize function [\#182](https://github.com/paidiver/paidiverpy/issues/182)
+- Adjust edge dectection method [\#50](https://github.com/paidiver/paidiverpy/issues/50)
 
 **Closed issues:**
 
@@ -38,6 +41,7 @@
 
 **Merged pull requests:**
 
+- 186 enhance exif handling in processed images [\#210](https://github.com/paidiver/paidiverpy/pull/210) ([soutobias](https://github.com/soutobias))
 - 187 function to open and export metadata to different formats [\#208](https://github.com/paidiver/paidiverpy/pull/208) ([soutobias](https://github.com/soutobias))
 - 2 add support to load different types of images [\#206](https://github.com/paidiver/paidiverpy/pull/206) ([soutobias](https://github.com/soutobias))
 - update config validation [\#203](https://github.com/paidiver/paidiverpy/pull/203) ([soutobias](https://github.com/soutobias))
