@@ -4,8 +4,8 @@ import argparse
 import copy
 import json
 from pathlib import Path
-from paidiverpy.config.config_model import ConfigModel
 from paidiverpy.config.configuration import config_name_mapping
+from paidiverpy.models.config_model import ConfigModel
 from paidiverpy.utils.logging_functions import initialise_logging
 
 logger = initialise_logging()

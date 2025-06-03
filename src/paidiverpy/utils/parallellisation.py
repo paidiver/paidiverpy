@@ -7,7 +7,7 @@ import dask.config
 from dask.distributed import Client
 from dask.distributed import LocalCluster
 from dask_jobqueue import SLURMCluster
-from paidiverpy.config.client_params import ClientParams
+from paidiverpy.models.client_params import ClientParams
 
 
 def get_n_jobs(n_jobs: int) -> int:

@@ -31,9 +31,9 @@ class NormalizeParams(BaseModel):
 class ResizeParams(BaseModel):
     """This class contains the parameters for the image resizing."""
 
-    size: tuple[int, int] | None = Field(None, description="Target size (width, height)")
+    size: dict | None = Field(None, description="Target size {'width': value, 'height': value}")
     preserve_aspect: bool = Field(True, description="Preserve aspect ratio")
-    scale: float | list[float] = Field(1.0, description="Scale factor")
+    scale: float | dict = Field(1, description="Scale factor. Format {'width': value, 'height': value} or float for uniform scaling")
     interpolation: str = Field("linear", description="Interpolation method")
     raise_error: bool = Field(False, description="Raise error on failure")
 
@@ -41,10 +41,10 @@ class ResizeParams(BaseModel):
 class CropParams(BaseModel):
     """This class contains the parameters for the image cropping."""
 
-    size: tuple[int, int] | float | int = Field(1, description="Crop size or scaling factor")
+    size: dict | float = Field(1, description="Crop size. Format {'width': value, 'height': value} or float for percentage")
     size_type: str = Field("percent", description="Size type: percent or pixels")
     mode: str = Field("center", description="Crop mode")
-    top_left: tuple[int, int] = Field((0, 0), description="Top-left corner for cropping")
+    top_left: dict = Field({"top": 0, "left": 0}, description="Top-left corner for cropping. Format {'top': value, 'left': value}")
     raise_error: bool = Field(False, description="Raise error on failure")
 
 

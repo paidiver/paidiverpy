@@ -1,8 +1,8 @@
 """Configuration model for Paidiverpy."""
 
 from pydantic import Field
-from paidiverpy.config.general_config import GeneralConfig
-from paidiverpy.config.step_config import StepConfigUnion
+from paidiverpy.models.general_config import GeneralConfig
+from paidiverpy.models.step_config import StepConfigUnion
 from paidiverpy.utils.base_model import BaseModel
 
 

@@ -200,17 +200,7 @@
                 "kernel_size": {
                     "anyOf": [
                         {
-                            "maxItems": 2,
-                            "minItems": 2,
-                            "prefixItems": [
-                                {
-                                    "type": "integer"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ],
-                            "type": "array"
+                            "type": "object"
                         },
                         {
                             "type": "integer"
@@ -220,7 +210,7 @@
                         }
                     ],
                     "default": null,
-                    "description": "Kernel size for CLAHE",
+                    "description": "Kernel size for CLAHE. It can be a dict with the format {'dim1': value, 'dim2': value} until the ndim, or an integer for square kernel size.",
                     "title": "Kernel Size"
                 },
                 "clip_limit": {
@@ -333,27 +323,13 @@
                 "size": {
                     "anyOf": [
                         {
-                            "maxItems": 2,
-                            "minItems": 2,
-                            "prefixItems": [
-                                {
-                                    "type": "integer"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ],
-                            "type": "array"
+                            "type": "object"
                         },
                         {
                             "type": "number"
-                        },
-                        {
-                            "type": "integer"
                         }
                     ],
-                    "default": 1,
-                    "description": "Crop size or scaling factor",
+                    "description": "Crop size. Format {'width': value, 'height': value} or float for percentage)",
                     "title": "Size"
                 },
                 "size_type": {
@@ -369,23 +345,13 @@
                     "type": "string"
                 },
                 "top_left": {
-                    "default": [
-                        0,
-                        0
-                    ],
-                    "description": "Top-left corner for cropping",
-                    "maxItems": 2,
-                    "minItems": 2,
-                    "prefixItems": [
-                        {
-                            "type": "integer"
-                        },
-                        {
-                            "type": "integer"
-                        }
-                    ],
+                    "default": {
+                        "top": 0,
+                        "left": 0
+                    },
+                    "description": "Top-left corner for cropping. Format {'top': value, 'left': value}",
                     "title": "Top Left",
-                    "type": "array"
+                    "type": "object"
                 },
                 "raise_error": {
                     "default": false,
@@ -394,6 +360,9 @@
                     "type": "boolean"
                 }
             },
+            "required": [
+                "size"
+            ],
             "title": "CropParams",
             "type": "object"
         },
@@ -455,17 +424,14 @@
                 "dependencies": {
                     "anyOf": [
                         {
-                            "items": {
-                                "type": "string"
-                            },
-                            "type": "array"
+                            "type": "string"
                         },
                         {
                             "type": "null"
                         }
                     ],
                     "default": null,
-                    "description": "Dependencies for the custom step",
+                    "description": "Dependencies for the custom step. It should be a string with each dependency separated by commas.",
                     "title": "Dependencies"
                 },
                 "dependencies_path": {
@@ -487,15 +453,11 @@
                             "$ref": "#/$defs/CustomParams"
                         },
                         {
-                            "type": "object"
-                        },
-                        {
                             "type": "null"
                         }
                     ],
                     "default": null,
-                    "description": "Custom parameters",
-                    "title": "Params"
+                    "description": "Custom parameters"
                 }
             },
             "required": [
@@ -574,17 +536,14 @@
                 "threshold": {
                     "anyOf": [
                         {
-                            "items": {
-                                "type": "number"
-                            },
-                            "type": "array"
+                            "type": "object"
                         },
                         {
                             "type": "null"
                         }
                     ],
                     "default": null,
-                    "description": "Threshold for edge detection",
+                    "description": "Threshold for edge detection. It should have the format {'low': value, 'high': value}. High value is optional.",
                     "title": "Threshold"
                 },
                 "object_type": {
@@ -961,7 +920,7 @@
                 "params": {
                     "anyOf": [
                         {
-                            "type": "object"
+                            "$ref": "#/$defs/ImageOpenArgsRawPyParams"
                         },
                         {
                             "$ref": "#/$defs/ImageOpenArgsRawParams"
@@ -1119,6 +1078,13 @@
             "title": "ImageOpenArgsRawParams",
             "type": "object"
         },
+        "ImageOpenArgsRawPyParams": {
+            "additionalProperties": true,
+            "description": "Parameters for RawPy postprocessing (rawpy.RawPy.postprocess).",
+            "properties": {},
+            "title": "ImageOpenArgsRawPyParams",
+            "type": "object"
+        },
         "NormalizeParams": {
             "description": "This class contains the parameters for the image normalization.",
             "properties": {
@@ -1223,24 +1189,14 @@
                 "size": {
                     "anyOf": [
                         {
-                            "maxItems": 2,
-                            "minItems": 2,
-                            "prefixItems": [
-                                {
-                                    "type": "integer"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ],
-                            "type": "array"
+                            "type": "object"
                         },
                         {
                             "type": "null"
                         }
                     ],
                     "default": null,
-                    "description": "Target size (width, height)",
+                    "description": "Target size {'width': value, 'height': value}",
                     "title": "Size"
                 },
                 "preserve_aspect": {
@@ -1255,14 +1211,11 @@
                             "type": "number"
                         },
                         {
-                            "items": {
-                                "type": "number"
-                            },
-                            "type": "array"
+                            "type": "object"
                         }
                     ],
-                    "default": 1.0,
-                    "description": "Scale factor",
+                    "default": 1,
+                    "description": "Scale factor. Format {'width': value, 'height': value} or float for uniform scaling",
                     "title": "Scale"
                 },
                 "interpolation": {
@@ -1644,23 +1597,14 @@
                 "limits": {
                     "anyOf": [
                         {
-                            "items": {
-                                "type": "string"
-                            },
-                            "type": "array"
-                        },
-                        {
-                            "items": {
-                                "type": "number"
-                            },
-                            "type": "array"
+                            "type": "object"
                         },
                         {
                             "type": "null"
                         }
                     ],
                     "default": null,
-                    "description": "List of region limits",
+                    "description": "Dict of region limits. Format {'min_lon': value, 'max_lon': value, 'min_lat': value, 'max_lat': value}",
                     "title": "Limits"
                 },
                 "raise_error": {
@@ -1738,18 +1682,6 @@
                             {
                                 "type": "object",
                                 "properties": {
-                                    "position": {
-                                        "$ref": "#/$defs/PositionConfig"
-                                    }
-                                },
-                                "required": [
-                                    "position"
-                                ],
-                                "additionalProperties": false
-                            },
-                            {
-                                "type": "object",
-                                "properties": {
                                     "colour": {
                                         "$ref": "#/$defs/ColourConfig"
                                     }
@@ -1774,24 +1706,36 @@
                             {
                                 "type": "object",
                                 "properties": {
-                                    "sampling": {
-                                        "$ref": "#/$defs/SamplingConfig"
-                                    }
-                                },
-                                "required": [
-                                    "sampling"
-                                ],
-                                "additionalProperties": false
-                            },
-                            {
-                                "type": "object",
-                                "properties": {
                                     "custom": {
                                         "$ref": "#/$defs/CustomConfig"
                                     }
                                 },
                                 "required": [
                                     "custom"
+                                ],
+                                "additionalProperties": false
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "position": {
+                                        "$ref": "#/$defs/PositionConfig"
+                                    }
+                                },
+                                "required": [
+                                    "position"
+                                ],
+                                "additionalProperties": false
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "sampling": {
+                                        "$ref": "#/$defs/SamplingConfig"
+                                    }
+                                },
+                                "required": [
+                                    "sampling"
                                 ],
                                 "additionalProperties": false
                             }

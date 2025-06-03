@@ -17,7 +17,6 @@ steps:
       file_path: "example"
       # file_path: "/mnt/noc/code/paidiver/paidiverpy/examples/custom_algorithms/custom_algorithm_example.py"
       class_name: "MyMethod"
-      dependencies:
-        - "scikit-learn"
+      dependencies: "scikit-learn"
       params:
         feature_range: (0, 1)

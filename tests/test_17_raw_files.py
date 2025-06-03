@@ -3,7 +3,7 @@
 import unittest
 import numpy as np
 from paidiverpy.config.configuration import Configuration
-from paidiverpy.config.configuration import GeneralConfig
+from paidiverpy.models.general_config import GeneralConfig
 from paidiverpy.pipeline import Pipeline
 from tests.base_test_class import NEF_RAW_LINK
 from tests.base_test_class import RAW_IMAGES_LINK

@@ -70,7 +70,7 @@ class TestPipelineCustomAlgorithm(BaseTestClass):
         output_file_path = "tests/config_files/config_custom_algorithm2_with_error_dependency.yml"
         with Path(file_path).open() as file:
             data = yaml.safe_load(file)
-        data["steps"][1]["custom"]["dependencies"] = ["no-existent package ;asd1"]
+        data["steps"][1]["custom"]["dependencies"] = "no-existent package ;asd1"
         with Path(output_file_path).open("w") as file:
             yaml.dump(data, file, sort_keys=False)
         with pytest.raises(ValueError) as cm:

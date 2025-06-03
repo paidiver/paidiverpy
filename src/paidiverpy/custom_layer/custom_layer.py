@@ -10,9 +10,9 @@ from importlib.resources import files
 from paidiverpy import Paidiverpy
 from paidiverpy.config.config_params import ConfigParams
 from paidiverpy.config.configuration import Configuration
-from paidiverpy.config.custom_params import CustomParams
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
+from paidiverpy.models.custom_params import CustomParams
 from paidiverpy.utils.docker import is_running_in_docker
 from paidiverpy.utils.install_packages import check_and_install_dependencies
 

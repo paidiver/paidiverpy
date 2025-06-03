@@ -10,9 +10,9 @@ import numpy as np
 import rawpy
 from PIL import Image
 from PIL.ExifTags import TAGS
-from paidiverpy.config.open_params import SUPPORTED_EXIF_IMAGE_TYPES
-from paidiverpy.config.open_params import SUPPORTED_OPENCV_IMAGE_TYPES
-from paidiverpy.config.open_params import SUPPORTED_RAWPY_IMAGE_TYPES
+from paidiverpy.models.open_params import SUPPORTED_EXIF_IMAGE_TYPES
+from paidiverpy.models.open_params import SUPPORTED_OPENCV_IMAGE_TYPES
+from paidiverpy.models.open_params import SUPPORTED_RAWPY_IMAGE_TYPES
 from paidiverpy.utils.data import EIGHT_BITS
 from paidiverpy.utils.data import NUM_CHANNELS_RGB
 from paidiverpy.utils.data import NUM_CHANNELS_RGBA

@@ -24,7 +24,7 @@ steps:
         object_type: "isolated"
         object_selection: "largest_area"
         blur_radius: 3
-        threshold: [2.5, 3.0]
+        threshold: {"low": 2.5, "high": 3.0}
         deconv: True
         deconv_method: "LR"
         deconv_iter: 7

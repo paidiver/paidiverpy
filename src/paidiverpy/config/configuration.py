@@ -7,13 +7,13 @@ from pathlib import Path
 import yaml
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
-from paidiverpy.config.general_config import GeneralConfig
-from paidiverpy.config.step_config import ColourConfig
-from paidiverpy.config.step_config import ConvertConfig
-from paidiverpy.config.step_config import CustomConfig
-from paidiverpy.config.step_config import PositionConfig
-from paidiverpy.config.step_config import SamplingConfig
-from paidiverpy.config.step_config import StepConfig
+from paidiverpy.models.general_config import GeneralConfig
+from paidiverpy.models.step_config import ColourConfig
+from paidiverpy.models.step_config import ConvertConfig
+from paidiverpy.models.step_config import CustomConfig
+from paidiverpy.models.step_config import PositionConfig
+from paidiverpy.models.step_config import SamplingConfig
+from paidiverpy.models.step_config import StepConfig
 from paidiverpy.utils import formating_html
 from paidiverpy.utils.base_model import BaseModel
 from paidiverpy.utils.docker import is_running_in_docker

@@ -4,23 +4,25 @@ import types
 from typing import Literal
 from typing import get_args
 import panel as pn
-from paidiverpy.config.client_params import ClientParams  # noqa: F401
-from paidiverpy.config.colour_params import *  # noqa: F403
-from paidiverpy.config.colour_params import COLOUR_LAYER_METHODS
-from paidiverpy.config.convert_params import *  # noqa: F403
-from paidiverpy.config.convert_params import CONVERT_LAYER_METHODS
-from paidiverpy.config.custom_params import *  # noqa: F403
-from paidiverpy.config.general_config import GeneralConfig  # noqa: F401
-from paidiverpy.config.open_params import *  # noqa: F403
-from paidiverpy.config.position_params import *  # noqa: F403
-from paidiverpy.config.position_params import POSITION_LAYER_METHODS
-from paidiverpy.config.sampling_params import *  # noqa: F403
-from paidiverpy.config.sampling_params import SAMPLING_LAYER_METHODS
-from paidiverpy.config.step_config import ColourConfig  # noqa: F401
-from paidiverpy.config.step_config import ConvertConfig  # noqa: F401
-from paidiverpy.config.step_config import PositionConfig  # noqa: F401
-from paidiverpy.config.step_config import SamplingConfig  # noqa: F401
+from paidiverpy.frontend.parse import define_default_value
 from paidiverpy.frontend.parse import parse_default_params
+from paidiverpy.models.client_params import ClientParams  # noqa: F401
+from paidiverpy.models.colour_params import *  # noqa: F403
+from paidiverpy.models.colour_params import COLOUR_LAYER_METHODS
+from paidiverpy.models.convert_params import *  # noqa: F403
+from paidiverpy.models.convert_params import CONVERT_LAYER_METHODS
+from paidiverpy.models.custom_params import *  # noqa: F403
+from paidiverpy.models.general_config import GeneralConfig  # noqa: F401
+from paidiverpy.models.open_params import *  # noqa: F403
+from paidiverpy.models.position_params import *  # noqa: F403
+from paidiverpy.models.position_params import POSITION_LAYER_METHODS
+from paidiverpy.models.sampling_params import *  # noqa: F403
+from paidiverpy.models.sampling_params import SAMPLING_LAYER_METHODS
+from paidiverpy.models.step_config import ColourConfig  # noqa: F401
+from paidiverpy.models.step_config import ConvertConfig  # noqa: F401
+from paidiverpy.models.step_config import CustomConfig  # noqa: F401
+from paidiverpy.models.step_config import PositionConfig  # noqa: F401
+from paidiverpy.models.step_config import SamplingConfig  # noqa: F401
 from paidiverpy.utils.base_model import BaseModel
 
 OPTIONAL = 2
@@ -54,6 +56,12 @@ class WidgetRenderer:
         Returns:
             pn.Column: A Panel Column containing the title and the input widget.
         """
+        model_class = globals().get(field["type"])
+        if model_class and hasattr(model_class, "model_config") and model_class.model_config.get("extra") == "allow":
+            default = {}
+            for local_name, local_field in model_class.model_fields.items():
+                default[local_name] = define_default_value(local_field)
+            field = {"default": default, "description": model_class.__doc__, "type": "dict"}
         type_ = field["type"]
         description = field.get("description", "")
         default = field.get("default")

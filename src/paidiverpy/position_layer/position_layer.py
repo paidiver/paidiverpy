@@ -12,11 +12,11 @@ from shapely.geometry import Polygon
 from paidiverpy import Paidiverpy
 from paidiverpy.config.config_params import ConfigParams
 from paidiverpy.config.configuration import Configuration
-from paidiverpy.config.position_params import POSITION_LAYER_METHODS
-from paidiverpy.config.position_params import CalculateCornersParams
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.investigation_layer.investigation_layer import InvestigationLayer
 from paidiverpy.metadata_parser import MetadataParser
+from paidiverpy.models.position_params import POSITION_LAYER_METHODS
+from paidiverpy.models.position_params import CalculateCornersParams
 from paidiverpy.utils.exceptions import raise_value_error
 
 

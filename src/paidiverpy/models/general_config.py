@@ -5,10 +5,10 @@ from typing import ClassVar
 from typing import Literal
 from pydantic import Field
 from pydantic import model_validator
-from paidiverpy.config.client_params import ClientParams
-from paidiverpy.config.open_params import ImageOpenArgs
-from paidiverpy.config.step_config import ConvertConfig
-from paidiverpy.config.step_config import SamplingConfig
+from paidiverpy.models.client_params import ClientParams
+from paidiverpy.models.open_params import ImageOpenArgs
+from paidiverpy.models.step_config import ConvertConfig
+from paidiverpy.models.step_config import SamplingConfig
 from paidiverpy.utils.base_model import BaseModel
 from paidiverpy.utils.data import PaidiverpyData
 from paidiverpy.utils.logging_functions import initialise_logging

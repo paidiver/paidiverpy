@@ -13,19 +13,19 @@ from shapely.geometry import Polygon
 from paidiverpy import Paidiverpy
 from paidiverpy.config.config_params import ConfigParams
 from paidiverpy.config.configuration import Configuration
-from paidiverpy.config.sampling_params import SAMPLING_LAYER_METHODS
-from paidiverpy.config.sampling_params import SamplingAltitudeParams
-from paidiverpy.config.sampling_params import SamplingDatetimeParams
-from paidiverpy.config.sampling_params import SamplingDepthParams
-from paidiverpy.config.sampling_params import SamplingFixedParams
-from paidiverpy.config.sampling_params import SamplingObscureParams
-from paidiverpy.config.sampling_params import SamplingOverlappingParams
-from paidiverpy.config.sampling_params import SamplingPercentParams
-from paidiverpy.config.sampling_params import SamplingPitchRollParams
-from paidiverpy.config.sampling_params import SamplingRegionParams
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.investigation_layer.investigation_layer import InvestigationLayer
 from paidiverpy.metadata_parser import MetadataParser
+from paidiverpy.models.sampling_params import SAMPLING_LAYER_METHODS
+from paidiverpy.models.sampling_params import SamplingAltitudeParams
+from paidiverpy.models.sampling_params import SamplingDatetimeParams
+from paidiverpy.models.sampling_params import SamplingDepthParams
+from paidiverpy.models.sampling_params import SamplingFixedParams
+from paidiverpy.models.sampling_params import SamplingObscureParams
+from paidiverpy.models.sampling_params import SamplingOverlappingParams
+from paidiverpy.models.sampling_params import SamplingPercentParams
+from paidiverpy.models.sampling_params import SamplingPitchRollParams
+from paidiverpy.models.sampling_params import SamplingRegionParams
 from paidiverpy.position_layer.position_layer import PositionLayer
 from paidiverpy.utils.data import EIGHT_BITS_SIZE
 from paidiverpy.utils.data import NUM_CHANNELS_RGB
@@ -344,15 +344,14 @@ class SamplingLayer(Paidiverpy):
             if params.file:
                 polygons = gpd.read_file(params.file)
             else:
-                min_lon, max_lon, min_lat, max_lat = params.limits
                 polygons = gpd.GeoDataFrame(
                     geometry=[
                         Polygon(
                             [
-                                (min_lon, min_lat),
-                                (min_lon, max_lat),
-                                (max_lon, max_lat),
-                                (max_lon, min_lat),
+                                (params.limits["min_lon"], params.limits["min_lat"]),
+                                (params.limits["min_lon"], params.limits["max_lat"]),
+                                (params.limits["max_lon"], params.limits["max_lat"]),
+                                (params.limits["max_lon"], params.limits["min_lat"]),
                             ],
                         ),
                     ],
