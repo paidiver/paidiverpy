@@ -26,6 +26,9 @@ dependencies:
   - botocore>=1.35.92
   - opencv>=4.11
   - ipykernel>=6.29.5
-  - pip
+  - pydantic>=2.9.2
+  - pip>=22
   - setuptools>=64.0.0
   - wheel
+  - pip:
+      - rawpy>=0.24.0

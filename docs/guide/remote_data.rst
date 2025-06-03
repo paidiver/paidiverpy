@@ -6,7 +6,10 @@ Remote Data
 Overview
 --------
 
-**paidiverpy** supports remote data sources, including Amazon S3 buckets. This section explains how to configure and use remote data sources in your pipeline.
+**Paidiverpy** supports remote data sources for `input_path`, `output_path`, and `metadata_path` in the configuration file.
+This allows you to work with data stored in cloud storage services, such as Amazon S3, without needing to download it locally.
+The package can handle both public and private data sources, enabling seamless integration with various data storage solutions.
+This section explains how to configure and use remote data sources in your pipeline.
 
 Configuring Remote Data
 -----------------------
@@ -35,7 +38,7 @@ Example:
       output_path: 's3://bucket-name/output/data/path/'
       metadata_path: "https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/lazy_load_benthic/metadata_ifdo_hf.json"
       metadata_type: 'IFDO'
-      image_type: 'JPG'
+      image_open_args: 'JPG'
 
     steps:
       # Define pipeline steps
@@ -60,7 +63,7 @@ Example:
       output_path: 's3://bucket-name/output/data/path/'
       metadata_path: 's3://bucket-name/metadata/path/metadata.json'
       metadata_type: 'IFDO'
-      image_type: 'JPG'
+      image_open_args: 'JPG'
 
     steps:
       # Define pipeline steps

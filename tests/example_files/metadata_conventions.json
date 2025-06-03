@@ -1,0 +1,11 @@
+{
+  "image-filename": ["filename", "file_name", "FileName", "File Name"],
+  "ID": ["index", "id", "Index", "Id"],
+  "image-datetime": ["datetime", "date_time", "DateTime", "Datetime"],
+  "image-latitude": ["lat", "latitude_deg", "latitude", "Latitude", "Latitude_deg", "Lat"],
+  "image-longitude": ["lon", "longitude_deg", "longitude", "Longitude", "Longitude_deg", "Lon"],
+  "image-depth": ["depth", "depth_m", "depth_metres", "depth_metre", "depth_meters", "depth_meter"],
+  "image-altitude-meters": ["camera-position", "camera_position", "altitude_m", "altitude_metre", "altitude_meters", "altitude_meter"],
+  "image-camera-pitch-degrees": ["pitch", "Pitch", "Pitch_deg", "pitch_deg"],
+  "image-camera-roll-degrees": ["roll", "Roll", "Roll_deg", "roll_deg"]
+}

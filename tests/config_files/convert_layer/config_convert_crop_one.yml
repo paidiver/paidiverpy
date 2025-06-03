@@ -1,0 +1,44 @@
+general:
+  sample_data: "plankton_csv"
+  output_path: "./output"
+  image_open_args: "BMP"
+
+steps:
+  - convert:
+      mode: "crop"
+  - convert:
+      mode: "crop"
+      params:
+        size: 0.9
+        size_type: "percent"
+        mode: "center"
+  - convert:
+      mode: "crop"
+      params:
+        size: {"width": 100, "height": 100}
+        size_type: "fixed"
+        mode: "center"
+  - convert:
+      mode: "crop"
+      params:
+        size: {"width": 90, "height": 90}
+        size_type: "fixed"
+        mode: "random"
+  - convert:
+      mode: "crop"
+      params:
+        size: {"width": 90, "height": 90}
+        size_type: "fixed"
+        mode: "top_left"
+  - convert:
+      mode: "crop"
+      params:
+        size: {"width": 90, "height": 90}
+        size_type: "fixed"
+        mode: "top_left"
+        top_left: {"top": 10, "left": 10}
+  - convert:
+      mode: "crop"
+      params:
+        size: {"width": 100, "height": 100}
+        size_type: "fixed"

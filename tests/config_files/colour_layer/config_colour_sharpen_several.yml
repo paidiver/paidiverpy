@@ -1,0 +1,25 @@
+general:
+  sample_data: "benthic_csv"
+  output_path: "./output"
+  n_jobs: 1
+  image_open_args: "PNG"
+  sampling:
+    - mode: "fixed"
+      params:
+        value: 5
+steps:
+  - colour:
+      name: "colour_correction"
+      mode: "sharpen"
+  - colour:
+      name: "colour_correction"
+      mode: "sharpen"
+      params:
+        alpha: 10
+        beta: 0.5
+  - colour:
+      name: "colour_correction"
+      mode: "sharpen"
+      params:
+        alpha: -10
+        beta: 0.5

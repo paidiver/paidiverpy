@@ -37,6 +37,7 @@ Documentation
     images_metadata
     preprocessing_steps
     example_data
+    gui
     gallery
     scientific_background
 
@@ -46,8 +47,11 @@ Documentation
 
     guide/performance/index
     guide/custom_algorithms/index
-    guide/rename_images/index
     guide/remote_data
+    guide/image_formats/index
+    guide/rename_images/index
+    guide/export_validate_metadata/index
+    guide/test_mode/index
 
 .. toctree::
     :maxdepth: 2

@@ -1,0 +1,26 @@
+general:
+  sample_data: "plankton_csv"
+  output_path: "./output"
+  n_jobs: 8
+  image_open_args: "BMP"
+  sampling:
+    - mode: "fixed"
+      params:
+        value: 8
+
+steps:
+  - colour:
+      name: "colour_correction"
+      mode: "illumination_correction"
+  - colour:
+      name: "colour_correction"
+      mode: "illumination_correction"
+      params:
+        method: "rolling"
+        radius: 10
+  - colour:
+      name: "colour_correction"
+      mode: "illumination_correction"
+      params:
+        method: "other_method"
+        radius: 10

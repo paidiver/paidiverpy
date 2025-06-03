@@ -34,6 +34,7 @@ Submodules
    :maxdepth: 1
 
    /api/paidiverpy/pipeline/pipeline/index
+   /api/paidiverpy/pipeline/pipeline_params/index
 
 
 Classes
@@ -47,7 +48,7 @@ Classes
 Package Contents
 ----------------
 
-.. py:class:: Pipeline(config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.config.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, steps: list[tuple] | None = None, track_changes: bool | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
+.. py:class:: Pipeline(config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.configuration.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, steps: list[tuple] | None = None, track_changes: bool | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
 
    Bases: :py:obj:`paidiverpy.Paidiverpy`
 
@@ -131,13 +132,19 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: export_config(output_path: str) -> None
+   .. py:method:: export_config(output_path: str | None = None) -> None | str
 
       
       Export the configuration to a yaml file.
 
-      :param output_path: The path to the output file.
-      :type output_path: str
+      :param output_path: The path to save the configuration file.
+      :type output_path: str, optional
+
+      :returns:
+
+                The config file as string if output_path is None,
+                    otherwise None.
+      :rtype: None | str
 
 
 
@@ -174,32 +181,6 @@ Package Contents
       :param substitute: Whether to substitute the step in the
                          specified index. Defaults to False.
       :type substitute: bool, optional
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      ..
-          !! processed by numpydoc !!
-
-
-   .. py:method:: to_html() -> str
-
-      
-      Generate HTML representation of the pipeline.
-
-      :returns: The HTML representation of the pipeline.
-      :rtype: str
 
 
 

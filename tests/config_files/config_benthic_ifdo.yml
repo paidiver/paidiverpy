@@ -1,15 +1,11 @@
 general:
   sample_data: "benthic_ifdo"
   output_path: "./output"
-  n_jobs: 8
+  n_jobs: 3
   sampling:
     - mode: "fixed"
       params:
-        value: 5
-  convert:
-    - mode: "bits"
-      params:
-        output_bits: 8
+        value: 3
 steps:
   - colour:
       name: "colour_correction"
@@ -21,19 +17,6 @@ steps:
       params:
         min: "2016-05-11 04:14:00"
         max: "2016-05-11 09:27:00"
-
-  - colour:
-      name: "colour_correction"
-      mode: "gaussian_blur"
-      params:
-        sigma: 1.0
-
-  - colour:
-      name: "sharpen"
-      mode: "sharpen"
-      params:
-        alpha: 1.5
-        beta: -0.5
 
   - colour:
       name: "contrast"

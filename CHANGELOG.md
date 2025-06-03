@@ -4,13 +4,51 @@
 
 [Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.1.3...HEAD)
 
+**Implemented enhancements:**
+
+- Add the possibility to work with several images at the same time on the image processing \(instead of one image per time\) [\#200](https://github.com/paidiver/paidiverpy/issues/200)
+- Function to open and export metadata to different formats [\#187](https://github.com/paidiver/paidiverpy/issues/187)
+- Generate interactive notebook from config [\#184](https://github.com/paidiver/paidiverpy/issues/184)
+- Create a configuration file json schema automatically [\#164](https://github.com/paidiver/paidiverpy/issues/164)
+- Create an Output Class to Standardize Jupyter Notebook Outputs [\#29](https://github.com/paidiver/paidiverpy/issues/29)
+- Illumination correction [\#19](https://github.com/paidiver/paidiverpy/issues/19)
+- Addressing blur [\#17](https://github.com/paidiver/paidiverpy/issues/17)
+- Contrast alteration  [\#14](https://github.com/paidiver/paidiverpy/issues/14)
+- Feature to visualize images in low resolution [\#4](https://github.com/paidiver/paidiverpy/issues/4)
+
+**Fixed bugs:**
+
+- Clean the configuration parser and correct bug with the default params for each step [\#196](https://github.com/paidiver/paidiverpy/issues/196)
+- Correct resize function [\#182](https://github.com/paidiver/paidiverpy/issues/182)
+- Adjust edge dectection method [\#50](https://github.com/paidiver/paidiverpy/issues/50)
+
 **Closed issues:**
 
+- Reference funding details in readme [\#204](https://github.com/paidiver/paidiverpy/issues/204)
+- Raise error is not been added per step \(it is only added in the beginning of the pipeline\) [\#201](https://github.com/paidiver/paidiverpy/issues/201)
+- Validate new config added when you add a new step in the pipeline [\#199](https://github.com/paidiver/paidiverpy/issues/199)
+- Are resample by depth and by altitude the same thing? [\#198](https://github.com/paidiver/paidiverpy/issues/198)
+- Deploy code on bioconda [\#194](https://github.com/paidiver/paidiverpy/issues/194)
 - Rename pelagic to plankton [\#188](https://github.com/paidiver/paidiverpy/issues/188)
+- Enhance crop function [\#183](https://github.com/paidiver/paidiverpy/issues/183)
 - Create a conda distribution and add build for mac and windows [\#174](https://github.com/paidiver/paidiverpy/issues/174)
+- Fix and Re-enable SonarCloud Workflow in CI [\#162](https://github.com/paidiver/paidiverpy/issues/162)
+- Include metadata in each image preprocessing step [\#156](https://github.com/paidiver/paidiverpy/issues/156)
+- Increase test coverage [\#84](https://github.com/paidiver/paidiverpy/issues/84)
+- Add data investigation feature [\#26](https://github.com/paidiver/paidiverpy/issues/26)
+- Create a simple frontend using streamlit for pipeline management [\#25](https://github.com/paidiver/paidiverpy/issues/25)
+- Colour alteration  [\#13](https://github.com/paidiver/paidiverpy/issues/13)
+- Add support to load different types of images [\#2](https://github.com/paidiver/paidiverpy/issues/2)
 
 **Merged pull requests:**
 
+- 186 enhance exif handling in processed images [\#210](https://github.com/paidiver/paidiverpy/pull/210) ([soutobias](https://github.com/soutobias))
+- 187 function to open and export metadata to different formats [\#208](https://github.com/paidiver/paidiverpy/pull/208) ([soutobias](https://github.com/soutobias))
+- 2 add support to load different types of images [\#206](https://github.com/paidiver/paidiverpy/pull/206) ([soutobias](https://github.com/soutobias))
+- update config validation [\#203](https://github.com/paidiver/paidiverpy/pull/203) ([soutobias](https://github.com/soutobias))
+- 84 increase test coverage [\#202](https://github.com/paidiver/paidiverpy/pull/202) ([soutobias](https://github.com/soutobias))
+- update tests [\#197](https://github.com/paidiver/paidiverpy/pull/197) ([soutobias](https://github.com/soutobias))
+- 194 deploy code on bioconda [\#195](https://github.com/paidiver/paidiverpy/pull/195) ([soutobias](https://github.com/soutobias))
 - 174 create a conda distribution [\#192](https://github.com/paidiver/paidiverpy/pull/192) ([soutobias](https://github.com/soutobias))
 
 ## [v0.1.3](https://github.com/paidiver/paidiverpy/tree/v0.1.3) (2025-03-06)

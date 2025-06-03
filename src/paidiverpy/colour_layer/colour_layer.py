@@ -4,7 +4,6 @@ This module contains the ColourLayer class for processing the images in the
 colour layer.
 """
 
-import contextlib
 import logging
 import cv2
 import numpy as np
@@ -24,24 +23,25 @@ from skimage.segmentation import checkerboard_level_set
 from skimage.segmentation import morphological_chan_vese
 from skimage.transform import resize
 from paidiverpy import Paidiverpy
-from paidiverpy.config.colour_params import COLOUR_LAYER_METHODS
-from paidiverpy.config.colour_params import ColourAlterationParams
-from paidiverpy.config.colour_params import ContrastAdjustmentParams
-from paidiverpy.config.colour_params import DeblurParams
-from paidiverpy.config.colour_params import EdgeDetectionParams
-from paidiverpy.config.colour_params import GaussianBlurParams
-from paidiverpy.config.colour_params import GrayScaleParams
-from paidiverpy.config.colour_params import IlluminationCorrectionParams
-from paidiverpy.config.colour_params import SharpenParams
-from paidiverpy.config.config import Configuration
 from paidiverpy.config.config_params import ConfigParams
-from paidiverpy.images_layer import NUM_CHANNELS_RGBA
+from paidiverpy.config.configuration import Configuration
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
+from paidiverpy.models.colour_params import COLOUR_LAYER_METHODS
+from paidiverpy.models.colour_params import ColourAlterationParams
+from paidiverpy.models.colour_params import ContrastAdjustmentParams
+from paidiverpy.models.colour_params import DeblurParams
+from paidiverpy.models.colour_params import EdgeDetectionParams
+from paidiverpy.models.colour_params import GaussianBlurParams
+from paidiverpy.models.colour_params import GrayScaleParams
+from paidiverpy.models.colour_params import IlluminationCorrectionParams
+from paidiverpy.models.colour_params import SharpenParams
 from paidiverpy.utils.data import DEFAULT_BITS
 from paidiverpy.utils.data import NUM_CHANNELS_GREY
 from paidiverpy.utils.data import NUM_CHANNELS_RGB
-from paidiverpy.utils.data import NUM_IMAGE_DIMS
+from paidiverpy.utils.data import NUM_CHANNELS_RGBA
+from paidiverpy.utils.data import NUM_DIMENSIONS
+from paidiverpy.utils.data import NUM_DIMENSIONS_GREY
 from paidiverpy.utils.exceptions import raise_value_error
 from paidiverpy.utils.logging_functions import check_raise_error
 
@@ -52,6 +52,7 @@ class ColourLayer(Paidiverpy):
     This class contains the methods for processing the images in the colour layer.
 
     Args:
+        parameters (dict): The parameters for the step.
         config_params (dict | ConfigParams, optional): The configuration parameters.
             It can contain the following keys / attributes:
             - input_path (str): The path to the input files.
@@ -66,7 +67,6 @@ class ColourLayer(Paidiverpy):
         images (ImagesLayer): The images object.
         paidiverpy (Paidiverpy): The paidiverpy object.
         step_name (str): The name of the step.
-        parameters (dict): The parameters for the step.
         config_index (int): The index of the configuration.
         logger (logging.Logger): The logger object.
         raise_error (bool): Whether to raise an error.
@@ -75,6 +75,7 @@ class ColourLayer(Paidiverpy):
 
     def __init__(
         self,
+        parameters: dict,
         config_params: dict | ConfigParams = None,
         config_file_path: str | None = None,
         config: Configuration = None,
@@ -82,7 +83,6 @@ class ColourLayer(Paidiverpy):
         images: ImagesLayer = None,
         paidiverpy: "Paidiverpy" = None,
         step_name: str | None = None,
-        parameters: dict | None = None,
         config_index: int | None = None,
         logger: logging.Logger | None = None,
         raise_error: bool = False,
@@ -101,10 +101,48 @@ class ColourLayer(Paidiverpy):
         )
 
         self.step_name = step_name
-        if parameters:
-            self.config_index = self.config.add_step(config_index, parameters)
+        self.config_index = self.config.add_step(config_index, parameters, step_class=ColourLayer)
         self.step_metadata = self._calculate_steps_metadata(self.config.steps[self.config_index])
+        self.raise_error = self._calculate_raise_error()
         self.layer_methods = COLOUR_LAYER_METHODS
+
+    @staticmethod
+    def grayscale(image_data: np.ndarray, metadata: dict | None = None, params: GrayScaleParams = None, **kwargs: dict) -> tuple[np.ndarray, dict]:
+        """Convert the image to grayscale.
+
+        Method to convert the image to grayscale.
+
+        Args:
+            image_data (np.ndarray): The input image.
+            metadata (dict, optional): Metadata for the image.
+            params (GrayScaleParams, optional): Parameters for the grayscale conversion.
+                Defaults to GrayScaleParams().
+            **kwargs (dict): Additional keyword arguments.
+
+        Raises:
+            ValueError: If the input image does not have 3 channels or 4 channels with alpha.
+
+        Returns:
+            tuple[np.ndarray, dict]: The updated image and the updated metadata.
+        """
+        image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, GrayScaleParams, **kwargs)
+
+        num_channels = metadata.get("num_channels", image_data.shape[-1])
+
+        try:
+            if num_channels not in (NUM_CHANNELS_RGB, NUM_CHANNELS_RGBA):
+                msg = "Input image must have 3 or 4 channels in the last dimension."
+                raise_value_error(msg)
+            image_data = ColourLayer._apply_grayscale_conversion(image_data, params)
+            image_data = np.expand_dims(image_data, axis=-1)
+            if params.invert_colours:
+                image_data = 255 - image_data
+        except Exception as e:  # noqa: BLE001
+            msg = f"Error converting image to grayscale: {e}"
+            check_raise_error(params.raise_error, msg)
+        metadata["num_channels"] = 1
+
+        return image_data, metadata
 
     @staticmethod
     def _apply_grayscale_conversion(image_data: np.ndarray, params: GrayScaleParams) -> np.ndarray:
@@ -120,101 +158,65 @@ class ColourLayer(Paidiverpy):
             np.ndarray: The grayscale image.
         """
         if params.method == "average":
-            return np.mean(image_data, axis=-1)
+            return np.mean(image_data, axis=-1).astype(image_data.dtype)
         if params.method == "luminosity":
             band1 = 0.2126 * image_data[..., 0]
             band2 = 0.7152 * image_data[..., 1]
             band3 = 0.0722 * image_data[..., 2]
-            return band1 + band2 + band3
+            return (band1 + band2 + band3).astype(image_data.dtype)
         if params.method == "desaturation":
-            return (np.max(image_data, axis=-1) + np.min(image_data, axis=-1)) / 2
-        return cv2.cvtColor(image_data, cv2.COLOR_BGR2GRAY)
+            return ((np.max(image_data, axis=-1) + np.min(image_data, axis=-1)) / 2).astype(image_data.dtype)
+        return cv2.cvtColor(image_data, cv2.COLOR_RGB2GRAY)
 
     @staticmethod
-    def grayscale(image_data: np.ndarray, params: GrayScaleParams = None) -> np.ndarray:
-        """Convert the image to grayscale.
-
-        Method to convert the image to grayscale.
-
-        Args:
-            image_data (np.ndarray): The input image.
-            params (GrayScaleParams, optional): Parameters for the grayscale conversion.
-
-        Raises:
-            ValueError: If the input image does not have 3 channels or 4 channels with alpha.
-
-        Returns:
-            np.ndarray: The grayscale image.
-        """
-        if params is None:
-            params = GrayScaleParams()
-        if len(image_data.shape) == NUM_IMAGE_DIMS or (image_data.shape[-1] != NUM_CHANNELS_RGB and image_data.shape[-1] != NUM_CHANNELS_RGBA):
-            msg = "Input image must have 3 or 4 channels in the last dimension."
-            check_raise_error(params.raise_error, msg)
-            return image_data
-        try:
-            if params.keep_alpha and image_data.shape[-1] == NUM_CHANNELS_RGBA:
-                alpha_channel = image_data[..., NUM_CHANNELS_RGBA - 1]
-                image_data = image_data[..., :NUM_CHANNELS_RGB]
-            image_data = ColourLayer._apply_grayscale_conversion(image_data, params)
-
-            if params.invert_colours:
-                image_data = 255 - image_data
-
-            if params.keep_alpha and "alpha_channel" in locals():
-                image_data = np.dstack([image_data, alpha_channel])
-
-        except Exception as e:  # noqa: BLE001
-            msg = f"Error converting image to grayscale: {e}"
-            check_raise_error(params.raise_error, msg)
-
-        return image_data
-
-    @staticmethod
-    def gaussian_blur(image_data: np.ndarray, params: GaussianBlurParams = None) -> np.ndarray:
+    def gaussian_blur(
+        image_data: np.ndarray, metadata: dict | None = None, params: GaussianBlurParams = None, **kwargs: dict
+    ) -> tuple[np.ndarray, dict]:
         """Gaussian blur.
 
         Method to apply Gaussian blur to the image.
 
         Args:
             image_data (np.ndarray): The image to apply Gaussian blur.
+            metadata (dict, optional): Metadata for the image.
             params (GaussianBlurParams, optional): the parameters for the method.
-        Defaults to GaussianBlurParams().
+                Defaults to GaussianBlurParams().
+            **kwargs (dict): Additional keyword arguments.
 
         Raises:
             ValueError: Error applying Gaussian blur.
 
         Returns:
-            np.ndarray: The image in grayscale.
+            tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
-        if params is None:
-            params = GaussianBlurParams()
+        image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, GaussianBlurParams, **kwargs)
         try:
-            with contextlib.suppress(Exception):
-                image_data = cv2.GaussianBlur(image_data, (0, 0), params.sigma)
+            image_data = cv2.GaussianBlur(image_data, (0, 0), params.sigma)
         except Exception as e:  # noqa: BLE001
             msg = f"Error applying Gaussian blur: {e}"
             check_raise_error(params.raise_error, msg)
-        return image_data
+        return image_data, metadata
 
     @staticmethod
-    def sharpen(image_data: np.ndarray, params: SharpenParams = None) -> np.ndarray:
+    def sharpen(image_data: np.ndarray, metadata: dict | None = None, params: SharpenParams = None, **kwargs: dict) -> tuple[np.ndarray, dict]:
         """Sharpening.
 
         Method to apply sharpening to the image.
 
         Args:
             image_data (np.ndarray): The image to apply sharpening.
+            metadata (dict, optional): Metadata for the image.
             params (SharpenParams, optional): Params for method. Defaults to SharpenParams().
+            **kwargs (dict): Additional keyword arguments.
 
         Raises:
             ValueError: Error applying sharpening.
 
         Returns:
-            np.ndarray: The image with sharpening applied.
+            tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
-        if params is None:
-            params = SharpenParams()
+        image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, SharpenParams, **kwargs)
+
         try:
             bits = image_data.dtype.itemsize * DEFAULT_BITS
             image_data = unsharp_mask(image_data, radius=params.alpha, amount=params.beta)
@@ -225,33 +227,42 @@ class ColourLayer(Paidiverpy):
         except Exception as e:  # noqa: BLE001
             msg = f"Error applying sharpening: {e}"
             check_raise_error(params.raise_error, msg)
-        return image_data
+        return image_data, metadata
 
     @staticmethod
     def contrast_adjustment(
         image_data: np.ndarray,
+        metadata: dict | None = None,
         params: ContrastAdjustmentParams = None,
-    ) -> np.ndarray:
+        **kwargs: dict,
+    ) -> tuple[np.ndarray, dict]:
         """Contrast adjustment.
 
         Method to apply contrast adjustment to the image.
 
         Args:
             image_data (np.ndarray): The image to apply contrast adjustment.
+            metadata (dict, optional): Metadata for the image.
             params (ContrastAdjustmentParams, optional): Params for method.
-        Defaults to ContrastAdjustmentParams().
+                Defaults to ContrastAdjustmentParams().
+            **kwargs (dict): Additional keyword arguments.
 
         Raises:
             ValueError: Error applying contrast adjustment.
 
         Returns:
-            np.ndarray: The image with contrast adjustment applied.
+            tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
-        if params is None:
-            params = ContrastAdjustmentParams()
+        image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, ContrastAdjustmentParams, **kwargs)
+
         try:
             method = params.method
-            kernel_size = tuple(params.kernel_size) if params.kernel_size else None
+            kernel_size = params.kernel_size
+            if params.kernel_size:
+                if isinstance(params.kernel_size, dict):
+                    kernel_size = list(params.kernel_size.values())
+                else:
+                    kernel_size = [params.kernel_size for _ in range(image_data.ndim)]
             clip_limit = params.clip_limit
             gamma_value = params.gamma_value
             bits = image_data.dtype.itemsize * DEFAULT_BITS
@@ -267,30 +278,34 @@ class ColourLayer(Paidiverpy):
             msg = f"Error applying contrast adjustment: {e}"
             check_raise_error(params.raise_error, msg)
 
-        return image_data
+        return image_data, metadata
 
     @staticmethod
     def illumination_correction(
         image_data: np.ndarray,
+        metadata: dict | None = None,
         params: IlluminationCorrectionParams = None,
-    ) -> np.ndarray:
+        **kwargs: dict,
+    ) -> tuple[np.ndarray, dict]:
         """Illumination correction.
 
         Method to apply illumination correction to the image.
 
         Args:
             image_data (np.ndarray): The image to apply illumination correction.
+            metadata (dict, optional): Metadata for the image.
             params (IlluminationCorrectionParams, optional): Params for method.
-        Defaults to IlluminationCorrectionParams().
+                Defaults to IlluminationCorrectionParams().
+            **kwargs (dict): Additional keyword arguments.
 
         Raises:
             ValueError: Error applying illumination correction.
 
         Returns:
-            np.ndarray: The image with illumination correction applied.
+            tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
-        if params is None:
-            params = IlluminationCorrectionParams()
+        image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, IlluminationCorrectionParams, **kwargs)
+
         try:
             method = params.method
             radius = params.radius
@@ -298,22 +313,26 @@ class ColourLayer(Paidiverpy):
             if method == "rolling":
                 background = rolling_ball(image_data, radius=radius)
                 image_data = image_data - background
-
+            else:
+                msg = "Unknown method type. Please use 'rolling'."
+                raise_value_error(msg)
         except Exception as e:  # noqa: BLE001
             msg = f"Error applying illumination correction: {e}"
             check_raise_error(params.raise_error, msg)
-        return image_data
+        return image_data, metadata
 
     @staticmethod
-    def deblur(image_data: np.ndarray, params: DeblurParams = None) -> np.ndarray:
+    def deblur(image_data: np.ndarray, metadata: dict | None = None, params: DeblurParams = None, **kwargs: dict) -> tuple[np.ndarray, dict]:
         """Deblurring.
 
         Method to apply deblurring to the image.
 
         Args:
             image_data (np.ndarray): The image to apply deblurring.
+            metadata (dict, optional): Metadata for the image.
             params (DeblurParams, optional): Params for method.
-        Defaults to DeblurParams().
+                Defaults to DeblurParams().
+            **kwargs (dict): Additional keyword arguments.
 
         Raises:
             ValueError: Unknown PSF type. Please use 'gaussian' or 'motion'.
@@ -322,71 +341,118 @@ class ColourLayer(Paidiverpy):
             ValueError: Error applying contrast adjustment.
 
         Returns:
-            np.ndarray: The image with deblurring applied.
+            tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
-        if params is None:
-            params = DeblurParams()
+        image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, DeblurParams, **kwargs)
+        num_channels = metadata.get("num_channels", image_data.shape[-1])
         try:
             method = params.method
             psf_type = params.psf_type
             sigma = params.sigma
             angle = params.angle
+            if len(image_data.shape) == NUM_DIMENSIONS and num_channels == NUM_CHANNELS_GREY:
+                image_data = np.squeeze(image_data)
             if method == "wiener":
                 if psf_type == "gaussian":
                     psf = ColourLayer.gaussian_psf(size=image_data.shape, sigma=sigma)
                 elif psf_type == "motion":
                     psf = ColourLayer.motion_psf(size=image_data.shape, length=sigma, angle_xy=angle)
-                else:
-                    msg = "Unknown PSF type. Please use 'gaussian' or 'motion'."
-                    raise_value_error(msg)
                 bits = image_data.dtype.itemsize * DEFAULT_BITS
-                if image_data.shape[-1] == 1:
-                    image_data = np.squeeze(image_data)
+                image_data = np.squeeze(image_data) if num_channels == 1 else image_data
                 image_data = wiener(image_data, psf, balance=0.1)
                 multiply_factor = 255 if bits == DEFAULT_BITS else 65535
                 image_data = np.clip(image_data * multiply_factor, 0, multiply_factor).astype(
                     np.uint8 if bits == DEFAULT_BITS else np.uint16,
                 )
-
             else:
                 msg = "Unknown method type. Please use 'wiener'."
-                check_raise_error(params.raise_error, msg)
-
+                raise_value_error(msg)
+            if len(image_data.shape) == NUM_DIMENSIONS_GREY:
+                image_data = np.expand_dims(image_data, axis=-1)
         except Exception as e:  # noqa: BLE001
             msg = f"Error applying deblurring: {e}"
             check_raise_error(params.raise_error, msg)
-        return image_data
+        return image_data, metadata
+
+    @staticmethod
+    def colour_alteration(
+        image_data: np.ndarray, metadata: dict | None = None, params: ColourAlterationParams = None, **kwargs: dict
+    ) -> tuple[np.ndarray, dict]:
+        """Apply colour alteration to the image.
+
+        Args:
+            image_data (np.ndarray): The image to alter colour channel.
+            metadata (dict, optional): Metadata for the image.
+            params (ColourAlterationParams, optional): Params for method. Defaults to None.
+            **kwargs (dict): Additional keyword arguments.
+
+        Raises:
+            ValueError: Unknown method type. Please use 'white_balance'.
+            ValueError: Image is gray-scale'.
+            e: Error applying colour alteration.
+
+        Returns:
+            tuple[np.ndarray, dict]: The updated image and the updated metadata.
+        """
+        image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, ColourAlterationParams, **kwargs)
+        num_channels = metadata.get("num_channels", image_data.shape[-1])
+        try:
+            method = params.method
+            if method == "white_balance":
+                if num_channels == NUM_CHANNELS_GREY:
+                    msg = "Image is gray-scale. Cannot apply white balance."
+                    raise_value_error(msg)
+                image_data = ColourLayer._white_balance(image_data, num_channels)
+            else:
+                msg = "Unknown method type. Please use 'white_balance'."
+                raise_value_error(msg)
+        except Exception as e:  # noqa: BLE001
+            msg = f"Error applying colour alteration: {e}"
+            check_raise_error(params.raise_error, msg)
+        return image_data, metadata
 
     @staticmethod
     def edge_detection(
         image_data: np.ndarray,
+        metadata: dict | None = None,
         params: EdgeDetectionParams = None,
-    ) -> np.ndarray:
+        **kwargs: dict,
+    ) -> tuple[np.ndarray, dict]:
         """Edge detection.
 
         Method to apply edge detection to the image.
 
         Args:
             image_data (np.ndarray): The image to apply edge detection.
+            metadata (dict, optional): Metadata for the image.
             params (EdgeDetectionParams, optional): Params for method.
-        Defaults to EdgeDetectionParams().
+                Defaults to EdgeDetectionParams().
+            **kwargs (dict): Additional keyword arguments.
 
         Raises:
             e: Error applying edge detection.
 
         Returns:
-            np.ndarray: The image with edge detection applied.
+            tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
-        if params is None:
-            params = EdgeDetectionParams()
+        image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, EdgeDetectionParams, **kwargs)
+        num_channels = metadata.get("num_channels", image_data.shape[-1])
         try:
             if params.method == "sobel":
-                return cv2.Sobel(image_data, cv2.CV_64F, 1, 1, ksize=5), None
+                if num_channels == NUM_CHANNELS_GREY:
+                    image_data = np.squeeze(image_data)
+                image_data = np.squeeze(image_data) if num_channels == 1 else image_data
+                image_data = cv2.Sobel(image_data, cv2.CV_64F, 1, 1, ksize=5)
+                return np.expand_dims(image_data, axis=-1), metadata
 
-            if len(image_data.shape) == NUM_CHANNELS_RGB and image_data.shape[-1] == NUM_CHANNELS_RGB:
+            if num_channels == NUM_CHANNELS_RGB:
                 gray_image_data = cv2.cvtColor(image_data, cv2.COLOR_BGR2GRAY)
+            elif num_channels == NUM_CHANNELS_RGBA:
+                gray_image_data = cv2.cvtColor(image_data[:, :, :3], cv2.COLOR_BGR2GRAY)
+                image_a = image_data[:, :, 3]
+                image_data = image_data[:, :, :3]
             else:
-                gray_image_data = image_data
+                gray_image_data = np.squeeze(image_data, axis=-1)
                 image_data = np.dstack((image_data, image_data, image_data))
             filled_edges = ColourLayer.detect_edges(gray_image_data, params.method, params.blur_radius, params.threshold)
             label_image_data = morphology.label(filled_edges, connectivity=2, background=0)
@@ -416,40 +482,13 @@ class ColourLayer(Paidiverpy):
                 params.deconv_mask_weight,
                 params.small_float_val,
             )
+            metadata["edge_detection"] = features
+            if num_channels == NUM_CHANNELS_RGBA:
+                image_data = np.dstack((image_data, image_a))
         except Exception as e:  # noqa: BLE001
             msg = f"Error applying edge detection: {e}"
             check_raise_error(params.raise_error, msg)
-        # results = self.step_metadata.get("results", [])
-        # results.append(features)
-        # self.step_metadata["results"] = results
-        return image_data
-
-    @staticmethod
-    def colour_alteration(image_data: np.ndarray, params: ColourAlterationParams = None) -> np.ndarray:
-        """Apply colour alteration to the image.
-
-        Args:
-            image_data (np.ndarray): The image to alter colour channel.
-            params (ColourAlterationParams, optional): Params for method. Defaults to None.
-
-        Raises:
-            ValueError: Unknown method type. Please use 'white_balance'.
-            ValueError: Image is gray-scale'.
-            e: Error applying colour alteration.
-
-        Returns:
-            np.ndarray: The image with colour alteration applied.
-        """
-        try:
-            method = params.method
-
-            if method == "white_balance":
-                image_data = ColourLayer.white_balance(image_data)
-
-        except Exception as e:  # noqa: BLE001
-            msg = f"Error applying colour alteration: {e}"
-            check_raise_error(params.raise_error, msg)
-        return image_data
+        return image_data, metadata
 
     @staticmethod
     def get_object_features(gray_image_data: np.ndarray, label_image_data: np.ndarray, params: EdgeDetectionParams) -> tuple[dict, np.ndarray]:
@@ -558,7 +597,7 @@ class ColourLayer(Paidiverpy):
         Returns:
             np.ndarray: The Gaussian PSF.
         """
-        if len(size) == NUM_CHANNELS_GREY:
+        if len(size) == NUM_DIMENSIONS_GREY:
             psf = np.zeros((size[0], size[1]))
             psf[size[0] // 2, size[1] // 2] = 1
         elif len(size) == NUM_CHANNELS_RGB:
@@ -583,7 +622,7 @@ class ColourLayer(Paidiverpy):
         Returns:
             np.ndarray: The motion PSF
         """
-        if len(size) == NUM_CHANNELS_GREY:
+        if len(size) == NUM_DIMENSIONS_GREY:
             psf = np.zeros((size[0], size[1]))
             center_x = size[0] // 2
             center_y = size[1] // 2
@@ -593,7 +632,7 @@ class ColourLayer(Paidiverpy):
                 y = int(center_y + i * np.sin(angle_rad))
                 if 0 <= x < size[0] and 0 <= y < size[1]:
                     psf[x, y] = 1
-        elif len(size) == NUM_CHANNELS_RGB:
+        else:
             psf = np.zeros((size[0], size[1], size[2]))
             center_x = size[0] // 2
             center_y = size[1] // 2
@@ -607,22 +646,18 @@ class ColourLayer(Paidiverpy):
                 z = int(center_z + i * np.sin(angle_z_rad))
                 if 0 <= x < size[0] and 0 <= y < size[1] and 0 <= z < size[2]:
                     psf[x, y, z] = 1
-
-        else:
-            msg = "Size must be either an int or a tuple of length 2 or 3"
-            raise ValueError(msg)
-
         psf /= psf.sum()
         return psf
 
     @staticmethod
-    def white_balance(img: np.ndarray) -> np.ndarray:
+    def _white_balance(img: np.ndarray, num_channels: int) -> np.ndarray:
         """White balance.
 
         Perform white balancing on the image.
 
         Args:
             img (np.ndarray): The image to white balance.
+            num_channels (int): The number of channels in the image.
 
         Returns:
             np.ndarray: The white balanced image.
@@ -641,24 +676,7 @@ class ColourLayer(Paidiverpy):
         g = cv2.convertScaleAbs(g * g_scale)
         b = cv2.convertScaleAbs(b * b_scale)
 
-        return cv2.merge([r, g, b, img[..., 3]]) if img.shape[-1] == NUM_CHANNELS_RGBA else cv2.merge([r, g, b])
-
-    @staticmethod
-    def normalize_img(img: np.ndarray) -> np.ndarray:
-        """Normalize the image.
-
-        Normalize the image to [0, 1].
-
-        Args:
-            img (np.ndarray): The image to normalize
-
-        Returns:
-            np.ndarray: The normalized image
-        """
-        min_val = np.min(img)
-        max_val = np.max(img)
-
-        return (img - min_val) / (max_val - min_val)
+        return cv2.merge([r, g, b, img[..., 3]]) if num_channels == NUM_CHANNELS_RGBA else cv2.merge([r, g, b])
 
     @staticmethod
     def deconvolution(
@@ -793,7 +811,7 @@ class ColourLayer(Paidiverpy):
         return features
 
     @staticmethod
-    def detect_edges(img: np.ndarray, method: str, blur_radius: float, threshold: tuple) -> np.ndarray:
+    def detect_edges(img: np.ndarray, method: str, blur_radius: float, threshold: dict) -> np.ndarray:
         """Detect edges.
 
         Detect edges in the image.
@@ -802,7 +820,7 @@ class ColourLayer(Paidiverpy):
             img (np.ndarray): The image to detect edges
             method (str): The method to use for edge detection
             blur_radius (float): The radius for the blur
-            threshold (tuple): The threshold for edge detection
+            threshold (dict): The threshold for edge detection
 
         Returns:
             np.ndarray: The filled edges
@@ -810,10 +828,10 @@ class ColourLayer(Paidiverpy):
         if method == "scharr":
             if len(img.shape) == NUM_CHANNELS_RGB:
                 edges_mags = [scharr(img[:, :, i]) for i in range(NUM_CHANNELS_RGB)]
-                filled_edges = [ColourLayer.process_edges(edges_mag, threshold[0], blur_radius) for edges_mag in edges_mags]
+                filled_edges = [ColourLayer.process_edges(edges_mag, threshold["low"], blur_radius) for edges_mag in edges_mags]
             else:
                 edges_mag = scharr(img)
-                filled_edges = ColourLayer.process_edges(edges_mag, threshold[0], blur_radius)
+                filled_edges = ColourLayer.process_edges(edges_mag, threshold["low"], blur_radius)
         elif method == "scharr_with_mean":
             if len(img.shape) == NUM_CHANNELS_RGB:
                 edges_mags = [scharr(img[:, :, i]) for i in range(3)]
@@ -823,7 +841,7 @@ class ColourLayer(Paidiverpy):
                 filled_edges = ColourLayer.process_edges_mean(edges_mag, blur_radius)
         elif method == "canny":
             if len(img.shape) == NUM_CHANNELS_RGB:
-                edges = [cv2.Canny(img[:, :, i], threshold[0], threshold[1]) for i in range(NUM_CHANNELS_RGB)]
+                edges = [cv2.Canny(img[:, :, i], threshold["low"], threshold["high"]) for i in range(NUM_CHANNELS_RGB)]
                 filled_edges = [
                     morphology.erosion(
                         ndimage.binary_fill_holes(morphology.closing(edge, morphology.square(blur_radius))),
@@ -832,7 +850,7 @@ class ColourLayer(Paidiverpy):
                     for edge in edges
                 ]
             else:
-                edges = cv2.Canny(img, threshold[0], threshold[1])
+                edges = cv2.Canny(img, threshold["low"], threshold["high"])
                 edges = morphology.closing(edges, morphology.square(blur_radius))
                 filled_edges = ndimage.binary_fill_holes(edges)
                 filled_edges = morphology.erosion(filled_edges, morphology.square(blur_radius))
@@ -890,7 +908,7 @@ class ColourLayer(Paidiverpy):
         return morphology.erosion(filled_edges, morphology.square(blur_radius))
 
     @staticmethod
-    def make_gaussian(size: int, fwhm: int = 3, center: tuple | None = None) -> np.ndarray:
+    def make_gaussian(size: int, fwhm: int = 3, center: tuple | None = None) -> np.ndarray:  # noqa: ARG004
         """Make a square gaussian kernel.
 
         Method to make a square gaussian kernel.
@@ -906,11 +924,11 @@ class ColourLayer(Paidiverpy):
         x = np.arange(0, size, 1, float)
         y = x[:, np.newaxis]
 
-        if center is None:
-            x0 = y0 = size // 2
-        else:
-            x0 = center[0]
-            y0 = center[1]
+        # if center is None:
+        x0 = y0 = size // 2
+        # else:
+        #     x0 = center[0]
+        #     y0 = center[1]
 
         output = np.exp(-4 * np.log(2) * ((x - x0) ** 2 + (y - y0) ** 2) / fwhm**2)
         return output / np.sum(output)

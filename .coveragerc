@@ -1,0 +1,19 @@
+[run]
+branch = True
+source =
+    src/paidiverpy
+omit =
+    src/paidiverpy/utils/benchmark_test.py
+    src/paidiverpy/utils/schema_json_handler.py
+    src/paidiverpy/frontend/*
+
+
+[report]
+show_missing = True
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    if self.debug:
+    if settings.DEBUG
+    if __name__ == .__main__.:
+    @deprecated

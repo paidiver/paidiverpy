@@ -1,0 +1,10 @@
+general:
+  rename: 'datetime'
+  sampling:
+    - mode: 'percent'
+      params:
+        value: 0.1
+  convert:
+    - mode: 'to'
+      params:
+        to: 'gray'

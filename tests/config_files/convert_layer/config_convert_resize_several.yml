@@ -1,0 +1,39 @@
+general:
+  sample_data: "benthic_csv"
+  output_path: "./output"
+  image_open_args: "PNG"
+
+steps:
+  - convert:
+      mode: "resize"
+      params:
+        interpolation: "nearest"
+        scale: 0.5
+  - convert:
+      mode: "resize"
+      params:
+        interpolation: "linear"
+        scale: {"x": 0.5, "y": 0.5}
+  - convert:
+      mode: "resize"
+      params:
+        interpolation: "cubic"
+  - convert:
+      mode: "resize"
+  - convert:
+      mode: "resize"
+      params:
+        interpolation: "lanczos"
+        size: {"width": 100, "height": 100}
+  - convert:
+      mode: "resize"
+      params:
+        interpolation: "area"
+        size: {"width": 200, "height": 200}
+        preserve_aspect: false
+  - convert:
+      mode: "resize"
+      params:
+        interpolation: "area"
+        size: {"width": 0, "height": 0}
+        preserve_aspect: false

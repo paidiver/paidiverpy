@@ -1,0 +1,75 @@
+general:
+  sample_data: "plankton_csv"
+  output_path: "./output"
+  n_jobs: 8
+  image_open_args: "BMP"
+
+steps:
+  - colour:
+      name: "edge_detection"
+      mode: "edge_detection"
+  - colour:
+      name: "edge_detection"
+      mode: "edge_detection"
+      params:
+        method: "sobel"
+  - colour:
+      name: "edge_detection"
+      mode: "edge_detection"
+      params:
+        method: "scharr"
+        object_type: "isolated"
+        object_selection: "largest_area"
+        blur_radius: 3
+        threshold: {"low": 0.5, "high": 1.0}
+        deconv: True
+        deconv_method: "LR"
+        deconv_iter: 7
+        deconv_mask_weight: 0.5
+        estimate_sharpness: True
+        small_float_val: 0.0001
+  - colour:
+      name: "edge_detection"
+      mode: "edge_detection"
+      params:
+        method: "scharr_with_mean"
+        object_type: "isolated"
+        object_selection: "largest_area"
+        blur_radius: 3
+        threshold: {"low": 0.5, "high": 1.0}
+        deconv: True
+        deconv_method: "LR"
+        deconv_iter: 7
+        deconv_mask_weight: 0.5
+        estimate_sharpness: True
+        small_float_val: 0.0001
+  - colour:
+      name: "edge_detection"
+      mode: "edge_detection"
+      params:
+        method: "canny"
+        object_type: "isolated"
+        object_selection: "largest_area"
+        blur_radius: 3
+        threshold: {"low": 0.5, "high": 1.0}
+        deconv: True
+        deconv_method: "LR"
+        deconv_iter: 7
+        deconv_mask_weight: 0.5
+        estimate_sharpness: True
+        small_float_val: 0.0001
+  - colour:
+      name: "edge_detection"
+      mode: "edge_detection"
+      params:
+        method: "chan_vese"
+        object_type: "isolated"
+        object_selection: "largest_area"
+        blur_radius: 3
+        threshold: {"low": 0.5, "high": 1.0}
+        deconv: True
+        deconv_method: "LR"
+        deconv_iter: 7
+        deconv_mask_weight: 0.5
+        estimate_sharpness: True
+        small_float_val: 0.0001

@@ -1,0 +1,32 @@
+general:
+  sample_data: "benthic_csv"
+  output_path: "./output"
+  n_jobs: 1
+  image_open_args: "PNG"
+  sampling:
+    - mode: "fixed"
+      params:
+        value: 5
+
+steps:
+  - colour:
+      name: "colour_correction"
+      mode: "colour_alteration"
+  - colour:
+      name: "colour_correction"
+      mode: "deblur"
+      params:
+        method: "wiener"
+        psf_type: "gaussian"
+        sigma: 20
+        angle: 2
+  - colour:
+      name: "colour_correction"
+      mode: "colour_alteration"
+      params:
+        method: "white_balance"
+  - colour:
+      name: "colour_correction"
+      mode: "colour_alteration"
+      params:
+        method: "other_method"

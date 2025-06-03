@@ -1,26 +1,26 @@
-name: Publish to Conda Forge
+name: Create Conda Meta File
 
 on:
   push:
-  #   branches:
-  #     - main
-  # pull_request:
-  #   branches:
-  #     - main
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
 
 jobs:
-  build-and-publish:
+  build:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-
     - name: Set up Miniconda
       uses: conda-incubator/setup-miniconda@v3
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: 3.9
 
     - name: Initialize Conda
       run: |
@@ -36,27 +36,35 @@ jobs:
       run: |
         source ~/.bashrc
         python generate_conda_meta.py
+        python generate_conda_meta.py --bioconda
 
     - name: Validate Conda recipe
       run: |
         source ~/.bashrc
         conda-smithy recipe-lint --conda-forge conda_recipes/
-        # Check if there are linting issues
         if [ $? -ne 0 ]; then
           echo "Linting failed due to validation problems."
           exit 1
         fi
 
-    # - name: Build Conda package with Conda Forge recipe
-    #   run: |
-    #     conda build --output-folder conda-build .  # Build the package from meta.yml
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ github.head_ref || github.ref_name }}
+        fetch-depth: 0
 
-    # - name: Push changes to Conda Forge feedstock
-    #   uses: ad-m/github-push-action@v0.6
-    #   with:
-    #     github_token: ${{ secrets.GITHUB_TOKEN }}  # Automatically pushes to the feedstock repo
+    - name: Commit and Push Changes
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config pull.rebase false
 
-    # # Step 7: Trigger the Conda Forge build for your package
-    # - name: Trigger Conda Forge build
-    #   run: |
-    #     echo "Your changes are now pushed to Conda Forge, triggering a build."
+        BRANCH_NAME="${{ github.head_ref || github.ref_name }}"
+        echo "Working on branch: $BRANCH_NAME"
+
+        git diff --quiet -- conda_recipes/meta_bioconda.yaml conda_recipes/meta.yaml || (
+          git add conda_recipes/meta_bioconda.yaml conda_recipes/meta.yaml
+          git commit -m "chore: update conda recipe"
+          git pull --rebase origin "$BRANCH_NAME"
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:"$BRANCH_NAME"
+        )

@@ -1,0 +1,48 @@
+general:
+  sample_data: "benthic_csv"
+  output_path: "./output"
+  n_jobs: 1
+  image_open_args: "JPG"
+  sampling:
+    - mode: "fixed"
+      params:
+        value: 20
+
+steps:
+  - colour:
+      name: "colour_correction"
+      mode: "grayscale"
+
+  - sampling:
+      name: "datetime"
+      mode: "datetime"
+      params:
+        min: "2018-06-11 04:14:00"
+        max: "2018-06-11 04:20:00"
+
+  - sampling:
+      name: "overlapping"
+      mode: "overlapping"
+      params:
+        theta: 40
+        omega: 57
+        threshold: 0.5
+
+  - colour:
+      name: "colour_correction"
+      mode: "gaussian_blur"
+      params:
+        sigma: 1.0
+
+  - colour:
+      name: "sharpen"
+      mode: "sharpen"
+      params:
+        alpha: 1.5
+        beta: -0.5
+
+  - convert:
+      name: "bits"
+      mode: "bits"
+      params:
+        output_bits: 16

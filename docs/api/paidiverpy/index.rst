@@ -37,13 +37,17 @@ Submodules
    /api/paidiverpy/config/index
    /api/paidiverpy/convert_layer/index
    /api/paidiverpy/custom_layer/index
+   /api/paidiverpy/frontend/index
    /api/paidiverpy/images_layer/index
+   /api/paidiverpy/investigation_layer/index
    /api/paidiverpy/metadata_parser/index
+   /api/paidiverpy/models/index
    /api/paidiverpy/open_layer/index
    /api/paidiverpy/paidiverpy/index
    /api/paidiverpy/pipeline/index
    /api/paidiverpy/position_layer/index
-   /api/paidiverpy/resample_layer/index
+   /api/paidiverpy/sampling_layer/index
+   /api/paidiverpy/static/index
    /api/paidiverpy/utils/index
 
 
@@ -58,7 +62,7 @@ Classes
 Package Contents
 ----------------
 
-.. py:class:: Paidiverpy(config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.config.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, client: dask.distributed.Client | None = None, paidiverpy: Paidiverpy = None, track_changes: bool | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
+.. py:class:: Paidiverpy(config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.configuration.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, client: dask.distributed.Client | None = None, paidiverpy: Paidiverpy = None, track_changes: bool | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
 
    
    Main class for the paidiverpy package.
@@ -67,6 +71,7 @@ Package Contents
                          It can contain the following keys / attributes:
                          - input_path (str): The path to the input files.
                          - output_path (str): The path to the output files.
+                         - image_open_args (str): The type of the images.
                          - metadata_path (str): The path to the metadata file.
                          - metadata_type (str): The type of the metadata file.
                          - track_changes (bool): Whether to track changes.
@@ -140,7 +145,7 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: process_sequentially(images: list[numpy.ndarray], method: callable, params: dict, custom: bool = False) -> list[numpy.ndarray]
+   .. py:method:: process_sequentially(images: list[numpy.ndarray], method: callable, params: dict, custom: bool = False) -> tuple[list[numpy.ndarray], pandas.DataFrame]
 
       
       Process the images sequentially.
@@ -156,8 +161,8 @@ Package Contents
       :param custom: Whether the method is a custom method. Defaults to False.
       :type custom: bool, optional
 
-      :returns: The list of processed images.
-      :rtype: List[np.ndarray]
+      :returns: A tuple containing the list of processed images and the metadata DataFrame.
+      :rtype: tuple[list[np.ndarray], pd.DataFrame]
 
 
 
@@ -177,7 +182,7 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: process_parallel(images: list[dask.array.core.Array], method: callable, params: paidiverpy.utils.dynamic_classes.DynamicConfig, custom: bool = False) -> list[numpy.ndarray]
+   .. py:method:: process_parallel(images: list[dask.array.core.Array], method: callable, params: paidiverpy.utils.base_model.BaseModel, custom: bool = False) -> tuple[list[numpy.ndarray], pandas.DataFrame]
 
       
       Process the images in parallel.
@@ -189,12 +194,47 @@ Package Contents
       :param method: The method to apply to the images.
       :type method: callable
       :param params: The parameters for the method.
-      :type params: DynamicConfig
+      :type params: BaseModel
       :param custom: Whether the method is a custom method. Defaults to False.
       :type custom: bool, optional
 
-      :returns: The list of processed images.
-      :rtype: List[da.core.Array]
+      :returns: A tuple containing the list of processed images and the metadata DataFrame.
+      :rtype: tuple[list[np.ndarray], pd.DataFrame]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: process_dataset(images: list[dask.array.core.Array], method: callable, params: paidiverpy.utils.base_model.BaseModel, custom: bool = False) -> tuple[list[numpy.ndarray], pandas.DataFrame]
+
+      
+      Process the images as a dataset.
+
+      :param images: The list of images to process.
+      :type images: List[da.core.Array]
+      :param method: The method to apply to the images.
+      :type method: callable
+      :param params: The parameters for the method.
+      :type params: BaseModel
+      :param custom: Whether the method is a custom method. Defaults to False.
+      :type custom: bool, optional
+
+      :returns: A tuple containing the list of processed images and the metadata DataFrame.
+      :rtype: tuple[list[np.ndarray], pd.DataFrame]
 
 
 
@@ -243,13 +283,15 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: set_metadata(metadata: pandas.DataFrame) -> None
+   .. py:method:: set_metadata(metadata: pandas.DataFrame, flag: bool = False) -> None
 
       
       Set the metadata.
 
       :param metadata: The metadata object.
       :type metadata: pd.DataFrame
+      :param flag: The flag value. Defaults to False.
+      :type flag: bool, optional
 
 
 
@@ -269,71 +311,17 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: get_waypoints() -> pandas.DataFrame
-
-      
-      Get the waypoints.
-
-      :raises ValueError: Waypoints are not loaded in the metadata.
-
-      :returns: The waypoints
-      :rtype: pd.DataFrame
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      ..
-          !! processed by numpydoc !!
-
-
-   .. py:method:: show_images(step_name: str) -> None
-
-      
-      Show the images.
-
-      :param step_name: The step name.
-      :type step_name: str
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      ..
-          !! processed by numpydoc !!
-
-
-   .. py:method:: save_images(step: str | int | None = None, by_order: bool = False, image_format: str = 'png') -> None
+   .. py:method:: save_images(step: str | int | None = None, image_format: str = 'png', output_path: str | pathlib.Path | None = None) -> None
 
       
       Save the images.
 
-      :param step: The step name or order. Defaults to None.
-      :type step: str | int, optional
-      :param by_order: Whether to save by order. Defaults to False.
-      :type by_order: bool, optional
+      :param step: The step order. Defaults to None.
+      :type step: int, optional
       :param image_format: The image format. Defaults to "png".
       :type image_format: str, optional
+      :param output_path: The output path. Defaults to None.
+      :type output_path: str | Path, optional
 
 
 
@@ -377,13 +365,13 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: plot_trimmed_photos(new_metadata: pandas.DataFrame) -> None
+   .. py:method:: clear_steps(value: int | str) -> None
 
       
-      Plot the trimmed photos.
+      Clear steps from the images and metadata.
 
-      :param new_metadata: The new metadata.
-      :type new_metadata: pd.DataFrame
+      :param value: Step name or order.
+      :type value: int | str
 
 
 
@@ -403,15 +391,26 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: clear_steps(value: int | str, by_order: bool = True) -> None
+   .. py:method:: prepare_inputs(image_data: numpy.ndarray, metadata: dict | None, params: paidiverpy.utils.base_model.BaseModel | None, default_params_factory: paidiverpy.utils.base_model.BaseModel, **kwargs: dict) -> tuple[numpy.ndarray, dict, paidiverpy.utils.base_model.BaseModel]
+      :staticmethod:
+
 
       
-      Clear steps from the images and metadata.
+      Standard preprocessing for convert layer methods.
 
-      :param value: Step name or order.
-      :type value: int | str
-      :param by_order: Whether to remove by order. Defaults to True.
-      :type by_order: bool, optional
+      :param image_data: The image data.
+      :type image_data: np.ndarray
+      :param metadata: The metadata.
+      :type metadata: dict | None
+      :param params: The parameters.
+      :type params: BaseModel | None
+      :param default_params_factory: The default parameters factory.
+      :type default_params_factory: BaseModel
+      :param \*\*kwargs: Additional keyword arguments.
+      :type \*\*kwargs: dict
+
+      :returns: The image data, metadata, and parameters.
+      :rtype: tuple[np.ndarray, dict, BaseModel]
 
 
 
