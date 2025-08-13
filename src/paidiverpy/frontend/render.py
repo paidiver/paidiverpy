@@ -204,7 +204,7 @@ class WidgetRenderer:
         def create_row(index: int, widget: dict) -> pn.Row:
             remove_btn = pn.widgets.Button(name="Remove", button_type="danger", width=80)
 
-            def remove_item() -> None:
+            def remove_item(event) -> None:
                 inputs.pop(index)
                 inputs_container[:] = [create_row(i, item) for i, item in enumerate(inputs)]
 
@@ -216,7 +216,7 @@ class WidgetRenderer:
                 )
             return pn.Row(pn.Column(widget["html"], widget["widget"]), remove_btn)
 
-        def add_item() -> None:
+        def add_item(event = None) -> None:
             html, widget = create_list_widget(len(inputs))
             if self.steps:
                 inputs.append({"widget": widget})
