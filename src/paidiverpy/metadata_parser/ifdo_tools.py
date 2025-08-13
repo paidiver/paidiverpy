@@ -34,7 +34,7 @@ def validate_ifdo(file_path: str | None = None, ifdo_data: dict | None = None) -
     if not ifdo_version:
         msg = "No iFDO version found in metadata."
         raise ValidationError(msg)
-    schema_file_path = f"https://www.marine-imaging.com/fair/schemas/ifdo-{ifdo_version}.json"
+    schema_file_path = f"https://www.ifdo-schema.org/schemas/{ifdo_version}/ifdo.json"
     schema = json.loads(get_file_from_bucket(schema_file_path))
     validator = Draft202012Validator(schema)
     errors = sorted(validator.iter_errors(ifdo_data), key=lambda e: e.path)
@@ -58,7 +58,7 @@ def convert_to_ifdo(dataset_metadata: dict, metadata: dict, output_path: str) ->
         output_path (str): Path to save the converted metadata.
     """
     ifdo_version = dataset_metadata.get("image-set-ifdo-version", "v2.1.0")
-    schema_file_path = f"https://www.marine-imaging.com/fair/schemas/ifdo-{ifdo_version}.json"
+    schema_file_path = f"https://www.ifdo-schema.org/schemas/{ifdo_version}/ifdo.json"
     ifdo_schema = json.loads(get_file_from_bucket(schema_file_path))
     image_set_header, missing_fields_header = parse_ifdo_header(dataset_metadata, ifdo_schema, metadata)
     for col in metadata.select_dtypes(include=["datetime64[ns]"]).columns:
@@ -336,7 +336,10 @@ def get_ifdo_fields(schema: dict, section: str) -> tuple:
         tuple: iFDO fields, required fields, non-required fields.
     """
     required_fields = schema["$defs"]["image-item-core"]["required"] if section == "items" else schema["properties"]["image-set-header"]["required"]
-    ifdo_fields = schema["$defs"]["iFDO-fields"]["properties"]
+    ifdo_fields = {}
+    for field in schema["$defs"]["iFDO-fields"]["anyOf"]:
+        field_name = field["$ref"].split("/")[-1]
+        ifdo_fields.update(schema["$defs"][field_name]["properties"])
     if section == "items":
         excluding_items = ["image-set-name", "image-set-handle", "image-set-ifdo-version", "image-set-uuid"]
         ifdo_item_fields = [field for field in ifdo_fields if field not in excluding_items]
