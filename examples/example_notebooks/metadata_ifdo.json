@@ -1,0 +1,170 @@
+{
+    "image-set-header": {
+        "image-set-name": "A unique name for the image set, should include image-project, image-event, image-sensor and optionally the purpose of imaging",
+        "image-set-uuid": "A random UUID assigned to the entire image set",
+        "image-set-handle": "/home/tobfer/.paidiverpy_cache/benthic_csv/images",
+        "image-set-ifdo-version": "v2.1.0",
+        "image-datetime": "2018-06-11 04:17:01",
+        "image-latitude": 11.251677350000001,
+        "image-longitude": -153.60527665,
+        "image-altitude-meters": "Z-coordinate of camera center in meters. Has negative values when camera is below sea level. Has positive values when the camera is above sea level.",
+        "image-coordinate-reference-system": "The coordinate reference system, e.g. EPSG:4326",
+        "image-coordinate-uncertainty-meters": "The average/static uncertainty of coordinates in this dataset, given in meters. Computed e.g. as the standard deviation of coordinate corrections during smoothing / splining.",
+        "image-context": {
+            "name": "The name of the context"
+        },
+        "image-project": {
+            "name": "The name of the project"
+        },
+        "image-event": {
+            "name": "The name of the event"
+        },
+        "image-platform": {
+            "name": "The name of the platform"
+        },
+        "image-sensor": {
+            "name": "The name of the sensor"
+        },
+        "image-pi": {
+            "name": "The name of the PI"
+        },
+        "image-creators": [
+            "A list containing dicts for all creators containing:"
+        ],
+        "image-license": {
+            "name": "The name of the license"
+        },
+        "image-copyright": "Copyright statement or contact person or office",
+        "image-abstract": "500 - 2000 characters describing what, when, where, why and how the data was collected. Includes general information on the event (aka station, experiment), e.g. overlap between images/frames, parameters on platform movement, aims, purpose of image capture etc."
+    },
+    "image-set-items": {
+        "20180611041421.png": {
+            "image-uuid": "A (random) UUID for the individual image file (still or moving). This UUID needs to be embedded within the image files. For still images in the exif tag 'ImageUniqueID', for videos in the XMP tag 'identifier' in the  Dublin Core namespace. For Matroska video containers the first 'Segment UID' is used.",
+            "image-hash-sha256": "An SHA256 hash to represent the whole file (including UUID in file metadata header!) to verify integrity on disk",
+            "image-handle": "The URI pointing to a downloadable version of the image data",
+            "image-camera-roll-degrees": 0.937,
+            "image-altitude-meters": 1.5,
+            "image-longitude": -153.60531587,
+            "image-acquisition-settings": {
+                "exposure_time": 0.01666666667,
+                "f_number": 8.0,
+                "white_balance": "FLASH       "
+            },
+            "image-camera-pitch-degrees": 2.287,
+            "image-latitude": 11.25172554,
+            "image-datetime": "2018-06-11 04:14:21"
+        },
+        "20180611041541.png": {
+            "image-uuid": "A (random) UUID for the individual image file (still or moving). This UUID needs to be embedded within the image files. For still images in the exif tag 'ImageUniqueID', for videos in the XMP tag 'identifier' in the  Dublin Core namespace. For Matroska video containers the first 'Segment UID' is used.",
+            "image-hash-sha256": "An SHA256 hash to represent the whole file (including UUID in file metadata header!) to verify integrity on disk",
+            "image-handle": "The URI pointing to a downloadable version of the image data",
+            "image-camera-roll-degrees": 0.845,
+            "image-altitude-meters": 1.5,
+            "image-longitude": -153.60532129,
+            "image-acquisition-settings": {
+                "exposure_time": 0.01666666667,
+                "f_number": 8.0,
+                "white_balance": "FLASH       "
+            },
+            "image-camera-pitch-degrees": 1.886,
+            "image-latitude": 11.25167559,
+            "image-datetime": "2018-06-11 04:15:41"
+        },
+        "20180611041621.png": {
+            "image-uuid": "A (random) UUID for the individual image file (still or moving). This UUID needs to be embedded within the image files. For still images in the exif tag 'ImageUniqueID', for videos in the XMP tag 'identifier' in the  Dublin Core namespace. For Matroska video containers the first 'Segment UID' is used.",
+            "image-hash-sha256": "An SHA256 hash to represent the whole file (including UUID in file metadata header!) to verify integrity on disk",
+            "image-handle": "The URI pointing to a downloadable version of the image data",
+            "image-camera-roll-degrees": 0.432,
+            "image-altitude-meters": 1.6,
+            "image-longitude": -153.60532147,
+            "image-acquisition-settings": {
+                "exposure_time": 0.01666666667,
+                "f_number": 8.0,
+                "white_balance": "FLASH       "
+            },
+            "image-camera-pitch-degrees": 1.34,
+            "image-latitude": 11.25164913,
+            "image-datetime": "2018-06-11 04:16:21"
+        },
+        "20180611041731.png": {
+            "image-uuid": "A (random) UUID for the individual image file (still or moving). This UUID needs to be embedded within the image files. For still images in the exif tag 'ImageUniqueID', for videos in the XMP tag 'identifier' in the  Dublin Core namespace. For Matroska video containers the first 'Segment UID' is used.",
+            "image-hash-sha256": "An SHA256 hash to represent the whole file (including UUID in file metadata header!) to verify integrity on disk",
+            "image-handle": "The URI pointing to a downloadable version of the image data",
+            "image-camera-roll-degrees": 0.533,
+            "image-altitude-meters": 1.6,
+            "image-longitude": -153.60531831,
+            "image-acquisition-settings": {
+                "exposure_time": 0.01666666667,
+                "f_number": 8.0,
+                "white_balance": "FLASH       "
+            },
+            "image-camera-pitch-degrees": 0.609,
+            "image-latitude": 11.25162916,
+            "image-datetime": "2018-06-11 04:17:31"
+        },
+        "20180611041821.png": {
+            "image-uuid": "A (random) UUID for the individual image file (still or moving). This UUID needs to be embedded within the image files. For still images in the exif tag 'ImageUniqueID', for videos in the XMP tag 'identifier' in the  Dublin Core namespace. For Matroska video containers the first 'Segment UID' is used.",
+            "image-hash-sha256": "An SHA256 hash to represent the whole file (including UUID in file metadata header!) to verify integrity on disk",
+            "image-handle": "The URI pointing to a downloadable version of the image data",
+            "image-camera-roll-degrees": 1.19,
+            "image-altitude-meters": 1.7,
+            "image-longitude": -153.60529078,
+            "image-acquisition-settings": {
+                "exposure_time": 0.01666666667,
+                "f_number": 8.0,
+                "white_balance": "FLASH       "
+            },
+            "image-camera-pitch-degrees": 1.209,
+            "image-latitude": 11.251633,
+            "image-datetime": "2018-06-11 04:18:21"
+        },
+        "20180611041841.png": {
+            "image-uuid": "A (random) UUID for the individual image file (still or moving). This UUID needs to be embedded within the image files. For still images in the exif tag 'ImageUniqueID', for videos in the XMP tag 'identifier' in the  Dublin Core namespace. For Matroska video containers the first 'Segment UID' is used.",
+            "image-hash-sha256": "An SHA256 hash to represent the whole file (including UUID in file metadata header!) to verify integrity on disk",
+            "image-handle": "The URI pointing to a downloadable version of the image data",
+            "image-camera-roll-degrees": 0.857,
+            "image-altitude-meters": 1.7,
+            "image-longitude": -153.60527719,
+            "image-acquisition-settings": {
+                "exposure_time": 0.01666666667,
+                "f_number": 8.0,
+                "white_balance": "FLASH       "
+            },
+            "image-camera-pitch-degrees": 1.097,
+            "image-latitude": 11.25163777,
+            "image-datetime": "2018-06-11 04:18:41"
+        },
+        "20180611041901.png": {
+            "image-uuid": "A (random) UUID for the individual image file (still or moving). This UUID needs to be embedded within the image files. For still images in the exif tag 'ImageUniqueID', for videos in the XMP tag 'identifier' in the  Dublin Core namespace. For Matroska video containers the first 'Segment UID' is used.",
+            "image-hash-sha256": "An SHA256 hash to represent the whole file (including UUID in file metadata header!) to verify integrity on disk",
+            "image-handle": "The URI pointing to a downloadable version of the image data",
+            "image-camera-roll-degrees": 0.286,
+            "image-altitude-meters": 1.7,
+            "image-longitude": -153.60526246,
+            "image-acquisition-settings": {
+                "exposure_time": 0.01666666667,
+                "f_number": 8.0,
+                "white_balance": "FLASH       "
+            },
+            "image-camera-pitch-degrees": 0.176,
+            "image-latitude": 11.25164123,
+            "image-datetime": "2018-06-11 04:19:01"
+        },
+        "20180611041941.png": {
+            "image-uuid": "A (random) UUID for the individual image file (still or moving). This UUID needs to be embedded within the image files. For still images in the exif tag 'ImageUniqueID', for videos in the XMP tag 'identifier' in the  Dublin Core namespace. For Matroska video containers the first 'Segment UID' is used.",
+            "image-hash-sha256": "An SHA256 hash to represent the whole file (including UUID in file metadata header!) to verify integrity on disk",
+            "image-handle": "The URI pointing to a downloadable version of the image data",
+            "image-camera-roll-degrees": 0.531,
+            "image-altitude-meters": 1.5,
+            "image-longitude": -153.60523183,
+            "image-acquisition-settings": {
+                "exposure_time": 0.01666666667,
+                "f_number": 8.0,
+                "white_balance": "FLASH       "
+            },
+            "image-camera-pitch-degrees": 3.01,
+            "image-latitude": 11.25162942,
+            "image-datetime": "2018-06-11 04:19:41"
+        }
+    }
+}
