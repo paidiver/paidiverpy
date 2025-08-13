@@ -34,7 +34,7 @@ def validate_ifdo(file_path: str | None = None, ifdo_data: dict | None = None) -
     if not ifdo_version:
         msg = "No iFDO version found in metadata."
         raise ValidationError(msg)
-    schema_file_path = f"https://www.marine-imaging.com/fair/schemas/ifdo-{ifdo_version}.json"
+    schema_file_path = f"https://www.ifdo-schema.org/schemas/{ifdo_version}/ifdo.json"
     schema = json.loads(get_file_from_bucket(schema_file_path))
     validator = Draft202012Validator(schema)
     errors = sorted(validator.iter_errors(ifdo_data), key=lambda e: e.path)
