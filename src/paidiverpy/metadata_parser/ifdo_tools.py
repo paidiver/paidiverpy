@@ -336,7 +336,10 @@ def get_ifdo_fields(schema: dict, section: str) -> tuple:
         tuple: iFDO fields, required fields, non-required fields.
     """
     required_fields = schema["$defs"]["image-item-core"]["required"] if section == "items" else schema["properties"]["image-set-header"]["required"]
-    ifdo_fields = schema["$defs"]["iFDO-fields"]["properties"]
+    ifdo_fields = {}
+    for field in schema["$defs"]["iFDO-fields"]["anyOf"]:
+        field_name = field["$ref"].split("/")[-1]
+        ifdo_fields.update(schema["$defs"][field_name]["properties"])
     if section == "items":
         excluding_items = ["image-set-name", "image-set-handle", "image-set-ifdo-version", "image-set-uuid"]
         ifdo_item_fields = [field for field in ifdo_fields if field not in excluding_items]
