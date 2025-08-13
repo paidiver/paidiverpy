@@ -102,10 +102,10 @@ class PositionConfig(StepConfig):
     )
     test: bool = Field(False, description="Test mode")
     params: PositionParamsUnion | None = Field(default=None, description="Position parameters")
-    processing_type: Literal["image", "dataset"] = Field(
-        "image",
-        description=("If the images are processed individually (image option) or as a dataset (dataset option)"),
-    )
+    # processing_type: Literal["image", "dataset"] = Field(
+    #     "image",
+    #     description=("If the images are processed individually (image option) or as a dataset (dataset option)"),
+    # )
 
 
 class ColourConfig(StepConfig):
@@ -117,10 +117,10 @@ class ColourConfig(StepConfig):
     )
     test: bool = Field(False, description="Test mode")
     params: ColourParamsUnion | None = Field(default=None, description="Colour parameters")
-    processing_type: Literal["image", "dataset"] = Field(
-        "image",
-        description=("If the images are processed individually (image option) or as a dataset (dataset option)"),
-    )
+    # processing_type: Literal["image", "dataset"] = Field(
+    #     "image",
+    #     description=("If the images are processed individually (image option) or as a dataset (dataset option)"),
+    # )
 
 
 class ConvertConfig(StepConfig):
@@ -130,10 +130,10 @@ class ConvertConfig(StepConfig):
     mode: ConvertModeLiteral = Field(description="Mode for the convert step")
     test: bool = Field(False, description="Test mode")
     params: ConvertParamsUnion | None = Field(default=None, description="Convert parameters")
-    processing_type: Literal["image", "dataset"] = Field(
-        "image",
-        description=("If the images are processed individually (image option) or as a dataset (dataset option)"),
-    )
+    # processing_type: Literal["image", "dataset"] = Field(
+    #     "image",
+    #     description=("If the images are processed individually (image option) or as a dataset (dataset option)"),
+    # )
 
 
 class SamplingConfig(StepConfig):
@@ -143,10 +143,10 @@ class SamplingConfig(StepConfig):
     mode: SamplingModeLiteral = Field(description="Mode for the sampling step")
     test: bool = Field(False, description="Test mode")
     params: SamplingParamsUnion | None = Field(default=None, description="Sampling parameters")
-    processing_type: Literal["image", "dataset"] = Field(
-        "image",
-        description=("If the images are processed individually (image option) or as a dataset (dataset option)"),
-    )
+    # processing_type: Literal["image", "dataset"] = Field(
+    #     "image",
+    #     description=("If the images are processed individually (image option) or as a dataset (dataset option)"),
+    # )
 
 
 class CustomConfig(BaseModel):

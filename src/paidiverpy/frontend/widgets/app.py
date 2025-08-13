@@ -285,11 +285,11 @@ class App:
         def on_submit(event) -> None:  # noqa: ANN001, ARG001
             if self.general_widget.config:
 
-                def on_confirm() -> None:
+                def on_confirm(event) -> None:
                     self.confirm_general_update(self.general_form)
                     self.modal.visible = False
 
-                def on_cancel() -> None:
+                def on_cancel(event) -> None:
                     self.modal.visible = False
 
                 self.update_modal(
