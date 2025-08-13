@@ -58,7 +58,7 @@ def convert_to_ifdo(dataset_metadata: dict, metadata: dict, output_path: str) ->
         output_path (str): Path to save the converted metadata.
     """
     ifdo_version = dataset_metadata.get("image-set-ifdo-version", "v2.1.0")
-    schema_file_path = f"https://www.marine-imaging.com/fair/schemas/ifdo-{ifdo_version}.json"
+    schema_file_path = f"https://www.ifdo-schema.org/schemas/{ifdo_version}/ifdo.json"
     ifdo_schema = json.loads(get_file_from_bucket(schema_file_path))
     image_set_header, missing_fields_header = parse_ifdo_header(dataset_metadata, ifdo_schema, metadata)
     for col in metadata.select_dtypes(include=["datetime64[ns]"]).columns:
