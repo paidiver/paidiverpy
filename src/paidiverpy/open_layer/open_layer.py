@@ -8,6 +8,7 @@ import uuid
 import dask
 import numpy as np
 import pandas as pd
+import xarray as xr
 from dask import compute
 from dask import delayed
 from dask.diagnostics import ProgressBar
@@ -25,6 +26,7 @@ from paidiverpy.models.open_params import ImageOpenArgsRawParams
 from paidiverpy.models.open_params import ImageOpenArgsRawPyParams
 from paidiverpy.open_layer.utils import open_image_local
 from paidiverpy.open_layer.utils import open_image_remote
+from paidiverpy.open_layer.utils import pad_image
 from paidiverpy.sampling_layer import SamplingLayer
 from paidiverpy.utils.base_model import BaseModel
 from paidiverpy.utils.docker import is_running_in_docker
@@ -95,32 +97,30 @@ class OpenLayer(Paidiverpy):
 
     def run(self) -> None:
         """Run the open layer steps based on the configuration file or parameters."""
-        if self.step_name == "raw":
-            self.import_image()
-            if self.step_metadata.get("convert"):
-                for step in self.step_metadata.get("convert"):
-                    dict_step = step.to_dict() if issubclass(type(step), BaseModel) else step
-                    step_params = {
-                        "step_name": "convert",
-                        "name": dict_step.get("mode"),
-                        "mode": dict_step.get("mode"),
-                        "params": dict_step.get("params"),
-                    }
-                    new_config = copy.copy(self.config)
-                    convert_layer = ConvertLayer(
-                        config=new_config,
-                        metadata=self.metadata,
-                        images=self.images,
-                        step_name=step_params["name"],
-                        parameters=step_params,
-                        client=self.client,
-                        config_index=None,
-                    )
-                    self.images = convert_layer.run(add_new_step=False)
-                    # remove last step
-                    self.config.steps.pop()
-                    del convert_layer
-                    gc.collect()
+        self.import_image()
+        if self.step_metadata.get("convert"):
+            for step in self.step_metadata.get("convert"):
+                dict_step = step.to_dict() if issubclass(type(step), BaseModel) else step
+                step_params = {
+                    "step_name": "convert",
+                    "name": dict_step.get("mode"),
+                    "mode": dict_step.get("mode"),
+                    "params": dict_step.get("params"),
+                }
+                new_config = copy.copy(self.config)
+                convert_layer = ConvertLayer(
+                    config=new_config,
+                    metadata=self.metadata,
+                    images=self.images,
+                    step_name=step_params["name"],
+                    parameters=step_params,
+                    client=self.client,
+                    config_index=None,
+                )
+                self.images = convert_layer.run(add_new_step=False)
+                self.config.steps.pop()
+                del convert_layer
+                gc.collect()
 
     def import_image(self) -> None:
         """Import images with optional Dask parallelization."""
@@ -145,60 +145,36 @@ class OpenLayer(Paidiverpy):
                 )
                 gc.collect()
                 self.config.steps.pop()
+
+        metadata = self.get_metadata()
         if self.config.is_remote:
-            img_path_list = [self.correct_input_path + filename for filename in self.get_metadata()["image-filename"]]
+            img_path_list = [self.correct_input_path + filename for filename in metadata["image-filename"]]
         else:
-            img_path_list = [self.correct_input_path / filename for filename in self.get_metadata()["image-filename"]]
-        if self.client:
-            images_and_exifs = self._process_image_client(img_path_list, remote=self.config.is_remote)
-        elif self.n_jobs == 1:
-            images_and_exifs = []
-            for img_path in tqdm(img_path_list, total=len(img_path_list), desc="Open Images"):
-                images_and_exifs.append(self.process_image_sequential(img_path, remote=self.config.is_remote))
-        else:
-            images_and_exifs = self._process_image_threads(img_path_list, remote=self.config.is_remote)
-        exifs, image_list, img_paths = [], [], []
-        for img, exif, img_path in images_and_exifs:
-            if img is not None:
-                image_list.append(img)
-                exifs.append(exif)
-                img_paths.append(str(img_path).split("/")[-1])
-        metadata = self.get_metadata()
-        metadata = metadata.loc[metadata["image-filename"].isin(img_paths)]
+            img_path_list = [self.correct_input_path / filename for filename in metadata["image-filename"]]
+        images_and_exifs = self._process_images(img_path_list, remote=self.config.is_remote)
+        image_ds, exifs = self.create_dataset(
+            images_and_exifs,
+        )
+        metadata = metadata.set_index("image-filename").loc[image_ds.filename.to_numpy()]
         with contextlib.suppress(KeyError):
-            self.set_metadata(metadata.merge(pd.DataFrame(exifs), on="image-filename", how="left"))
-        metadata = self.get_metadata()
+            metadata = metadata.merge(pd.DataFrame(exifs), on="image-filename", how="left")
+        for col in metadata.columns:
+            if col not in image_ds.coords and col != "image-filename":
+                image_ds = image_ds.assign_coords({col: ("filename", metadata[col].to_numpy())})
+        self.set_metadata(image_ds=image_ds)
         rename = self.step_metadata.get("rename")
         if rename:
-            metadata = self.rename_images(rename, metadata)
+            image_ds = self.rename_images(rename, image_ds)
 
         self.images.add_step(
             step=self.step_name,
-            images=image_list,
+            images=image_ds,
             step_metadata=self.step_metadata,
-            metadata=metadata,
             track_changes=self.track_changes,
         )
-        del image_list
         gc.collect()
 
-    def process_image_sequential(self, img_path: str, remote: bool = False) -> tuple[np.ndarray | dask.array.core.Array, dict, str]:
-        """Process a single image file.
-
-        Args:
-            img_path (str): The path to the image file
-            remote (bool, optional): Whether the image is remote. Defaults to False.
-
-        Returns:
-            np.ndarray | dask.array.core.Array, dict, str: The processed image, EXIF data, and image path.
-        """
-        func = open_image_remote if remote else open_image_local
-        img, exif, img_path = func(
-            img_path, image_type=self.image_type, image_open_args=self.image_open_args, storage_options=self.storage_options, parallel=False
-        )
-        return img, exif, img_path
-
-    def _process_image_threads(self, img_path_list: list[str], remote: bool = False) -> list[np.ndarray]:
+    def _process_images(self, img_path_list: list[str], remote: bool = False) -> list[np.ndarray]:
         """Process images using Dask threads.
 
         Args:
@@ -209,64 +185,75 @@ class OpenLayer(Paidiverpy):
             list[np.ndarray]: The list of processed images.
         """
         func = open_image_remote if remote else open_image_local
-        delayed_image_list = []
-        for _, img_path in enumerate(img_path_list):
-            delayed_image_list.append(
-                delayed(func)(
-                    img_path, image_type=self.image_type, image_open_args=self.image_open_args, storage_options=self.storage_options, parallel=True
-                )
-            )
-        with dask.config.set(scheduler="threads", num_workers=self.n_jobs):
-            with ProgressBar():
-                computed_images = compute(*delayed_image_list)
-            return list(computed_images)
+        delayed_list = [
+            delayed(func)(path, image_type=self.image_type, image_open_args=self.image_open_args, storage_options=self.storage_options, parallel=True)
+            for path in img_path_list
+        ]
+        if self.client:
+            if isinstance(self.client.cluster, dask.distributed.LocalCluster):
+                # Local cluster
+                with ProgressBar():
+                    futures = self.client.compute(delayed_list, sync=False)
+            else:
+                # Remote/distributed cluster
+                futures = [self.client.submit(d, pure=False) for d in delayed_list]
+            return self.client.gather(futures)
+        with dask.config.set(scheduler="threads", num_workers=self.n_jobs), ProgressBar():
+            return list(compute(*delayed_list))
 
-    def _process_image_client(self, img_path_list: list[str], remote: bool = False) -> list[np.ndarray]:
-        """Process images using a Dask client.
+    def create_dataset(
+        self,
+        images_and_exifs: list[tuple[np.ndarray | dask.array.core.Array, dict, str]],
+    ) -> dask.array.core.Array:
+        """Create a Dask array from the processed images and EXIF data.
 
         Args:
-            img_path_list (list[str]): The list of image paths.
-            remote (bool, optional): Whether the images are remote. Defaults to False.
+            images_and_exifs (list[tuple[np.ndarray | dask.array.core.Array, dict, str]]): The list of processed images and EXIF data.
 
         Returns:
-            list[np.ndarray]: The list of processed images.
+            dask.array.core.Array: The Dask array containing the images.
         """
-        func = open_image_remote if remote else open_image_local
-        delayed_image_list = []
-        if isinstance(self.client.cluster, dask.distributed.LocalCluster):
-            for _, img_path in enumerate(img_path_list):
-                delayed_image_list.append(
-                    delayed(func)(
-                        img_path,
-                        image_type=self.image_type,
-                        image_open_args=self.image_open_args,
-                        storage_options=self.storage_options,
-                        parallel=True,
-                    )
-                )
-            with ProgressBar():
-                futures = self.client.compute(delayed_image_list, sync=False)
-        else:
-            futures = []
-            for _, img_path in enumerate(img_path_list):
-                futures.append(
-                    self.client.submit(
-                        func,
-                        img_path,
-                        image_type=self.image_type,
-                        image_open_args=self.image_open_args,
-                        storage_options=self.storage_options,
-                        parallel=True,
-                    )
-                )
-        return self.client.gather(futures)
+        exifs, image_list, img_paths, height, width = [], [], [], [], []
+        for img, exif, img_path in images_and_exifs:
+            if img is not None:
+                image_list.append(img)
+                exifs.append(exif)
+                img_paths.append(str(img_path).split("/")[-1])
+                height.append(img.shape[0])
+                width.append(img.shape[1])
 
-    def rename_images(self, rename: str, metadata: pd.DataFrame) -> pd.DataFrame:
+        max_height = max(height)
+        max_width = max(width)
+        new_image_list, masks = [], []
+        for img in image_list:
+            padded, mask = pad_image(img, max_height, max_width)
+            new_image_list.append(padded)
+            masks.append(mask)
+
+        stacked_imgs = np.stack(new_image_list, axis=0)
+        stacked_masks = np.stack(masks, axis=0)
+
+        image_ds = xr.Dataset(
+            data_vars={"image": (["filename", "y", "x", "band"], stacked_imgs), "mask": (["filename", "y", "x"], stacked_masks)},
+            coords={
+                "filename": img_paths,
+                "y": np.arange(max_height),
+                "x": np.arange(max_width),
+                "band": np.arange(stacked_imgs.shape[-1]),
+                "original_height": (["filename"], height),
+                "original_width": (["filename"], width),
+            },
+            attrs={"description": "Padded image dataset with masks for valid pixels"},
+        )
+
+        return image_ds, exifs
+
+    def rename_images(self, rename: str, image_ds: xr.Dataset) -> pd.DataFrame:
         """Rename images based on the rename mode.
 
         Args:
             rename (str): The rename mode
-            metadata (pd.DataFrame): The metadata
+            image_ds (xr.Dataset): The image dataset
 
         Raises:
             ValueError: Unknown rename mode
@@ -275,8 +262,10 @@ class OpenLayer(Paidiverpy):
             pd.DataFrame: The renamed metadata
         """
         image_open_args = f".{self.step_metadata.get('image_open_args')}" if self.step_metadata.get("image_open_args") else ""
+        metadata = image_ds[["filename", "image-datetime"]].to_dataframe().reset_index(drop=True)
+
         if rename == "datetime":
-            metadata["image-filename"] = pd.to_datetime(metadata["image-datetime"]).dt.strftime("%Y%m%dT%H%M%S.%f").str[:-3] + "Z" + image_open_args
+            metadata["filename"] = pd.to_datetime(metadata["image-datetime"]).dt.strftime("%Y%m%dT%H%M%S.%f").str[:-3] + "Z" + image_open_args
 
             duplicate_mask = metadata.duplicated(subset="image-filename", keep=False)
             if duplicate_mask.any():
@@ -287,9 +276,8 @@ class OpenLayer(Paidiverpy):
                     axis=1,
                 )
         elif rename == "UUID":
-            metadata["image-filename"] = metadata["image-filename"].apply(lambda _: str(uuid.uuid4()) + image_open_args)
-        self.set_metadata(metadata)
-        return metadata
+            metadata["filename"] = metadata["filename"].apply(lambda _: str(uuid.uuid4()) + image_open_args)
+        return image_ds.assign_coords(filename=("filename", metadata["filename"].to_numpy()))
 
     def _get_image_open_args(self, image_open_args: str | dict | None) -> tuple[str | None, str | None]:
         """Get the image open arguments.

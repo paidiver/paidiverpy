@@ -121,7 +121,9 @@ class Pipeline(Paidiverpy):
                         config_index=index - 1,
                     )
                 step_instance.run()
-                if not step_params.get("test", False):
+
+                test = step_instance.get("test", False)
+                if not test:
                     self.images = step_instance.images
                     self.set_metadata(step_instance.get_metadata(flag="all"))
                     self.runned_steps = index

@@ -6,6 +6,7 @@ from pathlib import Path
 import cv2
 import dask
 import dask.array as da
+import xarray as xr
 import numpy as np
 import rawpy
 from PIL import Image
@@ -34,7 +35,6 @@ def open_image_remote(
         image_open_args (dict | None): The image open arguments
         **kwargs (dict): Additional keyword arguments. The following are supported:
             - storage_options (dict): The storage options for reading metadata file.
-            - parallel (bool): Whether to use Dask for parallel processing.
 
     Raises:
         ValueError: Failed to open the image
@@ -56,8 +56,7 @@ def open_image_remote(
         img = None
         logging.warning("Failed to open %s: %s", img_path, e)
 
-    img = correct_image_dims_and_format(img, kwargs.get("parallel"), image_type=image_type)
-
+    img = correct_image_dims_and_format(img, image_type=image_type)
     return img, exif, img_path
 
 
@@ -70,8 +69,7 @@ def open_image_local(
         img_path (str): The path to the image file
         image_type (str | None): The image type
         image_open_args (dict | None): The image open arguments
-        **kwargs (dict): Additional keyword arguments. The following are supported:
-            - parallel (bool): Whether to use Dask for parallel processing.
+        **kwargs (dict): Additional keyword arguments. This is just a place holder for the code
 
     Raises:
         ValueError: Failed to open the image
@@ -84,18 +82,15 @@ def open_image_local(
         img = cv2.imread(str(img_path), image_open_args.get("flags", cv2.IMREAD_UNCHANGED))
     else:
         img = load_raw_image(img_path, image_type=image_type, image_open_args=image_open_args)
-    img = correct_image_dims_and_format(img, kwargs.get("parallel"), image_type=image_type)
+    img = correct_image_dims_and_format(img, image_type=image_type)
     return img, exif, img_path
 
 
-def correct_image_dims_and_format(
-    img: np.ndarray | dask.array.core.Array, parallel: bool, image_type: str | None = None
-) -> np.ndarray | dask.array.core.Array:
+def correct_image_dims_and_format(img: np.ndarray | dask.array.core.Array, image_type: str | None = None) -> np.ndarray | dask.array.core.Array:
     """Correct the image dimensions and format.
 
     Args:
         img (np.ndarray | dask.array.core.Array): The image data
-        parallel (bool): Whether to use Dask for parallel processing
         image_type (str | None): The image type
 
     Returns:
@@ -109,9 +104,37 @@ def correct_image_dims_and_format(
         img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
     elif img.ndim == NUM_DIMENSIONS and img.shape[2] == NUM_CHANNELS_RGB and image_type in SUPPORTED_OPENCV_IMAGE_TYPES:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    if parallel:
-        img = da.from_array(img, chunks=img.shape)
+    # if parallel:
+    #     img = da.from_array(img, chunks=img.shape)
     return img
+
+
+def pad_image(
+    img: np.ndarray | dask.array.core.Array, target_height: int, target_width: int
+) -> tuple[np.ndarray | dask.array.core.Array, np.ndarray, int, int]:
+    """Pad the image to the target height and width.
+
+    Args:
+        img (np.ndarray | dask.array.core.Array): The image data
+        target_height (int): The target height
+        target_width (int): The target width
+
+    Returns:
+        tuple[np.ndarray | dask.array.core.Array, np.ndarray, int, int]: The padded image, the mask, the original height, and the original width
+    """
+    h, w = img.shape[:2]
+    pad_bottom = target_height - h
+    pad_right = target_width - w
+    pad_cfg = [(0, pad_bottom), (0, pad_right)]
+    if img.ndim > NUM_DIMENSIONS_GREY:
+        pad_cfg.append((0, 0))  # don't pad channels
+
+    padded = np.pad(img, pad_cfg, mode="constant", constant_values=0)
+
+    mask = np.zeros((target_height, target_width), dtype=bool)
+    mask[:h, :w] = True
+
+    return padded, mask
 
 
 def load_raw_image(img_path: str, image_type: str | None, image_open_args: dict | None, remote: bool = False) -> np.ndarray | dask.array.core.Array:

@@ -7,6 +7,7 @@ parameters.
 import logging
 import cv2
 import numpy as np
+import xarray as xr
 from dask.distributed import Client
 from paidiverpy import Paidiverpy
 from paidiverpy.config.config_params import ConfigParams
@@ -97,11 +98,11 @@ class ConvertLayer(Paidiverpy):
         self.layer_methods = CONVERT_LAYER_METHODS
 
     @staticmethod
-    def convert_bits(image_data: np.ndarray, metadata: dict | None = None, params: BitParams = None, **kwargs: dict) -> tuple[np.ndarray, dict]:
+    def convert_bits(image_data: xr.DataArray, metadata: dict, params: BitParams = None, **kwargs: dict) -> tuple[np.ndarray, dict]:
         """Convert the image to the specified number of bits.
 
         Args:
-            image_data (np.ndarray): The image data.
+            image_data (xr.DataArray): The image data.
             metadata (dict, optional): The metadata for the image.
             params (BitParams, optional): The parameters for the bit conversion.
             **kwargs: Additional keyword arguments.
@@ -111,9 +112,9 @@ class ConvertLayer(Paidiverpy):
         Returns:
             tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
-        image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, BitParams, **kwargs)
+        image_data, params, _ = Paidiverpy.prepare_inputs(image_data, params, BitParams, **kwargs)
         try:
-            bit = metadata.get("bit_depth", image_data.dtype.itemsize)
+            bit = image_data["bit_depth"].item() if "bit_depth" in image_data.coords else image_data.dtype.itemsize
 
             if params.output_bits == EIGHT_BITS and bit != EIGHT_BITS_SIZE:
                 image_data, metadata = ConvertLayer.normalize_image(image_data, metadata)
@@ -135,11 +136,11 @@ class ConvertLayer(Paidiverpy):
         return image_data, metadata
 
     @staticmethod
-    def channel_convert(image_data: np.ndarray, metadata: dict | None = None, params: ToParams = None, **kwargs: dict) -> tuple[np.ndarray, dict]:
+    def channel_convert(image_data: xr.DataArray, metadata: dict, params: ToParams = None, **kwargs: dict) -> tuple[np.ndarray, dict]:
         """Convert the image to the specified channel.
 
         Args:
-            image_data (np.ndarray): The image data.
+            image_data (xr.DataArray): The image data.
             metadata (dict, optional): The metadata for the image.
             params (ToParams, optional): The parameters for the channel conversion.
                 Defaults to ToParams().
@@ -153,8 +154,8 @@ class ConvertLayer(Paidiverpy):
         Returns:
             tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
-        image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, ToParams, **kwargs)
-        num_channels = metadata.get("num_channels", image_data.shape[-1])
+        image_data, params, _ = Paidiverpy.prepare_inputs(image_data, params, ToParams, **kwargs)
+        num_channels = image_data["num_channels"].item() if "num_channels" in image_data.coords else image_data.shape[-1]
 
         conversion_map = {
             "RGB": {
@@ -188,13 +189,11 @@ class ConvertLayer(Paidiverpy):
         return image_data, metadata
 
     @staticmethod
-    def normalize_image(
-        image_data: np.ndarray, metadata: dict | None = None, params: NormalizeParams = None, **kwargs: dict
-    ) -> tuple[np.ndarray, dict]:
+    def normalize_image(image_data: xr.DataArray, metadata: dict, params: NormalizeParams = None, **kwargs: dict) -> tuple[np.ndarray, dict]:
         """Normalize the image data.
 
         Args:
-            image_data (np.ndarray): The image data.
+            image_data (xr.DataArray): The image data.
             metadata (dict, optional): The metadata for the image.
             params (NormalizeParams, optional): The parameters for the image normalization.
                 Defaults to NormalizeParams().
@@ -208,7 +207,7 @@ class ConvertLayer(Paidiverpy):
         Returns:
             tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
-        image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, NormalizeParams, **kwargs)
+        image_data, params, _ = Paidiverpy.prepare_inputs(image_data, params, NormalizeParams, **kwargs)
         try:
             if params.method == "minmax":
                 if params.min > params.max:
@@ -230,11 +229,11 @@ class ConvertLayer(Paidiverpy):
         return image_data, metadata
 
     @staticmethod
-    def resize(image_data: np.ndarray, metadata: dict | None = None, params: ResizeParams = None, **kwargs: dict) -> tuple[np.ndarray, dict]:
+    def resize(image_data: xr.DataArray, metadata: dict, params: ResizeParams = None, **kwargs: dict) -> tuple[np.ndarray, dict]:
         """Resize the image data.
 
         Args:
-            image_data (np.ndarray): The image data.
+            image_data (xr.DataArray): The image data.
             metadata (dict, optional): The metadata for the image.
             params (ResizeParams, optional): The parameters for the image resizing.
                 Defaults to ResizeParams().
@@ -246,7 +245,7 @@ class ConvertLayer(Paidiverpy):
         Returns:
             tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
-        image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, ResizeParams, **kwargs)
+        image_data, params, _ = Paidiverpy.prepare_inputs(image_data, params, ResizeParams, **kwargs)
         interp_map = {
             "nearest": cv2.INTER_NEAREST,
             "linear": cv2.INTER_LINEAR,
@@ -280,11 +279,11 @@ class ConvertLayer(Paidiverpy):
         return image_data, metadata
 
     @staticmethod
-    def crop_images(image_data: np.ndarray, metadata: dict | None = None, params: CropParams = None, **kwargs: dict) -> tuple[np.ndarray, dict]:
+    def crop_images(image_data: xr.DataArray, metadata: dict, params: CropParams = None, **kwargs: dict) -> tuple[np.ndarray, dict]:
         """Crop the image data.
 
         Args:
-            image_data (np.ndarray): The image data.
+            image_data (xr.DataArray): The image data.
             metadata (dict, optional): The metadata for the image.
             params (CropParams, optional): The parameters for the image cropping.
                 Defaults to CropParams().
@@ -297,7 +296,7 @@ class ConvertLayer(Paidiverpy):
         Returns:
             tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
-        image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, CropParams, **kwargs)
+        image_data, params, _ = Paidiverpy.prepare_inputs(image_data, params, CropParams, **kwargs)
         try:
             height, width = image_data.shape[:2]
             crop_h, crop_w = ConvertLayer._get_crop_size(height, width, params.size, params.size_type)

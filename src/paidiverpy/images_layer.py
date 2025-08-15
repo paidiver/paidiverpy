@@ -9,6 +9,7 @@ import dask
 import dask.array as da
 import numpy as np
 import pandas as pd
+import xarray as xr
 from dask.diagnostics import ProgressBar
 from dask.distributed import Client
 from IPython.display import HTML
@@ -18,7 +19,6 @@ from paidiverpy.utils import formating_html
 from paidiverpy.utils.data import NUM_CHANNELS_GREY
 from paidiverpy.utils.data import NUM_DIMENSIONS_GREY
 from paidiverpy.utils.docker import is_running_in_docker
-from paidiverpy.utils.logging_functions import initialise_logging
 from paidiverpy.utils.object_store import check_create_bucket_exists
 from paidiverpy.utils.object_store import create_client
 from paidiverpy.utils.object_store import upload_file_to_bucket
@@ -34,50 +34,97 @@ class ImagesLayer:
     def __init__(self, output_path: str | None = None):
         self.steps = []
         self.step_metadata = []
-        self.images = []
         self.max_images = 12
         self.output_path = output_path
-        self.filenames = []
+        self.images = None
 
     def add_step(
         self,
         step: str,
-        images: np.ndarray | da.core.Array = None,
-        metadata: pd.DataFrame = None,
+        images: xr.Dataset,
         step_metadata: dict | None = None,
-        update_metadata: bool = False,
+        metadata: pd.DataFrame | None = None,
         track_changes: bool = True,
     ) -> None:
         """Add a step to the pipeline.
 
         Args:
             step (str): The step to add
-            images (np.ndarray | da.core.Array, optional): The images to add.
-        Defaults to None.
-            metadata (pd.DataFrame, optional): The metadata to add. Defaults to None.
+            images (xr.Dataset): The images for the step.
             step_metadata (dict, optional): The metadata for the step.
         Defaults to None.
-            update_metadata (bool, optional): Whether to update the metadata.
+            metadata (pd.DataFrame, optional): The metadata for the step.
+        Defaults to None.
             track_changes (bool, optional): Whether to track changes. Defaults to True.
         """
-        if update_metadata:
-            last_filenames = np.array(self.filenames[-1])
-            new_filenames = np.isin(last_filenames, metadata["image-filename"])
-            new_images = [image for image, filename in zip(self.images[-1], new_filenames, strict=False) if filename]
-            if not track_changes and len(self.images) > 1:
-                len_images = len(self.images[-1])
-                del self.images[-1]
-                self.images.append([None] * len_images)
-            self.images.append(new_images)
-        else:
-            if not track_changes and len(self.images) > 0:
-                len_images = len(self.images[-1])
-                del self.images[-1]
-                self.images.append([None] * len_images)
-            self.images.append(images)
+        if not metadata:
+            metadata = pd.DataFrame()
         self.step_metadata.append(step_metadata)
         self.steps.append(step)
-        self.filenames.append(metadata["image-filename"].tolist())
+        images = images.rename(
+            {
+                "image": f"image_{len(self.steps) - 1}",
+                "mask": f"mask_{len(self.steps) - 1}",
+                "x": f"x_{len(self.steps) - 1}",
+                "y": f"y_{len(self.steps) - 1}",
+                "band": f"band_{len(self.steps) - 1}",
+            }
+        )
+        if self.images is None or not track_changes:
+            self.images = images
+        else:
+            self.images = xr.concat([self.images, images], dim="filename")
+
+        if len(metadata.columns) > 0:
+            self.update_metadata_coordinates(metadata)
+
+        gc.collect()
+
+    def update_metadata_coordinates(self, metadata: pd.DataFrame) -> None:
+        """Update the metadata coordinates.
+
+        Args:
+            metadata (pd.DataFrame): The metadata to update.
+        """
+        for col in metadata.columns:
+            if col in self.images.coords:
+                updated_values = self.images[col].to_series()
+                for fname in metadata.index:
+                    if fname in updated_values.index:
+                        updated_values.loc[fname] = metadata.loc[fname, col]
+                self.images = self.images.assign_coords({col: ("filename", updated_values.to_numpy())})
+            else:
+                values = []
+                for fname in self.images["filename"].to_numpy():
+                    if fname in metadata.index:
+                        values.append(metadata.loc[fname, col])
+                    else:
+                        values.append(None)
+                self.images = self.images.assign_coords({col: ("filename", values)})
+
+    def replace_step(self, images: xr.Dataset, metadata: pd.DataFrame | None = None) -> None:
+        """Add a step to the pipeline.
+
+        Args:
+            step (str): The step to add
+            images (xr.Dataset): The images for the step.
+            metadata (pd.DataFrame | None): The metadata for the step.
+        """
+        if not metadata:
+            metadata = pd.DataFrame()
+        images = images.rename(
+            {
+                "image": f"image_{len(self.steps) - 1}",
+                "mask": f"mask_{len(self.steps) - 1}",
+                "x": f"x_{len(self.steps) - 1}",
+                "y": f"y_{len(self.steps) - 1}",
+                "band": f"band_{len(self.steps) - 1}",
+            }
+        )
+        self.images = xr.concat([self.images, images], dim="filename")
+        if len(metadata.columns) > 0:
+            self.update_metadata_coordinates(metadata)
+
         gc.collect()
 
     def remove_steps_by_order(self, step_order: int) -> None:
@@ -87,8 +134,10 @@ class ImagesLayer:
             step_order (int): The step order to remove
         """
         self.steps = self.steps[:step_order]
-        self.images = self.images[:step_order]
-        self.filenames = self.filenames[:step_order]
+        self.step_metadata = self.step_metadata[:step_order]
+        variables = [var for var in self.images.data_vars if var.endswith(f"_{step_order - 1}")]
+        self.images = self.images.drop_vars(variables)
+        self.images.flag = self.images.flag.where(self.images.flag <= step_order, 0)
 
     def get_step(
         self,
@@ -105,8 +154,9 @@ class ImagesLayer:
             list[np.ndarray | da.core.Array]: The images for the step
         """
         if last:
-            return self.images[-1]
-        return self.images[step]
+            step = len(self.steps) - 1
+        images = self.images[[f"image_{step}", f"mask_{step}"]]
+        return images.rename({f"image_{step}": "image", f"mask_{step}": "mask", f"y_{step}": "y", f"x_{step}": "x", f"band_{step}": "band"})
 
     def show(self, image_number: int = 0) -> HTML:
         """Show the images in the pipeline.
@@ -126,10 +176,8 @@ class ImagesLayer:
         output_path: str | None = None,
         image_format: str = "png",
         config: Configuration | None = None,
-        metadata: pd.DataFrame | None = None,
         client: Client = None,
         n_jobs: int = 1,
-        logger: logging.Logger | None = None,
     ) -> None:
         """Save the images in the pipeline.
 
@@ -139,117 +187,43 @@ class ImagesLayer:
             output_path (str, optional): The output path to save the images. Defaults to None.
             image_format (str, optional): The image format to save. Defaults to "png".
             config (Configuration, optional): The configuration object. Defaults to None.
-            metadata (pd.DataFrame, optional): The metadata object. Defaults to None.
             client (Client, optional): The Dask client. Defaults to None.
             n_jobs (int, optional): The number of jobs to use. Defaults to 1.
-            logger (logging.Logger, optional): The logger to log messages. Defaults to None.
         """
         images = self.get_step(step, last)
         output_path, is_remote = config.get_output_path(output_path)
-        logger = logger if logger else initialise_logging()
-        step_order = len(self.steps) - 1 if last else step
-        # if metadata is not None:
-        #     metadata = metadata[metadata["flag"] == 0] if last else metadata[(metadata["flag"] == 0) | (metadata["flag"] > step)]
+        s3_client = None
         if is_remote:
-            self.save_remote(images, output_path, image_format, metadata, client, n_jobs, step_order, logger)
-        else:
-            self.save_local(images, output_path, image_format, metadata, client, n_jobs, step_order, logger)
+            s3_client = create_client()
+            bucket_name = output_path[5:].split("/")[0]
+            check_create_bucket_exists(bucket_name, s3_client)
+        tasks = xr.apply_ufunc(
+            ImagesLayer.process_single_image,
+            images["image"],
+            images["mask"],
+            images["filename"],
+            kwargs={
+                "output_path": output_path,
+                "image_format": image_format,
+                "s3_client": s3_client,
+                "processor": self.process_and_upload,
+            },
+            input_core_dims=[["y", "x", "band"], [], [], []],
+            vectorize=True,
+            dask="parallelized",
+            output_dtypes=[int],
+        )
 
-    def save_remote(
-        self,
-        images: list[np.ndarray | da.core.Array],
-        output_path: str,
-        image_format: str,
-        metadata: pd.DataFrame,
-        client: Client,
-        n_jobs: int,
-        step_order: int,
-        logger: logging.Logger,
-    ) -> None:
-        """Save the images to a remote location.
-
-        Args:
-            images (list): The images to save.
-            output_path (str): The output path to save the images.
-            image_format (str): The image format to save.
-            metadata (pd.DataFrame): The metadata object.
-            client (Client): The Dask client.
-            n_jobs (int): The number of jobs to use.
-            step_order (int): The step order.
-            logger (logging.Logger): The logger to log messages.
-        """
-        s3_client = create_client()
-        bucket_name = output_path[5:].split("/")[0]
-        check_create_bucket_exists(bucket_name, s3_client, logger)
         if client:
-            logger.info("Uploading images to S3 using Dask")
-            delayed_tasks = [
-                dask.delayed(self.process_and_upload)(image, output_path + f"{self.filenames[step_order][idx]}", image_format, s3_client, metadata)
-                for idx, image in enumerate(images)
-            ]
-            with ProgressBar():
-                futures = client.compute(delayed_tasks)
-                client.gather(futures)
-        elif n_jobs > 1:
-            logger.info("Uploading images to S3 using Dask")
-            delayed_tasks = [
-                dask.delayed(self.process_and_upload)(image, output_path + f"{self.filenames[step_order][idx]}", image_format, s3_client, metadata)
-                for idx, image in enumerate(images)
-            ]
-            with dask.config.set(scheduler="threads", num_workers=n_jobs), ProgressBar():
-                dask.compute(*delayed_tasks)
-        else:
-            logger.info("Uploading images to S3")
-            for idx, image in enumerate(images):
-                img_path = output_path + f"{self.filenames[step_order][idx]}"
-                self.process_and_upload(image, img_path, image_format, s3_client, metadata)
+            logging.info("Saving images using Dask")
 
-    def save_local(
-        self,
-        images: list[np.ndarray | da.core.Array],
-        output_path: str,
-        image_format: str,
-        metadata: pd.DataFrame,
-        client: Client,
-        n_jobs: int,
-        step_order: int,
-        logger: logging.Logger,
-    ) -> None:
-        """Save the images to a local location.
-
-        Args:
-            images (list): The images to save.
-            output_path (str): The output path to save the images.
-            image_format (str): The image format to save.
-            metadata (pd.DataFrame): The metadata object.
-            client (Client): The Dask client.
-            n_jobs (int): The number of jobs to use.
-            step_order (int): The step order.
-            logger (logging.Logger): The logger to log messages.
-        """
-        if client:
-            logger.info("Saving images using Dask")
-            delayed_tasks = [
-                dask.delayed(self.process_and_upload)(image, output_path / f"{self.filenames[step_order][idx]}", image_format, None, metadata)
-                for idx, image in enumerate(images)
-            ]
+            futures = client.compute(tasks)
             with ProgressBar():
-                futures = client.compute(delayed_tasks)
                 client.gather(futures)
-        elif n_jobs > 1:
-            logger.info("Saving images using Dask")
-            delayed_tasks = [
-                dask.delayed(self.process_and_upload)(image, output_path / f"{self.filenames[step_order][idx]}", image_format, None, metadata)
-                for idx, image in enumerate(images)
-            ]
-            with dask.config.set(scheduler="threads", num_workers=n_jobs), ProgressBar():
-                dask.compute(*delayed_tasks)
         else:
-            logger.info("Saving images")
-            for idx, image in enumerate(images):
-                # remove extension from name if exist and then add the new extension
-                img_path = output_path / f"{self.filenames[step_order][idx]}"
-                self.process_and_upload(image, img_path, image_format, None, metadata)
+            logging.info("Saving images using Threads")
+            with dask.config.set(scheduler="threads", num_workers=n_jobs), ProgressBar():
+                tasks.compute()
 
     def process_and_upload(
         self,
@@ -257,7 +231,6 @@ class ImagesLayer:
         img_path: str | Path,
         image_format: str,
         s3_client: Client | None = None,
-        metadata: pd.DataFrame | None = None,
     ) -> None:
         """Process and upload the images.
 
@@ -266,9 +239,7 @@ class ImagesLayer:
             img_path (str | Path): The image path to save.
             image_format (str): The image format to save.
             s3_client (boto3.client, optional): The S3 client. Defaults to None.
-            metadata (pd.DataFrame, optional): The metadata object. Defaults to None.
         """
-        _ = metadata
         saved_image, _ = self.calculate_image(image)
         img_path_with_suffix = img_path.with_suffix(f".{image_format}")
         # exif_dict = MetadataParser.metadata_to_exif(str(img_path).split("/")[-1], metadata, image_format)
@@ -333,6 +304,7 @@ class ImagesLayer:
             for file in output_path.iterdir():
                 file.unlink()
 
+    # TODO: update this method to use the new format
     def __repr__(self) -> str:
         """Return the string representation of the object.
 
@@ -367,3 +339,26 @@ class ImagesLayer:
         if not max_images:
             max_images = self.max_images
         return formating_html.images_repr(self, max_images=max_images, html=True)
+
+    @staticmethod
+    def process_single_image(
+        img: np.ndarray, mask: np.ndarray, filename: str, output_path: Path, image_format: str, s3_client: Client | None, processor: callable
+    ) -> int:
+        """Process a single image and save it.
+
+        Args:
+            img (np.ndarray): The image to process.
+            mask (np.ndarray): The mask to apply.
+            filename (str): The name of the file to save.
+            output_path (Path): The path to save the output.
+            image_format (str): The format to save the image.
+            s3_client (Client | None): The S3 client to use for uploading.
+            processor (callable): The processing function to use.
+
+        Returns:
+            int: The status code (0 for success).
+        """
+        img_masked = img.copy()
+        img_masked[mask == 0] = 0
+        processor(img_masked, output_path / filename.item(), image_format, s3_client)
+        return 0

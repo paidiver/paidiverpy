@@ -47,7 +47,6 @@ Submodules
    /api/paidiverpy/pipeline/index
    /api/paidiverpy/position_layer/index
    /api/paidiverpy/sampling_layer/index
-   /api/paidiverpy/static/index
    /api/paidiverpy/utils/index
 
 
@@ -57,6 +56,14 @@ Classes
 .. autoapisummary::
 
    paidiverpy.Paidiverpy
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   paidiverpy.show_versions
 
 
 Package Contents
@@ -429,4 +436,31 @@ Package Contents
       ..
           !! processed by numpydoc !!
 
+
+.. py:function:: show_versions(file=sys.stdout, conda=False) -> None
+
+   
+   Print the versions of paidiverpy and its dependencies.
+
+   :param file: print to the given file-like object. Defaults to sys.stdout.
+   :type file: file-like, optional
+   :param conda: format versions to be copy/pasted on a conda environment file (default, False)
+   :type conda: bool, optional
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
 
