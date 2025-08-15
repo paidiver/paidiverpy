@@ -151,18 +151,16 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: process_image_sequential(img_path: str, remote: bool = False) -> tuple[numpy.ndarray | dask.array.core.Array, dict, str]
+   .. py:method:: create_dataset(images_and_exifs: list[tuple[numpy.ndarray | dask.array.core.Array, dict, str]]) -> dask.array.core.Array
 
       
-      Process a single image file.
+      Create a Dask array from the processed images and EXIF data.
 
-      :param img_path: The path to the image file
-      :type img_path: str
-      :param remote: Whether the image is remote. Defaults to False.
-      :type remote: bool, optional
+      :param images_and_exifs: The list of processed images and EXIF data.
+      :type images_and_exifs: list[tuple[np.ndarray | dask.array.core.Array, dict, str]]
 
-      :returns: The processed image, EXIF data, and image path.
-      :rtype: np.ndarray | dask.array.core.Array, dict, str
+      :returns: The Dask array containing the images.
+      :rtype: dask.array.core.Array
 
 
 
@@ -182,7 +180,7 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: rename_images(rename: str, metadata: pandas.DataFrame) -> pandas.DataFrame
+   .. py:method:: rename_images(rename: str, image_ds: xarray.Dataset) -> pandas.DataFrame
 
       
       Rename images based on the rename mode.

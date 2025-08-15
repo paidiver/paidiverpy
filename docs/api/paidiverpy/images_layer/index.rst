@@ -47,19 +47,18 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-   .. py:method:: add_step(step: str, images: numpy.ndarray | dask.array.core.Array = None, metadata: pandas.DataFrame = None, step_metadata: dict | None = None, update_metadata: bool = False, track_changes: bool = True) -> None
+   .. py:method:: add_step(step: str, images: xarray.Dataset, step_metadata: dict | None = None, track_changes: bool = True) -> None
 
       
       Add a step to the pipeline.
 
       :param step: The step to add
       :type step: str
-      :param images: The images to add.
-      :type images: np.ndarray | da.core.Array, optional
+      :param images:
+      :type images: xr.
+      :param step_metadata: The metadata for the step.
+      :type step_metadata: dict, optional
 
-      Defaults to None.
-          metadata (pd.DataFrame, optional): The metadata to add. Defaults to None.
-          step_metadata (dict, optional): The metadata for the step.
       Defaults to None.
           update_metadata (bool, optional): Whether to update the metadata.
           track_changes (bool, optional): Whether to track changes. Defaults to True.

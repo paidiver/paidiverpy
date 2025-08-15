@@ -216,7 +216,7 @@ class WidgetRenderer:
                 )
             return pn.Row(pn.Column(widget["html"], widget["widget"]), remove_btn)
 
-        def add_item(event = None) -> None:
+        def add_item(event=None) -> None:
             html, widget = create_list_widget(len(inputs))
             if self.steps:
                 inputs.append({"widget": widget})

@@ -71,13 +71,12 @@ def create_client() -> boto3.client:
     return boto3.client(**storage_options)
 
 
-def check_create_bucket_exists(bucket_name: str, client: boto3.client, logger: logging.Logger) -> None:
+def check_create_bucket_exists(bucket_name: str, client: boto3.client) -> None:
     """Check if a bucket exists.
 
     Args:
         bucket_name (str): The name of the bucket.
         client (boto3.client): The boto3 client for S3.
-        logger (logging.Logger): The logger to log messages.
     """
     exists = True
     try:
@@ -85,7 +84,7 @@ def check_create_bucket_exists(bucket_name: str, client: boto3.client, logger: l
     except botocore.exceptions.ClientError:
         exists = False
     if not exists:
-        logger.info("Creating bucket %s.", bucket_name)
+        logging.info("Creating bucket %s.", bucket_name)
         client.create_bucket(Bucket=bucket_name)
 
 

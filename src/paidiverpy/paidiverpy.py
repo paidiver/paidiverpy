@@ -8,6 +8,7 @@ import dask
 import dask.array as da
 import numpy as np
 import pandas as pd
+import xarray as xr
 from dask.diagnostics import ProgressBar
 from dask.distributed import Client
 from distributed import LocalCluster
@@ -106,35 +107,30 @@ class Paidiverpy:
         test = self.step_metadata.get("test")
         params = self.step_metadata.get("params") or {}
         method, params = self._get_method_by_mode(params, self.layer_methods, mode)
-        images = self.images.get_step(step=len(self.images.images) - 1)
-        image_list, metadata = (
-            self.process_sequentially(images, method, params) if self.n_jobs == 1 else self.process_parallel(images, method, params)
-        )
+        images, metadata = self.process_images(method, params)
         if not test:
             self.step_name = f"step_{self.config_index}" if not self.step_name else self.step_name
-            self.set_metadata(metadata, flag=len(self.images.images))
             if add_new_step:
                 self.images.add_step(
                     step=self.step_name,
-                    images=image_list,
+                    images=images,
                     step_metadata=self.step_metadata,
-                    metadata=self.get_metadata(),
+                    metadata=metadata,
                     track_changes=self.track_changes,
                 )
+                self.set_metadata()
                 return None
-            self.images.images[-1] = image_list
+            self.images.replace_step(images=images, metadata=metadata)
             return self.images
         return None
 
-    def process_sequentially(
-        self, images: list[np.ndarray], method: callable, params: dict, custom: bool = False
-    ) -> tuple[list[np.ndarray], pd.DataFrame]:
+    # TODO: check if this code is running in parallel correctly
+    def process_images(self, method: callable, params: dict, custom: bool = False) -> tuple[list[np.ndarray], pd.DataFrame]:
         """Process the images sequentially.
 
         Method to process the images sequentially.
 
         Args:
-            images (List[np.ndarray]): The list of images to process.
             method (callable): The method to apply to the images.
             params (dict): The parameters for the method.
             custom (bool, optional): Whether the method is a custom method. Defaults to False.
@@ -142,71 +138,24 @@ class Paidiverpy:
         Returns:
             tuple[list[np.ndarray], pd.DataFrame]: A tuple containing the list of processed images and the metadata DataFrame.
         """
+        images = self.images.get_step(last=True)
         func = partial(method, params=params)
-        metadata = self.get_metadata().to_dict(orient="records")
-        processed_images = []
-        for index, (img, metadata_image) in enumerate(tqdm(zip(images, metadata, strict=False), total=len(images), desc="Processing images")):
-            if custom:
-                image, metadata_image_updated = func(img, metadata=metadata_image, metadata_core=metadata).process()
-            else:
-                image, metadata_image_updated = func(img, metadata=metadata_image, metadata_core=metadata)
-
-            metadata[index] = metadata_image_updated
-            processed_images.append(image)
-
-        metadata = pd.DataFrame(metadata)
-
-        return processed_images, metadata
-
-    def process_parallel(
-        self,
-        images: list[da.core.Array],
-        method: callable,
-        params: BaseModel,
-        custom: bool = False,
-    ) -> tuple[list[np.ndarray], pd.DataFrame]:
-        """Process the images in parallel.
-
-        Method to process the images in parallel.
-
-        Args:
-            images (List[da.core.Array]): The list of images to process.
-            method (callable): The method to apply to the images.
-            params (BaseModel): The parameters for the method.
-            custom (bool, optional): Whether the method is a custom method. Defaults to False.
-
-        Returns:
-            tuple[list[np.ndarray], pd.DataFrame]: A tuple containing the list of processed images and the metadata DataFrame.
-        """
-        func = partial(method, params=params)
-        metadata = self.get_metadata().to_dict(orient="records")
-
-        def _process_image(img, metadata_image, metadata_core):  # noqa: ANN001, ANN202
-            if custom:
-                result = func(img, metadata=metadata_image, metadata_core=metadata_core).process()
-            else:
-                result = func(img, metadata=metadata_image, metadata_core=metadata_core)
-            return result
-
-        tasks = [dask.delayed(_process_image)(img, metadata_image, metadata) for img, metadata_image in zip(images, metadata, strict=False)]
-
+        processed_images, updated_metadata_list = xr.apply_ufunc(
+            Paidiverpy.process_single,
+            images["image"],
+            images["mask"],
+            input_core_dims=[["y", "x", "band"], ["y", "x"]],
+            output_core_dims=[["y", "x", "band"], []],
+            vectorize=True,
+            dask="parallelized",
+            output_dtypes=[images["image"].dtype, object],
+            kwargs={"func": func, "custom": custom},
+        )
         if self.client:
-            if isinstance(self.client.cluster, LocalCluster):
-                futures = self.client.compute(tasks)
-            else:
-                futures = [
-                    self.client.submit(_process_image, img, metadata_image, metadata) for img, metadata_image in zip(images, metadata, strict=False)
-                ]
-            with ProgressBar():
-                results = self.client.gather(futures)
+            processed_images, updated_metadata_list = self.client.compute([processed_images, updated_metadata_list])
         else:
-            with dask.config.set(scheduler="threads", num_workers=self.n_jobs), ProgressBar():
-                results = dask.compute(*tasks)
-
-        processed_images, metadata = zip(*results, strict=False)
-        metadata = pd.DataFrame(metadata)
-
-        return list(processed_images), metadata
+            processed_images, updated_metadata_list = dask.compute(processed_images, updated_metadata_list)
+        return processed_images, updated_metadata_list
 
     def process_dataset(
         self,
@@ -233,7 +182,7 @@ class Paidiverpy:
         else:
             processed_images, metadata = func(images, metadata=metadata)
 
-        metadata = pd.DataFrame(metadata)
+        metadata = pd.DataFrame(metadata).set_index("filename")
 
         return processed_images, metadata
 
@@ -300,7 +249,8 @@ class Paidiverpy:
         metadata = pd.DataFrame(list_of_files, columns=["image-filename"])
         return metadata.reset_index().rename(columns={"index": "ID"})
 
-    def get_metadata(self, flag: int | None = None) -> pd.DataFrame:
+    # TODO: check if this code is working properly
+    def get_metadata(self, flag: int | None = None, orient: str | None = None) -> pd.DataFrame:
         """Get the metadata object.
 
         Args:
@@ -312,52 +262,27 @@ class Paidiverpy:
         flag = 0 if flag is None else flag
         if flag == "all":
             if "image-datetime" not in self.metadata.metadata.columns:
-                return self.metadata.metadata.copy()
-            return self.metadata.metadata.sort_values("image-datetime").copy()
-        if "image-datetime" not in self.metadata.metadata.columns:
-            return self.metadata.metadata[self.metadata.metadata["flag"] <= flag].copy()
-        return self.metadata.metadata[self.metadata.metadata["flag"] <= flag].sort_values("image-datetime").copy()
+                metadata = self.metadata.metadata.copy()
+            else:
+                metadata = self.metadata.metadata.sort_values("image-datetime").copy()
+        elif "image-datetime" not in self.metadata.metadata.columns:
+            metadata = self.metadata.metadata[self.metadata.metadata["flag"] <= flag].copy()
+        else:
+            metadata = self.metadata.metadata[self.metadata.metadata["flag"] <= flag].sort_values("image-datetime").copy()
+        if orient is None:
+            return metadata
+        return metadata.to_dict(orient=orient)
 
-    def set_metadata(self, metadata: pd.DataFrame, flag: bool = False) -> None:
+    def set_metadata(self, image_ds: xr.Dataset | None = None) -> None:
         """Set the metadata.
 
         Args:
-            metadata (pd.DataFrame): The metadata object.
-            flag (bool, optional): The flag value. Defaults to False.
+            image_ds (xr.Dataset, optional): The image dataset.
         """
-        if not flag:
-            self.metadata.metadata = metadata
-        else:
-            original_metadata = self.metadata.metadata.copy()
-
-            merged_metadata = original_metadata.merge(metadata, on="image-filename", how="left", suffixes=("_orig", "_new"))
-
-            updated_metadata = merged_metadata[["image-filename"]].copy()
-
-            all_columns = set(original_metadata.columns).union(metadata.columns) - {"image-filename"}
-
-            for column in all_columns:
-                col_new = f"{column}_new" if f"{column}_new" in merged_metadata.columns else None
-                col_orig = f"{column}_orig" if f"{column}_orig" in merged_metadata.columns else column
-
-                if col_new and col_orig:
-                    updated_metadata[column] = merged_metadata[col_new].combine_first(merged_metadata[col_orig])
-                elif col_new:
-                    updated_metadata[column] = merged_metadata[col_new]
-                elif col_orig:
-                    updated_metadata[column] = merged_metadata[col_orig]
-
-            updated_metadata = updated_metadata[
-                ["image-filename"]
-                + [col for col in original_metadata.columns if col != "image-filename"]
-                + [col for col in updated_metadata.columns if col not in original_metadata.columns and col != "image-filename"]
-            ]
-
-            for col in original_metadata.columns:
-                if col in updated_metadata.columns:
-                    with suppress(Exception):
-                        updated_metadata[col] = updated_metadata[col].astype(original_metadata[col].dtype)
-            self.metadata.metadata = updated_metadata
+        if image_ds is None:
+            image_ds = self.images.get_step(last=True)
+        image_ds_coords = [name for name in image_ds.coords if not (name in {"y", "x", "band"} or name.startswith(("y_", "x_", "band_")))]
+        self.metadata.metadata = image_ds[image_ds_coords].to_dataframe().set_index("ID")
 
     def save_images(
         self,
@@ -379,15 +304,12 @@ class Paidiverpy:
             output_path = self.config.general.output_path
         self.logger.info("Saving images from step: %s", step if not last else "last")
 
-        # metadata = MetadataParser.group_metadata_and_dataset_metadata(self.metadata.metadata,
-        #                                                               self.metadata.dataset_metadata)
         self.images.save(
             step,
             last=last,
             output_path=output_path,
             image_format=image_format,
             config=self.config,
-            metadata=None,
             client=self.client,
             n_jobs=self.n_jobs,
             logger=self.logger,
@@ -408,9 +330,7 @@ class Paidiverpy:
             value (int | str): Step name or order.
         """
         self.images.remove_steps_by_order(value)
-        metadata = self.get_metadata(flag="all")
-        metadata.loc[metadata["flag"] >= value, "flag"] = 0
-        self.set_metadata(metadata)
+        self.set_metadata(self.images)
 
     def _calculate_steps_metadata(self, config_part: Configuration) -> dict:
         """Calculate the steps metadata.
@@ -470,10 +390,10 @@ class Paidiverpy:
             raise_error = self.step_metadata["params"].get("raise_error", False)
         return raise_error
 
+    # TODO: correct this code
     @staticmethod
     def prepare_inputs(
         image_data: np.ndarray,
-        metadata: dict | None,
         params: BaseModel | None,
         default_params_factory: BaseModel,
         **kwargs: dict,
@@ -482,7 +402,6 @@ class Paidiverpy:
 
         Args:
             image_data (np.ndarray): The image data.
-            metadata (dict | None): The metadata.
             params (BaseModel | None): The parameters.
             default_params_factory (BaseModel): The default parameters factory.
             **kwargs (dict): Additional keyword arguments.
@@ -491,6 +410,28 @@ class Paidiverpy:
             tuple[np.ndarray, dict, BaseModel]: The image data, metadata, and parameters.
         """
         _ = kwargs
-        metadata = metadata or {}
         params = params or default_params_factory()
-        return image_data, metadata, params, kwargs
+        return image_data, params, kwargs
+
+    @staticmethod
+    def process_single(img: np.ndarray, mask: np.ndarray, func: callable, custom: bool) -> tuple[np.ndarray, dict]:
+        """Wrapper to process a single image with its metadata.
+
+        Args:
+            img (xr.DataArray or np.ndarray): The image to process.
+            mask (xr.DataArray or np.ndarray): The mask to apply.
+            func (callable): The processing function.
+            custom (bool): Whether to use the custom processing.
+
+        Returns:
+            tuple: The processed image and updated metadata.
+        """
+        img = img.where(mask == 1)  # keep masked pixels
+        metadata = {"filename": img.filename.item()}
+
+        if custom:
+            processed_img, updated_metadata = func(image_data=img, metadata=metadata).process()
+        else:
+            processed_img, updated_metadata = func(image_data=img, metadata=metadata)
+
+        return processed_img, updated_metadata

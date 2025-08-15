@@ -24,9 +24,9 @@ if TYPE_CHECKING:
 MAX_IMAGES_TO_SHOW = 12
 
 STATIC_FILES = (
-    ("paidiverpy.static.html", "icons-svg-inline.html"),
-    ("paidiverpy.static.css", "style.css"),
-    ("paidiverpy.static.js", "script.js"),
+    ("paidiverpy.utils.static.html", "icons-svg-inline.html"),
+    ("paidiverpy.utils.static.css", "style.css"),
+    ("paidiverpy.utils.static.js", "script.js"),
 )
 
 EXTERNAL_CSS = ["https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"]
@@ -86,7 +86,6 @@ def _icon(icon_name: str) -> str:
     Returns:
         str: The HTML representation of the icon.
     """
-    # icon_name should be defined in xarray/static/html/icon-svg-inline.html
     return f"<svg class='icon ppy-{icon_name}'><use xlink:href='#{icon_name}'></use></svg>"
 
 
@@ -205,9 +204,9 @@ def images_repr(
     # generate a ramdon 3 characters string
     random_id = "".join([chr(np.random.default_rng().integers(97, 122)) for _ in range(3)])
 
-    for step_index, (step, image_arrays) in enumerate(
-        zip(images.steps, images.images, strict=False),
-    ):
+    for step_index, step in enumerate(images.steps):
+        dataset = images.get_step(step=step_index, last=False)
+        dataset = dataset.where(images.images["flag"] <= step_index, drop=True)
         body += f"""
             <div class='ppy-h2 ppy-images-step-header' onclick='toggleMetadata({step_index}, "{random_id}")'>
                 Step {step_index}: {step}
@@ -217,11 +216,21 @@ def images_repr(
             </div>
             """
         body += f"<div id='ppy-images-metadata-{random_id}-{step_index}' class='ppy-images-metadata' style='display:block;'>"
+
+        filenames = dataset["filename"].data
+
         if image_number is not None:
-            images_to_show = [image_arrays[image_number]] if len(image_arrays) > image_number else []
+            if len(filenames) > image_number:
+                images_to_show = [dataset["image"].isel(filename=image_number)]
+                filenames_to_show = [filenames[image_number]]
+            else:
+                images_to_show = []
+                filenames_to_show = []
         else:
-            first_set_images = min(max_images, MAX_IMAGES_TO_SHOW)
-            images_to_show = image_arrays[:first_set_images]
+            first_set_images = min(max_images, len(filenames))
+            images_to_show = [dataset["image"].isel(filename=i) for i in range(first_set_images)]
+            filenames_to_show = filenames[:first_set_images]
+
         body += "<div class='ppy-images'>"
         if len(images_to_show) == 0:
             body += "<p class='ppy-p-error'>No images to show</p>"
@@ -229,8 +238,8 @@ def images_repr(
         else:
             size = (250, 250) if image_number is None else None
 
-            for image_index, image_array in enumerate(images_to_show):
-                body += generate_single_image_html(image_array, images.filenames, step_index, image_index, size, random_id)
+            for image_index, (image_array, fn) in enumerate(zip(images_to_show, filenames_to_show, strict=False)):
+                body += generate_single_image_html(image_array.to_numpy(), fn, step_index, image_index, size, random_id)
             body += "</div>"
         body += "</div>"
     return _obj_repr(images, body, html=html)
@@ -238,7 +247,7 @@ def images_repr(
 
 def generate_single_image_html(
     image_array: np.ndarray | da.core.Array,
-    filenames: list[str],
+    filename: str,
     step_index: int,
     image_index: int,
     size: tuple,
@@ -248,7 +257,7 @@ def generate_single_image_html(
 
     Args:
         image_array (np.ndarray | da.core.Array): The image array
-        filenames (list[str]): The filenames of the images
+        filename (str): The filename of the image
         step_index (int): The index of the step
         image_index (int): The index of the image
         size (tuple): The size of the image
@@ -261,7 +270,7 @@ def generate_single_image_html(
     html = f"""
         <div>
             <p onclick='toggleImage("{image_id}", "{random_id}")' class="ppy-images-image-p" >
-                Image: {filenames[step_index][image_index]}
+                Image: {filename}
                 <span id='ppy-images-arrow-{random_id}-{image_id}' class='ppy-images-toggle-arrow ppy-font-color-brown'>▼</span>
             </p>
         """

@@ -1,6 +1,5 @@
 """Paidiverpy App: Interactive Pipeline Builder and Image Processor."""
 
-from collections.abc import Callable
 from io import StringIO
 from pathlib import Path
 import panel as pn
@@ -51,7 +50,7 @@ class App:
             self.pipeline_widget = pn.Column(pn.pane.Markdown("### Pipeline not yet created. Please add configuration to the pipeline first."))
 
     def create_modal(
-        self, title: str = "", information: str = "", on_cancel: bool = False, on_confirm: Callable | None = None, visible: bool = False
+        self, title: str = "", information: str = "", on_cancel: bool = False, on_confirm: callable | None = None, visible: bool = False
     ) -> pn.Column:
         """Create a modal dialog for confirmation actions.
 
@@ -79,7 +78,7 @@ class App:
             title_pane, information_pane, pn.Row(modal_confirm_button, modal_cancel_button), css_classes=["ppy-pn-danger-modal"], visible=visible
         )
 
-    def update_modal(self, title: str, information: str, on_confirm: Callable | None = None, on_cancel: Callable | None = None) -> None:
+    def update_modal(self, title: str, information: str, on_confirm: callable | None = None, on_cancel: callable | None = None) -> None:
         """Update the modal dialog with new content and callbacks.
 
         Args:
