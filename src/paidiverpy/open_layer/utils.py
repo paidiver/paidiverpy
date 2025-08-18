@@ -310,9 +310,9 @@ def extract_exif_single(img_path: str, image_type: str, image_name: str | None =
         exif_data = img_pil.getexif()
         if exif_data is not None:
             if image_name:
-                exif["image-filename"] = image_name
+                exif["filename"] = image_name
             else:
-                exif["image-filename"] = img_path.name
+                exif["filename"] = img_path.name
             for tag, value in exif_data.items():
                 tag_name = TAGS.get(tag, tag)
                 exif[tag_name] = value

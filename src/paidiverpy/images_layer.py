@@ -64,7 +64,7 @@ class ImagesLayer:
         images = images.rename(
             {
                 "image": f"image_{len(self.steps) - 1}",
-                "mask": f"mask_{len(self.steps) - 1}",
+                # "mask": f"mask_{len(self.steps) - 1}",
                 "x": f"x_{len(self.steps) - 1}",
                 "y": f"y_{len(self.steps) - 1}",
                 "band": f"band_{len(self.steps) - 1}",
@@ -102,28 +102,25 @@ class ImagesLayer:
                         values.append(None)
                 self.images = self.images.assign_coords({col: ("filename", values)})
 
-    def replace_step(self, images: xr.Dataset, metadata: pd.DataFrame | None = None) -> None:
+    def replace_step(self, images: xr.Dataset) -> None:
         """Add a step to the pipeline.
 
         Args:
             step (str): The step to add
             images (xr.Dataset): The images for the step.
-            metadata (pd.DataFrame | None): The metadata for the step.
         """
-        if not metadata:
-            metadata = pd.DataFrame()
         images = images.rename(
             {
-                "image": f"image_{len(self.steps) - 1}",
-                "mask": f"mask_{len(self.steps) - 1}",
+                # "image": f"image_{len(self.steps) - 1}",
+                # "mask": f"mask_{len(self.steps) - 1}",
                 "x": f"x_{len(self.steps) - 1}",
                 "y": f"y_{len(self.steps) - 1}",
                 "band": f"band_{len(self.steps) - 1}",
             }
         )
-        self.images = xr.concat([self.images, images], dim="filename")
-        if len(metadata.columns) > 0:
-            self.update_metadata_coordinates(metadata)
+
+        self.images[f"image_{len(self.steps) - 1}"] = images
+        self.images["metadata"] = images["metadata"]
 
         gc.collect()
 
@@ -155,8 +152,11 @@ class ImagesLayer:
         """
         if last:
             step = len(self.steps) - 1
-        images = self.images[[f"image_{step}", f"mask_{step}"]]
-        return images.rename({f"image_{step}": "image", f"mask_{step}": "mask", f"y_{step}": "y", f"x_{step}": "x", f"band_{step}": "band"})
+        images = self.images[[f"image_{step}"]]
+        return images.rename({f"image_{step}": "image", f"y_{step}": "y", f"x_{step}": "x", f"band_{step}": "band"})
+
+        # images = self.images[[f"image_{step}", f"mask_{step}"]]
+        # return images.rename({f"image_{step}": "image", f"mask_{step}": "mask", f"y_{step}": "y", f"x_{step}": "x", f"band_{step}": "band"})
 
     def show(self, image_number: int = 0) -> HTML:
         """Show the images in the pipeline.
@@ -200,7 +200,8 @@ class ImagesLayer:
         tasks = xr.apply_ufunc(
             ImagesLayer.process_single_image,
             images["image"],
-            images["mask"],
+            images["original_height"],
+            images["original_width"],
             images["filename"],
             kwargs={
                 "output_path": output_path,
@@ -342,13 +343,21 @@ class ImagesLayer:
 
     @staticmethod
     def process_single_image(
-        img: np.ndarray, mask: np.ndarray, filename: str, output_path: Path, image_format: str, s3_client: Client | None, processor: callable
+        img: np.ndarray,
+        height: np.ndarray,
+        width: np.ndarray,
+        filename: str,
+        output_path: Path,
+        image_format: str,
+        s3_client: Client | None,
+        processor: callable,
     ) -> int:
         """Process a single image and save it.
 
         Args:
             img (np.ndarray): The image to process.
-            mask (np.ndarray): The mask to apply.
+            height (np.ndarray): The height of the image.
+            width (np.ndarray): The width of the image.
             filename (str): The name of the file to save.
             output_path (Path): The path to save the output.
             image_format (str): The format to save the image.
@@ -359,6 +368,29 @@ class ImagesLayer:
             int: The status code (0 for success).
         """
         img_masked = img.copy()
-        img_masked[mask == 0] = 0
+        img_masked[height:, width:] = 0
         processor(img_masked, output_path / filename.item(), image_format, s3_client)
         return 0
+
+    # @staticmethod
+    # def process_single_image(
+    #     img: np.ndarray, mask: np.ndarray, filename: str, output_path: Path, image_format: str, s3_client: Client | None, processor: callable
+    # ) -> int:
+    #     """Process a single image and save it.
+
+    #     Args:
+    #         img (np.ndarray): The image to process.
+    #         mask (np.ndarray): The mask to apply.
+    #         filename (str): The name of the file to save.
+    #         output_path (Path): The path to save the output.
+    #         image_format (str): The format to save the image.
+    #         s3_client (Client | None): The S3 client to use for uploading.
+    #         processor (callable): The processing function to use.
+
+    #     Returns:
+    #         int: The status code (0 for success).
+    #     """
+    #     img_masked = img.copy()
+    #     img_masked[mask == 0] = 0
+    #     processor(img_masked, output_path / filename.item(), image_format, s3_client)
+    #     return 0

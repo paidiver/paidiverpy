@@ -114,7 +114,7 @@ class ConvertLayer(Paidiverpy):
         """
         image_data, params, _ = Paidiverpy.prepare_inputs(image_data, params, BitParams, **kwargs)
         try:
-            bit = image_data["bit_depth"].item() if "bit_depth" in image_data.coords else image_data.dtype.itemsize
+            bit = metadata.get("bit_depth", image_data.dtype.itemsize)
 
             if params.output_bits == EIGHT_BITS and bit != EIGHT_BITS_SIZE:
                 image_data, metadata = ConvertLayer.normalize_image(image_data, metadata)
@@ -155,7 +155,7 @@ class ConvertLayer(Paidiverpy):
             tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
         image_data, params, _ = Paidiverpy.prepare_inputs(image_data, params, ToParams, **kwargs)
-        num_channels = image_data["num_channels"].item() if "num_channels" in image_data.coords else image_data.shape[-1]
+        num_channels = metadata.get("num_channels", image_data.shape[-1])
 
         conversion_map = {
             "RGB": {

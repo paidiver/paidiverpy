@@ -21,6 +21,10 @@ from paidiverpy.utils.base_model import BaseModel
 from paidiverpy.utils.logging_functions import initialise_logging
 from paidiverpy.utils.parallellisation import get_client
 from paidiverpy.utils.parallellisation import get_n_jobs
+import warnings
+
+warnings.simplefilter("always", RuntimeWarning)
+warnings.showwarning = lambda *args, **kwargs: __import__("traceback").print_stack()
 
 
 class Paidiverpy:
@@ -107,7 +111,7 @@ class Paidiverpy:
         test = self.step_metadata.get("test")
         params = self.step_metadata.get("params") or {}
         method, params = self._get_method_by_mode(params, self.layer_methods, mode)
-        images, metadata = self.process_images(method, params)
+        images = self.process_images(method, params)
         if not test:
             self.step_name = f"step_{self.config_index}" if not self.step_name else self.step_name
             if add_new_step:
@@ -115,17 +119,16 @@ class Paidiverpy:
                     step=self.step_name,
                     images=images,
                     step_metadata=self.step_metadata,
-                    metadata=metadata,
                     track_changes=self.track_changes,
                 )
                 self.set_metadata()
                 return None
-            self.images.replace_step(images=images, metadata=metadata)
+            self.images.replace_step(images=images)
             return self.images
         return None
 
     # TODO: check if this code is running in parallel correctly
-    def process_images(self, method: callable, params: dict, custom: bool = False) -> tuple[list[np.ndarray], pd.DataFrame]:
+    def process_images(self, method: callable, params: dict, custom: bool = False) -> xr.Dataset:
         """Process the images sequentially.
 
         Method to process the images sequentially.
@@ -136,15 +139,19 @@ class Paidiverpy:
             custom (bool, optional): Whether the method is a custom method. Defaults to False.
 
         Returns:
-            tuple[list[np.ndarray], pd.DataFrame]: A tuple containing the list of processed images and the metadata DataFrame.
+            xr.Dataset: A dataset containing the processed images and the metadata.
         """
         images = self.images.get_step(last=True)
+
         func = partial(method, params=params)
         processed_images, updated_metadata_list = xr.apply_ufunc(
             Paidiverpy.process_single,
             images["image"],
-            images["mask"],
-            input_core_dims=[["y", "x", "band"], ["y", "x"]],
+            images["original_height"],
+            images["original_width"],
+            # images["mask"],
+            images["metadata"],
+            input_core_dims=[["y", "x", "band"], [], [], []],
             output_core_dims=[["y", "x", "band"], []],
             vectorize=True,
             dask="parallelized",
@@ -155,8 +162,12 @@ class Paidiverpy:
             processed_images, updated_metadata_list = self.client.compute([processed_images, updated_metadata_list])
         else:
             processed_images, updated_metadata_list = dask.compute(processed_images, updated_metadata_list)
-        return processed_images, updated_metadata_list
 
+        processed_images["metadata"] = updated_metadata_list
+
+        return processed_images
+
+    # TODO: update this method
     def process_dataset(
         self,
         images: list[da.core.Array],
@@ -246,7 +257,7 @@ class Paidiverpy:
         input_path = Path(general.input_path)
         file_pattern = general.file_name_pattern
         list_of_files = list(input_path.glob(file_pattern))
-        metadata = pd.DataFrame(list_of_files, columns=["image-filename"])
+        metadata = pd.DataFrame(list_of_files, columns=["filename"])
         return metadata.reset_index().rename(columns={"index": "ID"})
 
     # TODO: check if this code is working properly
@@ -281,8 +292,14 @@ class Paidiverpy:
         """
         if image_ds is None:
             image_ds = self.images.get_step(last=True)
-        image_ds_coords = [name for name in image_ds.coords if not (name in {"y", "x", "band"} or name.startswith(("y_", "x_", "band_")))]
-        self.metadata.metadata = image_ds[image_ds_coords].to_dataframe().set_index("ID")
+
+        if "metadata" not in image_ds.coords:
+            msg = "The dataset does not contain a 'metadata' coordinate."
+            raise ValueError(msg)
+
+        metadata_df = pd.DataFrame(list(image_ds["metadata"].values))
+        metadata_df["filename"] = image_ds["filename"].to_numpy()
+        self.metadata.metadata = metadata_df
 
     def save_images(
         self,
@@ -414,24 +431,51 @@ class Paidiverpy:
         return image_data, params, kwargs
 
     @staticmethod
-    def process_single(img: np.ndarray, mask: np.ndarray, func: callable, custom: bool) -> tuple[np.ndarray, dict]:
+    def process_single(img: np.ndarray, height: int, width: int, metadata: dict, func: callable, custom: bool) -> tuple[np.ndarray, dict]:
         """Wrapper to process a single image with its metadata.
 
         Args:
-            img (xr.DataArray or np.ndarray): The image to process.
-            mask (xr.DataArray or np.ndarray): The mask to apply.
+            img (np.ndarray): The padded image (H, W, bands).
+            height (int): The height of the valid image area.
+            width (int): The width of the valid image area.
+            metadata (dict): The metadata to include.
             func (callable): The processing function.
             custom (bool): Whether to use the custom processing.
 
         Returns:
-            tuple: The processed image and updated metadata.
+            tuple: The processed image (with padding restored) and updated metadata.
         """
-        img = img.where(mask == 1)  # keep masked pixels
-        metadata = {"filename": img.filename.item()}
+        cropped = img[:height, :width, :]
 
         if custom:
-            processed_img, updated_metadata = func(image_data=img, metadata=metadata).process()
+            processed_crop, updated_metadata = func(image_data=cropped, metadata=metadata).process()
         else:
-            processed_img, updated_metadata = func(image_data=img, metadata=metadata)
+            processed_crop, updated_metadata = func(image_data=cropped, metadata=metadata)
+
+        processed_img = np.full_like(img, 0)
+        processed_img[:height, :width, :] = processed_crop
 
         return processed_img, updated_metadata
+
+    # @staticmethod
+    # def process_single(img: np.ndarray, mask: np.ndarray, metadata: dict, func: callable, custom: bool) -> tuple[np.ndarray, dict]:
+    #     """Wrapper to process a single image with its metadata.
+
+    #     Args:
+    #         img (xr.DataArray or np.ndarray): The image to process.
+    #         mask (xr.DataArray or np.ndarray): The mask to apply.
+    #         metadata (dict): The metadata to include.
+    #         func (callable): The processing function.
+    #         custom (bool): Whether to use the custom processing.
+
+    #     Returns:
+    #         tuple: The processed image and updated metadata.
+    #     """
+    #     img = np.where(mask[:, :, np.newaxis] == 1, img, np.nan)
+
+    #     if custom:
+    #         processed_img, updated_metadata = func(image_data=img, metadata=metadata).process()
+    #     else:
+    #         processed_img, updated_metadata = func(image_data=img, metadata=metadata)
+
+    #     return processed_img, updated_metadata

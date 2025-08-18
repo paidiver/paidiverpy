@@ -235,12 +235,12 @@ class MetadataParser:
         """
         new_metadata = pd.read_csv(self.append_data_to_metadata)
         try:
-            new_metadata = self._rename_columns(new_metadata, "image-filename", raise_error=True)
+            new_metadata = self._rename_columns(new_metadata, "filename", raise_error=True)
         except ValueError:
             self.logger.warning("The new metadata will not be added to the metadata.")
             return metadata
-        new_metadata = new_metadata.drop_duplicates(subset="image-filename", keep="first")
-        return metadata.merge(new_metadata, how="left", on="image-filename")
+        new_metadata = new_metadata.drop_duplicates(subset="filename", keep="first")
+        return metadata.merge(new_metadata, how="left", on="filename")
 
     def _open_ifdo_metadata(self) -> dd.DataFrame:
         """Open iFDO metadata file.
@@ -271,7 +271,7 @@ class MetadataParser:
         self.dataset_metadata = metadata["image-set-header"]
         metadata = dd.from_dict(metadata["image-set-items"], orient="index", npartitions=2)
         metadata = metadata.reset_index()
-        metadata = metadata.rename(columns={"index": "image-filename"})
+        metadata = metadata.rename(columns={"index": "filename"})
         metadata = metadata.reset_index()
         metadata = metadata.rename(columns={"index": "ID"})
 
@@ -300,7 +300,7 @@ class MetadataParser:
                 self.metadata_path = f"/app/metadata/{metadata_filename}"
 
             metadata = dd.read_csv(self.metadata_path, assume_missing=True)
-        metadata = self._rename_columns(metadata, "image-filename", raise_error=True)
+        metadata = self._rename_columns(metadata, "filename", raise_error=True)
         try:
             metadata = self._rename_columns(metadata, "ID", raise_error=True)
         except ValueError:

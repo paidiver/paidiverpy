@@ -117,7 +117,7 @@ class SamplingLayer(Paidiverpy):
         try:
             metadata = method(self.step_order, test=test, params=params)
             new_metadata = self.get_metadata(flag="all")
-            mask = ~new_metadata["image-filename"].isin(metadata["image-filename"]) & (new_metadata["flag"] == 0)
+            mask = ~new_metadata["filename"].isin(metadata["filename"]) & (new_metadata["flag"] == 0)
             new_metadata.loc[mask, "flag"] = self.step_order
             number_of_images_in_this_step = len(new_metadata[new_metadata["flag"].isin([0, self.step_order])])
             self.logger.info(

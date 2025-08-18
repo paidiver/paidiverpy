@@ -148,23 +148,21 @@ class OpenLayer(Paidiverpy):
 
         metadata = self.get_metadata()
         if self.config.is_remote:
-            img_path_list = [self.correct_input_path + filename for filename in metadata["image-filename"]]
+            img_path_list = [self.correct_input_path + filename for filename in metadata["filename"]]
         else:
-            img_path_list = [self.correct_input_path / filename for filename in metadata["image-filename"]]
+            img_path_list = [self.correct_input_path / filename for filename in metadata["filename"]]
         images_and_exifs = self._process_images(img_path_list, remote=self.config.is_remote)
-        image_ds, exifs = self.create_dataset(
-            images_and_exifs,
-        )
-        metadata = metadata.set_index("image-filename").loc[image_ds.filename.to_numpy()]
+        image_ds, exifs = self.create_dataset(images_and_exifs)
+        metadata = metadata.set_index("filename").loc[image_ds.filename.to_numpy()]
         with contextlib.suppress(KeyError):
-            metadata = metadata.merge(pd.DataFrame(exifs), on="image-filename", how="left")
-        for col in metadata.columns:
-            if col not in image_ds.coords and col != "image-filename":
-                image_ds = image_ds.assign_coords({col: ("filename", metadata[col].to_numpy())})
-        self.set_metadata(image_ds=image_ds)
+            metadata = metadata.merge(pd.DataFrame(exifs), on="filename", how="left")
+        metadata_list = metadata.to_dict(orient="records")
+
+        image_ds = image_ds.assign_coords(metadata=("filename", metadata_list))
         rename = self.step_metadata.get("rename")
         if rename:
             image_ds = self.rename_images(rename, image_ds)
+        self.set_metadata(image_ds=image_ds)
 
         self.images.add_step(
             step=self.step_name,
@@ -231,10 +229,10 @@ class OpenLayer(Paidiverpy):
             masks.append(mask)
 
         stacked_imgs = np.stack(new_image_list, axis=0)
-        stacked_masks = np.stack(masks, axis=0)
+        # stacked_masks = np.stack(masks, axis=0)
 
         image_ds = xr.Dataset(
-            data_vars={"image": (["filename", "y", "x", "band"], stacked_imgs), "mask": (["filename", "y", "x"], stacked_masks)},
+            data_vars={"image": (["filename", "y", "x", "band"], stacked_imgs)},
             coords={
                 "filename": img_paths,
                 "y": np.arange(max_height),
@@ -245,6 +243,19 @@ class OpenLayer(Paidiverpy):
             },
             attrs={"description": "Padded image dataset with masks for valid pixels"},
         )
+
+        # image_ds = xr.Dataset(
+        #     data_vars={"image": (["filename", "y", "x", "band"], stacked_imgs), "mask": (["filename", "y", "x"], stacked_masks)},
+        #     coords={
+        #         "filename": img_paths,
+        #         "y": np.arange(max_height),
+        #         "x": np.arange(max_width),
+        #         "band": np.arange(stacked_imgs.shape[-1]),
+        #         "original_height": (["filename"], height),
+        #         "original_width": (["filename"], width),
+        #     },
+        #     attrs={"description": "Padded image dataset with masks for valid pixels"},
+        # )
 
         return image_ds, exifs
 
@@ -267,12 +278,12 @@ class OpenLayer(Paidiverpy):
         if rename == "datetime":
             metadata["filename"] = pd.to_datetime(metadata["image-datetime"]).dt.strftime("%Y%m%dT%H%M%S.%f").str[:-3] + "Z" + image_open_args
 
-            duplicate_mask = metadata.duplicated(subset="image-filename", keep=False)
+            duplicate_mask = metadata.duplicated(subset="filename", keep=False)
             if duplicate_mask.any():
                 duplicates = metadata[duplicate_mask]
-                duplicates.loc[:, "duplicate_number"] = duplicates.groupby("image-filename").cumcount() + 1
-                metadata.loc[duplicate_mask, "image-filename"] = duplicates.apply(
-                    lambda row: f"{row['image-filename'][:-1]}_{row['duplicate_number']}",
+                duplicates.loc[:, "duplicate_number"] = duplicates.groupby("filename").cumcount() + 1
+                metadata.loc[duplicate_mask, "filename"] = duplicates.apply(
+                    lambda row: f"{row['filename'][:-1]}_{row['duplicate_number']}",
                     axis=1,
                 )
         elif rename == "UUID":

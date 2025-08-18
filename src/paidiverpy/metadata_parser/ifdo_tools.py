@@ -116,7 +116,7 @@ def parse_ifdo_items(metadata: dict, ifdo_schema: dict) -> list:
         ifdo_item = {}
         ifdo_item = map_fields_to_ifdo(item, ifdo_item, ifdo_fields, required_fields, missing_field, required=True)
         ifdo_item = map_fields_to_ifdo(item, ifdo_item, ifdo_fields, non_required_fields, missing_field, required=False)
-        ifdo_items[item["image-filename"]] = ifdo_item
+        ifdo_items[item["filename"]] = ifdo_item
         missing_fields.append(missing_field)
     return ifdo_items, missing_fields
 
