@@ -35,8 +35,8 @@ jobs:
     - name: Run Python script to generate meta.yml
       run: |
         source ~/.bashrc
-        python generate_conda_meta.py
-        python generate_conda_meta.py --bioconda
+        python conda_recipes/generate_conda_meta.py
+        python conda_recipes/generate_conda_meta.py --bioconda
 
     - name: Validate Conda recipe
       run: |

@@ -99,11 +99,18 @@ def metadata_repr(metadata: "MetadataParser") -> str:
         str: String representation of the metadata.
     """
     message = "This is a instance of 'MetadataParser'<br><br>"
-    if metadata.dataset_metadata:
-        message += "<b>Dataset Metadata:</b><br>"
-        message += _json_to_html(metadata.dataset_metadata)
-    message += "<b>Images Metadata:</b><br>"
-    body = message + metadata.metadata._repr_html_()
+    if metadata.metadata is None:
+        message += "<b>Metadata is available through the ImagesLayer or your data processing instance.</b><br>"
+        message += "<b>From your processing instance, run the command 'instance_class.get_metadata()'</b><br>"
+        body = message
+    else:
+        if metadata.metadata.attrs.get("dataset_metadata"):
+            message += "<b>Dataset Metadata:</b><br>"
+            message += _json_to_html(metadata.metadata.attrs["dataset_metadata"])
+        message += "<b>Images Metadata:</b><br>"
+        body = message + _json_to_html(metadata.metadata.to_numpy())
+    # body = message + _json_to_html(metadata.metadata.to_dict()["data"])
+
     return _obj_repr(metadata, body)
 
 
@@ -206,7 +213,7 @@ def images_repr(
 
     for step_index, step in enumerate(images.steps):
         dataset = images.get_step(step=step_index, last=False)
-        dataset = dataset.where(images.images["flag"] <= step_index, drop=True)
+        dataset = dataset.where((images.images["flag"] == 0) | (images.images["flag"] > step_index), drop=True)
         body += f"""
             <div class='ppy-h2 ppy-images-step-header' onclick='toggleMetadata({step_index}, "{random_id}")'>
                 Step {step_index}: {step}
@@ -221,14 +228,14 @@ def images_repr(
 
         if image_number is not None:
             if len(filenames) > image_number:
-                images_to_show = [dataset["image"].isel(filename=image_number)]
+                images_to_show = [dataset["images"].isel(filename=image_number)]
                 filenames_to_show = [filenames[image_number]]
             else:
                 images_to_show = []
                 filenames_to_show = []
         else:
             first_set_images = min(max_images, len(filenames))
-            images_to_show = [dataset["image"].isel(filename=i) for i in range(first_set_images)]
+            images_to_show = [dataset["images"].isel(filename=i) for i in range(first_set_images)]
             filenames_to_show = filenames[:first_set_images]
 
         body += "<div class='ppy-images'>"

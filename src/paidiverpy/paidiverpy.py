@@ -1,7 +1,6 @@
 """Main class for the paidiverpy package."""
 
 import logging
-from contextlib import suppress
 from functools import partial
 from pathlib import Path
 import dask
@@ -9,10 +8,7 @@ import dask.array as da
 import numpy as np
 import pandas as pd
 import xarray as xr
-from dask.diagnostics import ProgressBar
 from dask.distributed import Client
-from distributed import LocalCluster
-from tqdm import tqdm
 from paidiverpy.config.config_params import ConfigParams
 from paidiverpy.config.configuration import Configuration
 from paidiverpy.images_layer import ImagesLayer
@@ -21,10 +17,6 @@ from paidiverpy.utils.base_model import BaseModel
 from paidiverpy.utils.logging_functions import initialise_logging
 from paidiverpy.utils.parallellisation import get_client
 from paidiverpy.utils.parallellisation import get_n_jobs
-import warnings
-
-warnings.simplefilter("always", RuntimeWarning)
-warnings.showwarning = lambda *args, **kwargs: __import__("traceback").print_stack()
 
 
 class Paidiverpy:
@@ -79,7 +71,7 @@ class Paidiverpy:
                 msg = f"{error}"
                 self.logger.error(msg)
                 raise
-            self.metadata = metadata or self._initialize_metadata()
+            self.metadata = metadata or MetadataParser(config=self.config)
             self.images = images or ImagesLayer(
                 output_path=self.config.general.output_path,
             )
@@ -121,7 +113,6 @@ class Paidiverpy:
                     step_metadata=self.step_metadata,
                     track_changes=self.track_changes,
                 )
-                self.set_metadata()
                 return None
             self.images.replace_step(images=images)
             return self.images
@@ -146,26 +137,27 @@ class Paidiverpy:
         func = partial(method, params=params)
         processed_images, updated_metadata_list = xr.apply_ufunc(
             Paidiverpy.process_single,
-            images["image"],
+            images["images"],
+            images["flag"],
             images["original_height"],
             images["original_width"],
             # images["mask"],
             images["metadata"],
-            input_core_dims=[["y", "x", "band"], [], [], []],
+            input_core_dims=[["y", "x", "band"], [], [], [], []],
             output_core_dims=[["y", "x", "band"], []],
             vectorize=True,
             dask="parallelized",
-            output_dtypes=[images["image"].dtype, object],
+            output_dtypes=[images["images"].dtype, object],
             kwargs={"func": func, "custom": custom},
         )
         if self.client:
             processed_images, updated_metadata_list = self.client.compute([processed_images, updated_metadata_list])
         else:
             processed_images, updated_metadata_list = dask.compute(processed_images, updated_metadata_list)
-
         processed_images["metadata"] = updated_metadata_list
 
-        return processed_images
+        processed_images = processed_images.assign_coords(flag=("filename", pd.DataFrame(updated_metadata_list.to_dict()["data"])["flag"].to_numpy()))
+        return xr.Dataset({"images": processed_images})
 
     # TODO: update this method
     def process_dataset(
@@ -237,69 +229,48 @@ class Paidiverpy:
             general_config[key] = getattr(config_params, key)
         return Configuration(add_general=general_config)
 
-    def _initialize_metadata(self) -> MetadataParser:
-        """Initialize the metadata object.
-
-        Returns:
-            MetadataParser: The metadata object.
-        """
-        general = self.config.general
-        if getattr(general, "metadata_path", None) and getattr(
-            general,
-            "metadata_type",
-            None,
-        ):
-            return MetadataParser(config=self.config, logger=self.logger)
-        self.logger.info(
-            "Metadata type is not specified. Loading files from the input path.",
-        )
-        self.logger.info("Metadata will be created from the files in the input path.")
-        input_path = Path(general.input_path)
-        file_pattern = general.file_name_pattern
-        list_of_files = list(input_path.glob(file_pattern))
-        metadata = pd.DataFrame(list_of_files, columns=["filename"])
-        return metadata.reset_index().rename(columns={"index": "ID"})
-
-    # TODO: check if this code is working properly
-    def get_metadata(self, flag: int | None = None, orient: str | None = None) -> pd.DataFrame:
+    def get_metadata(self, flag: int | None = None, output_format: str | None = None) -> xr.DataArray:
         """Get the metadata object.
 
         Args:
-            flag (int, optional): The flag value. Defaults to None.
+            flag (int | None): The flag to filter the metadata.
+            output_format (str): The format of the metadata.
 
         Returns:
-            pd.DataFrame: The metadata object.
+            xr.DataArray: The metadata object.
         """
-        flag = 0 if flag is None else flag
+        metadata_ds = self.metadata.metadata if self.metadata.metadata is not None else self.images.images["metadata"]
         if flag == "all":
-            if "image-datetime" not in self.metadata.metadata.columns:
-                metadata = self.metadata.metadata.copy()
-            else:
-                metadata = self.metadata.metadata.sort_values("image-datetime").copy()
-        elif "image-datetime" not in self.metadata.metadata.columns:
-            metadata = self.metadata.metadata[self.metadata.metadata["flag"] <= flag].copy()
-        else:
-            metadata = self.metadata.metadata[self.metadata.metadata["flag"] <= flag].sort_values("image-datetime").copy()
-        if orient is None:
-            return metadata
-        return metadata.to_dict(orient=orient)
+            return metadata_ds
 
-    def set_metadata(self, image_ds: xr.Dataset | None = None) -> None:
+        flag = 0 if flag is None else flag
+        metadata_ds = metadata_ds.where(metadata_ds["flag"] <= flag, drop=True)
+        if output_format == "pandas":
+            return pd.DataFrame(metadata_ds.to_dict()["data"])
+        return metadata_ds
+
+    def set_metadata(self, metadata: xr.DataArray, image_ds: xr.Dataset | None = None) -> None:
         """Set the metadata.
 
         Args:
+            metadata (xr.DataArray): The metadata to set.
             image_ds (xr.Dataset, optional): The image dataset.
         """
-        if image_ds is None:
+        if image_ds is not None:
             image_ds = self.images.get_step(last=True)
+        images_metadata = image_ds["metadata"]
+        new_metadata = images_metadata.where(~image_ds.filename.isin(metadata.filename), metadata)
 
-        if "metadata" not in image_ds.coords:
-            msg = "The dataset does not contain a 'metadata' coordinate."
-            raise ValueError(msg)
+        flag_updated = images_metadata.flag.combine_first(metadata.flag)
+        new_metadata = new_metadata.assign_coords(flag=("filename", flag_updated.to_numpy()))
+        if "dataset_metadata" in metadata.attrs:
+            merged = {
+                **new_metadata.attrs.get("dataset_metadata", {}),
+                **metadata.attrs["dataset_metadata"],
+            }
+            self.images.attrs["dataset_metadata"] = merged
 
-        metadata_df = pd.DataFrame(list(image_ds["metadata"].values))
-        metadata_df["filename"] = image_ds["filename"].to_numpy()
-        self.metadata.metadata = metadata_df
+        return new_metadata
 
     def save_images(
         self,
@@ -331,7 +302,9 @@ class Paidiverpy:
             n_jobs=self.n_jobs,
             logger=self.logger,
         )
-        self.metadata.dataset_metadata["output_path"] = str(output_path)
+        dataset_metadata = self.images.attrs.get("dataset_metadata", {})
+        dataset_metadata["output_path"] = str(output_path)
+        self.images.attrs["dataset_metadata"] = dataset_metadata
         self.logger.info("Images are saved to: %s", output_path)
 
     def remove_images(self) -> None:
@@ -347,7 +320,6 @@ class Paidiverpy:
             value (int | str): Step name or order.
         """
         self.images.remove_steps_by_order(value)
-        self.set_metadata(self.images)
 
     def _calculate_steps_metadata(self, config_part: Configuration) -> dict:
         """Calculate the steps metadata.
@@ -431,11 +403,12 @@ class Paidiverpy:
         return image_data, params, kwargs
 
     @staticmethod
-    def process_single(img: np.ndarray, height: int, width: int, metadata: dict, func: callable, custom: bool) -> tuple[np.ndarray, dict]:
+    def process_single(img: np.ndarray, flag: int, height: int, width: int, metadata: dict, func: callable, custom: bool) -> tuple[np.ndarray, dict]:
         """Wrapper to process a single image with its metadata.
 
         Args:
             img (np.ndarray): The padded image (H, W, bands).
+            flag (int): The flag indicating the processing step.
             height (int): The height of the valid image area.
             width (int): The width of the valid image area.
             metadata (dict): The metadata to include.
@@ -445,6 +418,8 @@ class Paidiverpy:
         Returns:
             tuple: The processed image (with padding restored) and updated metadata.
         """
+        if flag > 0:
+            return img, metadata
         cropped = img[:height, :width, :]
 
         if custom:
@@ -452,8 +427,8 @@ class Paidiverpy:
         else:
             processed_crop, updated_metadata = func(image_data=cropped, metadata=metadata)
 
-        processed_img = np.full_like(img, 0)
-        processed_img[:height, :width, :] = processed_crop
+        processed_img = np.zeros((img.shape[0], img.shape[1], processed_crop.shape[-1]), dtype=processed_crop.dtype)
+        processed_img[:height, :width, : processed_crop.shape[-1]] = processed_crop
 
         return processed_img, updated_metadata
 

@@ -57,7 +57,7 @@ Clone the repository and build the image:
 
   git clone git@github.com:paidiver/paidiverpy.git
   cd paidiverpy
-  docker build -t paidiverpy .
+  docker build -t paidiverpy -f dockerfiles/Dockerfile .
 
 2. **Option 2: Pull the image from Docker Hub**:
 

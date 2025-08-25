@@ -8,7 +8,6 @@ import cv2
 import dask
 import dask.array as da
 import numpy as np
-import pandas as pd
 import xarray as xr
 from dask.diagnostics import ProgressBar
 from dask.distributed import Client
@@ -43,7 +42,7 @@ class ImagesLayer:
         step: str,
         images: xr.Dataset,
         step_metadata: dict | None = None,
-        metadata: pd.DataFrame | None = None,
+        metadata: xr.DataArray | None = None,
         track_changes: bool = True,
     ) -> None:
         """Add a step to the pipeline.
@@ -53,74 +52,71 @@ class ImagesLayer:
             images (xr.Dataset): The images for the step.
             step_metadata (dict, optional): The metadata for the step.
         Defaults to None.
-            metadata (pd.DataFrame, optional): The metadata for the step.
-        Defaults to None.
+            metadata (xr.DataArray, optional): The metadata to set. Defaults to None.
             track_changes (bool, optional): Whether to track changes. Defaults to True.
         """
-        if not metadata:
-            metadata = pd.DataFrame()
         self.step_metadata.append(step_metadata)
         self.steps.append(step)
+        # mask = images["flag"] > 0
+        # images["images"] = images["images"].where(~mask, np.nan)
         images = images.rename(
             {
-                "image": f"image_{len(self.steps) - 1}",
-                # "mask": f"mask_{len(self.steps) - 1}",
+                "images": f"images_{len(self.steps) - 1}",
                 "x": f"x_{len(self.steps) - 1}",
                 "y": f"y_{len(self.steps) - 1}",
                 "band": f"band_{len(self.steps) - 1}",
+                # "original_height": f"original_height_{len(self.steps) - 1}",
+                # "original_width": f"original_width_{len(self.steps) - 1}",
             }
         )
         if self.images is None or not track_changes:
             self.images = images
         else:
-            self.images = xr.concat([self.images, images], dim="filename")
+            self.images = xr.merge([self.images, images], join="outer")
 
-        if len(metadata.columns) > 0:
-            self.update_metadata_coordinates(metadata)
+        if metadata is None:
+            metadata = images["metadata"]
+
+        self.images = self.images.assign_coords(metadata=("filename", metadata.to_numpy()))
+        self.images = self.images.assign_coords(flag=("filename", metadata["flag"].to_numpy()))
+        if "dataset_metadata" in metadata.attrs:
+            merged = {
+                **self.images.attrs.get("dataset_metadata", {}),
+                **metadata.attrs["dataset_metadata"],
+            }
+            self.images.attrs["dataset_metadata"] = merged
+        if metadata is None:
+            metadata = images["metadata"]
 
         gc.collect()
-
-    def update_metadata_coordinates(self, metadata: pd.DataFrame) -> None:
-        """Update the metadata coordinates.
-
-        Args:
-            metadata (pd.DataFrame): The metadata to update.
-        """
-        for col in metadata.columns:
-            if col in self.images.coords:
-                updated_values = self.images[col].to_series()
-                for fname in metadata.index:
-                    if fname in updated_values.index:
-                        updated_values.loc[fname] = metadata.loc[fname, col]
-                self.images = self.images.assign_coords({col: ("filename", updated_values.to_numpy())})
-            else:
-                values = []
-                for fname in self.images["filename"].to_numpy():
-                    if fname in metadata.index:
-                        values.append(metadata.loc[fname, col])
-                    else:
-                        values.append(None)
-                self.images = self.images.assign_coords({col: ("filename", values)})
 
     def replace_step(self, images: xr.Dataset) -> None:
         """Add a step to the pipeline.
 
         Args:
-            step (str): The step to add
             images (xr.Dataset): The images for the step.
         """
         images = images.rename(
             {
-                # "image": f"image_{len(self.steps) - 1}",
+                # "image": f"images_{len(self.steps) - 1}",
                 # "mask": f"mask_{len(self.steps) - 1}",
                 "x": f"x_{len(self.steps) - 1}",
                 "y": f"y_{len(self.steps) - 1}",
                 "band": f"band_{len(self.steps) - 1}",
+                # "original_height": f"original_height_{len(self.steps) - 1}",
+                # "original_width": f"original_width_{len(self.steps) - 1}",
             }
         )
 
-        self.images[f"image_{len(self.steps) - 1}"] = images
+        self.images[f"images_{len(self.steps) - 1}"] = images["images"]
         self.images["metadata"] = images["metadata"]
+        self.images["flag"] = images["flag"]
+        if "dataset_metadata" in images.attrs:
+            merged = {
+                **self.images.attrs.get("dataset_metadata", {}),
+                **images.attrs["dataset_metadata"],
+            }
+            self.images.attrs["dataset_metadata"] = merged
 
         gc.collect()
 
@@ -152,11 +148,17 @@ class ImagesLayer:
         """
         if last:
             step = len(self.steps) - 1
-        images = self.images[[f"image_{step}"]]
-        return images.rename({f"image_{step}": "image", f"y_{step}": "y", f"x_{step}": "x", f"band_{step}": "band"})
-
-        # images = self.images[[f"image_{step}", f"mask_{step}"]]
-        # return images.rename({f"image_{step}": "image", f"mask_{step}": "mask", f"y_{step}": "y", f"x_{step}": "x", f"band_{step}": "band"})
+        images = self.images[[f"images_{step}"]]
+        return images.rename(
+            {
+                f"images_{step}": "images",
+                f"y_{step}": "y",
+                f"x_{step}": "x",
+                f"band_{step}": "band",
+                # f"original_height_{step}": "original_height",
+                # f"original_width_{step}": "original_width",
+            }
+        )
 
     def show(self, image_number: int = 0) -> HTML:
         """Show the images in the pipeline.
@@ -199,7 +201,7 @@ class ImagesLayer:
             check_create_bucket_exists(bucket_name, s3_client)
         tasks = xr.apply_ufunc(
             ImagesLayer.process_single_image,
-            images["image"],
+            images["images"],
             images["original_height"],
             images["original_width"],
             images["filename"],
@@ -367,9 +369,8 @@ class ImagesLayer:
         Returns:
             int: The status code (0 for success).
         """
-        img_masked = img.copy()
-        img_masked[height:, width:] = 0
-        processor(img_masked, output_path / filename.item(), image_format, s3_client)
+        cropped = img[:height, :width, :]
+        processor(cropped, output_path / filename.item(), image_format, s3_client)
         return 0
 
     # @staticmethod
