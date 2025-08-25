@@ -6,6 +6,7 @@ Process the images in the position layer.
 import logging
 import numpy as np
 import pandas as pd
+import xarray as xr
 from dask.distributed import Client
 from geopy.distance import geodesic
 from shapely.geometry import Polygon
@@ -107,16 +108,23 @@ class PositionLayer(Paidiverpy):
                 raise_value_error("Position layer step failed.")
             self.logger.error("Position layer step will be skipped.")
             return self.get_metadata(flag="all")
+        filenames = metadata["filename"].to_numpy()
+        flags = metadata["flag"].to_numpy()
+        metadata = xr.DataArray(
+            metadata.to_dict(orient="records"),
+            dims=["filename"],
+            coords={"filename": filenames, "flag": (["filename"], flags)},
+        )
         if not self.add_new_step:
             return metadata
         if not test:
-            self.set_metadata(metadata)
+            metadata = self.set_metadata(metadata=metadata)
             self.step_name = f"position_{mode}" if not self.step_name else self.step_name
             self.images.add_step(
                 step=self.step_name,
+                images=self.images.get_step(last=True),
                 step_metadata=self.step_metadata,
-                metadata=self.get_metadata(),
-                update_metadata=True,
+                metadata=metadata,
                 track_changes=self.track_changes,
             )
         return None
@@ -131,7 +139,7 @@ class PositionLayer(Paidiverpy):
         Defaults to CalculateCornersParams().
         """
         params = CalculateCornersParams() if params is None else params
-        metadata = self.get_metadata()
+        metadata = self.get_metadata(output_format="pandas")
         metadata.loc[:, "image-camera-pitch-degrees"] = metadata["image-camera-pitch-degrees"].abs()
         metadata.loc[:, "image-camera-roll-degrees"] = metadata["image-camera-roll-degrees"].abs()
 
@@ -201,7 +209,7 @@ class PositionLayer(Paidiverpy):
             coordsm = pd.DataFrame(chm, columns=["long_deg", "lat_deg"])
             polygon_m = Polygon(coordsm.values)
             metadata.loc[i, "polygon_m"] = polygon_m
-        self.set_metadata(metadata, flag=True)
+        # self.set_metadata(metadata, flag=True)
         if test:
             InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="polygon").run()
             return None

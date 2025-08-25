@@ -4,6 +4,10 @@ general:
   metadata_path: "/mnt/noc/code/paidiver/paidiverpy/examples/example_notebooks/metadata.csv"
   metadata_type: "CSV_FILE"
   image_open_args: "PNG"
+  sampling:
+    - mode: 'percent'
+      params:
+        value: 0.5
   convert:
     - mode: "normalize"
       params:

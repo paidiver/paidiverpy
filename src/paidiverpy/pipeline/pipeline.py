@@ -112,7 +112,9 @@ class Pipeline(Paidiverpy):
                         step_name=step_name,
                         parameters=step_params,
                     )
-                    self.metadata.dataset_metadata["input_path"] = str(self.config.general.input_path)
+                    dataset_metadata = self.metadata.metadata.attrs.get("dataset_metadata", {})
+                    dataset_metadata["input_path"] = str(self.config.general.input_path)
+                    self.metadata.metadata.attrs["dataset_metadata"] = dataset_metadata
                 else:
                     step_instance = step_class(
                         paidiverpy=self,
@@ -121,11 +123,10 @@ class Pipeline(Paidiverpy):
                         config_index=index - 1,
                     )
                 step_instance.run()
-
-                test = step_instance.get("test", False)
+                test = getattr(step_instance, "test", False)
                 if not test:
                     self.images = step_instance.images
-                    self.set_metadata(step_instance.get_metadata(flag="all"))
+                    self.metadata = step_instance.metadata
                     self.runned_steps = index
                 self.logger.info("Step %s completed", index)
 

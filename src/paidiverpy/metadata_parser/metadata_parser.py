@@ -8,6 +8,7 @@ from json import JSONDecodeError
 from pathlib import Path
 import dask.dataframe as dd
 import pandas as pd
+import xarray as xr
 from PIL import TiffImagePlugin
 from shapely.geometry import Point
 from paidiverpy.config.configuration import Configuration
@@ -17,7 +18,6 @@ from paidiverpy.metadata_parser.ifdo_tools import validate_ifdo
 from paidiverpy.utils import formating_html
 from paidiverpy.utils.docker import is_running_in_docker
 from paidiverpy.utils.exceptions import raise_value_error
-from paidiverpy.utils.logging_functions import initialise_logging
 from paidiverpy.utils.object_store import define_storage_options
 from paidiverpy.utils.object_store import get_file_from_bucket
 from paidiverpy.utils.object_store import path_is_remote
@@ -33,7 +33,6 @@ class MetadataParser:
         metadata_path (str): Path to the metadata file.
         metadata_type (str): Type of the metadata file.
         append_data_to_metadata (str): Path to the file with additional data.
-        logger (logging.Logger): Logger object.
 
     Raises:
         ValueError: Metadata path is not specified.
@@ -47,18 +46,36 @@ class MetadataParser:
         metadata_type: str | None = None,
         metadata_conventions: str | None = None,
         append_data_to_metadata: str | None = None,
-        logger: logging.Logger | None = None,
     ):
-        self.logger = logger or initialise_logging()
         self.config = config or self._build_config(metadata_path, metadata_type, metadata_conventions, append_data_to_metadata)
         self.metadata_type = getattr(self.config.general, "metadata_type", None)
         self.append_data_to_metadata = getattr(self.config.general, "append_data_to_metadata", None)
         self.metadata_path = getattr(self.config.general, "metadata_path", None)
-        self.storage_options = define_storage_options(self.metadata_path)
-        self.metadata_conventions = self._calculate_metadata_conventions()
-
         self.dataset_metadata = {}
-        self.metadata = self.open_metadata()
+
+        if not self.metadata_path and not self.append_data_to_metadata:
+            self.metadata = self._load_from_file_list()
+        else:
+            self.storage_options = define_storage_options(self.metadata_path)
+            self.metadata_conventions = self._calculate_metadata_conventions()
+            self.metadata = self.open_metadata()
+
+    def _load_from_file_list(self) -> xr.DataArray:
+        """Load metadata from a list of files.
+
+        Returns:
+            xr.DataArray: Metadata DataArray.
+        """
+        logging.info(
+            "Metadata type is not specified. Loading files from the input path.",
+        )
+        logging.info("Metadata will be created from the files in the input path.")
+        input_path = Path(self.config.general.input_path)
+        file_pattern = self.config.general.file_name_pattern
+        list_of_files = list(input_path.glob(file_pattern))
+        metadata = pd.DataFrame(list_of_files, columns=["filename"])
+        metadata = metadata.reset_index().rename(columns={"index": "ID"})
+        return self._prepare_metadata(metadata)
 
     def _calculate_metadata_conventions(self) -> str:
         """Calculate metadata conventions.
@@ -73,8 +90,8 @@ class MetadataParser:
             if metadata_conventions.is_file():
                 file_path = metadata_conventions
             else:
-                self.logger.warning("Metadata conventions file not found: %s", metadata_conventions)
-                self.logger.warning("Using default metadata conventions file: %s", file_path)
+                logging.warning("Metadata conventions file not found: %s", metadata_conventions)
+                logging.warning("Using default metadata conventions file: %s", file_path)
         with file_path.open() as file:
             return json.load(file)
 
@@ -100,14 +117,14 @@ class MetadataParser:
         }
         return Configuration(add_general=general_params)
 
-    def open_metadata(self) -> dd.DataFrame:
+    def open_metadata(self) -> xr.DataArray:
         """Open metadata file.
 
         Raises:
             ValueError: Metadata type is not supported.
 
         Returns:
-            dd.DataFrame: Metadata DataFrame.
+            xr.DataArray: Metadata DataArray.
         """
         if self.metadata_type == "IFDO":
             metadata = self._open_ifdo_metadata()
@@ -115,10 +132,10 @@ class MetadataParser:
             metadata = self._open_csv_metadata()
         if self.append_data_to_metadata:
             metadata = self._add_data_to_metadata(metadata)
-
         metadata["flag"] = 0
         return self._prepare_metadata(metadata)
 
+    # TODO: update this method
     def export_metadata(
         self,
         output_format: str = "csv",
@@ -145,15 +162,15 @@ class MetadataParser:
             metadata = self.metadata
         metadata = metadata.compute() if isinstance(metadata, dd.DataFrame) else metadata
         if output_format.lower() not in ["csv", "json", "ifdo", "croissant"]:
-            self.logger.error("Unsupported output format: %s", output_format)
+            logging.error("Unsupported output format: %s", output_format)
             raise_value_error(f"Unsupported output format: {output_format}")
         try:
             MetadataParser.convert_metadata_to(
                 dataset_metadata=dataset_metadata, metadata=metadata, output_path=output_path, output_format=output_format, from_step=from_step
             )
-            self.logger.info("Metadata exported to %s file in format %s", output_path, output_format)
+            logging.info("Metadata exported to %s file in format %s", output_path, output_format)
         except Exception as error:  # noqa: BLE001
-            self.logger.error("Failed to export metadata: %s", error)
+            logging.error("Failed to export metadata: %s", error)
             raise_value_error(f"Failed to export metadata: {error}")
 
     def _prepare_metadata(self, metadata: dd.DataFrame) -> dd.DataFrame:
@@ -173,11 +190,15 @@ class MetadataParser:
         metadata = self._rename_columns(metadata, "image-camera-pitch-degrees", errors=errors)
         metadata = self._rename_columns(metadata, "image-camera-roll-degrees", errors=errors)
         for error in errors:
-            self.logger.warning(error)
+            logging.warning(error)
         if errors:
-            self.logger.warning("Some functions may not work properly.")
+            logging.warning("Some functions may not work properly.")
         if "image-longitude" in metadata.columns and "image-latitude" in metadata.columns:
             metadata["point"] = metadata.apply(lambda x: Point(x["image-longitude"], x["image-latitude"]), axis=1)
+
+        metadata = MetadataParser.df2dataarray(metadata)
+        if self.dataset_metadata:
+            metadata.attrs["dataset_metadata"] = self.dataset_metadata
         return metadata
 
     def _rename_columns(self, metadata: dd.DataFrame, column_name: str, errors: list | None = None, raise_error: bool = False) -> dd.DataFrame:
@@ -218,7 +239,7 @@ class MetadataParser:
         if errors is not None:
             errors.append(msg)
         else:
-            self.logger.warning(msg)
+            logging.warning(msg)
         return metadata
 
     def _add_data_to_metadata(self, metadata: dd.DataFrame) -> dd.DataFrame:
@@ -237,7 +258,7 @@ class MetadataParser:
         try:
             new_metadata = self._rename_columns(new_metadata, "filename", raise_error=True)
         except ValueError:
-            self.logger.warning("The new metadata will not be added to the metadata.")
+            logging.warning("The new metadata will not be added to the metadata.")
             return metadata
         new_metadata = new_metadata.drop_duplicates(subset="filename", keep="first")
         return metadata.merge(new_metadata, how="left", on="filename")
@@ -265,7 +286,7 @@ class MetadataParser:
                 raise FileNotFoundError(msg) from error
             except JSONDecodeError as error:
                 msg = f"Metadata file is not a valid JSON file: {metadata_path}. Please check the file"
-                self.logger.error("%s: line %s, column %s", msg, error.lineno, error.colno)
+                logging.error("%s: line %s, column %s", msg, error.lineno, error.colno)
                 raise JSONDecodeError(msg, doc=error.doc, pos=error.pos) from error
         self._validate_ifdo(metadata)
         self.dataset_metadata = metadata["image-set-header"]
@@ -276,8 +297,8 @@ class MetadataParser:
         metadata = metadata.rename(columns={"index": "ID"})
 
         if "image-datetime" not in metadata.columns:
-            self.logger.warning("Metadata does not have a datetime column")
-            self.logger.warning("Some functions may not work properly.")
+            logging.warning("Metadata does not have a datetime column")
+            logging.warning("Some functions may not work properly.")
 
         metadata["image-datetime"] = dd.to_datetime(metadata["image-datetime"])
         metadata = metadata.sort_values(by="image-datetime")
@@ -322,13 +343,13 @@ class MetadataParser:
             msg_warn = "Failed to validate the IFDO metadata.\n"
             msg_warn += "You can continue, but some functions may not work properly.\n"
             msg_warn += "Please set verbose to 3 (DEBUG) to see the validation errors."
-            self.logger.warning(msg_warn)
+            logging.warning(msg_warn)
             msg_debug = "Validation errors with the metadata:\n"
             for error in errors:
                 msg_debug += f"{format_ifdo_validation_error(error['path'])}: {error['message']}\n"
-            self.logger.debug(msg_debug)
+            logging.debug(msg_debug)
         else:
-            self.logger.info("Metadata file is valid.")
+            logging.info("Metadata file is valid.")
 
     def __repr__(self) -> str:
         """Return the string representation of the metadata.
@@ -346,6 +367,7 @@ class MetadataParser:
         """
         return formating_html.metadata_repr(self)
 
+    # TODO: update this method
     @staticmethod
     def convert_metadata_to(dataset_metadata: dict, metadata: dict, output_path: str, output_format: str, from_step: int = -1) -> None:
         """Convert metadata to specified format.
@@ -380,6 +402,7 @@ class MetadataParser:
         else:
             raise_value_error(f"Unsupported output format: {output_format}")
 
+    # TODO: update this method
     @staticmethod
     def group_metadata_and_dataset_metadata(
         metadata: pd.DataFrame | dd.DataFrame,
@@ -440,3 +463,21 @@ class MetadataParser:
                 # PNG does not have EXIF, but we can use tEXt chunks
                 exif_dict = {}
         return exif_dict
+
+    @staticmethod
+    def df2dataarray(metadata: pd.DataFrame) -> xr.DataArray:
+        """Convert metadata DataFrame to xarray DataArray.
+
+        Args:
+            metadata (pd.DataFrame): The metadata DataFrame.
+
+        Returns:
+            xr.DataArray: The metadata xarray DataArray.
+        """
+        filenames = metadata["filename"].to_numpy()
+        flags = metadata["flag"].to_numpy()
+        return xr.DataArray(
+            metadata.to_dict(orient="records"),
+            dims=["filename"],
+            coords={"filename": filenames, "flag": (["filename"], flags)},
+        )

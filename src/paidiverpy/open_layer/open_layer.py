@@ -1,18 +1,15 @@
 """Open raw image file."""
 
-import contextlib
 import copy
 import gc
 import logging
 import uuid
 import dask
 import numpy as np
-import pandas as pd
 import xarray as xr
 from dask import compute
 from dask import delayed
 from dask.diagnostics import ProgressBar
-from tqdm import tqdm
 from paidiverpy import Paidiverpy
 from paidiverpy.config.config_params import ConfigParams
 from paidiverpy.config.configuration import Configuration
@@ -107,23 +104,19 @@ class OpenLayer(Paidiverpy):
                     "mode": dict_step.get("mode"),
                     "params": dict_step.get("params"),
                 }
-                new_config = copy.copy(self.config)
-                convert_layer = ConvertLayer(
-                    config=new_config,
-                    metadata=self.metadata,
-                    images=self.images,
+                # new_config = copy.copy(self.config)
+                self.images = ConvertLayer(
+                    paidiverpy=self,
                     step_name=step_params["name"],
                     parameters=step_params,
-                    client=self.client,
                     config_index=None,
-                )
-                self.images = convert_layer.run(add_new_step=False)
+                ).run(add_new_step=False)
                 self.config.steps.pop()
-                del convert_layer
                 gc.collect()
 
     def import_image(self) -> None:
         """Import images with optional Dask parallelization."""
+        metadata = None
         if self.step_metadata.get("sampling"):
             for step in self.step_metadata.get("sampling"):
                 dict_step = step.to_dict() if issubclass(type(step), BaseModel) else step
@@ -134,42 +127,33 @@ class OpenLayer(Paidiverpy):
                     "params": dict_step.get("params"),
                 }
                 new_config = copy.copy(self.config)
-                self.set_metadata(
-                    SamplingLayer(
-                        config=new_config,
-                        metadata=self.metadata,
-                        parameters=step_params,
-                        client=self.client,
-                        add_new_step=False,
-                    ).run(),
-                )
+                metadata = SamplingLayer(
+                    config=new_config,
+                    metadata=self.metadata,
+                    parameters=step_params,
+                    client=self.client,
+                    add_new_step=False,
+                ).run()
                 gc.collect()
                 self.config.steps.pop()
 
-        metadata = self.get_metadata()
+        if metadata is None:
+            metadata = self.get_metadata()
+
         if self.config.is_remote:
-            img_path_list = [self.correct_input_path + filename for filename in metadata["filename"]]
+            img_path_list = [self.correct_input_path + filename.item() for filename in metadata["filename"]]
         else:
-            img_path_list = [self.correct_input_path / filename for filename in metadata["filename"]]
+            img_path_list = [self.correct_input_path / filename.item() for filename in metadata["filename"]]
         images_and_exifs = self._process_images(img_path_list, remote=self.config.is_remote)
-        image_ds, exifs = self.create_dataset(images_and_exifs)
-        metadata = metadata.set_index("filename").loc[image_ds.filename.to_numpy()]
-        with contextlib.suppress(KeyError):
-            metadata = metadata.merge(pd.DataFrame(exifs), on="filename", how="left")
-        metadata_list = metadata.to_dict(orient="records")
-
-        image_ds = image_ds.assign_coords(metadata=("filename", metadata_list))
-        rename = self.step_metadata.get("rename")
-        if rename:
-            image_ds = self.rename_images(rename, image_ds)
-        self.set_metadata(image_ds=image_ds)
-
+        image_ds = self.create_dataset(images_and_exifs, metadata)
         self.images.add_step(
             step=self.step_name,
             images=image_ds,
             step_metadata=self.step_metadata,
             track_changes=self.track_changes,
         )
+        self.metadata.metadata = None
+        self.metadata.dataset_metadata = {}
         gc.collect()
 
     def _process_images(self, img_path_list: list[str], remote: bool = False) -> list[np.ndarray]:
@@ -187,6 +171,7 @@ class OpenLayer(Paidiverpy):
             delayed(func)(path, image_type=self.image_type, image_open_args=self.image_open_args, storage_options=self.storage_options, parallel=True)
             for path in img_path_list
         ]
+
         if self.client:
             if isinstance(self.client.cluster, dask.distributed.LocalCluster):
                 # Local cluster
@@ -199,26 +184,44 @@ class OpenLayer(Paidiverpy):
         with dask.config.set(scheduler="threads", num_workers=self.n_jobs), ProgressBar():
             return list(compute(*delayed_list))
 
-    def create_dataset(
-        self,
-        images_and_exifs: list[tuple[np.ndarray | dask.array.core.Array, dict, str]],
-    ) -> dask.array.core.Array:
+    def create_dataset(self, images_and_exifs: list[tuple[np.ndarray | dask.array.core.Array, dict, str]], metadata: xr.DataArray) -> xr.Dataset:
         """Create a Dask array from the processed images and EXIF data.
 
         Args:
             images_and_exifs (list[tuple[np.ndarray | dask.array.core.Array, dict, str]]): The list of processed images and EXIF data.
+            metadata (xr.DataArray): The metadata DataArray.
 
         Returns:
-            dask.array.core.Array: The Dask array containing the images.
+            xr.Dataset: The image dataset.
         """
-        exifs, image_list, img_paths, height, width = [], [], [], [], []
+        rename = self.step_metadata.get("rename")
+        seen = {}
+
+        image_list, img_paths, height, width, new_metadata, flags = [], [], [], [], [], []
         for img, exif, img_path in images_and_exifs:
             if img is not None:
                 image_list.append(img)
-                exifs.append(exif)
-                img_paths.append(str(img_path).split("/")[-1])
                 height.append(img.shape[0])
                 width.append(img.shape[1])
+                filename = str(img_path).split("/")[-1]
+                local_metadata = metadata.loc[{"filename": filename}].item()
+                new_filename = filename
+                if rename == "datetime":
+                    new_filename = local_metadata["image-datetime"].split(".")[0] + "Z"
+                    if new_filename in seen:
+                        seen[new_filename] += 1
+                        new_filename = f"{new_filename}_{seen[new_filename]}"
+                    else:
+                        seen[new_filename] = 1
+                elif rename == "UUID":
+                    new_filename = str(uuid.uuid4())
+
+                local_metadata["filename"] = new_filename
+                img_paths.append(new_filename)
+                if exif:
+                    local_metadata.update(exif)
+                new_metadata.append(local_metadata)
+                flags.append(local_metadata.get("flag", 0))
 
         max_height = max(height)
         max_width = max(width)
@@ -229,66 +232,24 @@ class OpenLayer(Paidiverpy):
             masks.append(mask)
 
         stacked_imgs = np.stack(new_image_list, axis=0)
-        # stacked_masks = np.stack(masks, axis=0)
 
-        image_ds = xr.Dataset(
-            data_vars={"image": (["filename", "y", "x", "band"], stacked_imgs)},
+        return xr.Dataset(
+            data_vars={"images": (["filename", "y", "x", "band"], stacked_imgs)},
             coords={
                 "filename": img_paths,
                 "y": np.arange(max_height),
                 "x": np.arange(max_width),
                 "band": np.arange(stacked_imgs.shape[-1]),
+                "metadata": (["filename"], new_metadata),
                 "original_height": (["filename"], height),
                 "original_width": (["filename"], width),
+                "flag": (["filename"], flags),
             },
-            attrs={"description": "Padded image dataset with masks for valid pixels"},
+            attrs={
+                "description": "Image Dataset",
+                "dataset_metadata": metadata.attrs.get("dataset_metadata", {}),
+            },
         )
-
-        # image_ds = xr.Dataset(
-        #     data_vars={"image": (["filename", "y", "x", "band"], stacked_imgs), "mask": (["filename", "y", "x"], stacked_masks)},
-        #     coords={
-        #         "filename": img_paths,
-        #         "y": np.arange(max_height),
-        #         "x": np.arange(max_width),
-        #         "band": np.arange(stacked_imgs.shape[-1]),
-        #         "original_height": (["filename"], height),
-        #         "original_width": (["filename"], width),
-        #     },
-        #     attrs={"description": "Padded image dataset with masks for valid pixels"},
-        # )
-
-        return image_ds, exifs
-
-    def rename_images(self, rename: str, image_ds: xr.Dataset) -> pd.DataFrame:
-        """Rename images based on the rename mode.
-
-        Args:
-            rename (str): The rename mode
-            image_ds (xr.Dataset): The image dataset
-
-        Raises:
-            ValueError: Unknown rename mode
-
-        Returns:
-            pd.DataFrame: The renamed metadata
-        """
-        image_open_args = f".{self.step_metadata.get('image_open_args')}" if self.step_metadata.get("image_open_args") else ""
-        metadata = image_ds[["filename", "image-datetime"]].to_dataframe().reset_index(drop=True)
-
-        if rename == "datetime":
-            metadata["filename"] = pd.to_datetime(metadata["image-datetime"]).dt.strftime("%Y%m%dT%H%M%S.%f").str[:-3] + "Z" + image_open_args
-
-            duplicate_mask = metadata.duplicated(subset="filename", keep=False)
-            if duplicate_mask.any():
-                duplicates = metadata[duplicate_mask]
-                duplicates.loc[:, "duplicate_number"] = duplicates.groupby("filename").cumcount() + 1
-                metadata.loc[duplicate_mask, "filename"] = duplicates.apply(
-                    lambda row: f"{row['filename'][:-1]}_{row['duplicate_number']}",
-                    axis=1,
-                )
-        elif rename == "UUID":
-            metadata["filename"] = metadata["filename"].apply(lambda _: str(uuid.uuid4()) + image_open_args)
-        return image_ds.assign_coords(filename=("filename", metadata["filename"].to_numpy()))
 
     def _get_image_open_args(self, image_open_args: str | dict | None) -> tuple[str | None, str | None]:
         """Get the image open arguments.

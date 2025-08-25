@@ -1,215 +1,470 @@
-# `paidiverpy` developer documentation
+Here’s a cleaned-up, developer-focused version of your text reformatted as `README.dev.md`. I’ve removed redundant instructions, streamlined phrasing, and organized sections so that contributors can quickly find what they need:
 
-If you're looking for user documentation, go [here](README.md).
+---
 
-## Development install
+# Developer Guide – `paidiverpy`
 
-1. Clone the repository:
+This document contains guidelines and instructions for contributors and maintainers of **`paidiverpy`**.
+For user-facing documentation, see [README.md](README.md).
 
-   ```bash
-   # ssh
-   git clone git@github.com:paidiver/paidiverpy.git
+---
 
-   # https
-   # git clone https://github.com/paidiver/paidiverpy.git
+## Project Setup
 
-   cd paidiverpy
-   ```
+This repository follows the [Netherlands eScience Center software guide](https://guide.esciencecenter.nl).
+For a quick checklist of best practices, see [the software guide checklist](https://guide.esciencecenter.nl/#/best_practices/checklist).
 
-2. Create env and install package
+---
 
-  - Using `conda` (recommended):
-    ```bash
-    conda init
+## Supported Python Versions
 
-    # Command to restart the terminal. This command may not be necessary if conda init has already been successfully run before
-    exec bash
+* 3.10
+* 3.11
+* 3.12
 
-    conda env create -f environment.yml
-    conda activate Paidiverpy
+See the [Python guide](https://guide.esciencecenter.nl/#/best_practices/language_guides/python) for details on supported versions.
 
-    # (from the project root directory)
-    # install paidiverpy as an editable package
-    pip install --no-cache-dir --editable .
-    # install development dependencies
-    pip install --no-cache-dir --editable .[dev]
-    # install documentation dependencies only
-    pip install --no-cache-dir --editable .[docs]
-    ```
+---
 
-  - Using `venv`:
-    ```bash
-    # Create a virtual environment, e.g. with
-    python -m venv env
+## Installation for Development
 
-    # activate virtual environment
-    source env/bin/activate
+### 1. Clone the repository
 
-    # make sure to have a recent version of pip and setuptools
-    python -m pip install --upgrade pip setuptools
+```bash
+# SSH
+git clone git@github.com:paidiver/paidiverpy.git
 
-    # (from the project root directory)
-    # install paidiverpy as an editable package
-    python -m pip install --no-cache-dir --editable .
-    # install development dependencies
-    python -m pip install --no-cache-dir --editable .[dev]
-    # install documentation dependencies only
-    python -m pip install --no-cache-dir --editable .[docs]
-    ```
+# HTTPS
+# git clone https://github.com/paidiver/paidiverpy.git
 
-Afterwards check that the install directory is present in the `PATH` environment variable.
+cd paidiverpy
+```
 
-## Running the tests
+### 2. Create environment and install package
+
+#### Option A: Conda (recommended)
+
+```bash
+conda init
+exec bash  # restart terminal if needed
+
+conda env create -f environment.yml
+conda activate Paidiverpy
+
+# install paidiverpy as editable package
+pip install --no-cache-dir --editable .
+# install dev dependencies
+pip install --no-cache-dir --editable .[dev]
+# install docs dependencies only
+pip install --no-cache-dir --editable .[docs]
+```
+
+#### Option B: venv
+
+```bash
+python -m venv env
+source env/bin/activate
+
+python -m pip install --upgrade pip setuptools
+
+# install paidiverpy as editable package
+python -m pip install --no-cache-dir --editable .
+# install dev dependencies
+python -m pip install --no-cache-dir --editable .[dev]
+# install docs dependencies only
+python -m pip install --no-cache-dir --editable .[docs]
+```
+
+---
+
+## Testing
+
+Run tests with:
 
 ```bash
 pytest -v
 ```
 
-### Test coverage
+### Coverage
 
-In addition to just running the tests to see if they pass, they can be used for coverage statistics, i.e. to determine how much of the package's code is actually executed during tests.
-In an activated virtual environment with the development tools installed, inside the package directory, run:
-
-```shell
+```bash
 coverage run
-```
-
-This runs tests and stores the result in a `.coverage` file.
-To see the results on the command line, run
-
-```shell
 coverage report
 ```
 
-`coverage` can also generate output in HTML and other formats; see `coverage help` for more information.## Running linters locally
+HTML and other output formats are available. See `coverage help`.
 
-## Lint
+---
 
-For linting and sorting imports we will use [ruff](https://beta.ruff.rs/docs/). Running the linters requires an
-activated virtual environment with the development tools installed.
+## Linting & Code Style
 
-```shell
-# linter
+This project uses [ruff](https://beta.ruff.rs/docs/) for linting and [yapf](https://github.com/google/yapf) for formatting.
+
+```bash
+# lint check
 ruff check .
 
-# linter with automatic fixing
+# lint with auto-fix
 ruff check . --fix
 ```
 
-To fix readability of your code style you can use [yapf](https://github.com/google/yapf).You can enable automatic linting with `ruff` on commit by enabling the git hook from `.githooks/pre-commit`, like so:
+Enable git pre-commit hook for automatic linting:
 
-```shell
+```bash
 git config --local core.hooksPath .githooks
 ```
 
-## Generating the API docs
+---
 
-```shell
+## Documentation
+
+* Documentation lives in [`docs/`](docs/).
+* Generated with **Sphinx** and the **ReadTheDocs theme**.
+* API docs are generated with [AutoAPI](https://sphinx-autoapi.readthedocs.io/).
+
+Build locally:
+
+```bash
 cd docs
 make html
 ```
 
-The documentation will be in `docs/_build/html`
+Or, without `make`:
 
-If you do not have `make` use
-
-```shell
+```bash
 sphinx-build -b html docs docs/_build/html
 ```
 
-To find undocumented Python objects run
+Check for undocumented objects:
 
-```shell
+```bash
 cd docs
 make coverage
 cat _build/coverage/python.txt
 ```
 
-<!-- To [test snippets](https://www.sphinx-doc.org/en/master/usage/extensions/doctest.html) in documentation run
-
-```shell
-cd docs
-make doctest
-``` -->
+---
 
 ## Versioning
 
-Bumping the version across all files is done with [bump-my-version](https://github.com/callowayproject/bump-my-version), e.g.
+We use [semantic versioning](https://guide.esciencecenter.nl/#/best_practices/releases?id=semantic-versioning).
+Version is managed in `pyproject.toml` with [bump-my-version](https://github.com/callowayproject/bump-my-version).
 
-```shell
-bump-my-version bump major  # bumps from e.g. 0.3.2 to 1.0.0
-bump-my-version bump minor  # bumps from e.g. 0.3.2 to 0.4.0
-bump-my-version bump patch  # bumps from e.g. 0.3.2 to 0.3.3
+Examples:
+
+```bash
+bump-my-version bump major  # 0.3.2 → 1.0.0
+bump-my-version bump minor  # 0.3.2 → 0.4.0
+bump-my-version bump patch  # 0.3.2 → 0.3.3
 ```
 
-## Making a release
+---
 
-This section describes how to make a release in 3 parts:
+## Release Process
 
-1. preparation
-1. making a release on PyPI
-1. making a release on GitHub
+Releases consist of three parts:
 
-### (1/3) Preparation
+### 1. Preparation
 
-1. Update the <CHANGELOG.md> (don't forget to update links at bottom of page).
-1. Verify that the information in [`CITATION.cff`](CITATION.cff) is correct.
-1. Make sure the [version has been updated](#versioning).
-1. Run the unit tests with `pytest -v`
+* Update [CHANGELOG.md](CHANGELOG.md).
+* Verify [`CITATION.cff`](CITATION.cff).
+* Bump version.
+* Run tests:
 
-### (2/3) PyPI
+  ```bash
+  pytest -v
+  ```
 
-In a new terminal:
+### 2. Publish to PyPI
 
-```shell
-# OPTIONAL: prepare a new directory with fresh git clone to ensure the release
-# has the state of origin/main branch
-cd $(mktemp -d paidiverpy.XXXXXX)
-git clone git@github.com:paidiver/paidiverpy .
-
-# make sure to have a recent version of pip and the publishing dependencies
+```bash
 python -m pip install --upgrade pip
 python -m pip install .[publishing]
 
-# create the source distribution and the wheel
 python -m build
-
-# upload to test pypi instance (requires credentials)
 python -m twine upload --repository testpypi dist/*
 ```
 
-Visit
-[https://test.pypi.org/project/paidiverpy](https://test.pypi.org/project/paidiverpy)
-and verify that your package was uploaded successfully. Keep the terminal open, we'll need it later.
+Verify on [Test PyPI](https://test.pypi.org/project/paidiverpy).
+Then install from Test PyPI in a clean environment to confirm.
 
-In a new terminal, without an activated virtual environment or an env directory:
+If successful, upload to PyPI:
 
-```shell
-cd $(mktemp -d paidiverpy-test.XXXXXX)
-
-# prepare a clean virtual environment and activate it
-python -m venv env
-source env/bin/activate
-
-# make sure to have a recent version of pip and setuptools
-python -m pip install --upgrade pip
-
-# install from test pypi instance:
-python -m pip -v install --no-cache-dir \
---index-url https://test.pypi.org/simple/ \
---extra-index-url https://pypi.org/simple paidiverpy
-```
-
-Check that the package works as it should when installed from pypitest.
-
-Then upload to pypi.org with:
-
-```shell
-# Back to the first terminal,
-# FINAL STEP: upload to PyPI (requires credentials)
+```bash
 python -m twine upload dist/*
 ```
 
-### (3/3) GitHub
+### 3. GitHub Release
 
-Don't forget to also make a [release on GitHub](https://github.com/paidiver/paidiverpy/releases/new).GitHub-Zenodo integration will also trigger Zenodo into making a snapshot of your repository and sticking a DOI on it.
+Create a [new release](https://github.com/paidiver/paidiverpy/releases/new) on GitHub.
+This also triggers Zenodo to mint a DOI snapshot.
+
+---
+
+## Additional Development Notes
+
+* **Logging**: use the `logging` module (not `print`).
+* **CI**: tests run via GitHub Actions across all supported Python versions.
+* **Code quality**: [SonarCloud](https://sonarcloud.io/) is integrated (`sonar-project.properties` + `.github/workflows/sonarcloud.yml`).
+* **Packaging**: non-Python files should be listed in [`MANIFEST.in`](MANIFEST.in).
+* **Policies**: see [CODE\_OF\_CONDUCT.md](CODE_OF_CONDUCT.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
+* **Licensing**: attributions are maintained in [`NOTICE`](NOTICE).
+
+---
+
+✅ With this guide, you should be able to:
+
+* Set up a dev environment
+* Run tests and linting
+* Build docs
+* Manage versions
+* Publish releases to PyPI & GitHub
+
+---
+
+Would you like me to also **add a short contributor workflow diagram** (e.g., clone → dev env → code → lint/test → docs → PR → release) so new developers can get the big picture at a glance?
+
+
+Perfect 👍 I’ll add a simple workflow diagram in Markdown so it renders directly in GitHub. Here’s the updated `README.dev.md` with the contributor workflow at the end:
+
+---
+
+# Developer Guide – `paidiverpy`
+
+This document contains guidelines and instructions for contributors and maintainers of **`paidiverpy`**.
+For user-facing documentation, see [README.md](README.md).
+
+---
+
+## Project Setup
+
+This repository follows the [Netherlands eScience Center software guide](https://guide.esciencecenter.nl).
+For a quick checklist of best practices, see [the software guide checklist](https://guide.esciencecenter.nl/#/best_practices/checklist).
+
+---
+
+## Supported Python Versions
+
+* 3.10
+* 3.11
+* 3.12
+
+See the [Python guide](https://guide.esciencecenter.nl/#/best_practices/language_guides/python) for details on supported versions.
+
+---
+
+## Installation for Development
+
+### 1. Clone the repository
+
+```bash
+# SSH
+git clone git@github.com:paidiver/paidiverpy.git
+
+# HTTPS
+# git clone https://github.com/paidiver/paidiverpy.git
+
+cd paidiverpy
+```
+
+### 2. Create environment and install package
+
+#### Option A: Conda (recommended)
+
+```bash
+conda init
+exec bash  # restart terminal if needed
+
+conda env create -f environment.yml
+conda activate Paidiverpy
+
+# install paidiverpy as editable package
+pip install --no-cache-dir --editable .
+# install dev dependencies
+pip install --no-cache-dir --editable .[dev]
+# install docs dependencies only
+pip install --no-cache-dir --editable .[docs]
+```
+
+#### Option B: venv
+
+```bash
+python -m venv env
+source env/bin/activate
+
+python -m pip install --upgrade pip setuptools
+
+# install paidiverpy as editable package
+python -m pip install --no-cache-dir --editable .
+# install dev dependencies
+python -m pip install --no-cache-dir --editable .[dev]
+# install docs dependencies only
+python -m pip install --no-cache-dir --editable .[docs]
+```
+
+---
+
+## Testing
+
+Run tests with:
+
+```bash
+pytest -v
+```
+
+### Coverage
+
+```bash
+coverage run
+coverage report
+```
+
+HTML and other output formats are available. See `coverage help`.
+
+---
+
+## Linting & Code Style
+
+This project uses [ruff](https://beta.ruff.rs/docs/) for linting and [yapf](https://github.com/google/yapf) for formatting.
+
+```bash
+# lint check
+ruff check .
+
+# lint with auto-fix
+ruff check . --fix
+```
+
+Enable git pre-commit hook for automatic linting:
+
+```bash
+git config --local core.hooksPath .githooks
+```
+
+---
+
+## Documentation
+
+* Documentation lives in [`docs/`](docs/).
+* Generated with **Sphinx** and the **ReadTheDocs theme**.
+* API docs are generated with [AutoAPI](https://sphinx-autoapi.readthedocs.io/).
+
+Build locally:
+
+```bash
+cd docs
+make html
+```
+
+Or, without `make`:
+
+```bash
+sphinx-build -b html docs docs/_build/html
+```
+
+Check for undocumented objects:
+
+```bash
+cd docs
+make coverage
+cat _build/coverage/python.txt
+```
+
+---
+
+## Versioning
+
+We use [semantic versioning](https://guide.esciencecenter.nl/#/best_practices/releases?id=semantic-versioning).
+Version is managed in `pyproject.toml` with [bump-my-version](https://github.com/callowayproject/bump-my-version).
+
+Examples:
+
+```bash
+bump-my-version bump major  # 0.3.2 → 1.0.0
+bump-my-version bump minor  # 0.3.2 → 0.4.0
+bump-my-version bump patch  # 0.3.2 → 0.3.3
+```
+
+---
+
+## Release Process
+
+Releases consist of three parts:
+
+### 1. Preparation
+
+* Update [CHANGELOG.md](CHANGELOG.md).
+* Verify [`CITATION.cff`](CITATION.cff).
+* Bump version.
+* Run tests:
+
+  ```bash
+  pytest -v
+  ```
+
+### 2. Publish to PyPI
+
+```bash
+python -m pip install --upgrade pip
+python -m pip install .[publishing]
+
+python -m build
+python -m twine upload --repository testpypi dist/*
+```
+
+Verify on [Test PyPI](https://test.pypi.org/project/paidiverpy).
+Then install from Test PyPI in a clean environment to confirm.
+
+If successful, upload to PyPI:
+
+```bash
+python -m twine upload dist/*
+```
+
+### 3. GitHub Release
+
+Create a [new release](https://github.com/paidiver/paidiverpy/releases/new) on GitHub.
+This also triggers Zenodo to mint a DOI snapshot.
+
+---
+
+## Additional Development Notes
+
+* **Logging**: use the `logging` module (not `print`).
+* **CI**: tests run via GitHub Actions across all supported Python versions.
+* **Code quality**: [SonarCloud](https://sonarcloud.io/) is integrated (`sonar-project.properties` + `.github/workflows/sonarcloud.yml`).
+* **Packaging**: non-Python files should be listed in [`MANIFEST.in`](MANIFEST.in).
+* **Policies**: see [CODE\_OF\_CONDUCT.md](CODE_OF_CONDUCT.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
+* **Licensing**: attributions are maintained in [`NOTICE`](NOTICE).
+
+---
+
+## Contributor Workflow (at a glance)
+
+```mermaid
+flowchart TD
+    A[Clone repo] --> B[Create dev environment]
+    B --> C[Install dependencies]
+    C --> D[Develop features / fix bugs]
+    D --> E[Run lint & tests]
+    E --> F[Build docs locally]
+    F --> G[Commit & push branch]
+    G --> H[Open Pull Request]
+    H --> I[Review & merge]
+    I --> J[Update version + CHANGELOG]
+    J --> K[Release on PyPI & GitHub]
+```
+
+---
+
+✅ With this guide, you should be able to:
+
+* Set up a dev environment
+* Run tests and linting
+* Build docs
+* Manage versions
+* Publish releases to PyPI & GitHub
+
+---
+
+Do you want me to also **add a “First-time contributor checklist”** (a short step-by-step list for new devs) at the top so onboarding is even quicker?

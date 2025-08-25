@@ -103,7 +103,7 @@ class ConvertLayer(Paidiverpy):
 
         Args:
             image_data (xr.DataArray): The image data.
-            metadata (dict, optional): The metadata for the image.
+            metadata (dict): The metadata for the image.
             params (BitParams, optional): The parameters for the bit conversion.
             **kwargs: Additional keyword arguments.
 
@@ -141,7 +141,7 @@ class ConvertLayer(Paidiverpy):
 
         Args:
             image_data (xr.DataArray): The image data.
-            metadata (dict, optional): The metadata for the image.
+            metadata (dict): The metadata for the image.
             params (ToParams, optional): The parameters for the channel conversion.
                 Defaults to ToParams().
             **kwargs: Additional keyword arguments.
@@ -194,7 +194,7 @@ class ConvertLayer(Paidiverpy):
 
         Args:
             image_data (xr.DataArray): The image data.
-            metadata (dict, optional): The metadata for the image.
+            metadata (dict): The metadata for the image.
             params (NormalizeParams, optional): The parameters for the image normalization.
                 Defaults to NormalizeParams().
             **kwargs: Additional keyword arguments.
@@ -234,7 +234,7 @@ class ConvertLayer(Paidiverpy):
 
         Args:
             image_data (xr.DataArray): The image data.
-            metadata (dict, optional): The metadata for the image.
+            metadata (dict): The metadata for the image.
             params (ResizeParams, optional): The parameters for the image resizing.
                 Defaults to ResizeParams().
             **kwargs: Additional keyword arguments.
@@ -284,7 +284,7 @@ class ConvertLayer(Paidiverpy):
 
         Args:
             image_data (xr.DataArray): The image data.
-            metadata (dict, optional): The metadata for the image.
+            metadata (dict): The metadata for the image.
             params (CropParams, optional): The parameters for the image cropping.
                 Defaults to CropParams().
             **kwargs: Additional keyword arguments.

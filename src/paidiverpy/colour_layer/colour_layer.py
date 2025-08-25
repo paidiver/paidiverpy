@@ -107,14 +107,14 @@ class ColourLayer(Paidiverpy):
         self.layer_methods = COLOUR_LAYER_METHODS
 
     @staticmethod
-    def grayscale(image_data: np.ndarray, metadata: dict | None = None, params: GrayScaleParams = None, **kwargs: dict) -> tuple[np.ndarray, dict]:
+    def grayscale(image_data: np.ndarray, metadata: dict, params: GrayScaleParams = None, **kwargs: dict) -> tuple[np.ndarray, dict]:
         """Convert the image to grayscale.
 
         Method to convert the image to grayscale.
 
         Args:
             image_data (np.ndarray): The input image.
-            metadata (dict, optional): Metadata for the image.
+            metadata (dict): Metadata for the image.
             params (GrayScaleParams, optional): Parameters for the grayscale conversion.
                 Defaults to GrayScaleParams().
             **kwargs (dict): Additional keyword arguments.
@@ -125,7 +125,7 @@ class ColourLayer(Paidiverpy):
         Returns:
             tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
-        image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, GrayScaleParams, **kwargs)
+        image_data, params, _ = Paidiverpy.prepare_inputs(image_data, params, GrayScaleParams, **kwargs)
 
         num_channels = metadata.get("num_channels", image_data.shape[-1])
 
@@ -169,16 +169,14 @@ class ColourLayer(Paidiverpy):
         return cv2.cvtColor(image_data, cv2.COLOR_RGB2GRAY)
 
     @staticmethod
-    def gaussian_blur(
-        image_data: np.ndarray, metadata: dict | None = None, params: GaussianBlurParams = None, **kwargs: dict
-    ) -> tuple[np.ndarray, dict]:
+    def gaussian_blur(image_data: np.ndarray, metadata: dict, params: GaussianBlurParams = None, **kwargs: dict) -> tuple[np.ndarray, dict]:
         """Gaussian blur.
 
         Method to apply Gaussian blur to the image.
 
         Args:
             image_data (np.ndarray): The image to apply Gaussian blur.
-            metadata (dict, optional): Metadata for the image.
+            metadata (dict): Metadata for the image.
             params (GaussianBlurParams, optional): the parameters for the method.
                 Defaults to GaussianBlurParams().
             **kwargs (dict): Additional keyword arguments.
@@ -189,7 +187,7 @@ class ColourLayer(Paidiverpy):
         Returns:
             tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
-        image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, GaussianBlurParams, **kwargs)
+        image_data, params, _ = Paidiverpy.prepare_inputs(image_data, params, GaussianBlurParams, **kwargs)
         try:
             image_data = cv2.GaussianBlur(image_data, (0, 0), params.sigma)
         except Exception as e:  # noqa: BLE001
@@ -198,14 +196,14 @@ class ColourLayer(Paidiverpy):
         return image_data, metadata
 
     @staticmethod
-    def sharpen(image_data: np.ndarray, metadata: dict | None = None, params: SharpenParams = None, **kwargs: dict) -> tuple[np.ndarray, dict]:
+    def sharpen(image_data: np.ndarray, metadata: dict, params: SharpenParams = None, **kwargs: dict) -> tuple[np.ndarray, dict]:
         """Sharpening.
 
         Method to apply sharpening to the image.
 
         Args:
             image_data (np.ndarray): The image to apply sharpening.
-            metadata (dict, optional): Metadata for the image.
+            metadata (dict): Metadata for the image.
             params (SharpenParams, optional): Params for method. Defaults to SharpenParams().
             **kwargs (dict): Additional keyword arguments.
 
@@ -215,7 +213,7 @@ class ColourLayer(Paidiverpy):
         Returns:
             tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
-        image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, SharpenParams, **kwargs)
+        image_data, params, _ = Paidiverpy.prepare_inputs(image_data, params, SharpenParams, **kwargs)
 
         try:
             bits = image_data.dtype.itemsize * DEFAULT_BITS
@@ -232,7 +230,7 @@ class ColourLayer(Paidiverpy):
     @staticmethod
     def contrast_adjustment(
         image_data: np.ndarray,
-        metadata: dict | None = None,
+        metadata: dict,
         params: ContrastAdjustmentParams = None,
         **kwargs: dict,
     ) -> tuple[np.ndarray, dict]:
@@ -242,7 +240,7 @@ class ColourLayer(Paidiverpy):
 
         Args:
             image_data (np.ndarray): The image to apply contrast adjustment.
-            metadata (dict, optional): Metadata for the image.
+            metadata (dict): Metadata for the image.
             params (ContrastAdjustmentParams, optional): Params for method.
                 Defaults to ContrastAdjustmentParams().
             **kwargs (dict): Additional keyword arguments.
@@ -253,7 +251,7 @@ class ColourLayer(Paidiverpy):
         Returns:
             tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
-        image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, ContrastAdjustmentParams, **kwargs)
+        image_data, params, _ = Paidiverpy.prepare_inputs(image_data, params, ContrastAdjustmentParams, **kwargs)
 
         try:
             method = params.method
@@ -283,7 +281,7 @@ class ColourLayer(Paidiverpy):
     @staticmethod
     def illumination_correction(
         image_data: np.ndarray,
-        metadata: dict | None = None,
+        metadata: dict,
         params: IlluminationCorrectionParams = None,
         **kwargs: dict,
     ) -> tuple[np.ndarray, dict]:
@@ -293,7 +291,7 @@ class ColourLayer(Paidiverpy):
 
         Args:
             image_data (np.ndarray): The image to apply illumination correction.
-            metadata (dict, optional): Metadata for the image.
+            metadata (dict): Metadata for the image.
             params (IlluminationCorrectionParams, optional): Params for method.
                 Defaults to IlluminationCorrectionParams().
             **kwargs (dict): Additional keyword arguments.
@@ -304,7 +302,7 @@ class ColourLayer(Paidiverpy):
         Returns:
             tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
-        image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, IlluminationCorrectionParams, **kwargs)
+        image_data, params, _ = Paidiverpy.prepare_inputs(image_data, params, IlluminationCorrectionParams, **kwargs)
 
         try:
             method = params.method
@@ -322,14 +320,14 @@ class ColourLayer(Paidiverpy):
         return image_data, metadata
 
     @staticmethod
-    def deblur(image_data: np.ndarray, metadata: dict | None = None, params: DeblurParams = None, **kwargs: dict) -> tuple[np.ndarray, dict]:
+    def deblur(image_data: np.ndarray, metadata: dict, params: DeblurParams = None, **kwargs: dict) -> tuple[np.ndarray, dict]:
         """Deblurring.
 
         Method to apply deblurring to the image.
 
         Args:
             image_data (np.ndarray): The image to apply deblurring.
-            metadata (dict, optional): Metadata for the image.
+            metadata (dict): Metadata for the image.
             params (DeblurParams, optional): Params for method.
                 Defaults to DeblurParams().
             **kwargs (dict): Additional keyword arguments.
@@ -343,7 +341,7 @@ class ColourLayer(Paidiverpy):
         Returns:
             tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
-        image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, DeblurParams, **kwargs)
+        image_data, params, _ = Paidiverpy.prepare_inputs(image_data, params, DeblurParams, **kwargs)
         num_channels = metadata.get("num_channels", image_data.shape[-1])
         try:
             method = params.method
@@ -375,14 +373,12 @@ class ColourLayer(Paidiverpy):
         return image_data, metadata
 
     @staticmethod
-    def colour_alteration(
-        image_data: np.ndarray, metadata: dict | None = None, params: ColourAlterationParams = None, **kwargs: dict
-    ) -> tuple[np.ndarray, dict]:
+    def colour_alteration(image_data: np.ndarray, metadata: dict, params: ColourAlterationParams = None, **kwargs: dict) -> tuple[np.ndarray, dict]:
         """Apply colour alteration to the image.
 
         Args:
             image_data (np.ndarray): The image to alter colour channel.
-            metadata (dict, optional): Metadata for the image.
+            metadata (dict): Metadata for the image.
             params (ColourAlterationParams, optional): Params for method. Defaults to None.
             **kwargs (dict): Additional keyword arguments.
 
@@ -394,7 +390,7 @@ class ColourLayer(Paidiverpy):
         Returns:
             tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
-        image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, ColourAlterationParams, **kwargs)
+        image_data, params, _ = Paidiverpy.prepare_inputs(image_data, params, ColourAlterationParams, **kwargs)
         num_channels = metadata.get("num_channels", image_data.shape[-1])
         try:
             method = params.method
@@ -414,7 +410,7 @@ class ColourLayer(Paidiverpy):
     @staticmethod
     def edge_detection(
         image_data: np.ndarray,
-        metadata: dict | None = None,
+        metadata: dict,
         params: EdgeDetectionParams = None,
         **kwargs: dict,
     ) -> tuple[np.ndarray, dict]:
@@ -424,7 +420,7 @@ class ColourLayer(Paidiverpy):
 
         Args:
             image_data (np.ndarray): The image to apply edge detection.
-            metadata (dict, optional): Metadata for the image.
+            metadata (dict): Metadata for the image.
             params (EdgeDetectionParams, optional): Params for method.
                 Defaults to EdgeDetectionParams().
             **kwargs (dict): Additional keyword arguments.
@@ -435,7 +431,7 @@ class ColourLayer(Paidiverpy):
         Returns:
             tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
-        image_data, metadata, params, _ = Paidiverpy.prepare_inputs(image_data, metadata, params, EdgeDetectionParams, **kwargs)
+        image_data, params, _ = Paidiverpy.prepare_inputs(image_data, params, EdgeDetectionParams, **kwargs)
         num_channels = metadata.get("num_channels", image_data.shape[-1])
         try:
             if params.method == "sobel":
