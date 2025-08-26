@@ -2,10 +2,12 @@
 
 import hashlib
 import json
+import shutil
 import zipfile
 from pathlib import Path
 import requests
 from tqdm import tqdm
+from paidiverpy.utils.docker import is_running_in_docker
 from paidiverpy.utils.logging_functions import initialise_logging
 
 NUM_CHANNELS_GREY = 1
@@ -109,12 +111,27 @@ class PaidiverpyData:
         zip_path = self.download_file(url, dataset_name)
 
         self.unzip_file(zip_path, dataset_name, extract_dir)
+        if is_running_in_docker():
+            self.copy_files_docker(extract_dir)
+            extract_dir = Path("/app")
         paths[dataset_name] = str(extract_dir)
+
         self.save_persistent_paths(paths)
 
         self.logger.info("Dataset '%s' is available at: %s", dataset_name, extract_dir)
 
         return self.calculate_information(dataset_name, extract_dir, dataset_information)
+
+    def copy_files_docker(self, extract_dir: Path) -> None:
+        """Copy files from the extract directory to the appropriate location in the Docker container."""
+        metadata_path = Path("/app") / "metadata"
+        images_path = Path("/app") / "input"
+        if metadata_path.exists():
+            shutil.rmtree(metadata_path)
+        if images_path.exists():
+            shutil.rmtree(images_path)
+        shutil.copytree(extract_dir / "metadata", metadata_path)
+        shutil.copytree(extract_dir / "images", images_path)
 
     def load_persistent_paths(self) -> dict:
         """Load the persistent paths from the cache directory.
@@ -215,7 +232,7 @@ class PaidiverpyData:
         """
         metadata_path = dataset_information["metadata_path"]
         information = {
-            "input_path": str(extract_dir / "images"),
+            "input_path": str(extract_dir / "input") if is_running_in_docker() else str(extract_dir / "images"),
             "metadata_path": str(extract_dir / "metadata" / metadata_path),
             "metadata_type": dataset_information["metadata_type"],
             "image_open_args": dataset_information["image_open_args"],
