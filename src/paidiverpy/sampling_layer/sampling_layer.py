@@ -116,15 +116,16 @@ class SamplingLayer(Paidiverpy):
         params = self.step_metadata.get("params") or {}
         method, params = self._get_method_by_mode(params, SAMPLING_LAYER_METHODS, mode, False)
         try:
-            step_order = 9999 if self.step_order == 0 else self.step_order
+            step_order = -9999 if self.step_order == 0 else self.step_order
             metadata = method(step_order, test=test, params=params)
             new_metadata = self.get_metadata(flag="all")
             if not self.add_new_step:
                 metadata = metadata.loc[metadata["flag"] == 0]
                 metadata = MetadataParser.df2dataarray(metadata)
-                metadata.attrs["dataset_metadata"] = new_metadata.attrs["dataset_metadata"]
+                metadata.attrs["dataset_metadata"] = new_metadata.attrs.get("dataset_metadata")
                 return metadata
             metadata = MetadataParser.df2dataarray(metadata)
+            metadata, new_metadata = xr.align(metadata, new_metadata, join="outer", fill_value=np.nan)
             metadata_flag = metadata["flag"].to_numpy()
             new_metadata = xr.where(new_metadata["flag"] == 0, metadata, new_metadata)
             new_metadata = new_metadata.assign_coords(flag=("filename", metadata_flag))
@@ -139,6 +140,7 @@ class SamplingLayer(Paidiverpy):
             self.logger.error("Error in resample layer: %s", e)
             if self.raise_error:
                 raise_value_error("Sampling layer step failed.")
+            new_metadata = self.get_metadata(flag="all")
             self.logger.error("Sampling layer step will be skipped.")
         if not test and self.add_new_step:
             self.step_name = f"trim_{mode}" if not self.step_name else self.step_name
@@ -485,6 +487,7 @@ class SamplingLayer(Paidiverpy):
                 # client=self.client,
                 add_new_step=False,
             ).run()
+            metadata = pd.DataFrame(metadata.to_dict()["data"])
         else:
             metadata = self.get_metadata(output_format="pandas")
         metadata["overlap"] = 0
@@ -507,7 +510,7 @@ class SamplingLayer(Paidiverpy):
             else:
                 index_comparison = i
                 metadata.loc[i, "overlap"] = 0
-        metadata.loc[metadata["overlap"] == 1]["flag"] = step_order
+        metadata.loc[metadata["overlap"] == 1, "flag"] = step_order
         if test:
             InvestigationLayer(
                 paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="resample-polygon"
