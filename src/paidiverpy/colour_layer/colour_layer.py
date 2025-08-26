@@ -127,7 +127,10 @@ class ColourLayer(Paidiverpy):
         """
         image_data, params, _ = Paidiverpy.prepare_inputs(image_data, params, GrayScaleParams, **kwargs)
 
-        num_channels = metadata.get("num_channels", image_data.shape[-1])
+        num_channels = image_data.shape[-1]
+        # import pdb
+
+        # pdb.set_trace()
 
         try:
             if num_channels not in (NUM_CHANNELS_RGB, NUM_CHANNELS_RGBA):
@@ -140,7 +143,6 @@ class ColourLayer(Paidiverpy):
         except Exception as e:  # noqa: BLE001
             msg = f"Error converting image to grayscale: {e}"
             check_raise_error(params.raise_error, msg)
-        metadata["num_channels"] = 1
 
         return image_data, metadata
 

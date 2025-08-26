@@ -14,6 +14,8 @@ from paidiverpy.config.configuration import Configuration
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.utils.base_model import BaseModel
+from paidiverpy.utils.data import NUM_DIMENSIONS_GREY
+from paidiverpy.utils.exceptions import raise_value_error
 from paidiverpy.utils.logging_functions import initialise_logging
 from paidiverpy.utils.parallellisation import get_client
 from paidiverpy.utils.parallellisation import get_n_jobs
@@ -135,21 +137,27 @@ class Paidiverpy:
         images = self.images.get_step(last=True)
 
         func = partial(method, params=params)
+
+        output_bands = self.calculate_output_bands(images, func, custom)
+
+        band_name = "new_band" if output_bands is not None else "band"
+
         processed_images, updated_metadata_list = xr.apply_ufunc(
             Paidiverpy.process_single,
             images["images"],
             images["flag"],
             images["original_height"],
             images["original_width"],
-            # images["mask"],
             images["metadata"],
             input_core_dims=[["y", "x", "band"], [], [], [], []],
-            output_core_dims=[["y", "x", "band"], []],
+            output_core_dims=[["y", "x", band_name], []],
             vectorize=True,
             dask="parallelized",
             output_dtypes=[images["images"].dtype, object],
-            kwargs={"func": func, "custom": custom},
+            dask_gufunc_kwargs={"output_sizes": {"new_band": output_bands}} if output_bands is not None else {},
+            kwargs={"output_bands": output_bands, "func": func, "custom": custom},
         )
+
         if self.client:
             processed_images, updated_metadata_list = self.client.compute([processed_images, updated_metadata_list])
         else:
@@ -157,7 +165,44 @@ class Paidiverpy:
         processed_images["metadata"] = updated_metadata_list
 
         processed_images = processed_images.assign_coords(flag=("filename", pd.DataFrame(updated_metadata_list.to_dict()["data"])["flag"].to_numpy()))
+
+        if output_bands is not None:
+            processed_images = processed_images.rename({"new_band": "band"})
+            processed_images = processed_images.assign_coords(band=("band", list(range(output_bands))))
+
         return xr.Dataset({"images": processed_images})
+
+    def calculate_output_bands(self, images: xr.Dataset, func: callable, custom: bool = False) -> int:
+        """Calculate the number of output bands.
+
+        Args:
+            images (xr.Dataset): The input images.
+            func (callable): The processing function.
+            custom (bool, optional): Whether the function is a custom function. Defaults to False.
+
+        Returns:
+            int: The number of output bands.
+        """
+        flag_zero_mask = images["flag"] == 0
+        if not flag_zero_mask.any():
+            msg = "No images with flag=0 found for testing output dimensions"
+            self.logger.warning(msg)
+            raise_value_error(msg)
+
+        test_idx = int(flag_zero_mask.argmax())
+
+        test_img = images["images"].isel(filename=test_idx).to_numpy()
+        test_flag = images["flag"].isel(filename=test_idx).item()
+        test_height = images["original_height"].isel(filename=test_idx).item()
+        test_width = images["original_width"].isel(filename=test_idx).item()
+        test_metadata = images["metadata"].isel(filename=test_idx).item()
+        test_result, _ = Paidiverpy.process_single(test_img, test_flag, test_height, test_width, test_metadata, None, func, custom)
+
+        output_bands = 1 if test_result.ndim == NUM_DIMENSIONS_GREY else test_result.shape[-1]
+
+        if output_bands == test_img.shape[-1]:
+            return None
+        return output_bands
 
     # TODO: update this method
     def process_dataset(
@@ -403,7 +448,9 @@ class Paidiverpy:
         return image_data, params, kwargs
 
     @staticmethod
-    def process_single(img: np.ndarray, flag: int, height: int, width: int, metadata: dict, func: callable, custom: bool) -> tuple[np.ndarray, dict]:
+    def process_single(
+        img: np.ndarray, flag: int, height: int, width: int, metadata: dict, output_bands: int, func: callable, custom: bool
+    ) -> tuple[np.ndarray, dict]:
         """Wrapper to process a single image with its metadata.
 
         Args:
@@ -412,6 +459,7 @@ class Paidiverpy:
             height (int): The height of the valid image area.
             width (int): The width of the valid image area.
             metadata (dict): The metadata to include.
+            output_bands (int): The number of output bands.
             func (callable): The processing function.
             custom (bool): Whether to use the custom processing.
 
@@ -419,6 +467,9 @@ class Paidiverpy:
             tuple: The processed image (with padding restored) and updated metadata.
         """
         if flag > 0:
+            if output_bands is None:
+                output_bands = img.shape[-1]
+            img = np.zeros((img.shape[0], img.shape[1], output_bands), dtype=img.dtype)
             return img, metadata
         cropped = img[:height, :width, :]
 
@@ -427,30 +478,9 @@ class Paidiverpy:
         else:
             processed_crop, updated_metadata = func(image_data=cropped, metadata=metadata)
 
+        if processed_crop.ndim == NUM_DIMENSIONS_GREY:
+            processed_crop = np.expand_dims(processed_crop, axis=-1)
         processed_img = np.zeros((img.shape[0], img.shape[1], processed_crop.shape[-1]), dtype=processed_crop.dtype)
         processed_img[:height, :width, : processed_crop.shape[-1]] = processed_crop
 
         return processed_img, updated_metadata
-
-    # @staticmethod
-    # def process_single(img: np.ndarray, mask: np.ndarray, metadata: dict, func: callable, custom: bool) -> tuple[np.ndarray, dict]:
-    #     """Wrapper to process a single image with its metadata.
-
-    #     Args:
-    #         img (xr.DataArray or np.ndarray): The image to process.
-    #         mask (xr.DataArray or np.ndarray): The mask to apply.
-    #         metadata (dict): The metadata to include.
-    #         func (callable): The processing function.
-    #         custom (bool): Whether to use the custom processing.
-
-    #     Returns:
-    #         tuple: The processed image and updated metadata.
-    #     """
-    #     img = np.where(mask[:, :, np.newaxis] == 1, img, np.nan)
-
-    #     if custom:
-    #         processed_img, updated_metadata = func(image_data=img, metadata=metadata).process()
-    #     else:
-    #         processed_img, updated_metadata = func(image_data=img, metadata=metadata)
-
-    #     return processed_img, updated_metadata

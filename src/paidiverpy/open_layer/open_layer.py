@@ -197,17 +197,18 @@ class OpenLayer(Paidiverpy):
         rename = self.step_metadata.get("rename")
         seen = {}
 
-        image_list, img_paths, height, width, new_metadata, flags = [], [], [], [], [], []
+        image_list, img_paths, height, width, band, new_metadata, flags = [], [], [], [], [], [], []
         for img, exif, img_path in images_and_exifs:
             if img is not None:
                 image_list.append(img)
                 height.append(img.shape[0])
                 width.append(img.shape[1])
+                band.append(img.shape[-1])
                 filename = str(img_path).split("/")[-1]
                 local_metadata = metadata.loc[{"filename": filename}].item()
                 new_filename = filename
                 if rename == "datetime":
-                    new_filename = local_metadata["image-datetime"].split(".")[0] + "Z"
+                    new_filename = local_metadata["image-datetime"].isoformat()
                     if new_filename in seen:
                         seen[new_filename] += 1
                         new_filename = f"{new_filename}_{seen[new_filename]}"
@@ -242,6 +243,7 @@ class OpenLayer(Paidiverpy):
                 "band": np.arange(stacked_imgs.shape[-1]),
                 "metadata": (["filename"], new_metadata),
                 "original_height": (["filename"], height),
+                # "original_bands": (["filename"], band),
                 "original_width": (["filename"], width),
                 "flag": (["filename"], flags),
             },
