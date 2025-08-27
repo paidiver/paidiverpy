@@ -234,6 +234,31 @@ class Configuration:
                 raise
         return config_index
 
+    def remove_step(
+        self,
+        config_index: int | None = None,
+    ) -> int:
+        """Remove a step from the configuration.
+
+        Args:
+            config_index (int, optional): The configuration index. Defaults to None, which means the last step will be removed.
+
+        Raises:
+            ValueError: Invalid step index.
+
+        Returns:
+            int: The step index.
+        """
+        if len(self.steps) == 0:
+            msg = "No steps to remove."
+            raise_value_error(msg)
+        if config_index is None:
+            config_index = len(self.steps) - 1
+        if config_index > len(self.steps) - 1:
+            msg = f"Invalid step index: {config_index}. The total number of steps is {len(self.steps)}."
+            raise_value_error(msg)
+        self.steps.pop(config_index)
+
     def export(self, output_path: str | None) -> None | str:
         """Export the configuration to a file.
 

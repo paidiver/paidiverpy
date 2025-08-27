@@ -217,10 +217,11 @@ class OpenLayer(Paidiverpy):
                 elif rename == "UUID":
                     new_filename = str(uuid.uuid4())
 
-                local_metadata["filename"] = new_filename
-                img_paths.append(new_filename)
                 if exif:
                     local_metadata.update(exif)
+                local_metadata["filename"] = new_filename
+                img_paths.append(new_filename)
+
                 new_metadata.append(local_metadata)
                 flags.append(local_metadata.get("flag", 0))
 
@@ -233,7 +234,6 @@ class OpenLayer(Paidiverpy):
             masks.append(mask)
 
         stacked_imgs = np.stack(new_image_list, axis=0)
-
         return xr.Dataset(
             data_vars={"images": (["filename", "y", "x", "band"], stacked_imgs)},
             coords={

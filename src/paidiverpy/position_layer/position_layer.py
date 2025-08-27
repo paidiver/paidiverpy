@@ -116,6 +116,7 @@ class PositionLayer(Paidiverpy):
             coords={"filename": filenames, "flag": (["filename"], flags)},
         )
         if not self.add_new_step:
+            self.config.remove_step(self.config_index)
             return metadata
         if not test:
             metadata = self.set_metadata(metadata=metadata)

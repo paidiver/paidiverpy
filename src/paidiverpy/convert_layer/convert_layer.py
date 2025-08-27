@@ -114,7 +114,7 @@ class ConvertLayer(Paidiverpy):
         """
         image_data, params, _ = Paidiverpy.prepare_inputs(image_data, params, BitParams, **kwargs)
         try:
-            bit = metadata.get("bit_depth", image_data.dtype.itemsize)
+            bit = image_data.dtype.itemsize
 
             if params.output_bits == EIGHT_BITS and bit != EIGHT_BITS_SIZE:
                 image_data, metadata = ConvertLayer.normalize_image(image_data, metadata)
@@ -128,7 +128,7 @@ class ConvertLayer(Paidiverpy):
             else:
                 msg = f"Unsupported output bits or image already within provided format: {params.output_bits}"
                 raise_value_error(msg)
-            metadata["bit_depth"] = params.output_bits / 8
+            # metadata["bit_depth"] = params.output_bits / 8
         except Exception as e:  # noqa: BLE001
             msg = f"Failed to convert the image to {params.output_bits} bits: {e!s}"
             check_raise_error(params.raise_error, msg)
@@ -155,7 +155,7 @@ class ConvertLayer(Paidiverpy):
             tuple[np.ndarray, dict]: The updated image and the updated metadata.
         """
         image_data, params, _ = Paidiverpy.prepare_inputs(image_data, params, ToParams, **kwargs)
-        num_channels = metadata.get("num_channels", image_data.shape[-1])
+        num_channels = image_data.shape[-1]
 
         conversion_map = {
             "RGB": {
@@ -179,7 +179,6 @@ class ConvertLayer(Paidiverpy):
             if conversion is None:
                 raise_value_error(f"The image is already in {params.to.upper()} format.")
             image_data = cv2.cvtColor(image_data, conversion)
-            metadata["num_channels"] = 3 if params.to == "RGB" else 4 if params.to == "RGBA" else 1
             if params.to == "gray":
                 image_data = np.expand_dims(image_data, axis=-1)
         except Exception as e:  # noqa: BLE001

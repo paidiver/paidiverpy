@@ -140,8 +140,7 @@ class MetadataParser:
         self,
         output_format: str = "csv",
         output_path: str | None = "metadata",
-        metadata: pd.DataFrame | None = None,
-        dataset_metadata: dict | None = None,
+        metadata: xr.DataArray | None = None,
         from_step: int = -1,
     ) -> None:
         """Export metadata to a file.
@@ -150,17 +149,17 @@ class MetadataParser:
             output_format (str, optional): Format of the output file. It can be
         "csv", "json", "IFDO", or "croissant". Defaults to "csv".
             output_path (str, optional): Path to the output file. Defaults to "metadata".
-            metadata (pd.DataFrame, optional): Metadata DataFrame. Defaults to None.
-            dataset_metadata (dict, optional): Dataset metadata. Defaults to None.
+            metadata (xr.DataArray, optional): Metadata DataArray. Defaults to None.
             from_step (int, optional): Step from which to export metadata. Defaults to None, which means last step.
         """
-        if not dataset_metadata or not isinstance(dataset_metadata, dict):
-            dataset_metadata = self.dataset_metadata
-        if not metadata:
+        if metadata is None:
             if self.metadata is None or self.metadata.empty:
-                raise_value_error("Metadata is not defined.")
+                msg = "Metadata is not defined. You need to pass metadata from the ImagesLayer."
+                logging.error(msg)
+                raise_value_error(msg)
             metadata = self.metadata
-        metadata = metadata.compute() if isinstance(metadata, dd.DataFrame) else metadata
+        dataset_metadata = metadata.attrs.get("dataset_metadata", {})
+        metadata = pd.DataFrame(metadata.to_dict()["data"])
         if output_format.lower() not in ["csv", "json", "ifdo", "croissant"]:
             logging.error("Unsupported output format: %s", output_format)
             raise_value_error(f"Unsupported output format: {output_format}")

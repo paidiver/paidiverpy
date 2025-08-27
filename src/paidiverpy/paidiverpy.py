@@ -477,9 +477,11 @@ class Paidiverpy:
             processed_crop, updated_metadata = func(image_data=cropped, metadata=metadata).process()
         else:
             processed_crop, updated_metadata = func(image_data=cropped, metadata=metadata)
-
         if processed_crop.ndim == NUM_DIMENSIONS_GREY:
             processed_crop = np.expand_dims(processed_crop, axis=-1)
+        if output_bands is not None and output_bands != processed_crop.shape[-1]:
+            img = np.zeros((img.shape[0], img.shape[1], output_bands), dtype=img.dtype)
+            return img, metadata
         processed_img = np.zeros((img.shape[0], img.shape[1], processed_crop.shape[-1]), dtype=processed_crop.dtype)
         processed_img[:height, :width, : processed_crop.shape[-1]] = processed_crop
 

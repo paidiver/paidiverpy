@@ -85,9 +85,7 @@ class InvestigationLayer(Paidiverpy):
         self.output_path = self.output_path / f"{self.step_order}_{self.step_name}"
         self.output_path.mkdir(parents=True, exist_ok=True)
         if self.plot_metadata is None:
-            self.plot_metadata = self.get_metadata()
-        else:
-            self.plot_metadata = self.plot_metadata.loc[self.plot_metadata["flag"] == 0]
+            self.plot_metadata = self.get_metadata(output_format="pandas")
         if "resample" in self.plots:
             self.plot_trimmed_photos(self.plot_metadata[self.plot_metadata.flag == 0])
         if "polygon" in self.plots:
@@ -103,7 +101,7 @@ class InvestigationLayer(Paidiverpy):
         Args:
             new_metadata (pd.DataFrame): The new metadata.
         """
-        metadata = self.get_metadata()
+        metadata = self.get_metadata(output_format="pandas")
         if "image-longitude" not in metadata.columns or "image-longitude" not in new_metadata.columns:
             self.logger.warning(
                 "Longitude and Latitude columns are not found in the metadata.",
@@ -117,7 +115,7 @@ class InvestigationLayer(Paidiverpy):
         ax.set_xlabel("Longitude")
         ax.set_ylabel("Latitude")
         ax.set_title("Comparison of Original and Samplingd Images")
-        dataset_metadata = self.metadata.metadata.attrs.get("dataset_metadata", {})
+        dataset_metadata = self.get_metadata().attrs.get("dataset_metadata", {})
         if dataset_metadata.get("trimmed_polygon") is not None:
             dataset_metadata["trimmed_polygon"].plot(ax=ax, color="none", edgecolor="black", linewidth=2)
         plt.savefig(self.output_path / "graph_trimmed_images.png")
@@ -125,10 +123,8 @@ class InvestigationLayer(Paidiverpy):
 
     def plot_polygons(self) -> None:
         """Plot the polygons."""
-        metadata = self.get_metadata()
-        gdf = gpd.GeoDataFrame(metadata, geometry="polygon_m")
+        gdf = gpd.GeoDataFrame(self.plot_metadata, geometry="polygon_m")
         _, ax = plt.subplots(figsize=(15, 15))
-
         no_overlap = gdf[gdf.overlap == 0]
         overlap = gdf[gdf.overlap == 1]
         no_overlap.plot(ax=ax, facecolor="none", edgecolor="black", label="No Overlap")
