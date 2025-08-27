@@ -98,8 +98,7 @@ class ImagesLayer:
         """
         images = images.rename(
             {
-                # "image": f"images_{len(self.steps) - 1}",
-                # "mask": f"mask_{len(self.steps) - 1}",
+                "images": f"images_{len(self.steps) - 1}",
                 "x": f"x_{len(self.steps) - 1}",
                 "y": f"y_{len(self.steps) - 1}",
                 "band": f"band_{len(self.steps) - 1}",
@@ -108,15 +107,13 @@ class ImagesLayer:
             }
         )
 
-        self.images[f"images_{len(self.steps) - 1}"] = images["images"]
-        self.images["metadata"] = images["metadata"]
-        self.images["flag"] = images["flag"]
         if "dataset_metadata" in images.attrs:
             merged = {
                 **self.images.attrs.get("dataset_metadata", {}),
                 **images.attrs["dataset_metadata"],
             }
-            self.images.attrs["dataset_metadata"] = merged
+            images.attrs["dataset_metadata"] = merged
+        self.images = images
 
         gc.collect()
 
@@ -128,9 +125,10 @@ class ImagesLayer:
         """
         self.steps = self.steps[:step_order]
         self.step_metadata = self.step_metadata[:step_order]
-        variables = [var for var in self.images.data_vars if var.endswith(f"_{step_order - 1}")]
+        variables = [var for var in self.images.data_vars if var.endswith(f"_{step_order}")]
         self.images = self.images.drop_vars(variables)
-        self.images.flag = self.images.flag.where(self.images.flag <= step_order, 0)
+        flags = self.images.flag.where(self.images.flag <= step_order, 0)
+        self.images.assign_coords(flag=("filename", flags.to_numpy()))
 
     def get_step(
         self,

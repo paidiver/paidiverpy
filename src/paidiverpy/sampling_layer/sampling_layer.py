@@ -120,6 +120,7 @@ class SamplingLayer(Paidiverpy):
             metadata = method(step_order, test=test, params=params)
             new_metadata = self.get_metadata(flag="all")
             if not self.add_new_step:
+                self.config.remove_step(self.config_index)
                 metadata = metadata.loc[metadata["flag"] == 0]
                 metadata = MetadataParser.df2dataarray(metadata)
                 metadata.attrs["dataset_metadata"] = new_metadata.attrs.get("dataset_metadata")
