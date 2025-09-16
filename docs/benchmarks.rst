@@ -25,7 +25,7 @@ For benchmarking, we used a **subset** of this dataset (≈290 MB), which contai
 
 The pipeline configuration for preprocessing is defined in the following YAML file:
 
-.. literalinclude:: ../../../src/paidiverpy/src/paidiverpy/utils/benchmark/config_benthic_client.yaml
+.. literalinclude:: ../../../src/paidiverpy/src/paidiverpy/utils/benchmark/config_benchmark.yml
 
 This configuration applies several preprocessing steps, mainly from the **ColourLayer** and **ConvertLayer** components.
 
