@@ -102,6 +102,9 @@ def correct_image_dims_and_format(img: np.ndarray[Any, Any] | da.core.Array, ima
         return img
     if "png" in image_type and img.ndim == NUM_DIMENSIONS_GREY:
         img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGBA)
+        if img.shape[2] != NUM_CHANNELS_RGBA:
+            # add a dummy alpha channel
+            img = np.dstack((img, np.full(img.shape[:2], 255, dtype=img.dtype)))
     elif img.ndim == NUM_DIMENSIONS_GREY:
         img = np.expand_dims(img, axis=-1)
     elif img.ndim == NUM_DIMENSIONS and img.shape[2] == NUM_CHANNELS_RGBA and image_type in SUPPORTED_OPENCV_IMAGE_TYPES:
