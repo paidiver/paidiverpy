@@ -81,6 +81,9 @@ def open_image_local(
     exif = extract_exif_single(img_path=img_path, image_type=image_type)
     if image_type in SUPPORTED_OPENCV_IMAGE_TYPES:
         img = cv2.imread(str(img_path), image_open_args.get("flags", cv2.IMREAD_UNCHANGED))
+        if "png" in image_type and len(img.shape) == NUM_DIMENSIONS_GREY:  # Grayscale PNG
+            # convert to 4 channel RGBA
+            img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGBA)
     else:
         img = load_raw_image(img_path, image_type=image_type, image_open_args=image_open_args)
     logger.info("AAAAAAAAAAAAAAImage path is %s", img_path)
