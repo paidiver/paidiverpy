@@ -56,7 +56,7 @@ jobs:
         id: lychee
         uses: lycheeverse/lychee-action@v2
         with:
-          args: --timeout 40
+          args: --timeout 40 .
           fail: false
 
       - name: Set Issue Title
