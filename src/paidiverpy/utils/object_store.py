@@ -11,6 +11,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+logger = logging.getLogger("paidiverpy")
+
 
 def define_storage_options(path: str | Path) -> dict[str, str]:
     """Define storage options for reading metadata file.
@@ -85,7 +87,7 @@ def check_create_bucket_exists(bucket_name: str, client: boto3.client) -> None:
     except botocore.exceptions.ClientError:
         exists = False
     if not exists:
-        logging.info("Creating bucket %s.", bucket_name)
+        logger.info("Creating bucket %s.", bucket_name)
         client.create_bucket(Bucket=bucket_name)
 
 

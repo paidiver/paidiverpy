@@ -10,6 +10,8 @@ from dask.distributed import LocalCluster
 from dask_jobqueue import SLURMCluster
 from paidiverpy.models.client_params import ClientParams
 
+logger = logging.getLogger("paidiverpy")
+
 
 def get_n_jobs(n_jobs: int) -> int:
     """Determine the number of jobs based on n_jobs parameter.
@@ -35,7 +37,7 @@ def update_dask_config(dask_config_kwargs: dict) -> None:
     """
     if dask_config_kwargs is not None:
         dask.config.set(dask_config_kwargs)
-        logging.info("Updated dask configuration settings")
+        logger.info("Updated dask configuration settings")
 
 
 def parse_dask_job(job: dict, n_jobs: int) -> Client:
@@ -59,7 +61,7 @@ def parse_dask_job(job: dict, n_jobs: int) -> Client:
         job_id = None
     cluster.scale(n_jobs)
     client = Client(cluster)
-    logging.info("Created %s with Client: %s", cluster_type, client.dashboard_link)
+    logger.info("Created %s with Client: %s", cluster_type, client.dashboard_link)
     if cluster_type == "SLURMCluster":
         return (client, job_id)
     return client

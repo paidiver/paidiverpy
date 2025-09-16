@@ -79,7 +79,7 @@ class TestPipelineCustomAlgorithm(BaseTestClass):
             yaml.dump(data, file, sort_keys=False)
         with pytest.raises(CalledProcessError) as cm:
             Pipeline(config_file_path=output_file_path, verbose=1)
-        assert "python', '-m', 'pip', 'install', 'no-existent-package']' returned non-zero exit status 1." in str(cm.value)
+        assert "'pip', 'install', 'no-existent-package']' returned non-zero exit status 1." in str(cm.value)
         Path(output_file_path).unlink(missing_ok=True)
 
     def test_custom_algorithm_dataset(self):

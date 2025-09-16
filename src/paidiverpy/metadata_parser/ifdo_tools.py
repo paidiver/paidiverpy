@@ -12,6 +12,8 @@ from jsonschema import Draft202012Validator
 from jsonschema import ValidationError
 from paidiverpy.utils.object_store import get_file_from_bucket
 
+logger = logging.getLogger("paidiverpy")
+
 
 def validate_ifdo(file_path: str | None = None, ifdo_data: dict[str, Any] | None = None) -> list[dict[str, Any]]:
     """validate_ifdo method.
@@ -68,13 +70,13 @@ def convert_to_ifdo(dataset_metadata: dict[str, Any], metadata: pd.DataFrame, ou
     image_set_header["image-set-ifdo-version"] = ifdo_version
     image_set_items, missing_fields_items = parse_ifdo_items(metadata, ifdo_schema)
     if missing_fields_header or missing_fields_items:
-        logging.warning("Missing required fields in iFDO header or items")
-        logging.warning("You need to set then in the metadata or dataset_metadata arguments")
-        logging.warning("The missing fields will be set to the description value on the iFDO schema file")
+        logger.warning("Missing required fields in iFDO header or items")
+        logger.warning("You need to set then in the metadata or dataset_metadata arguments")
+        logger.warning("The missing fields will be set to the description value on the iFDO schema file")
     if missing_fields_header:
-        logging.warning("Missing fields in iFDO header: %s", missing_fields_header)
+        logger.warning("Missing fields in iFDO header: %s", missing_fields_header)
     if missing_fields_items:
-        logging.warning("Missing fields in iFDO items: %s", missing_fields_items)
+        logger.warning("Missing fields in iFDO items: %s", missing_fields_items)
     ifdo_data = {
         "image-set-header": image_set_header,
         "image-set-items": image_set_items,
@@ -84,7 +86,7 @@ def convert_to_ifdo(dataset_metadata: dict[str, Any], metadata: pd.DataFrame, ou
         msg_error = "Validation errors in the output iFDO metadata file:\n"
         for error in errors:
             msg_error += f"{format_ifdo_validation_error(error['path'])}: {error['message']}\n"
-        logging.warning(msg_error)
+        logger.warning(msg_error)
         # raise_value_error(f"Validation errors: {error_messages}")
     with Path(output_path).open("w") as file:
         json.dump(ifdo_data, file, indent=4)

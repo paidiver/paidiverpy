@@ -24,6 +24,8 @@ from paidiverpy.utils.object_store import path_is_remote
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
+logger = logging.getLogger("paidiverpy")
+
 
 class MetadataParser:
     """Class for parsing metadata files.
@@ -69,10 +71,10 @@ class MetadataParser:
         Returns:
             pd.DataFrame: Metadata DataFrame.
         """
-        logging.info(
+        logger.info(
             "Metadata type is not specified. Loading files from the input path.",
         )
-        logging.info("Metadata will be created from the files in the input path.")
+        logger.info("Metadata will be created from the files in the input path.")
         input_path = Path(self.config.general.input_path)
         file_pattern = self.config.general.file_name_pattern
         list_of_files = list(input_path.glob(file_pattern))
@@ -93,8 +95,8 @@ class MetadataParser:
             if metadata_conventions.is_file():
                 file_path = metadata_conventions
             else:
-                logging.warning("Metadata conventions file not found: %s", metadata_conventions)
-                logging.warning("Using default metadata conventions file: %s", file_path)
+                logger.warning("Metadata conventions file not found: %s", metadata_conventions)
+                logger.warning("Using default metadata conventions file: %s", file_path)
         with file_path.open() as file:
             return json.load(file)
 
@@ -136,7 +138,7 @@ class MetadataParser:
             metadata = self._add_data_to_metadata(metadata)
         if "image-set-uuid" not in self.dataset_metadata:
             self.dataset_metadata["image-set-uuid"] = str(uuid.uuid4())
-            logging.info("No dataset UUID found in the dataset metadata. A new UUID has been generated: %s", self.dataset_metadata["image-set-uuid"])
+            logger.info("No dataset UUID found in the dataset metadata. A new UUID has been generated: %s", self.dataset_metadata["image-set-uuid"])
         metadata["flag"] = 0
         return self._prepare_metadata(metadata)
 
@@ -175,15 +177,15 @@ class MetadataParser:
         if dataset_metadata is None:
             dataset_metadata = self.dataset_metadata
         if output_format.lower() not in ["csv", "json", "ifdo", "croissant"]:
-            logging.error("Unsupported output format: %s", output_format)
+            logger.error("Unsupported output format: %s", output_format)
             raise_value_error(f"Unsupported output format: {output_format}")
         try:
             MetadataParser.convert_metadata_to(
                 dataset_metadata=dataset_metadata, metadata=metadata, output_path=output_path, output_format=output_format, from_step=from_step
             )
-            logging.info("Metadata exported to %s file in format %s", output_path, output_format)
+            logger.info("Metadata exported to %s file in format %s", output_path, output_format)
         except Exception as error:  # noqa: BLE001
-            logging.error("Failed to export metadata: %s", error)
+            logger.error("Failed to export metadata: %s", error)
             raise_value_error(f"Failed to export metadata: {error}")
 
     def _prepare_metadata(self, metadata: pd.DataFrame) -> pd.DataFrame:
@@ -203,9 +205,9 @@ class MetadataParser:
         metadata = self._rename_columns(metadata, "image-camera-pitch-degrees", errors=errors)
         metadata = self._rename_columns(metadata, "image-camera-roll-degrees", errors=errors)
         for error in errors:
-            logging.warning(error)
+            logger.warning(error)
         if errors:
-            logging.warning("Some functions may not work properly.")
+            logger.warning("Some functions may not work properly.")
         if "image-longitude" in metadata.columns and "image-latitude" in metadata.columns:
             metadata["point"] = metadata.apply(lambda x: Point(x["image-longitude"], x["image-latitude"]), axis=1)
         return metadata
@@ -248,7 +250,7 @@ class MetadataParser:
         if errors is not None:
             errors.append(msg)
         else:
-            logging.warning(msg)
+            logger.warning(msg)
         return metadata
 
     def _add_data_to_metadata(self, metadata: pd.DataFrame) -> pd.DataFrame:
@@ -268,7 +270,7 @@ class MetadataParser:
         try:
             new_metadata = self._rename_columns(new_metadata, "filename", raise_error=True)
         except ValueError:
-            logging.warning("The new metadata will not be added to the metadata.")
+            logger.warning("The new metadata will not be added to the metadata.")
             return metadata
         new_metadata = new_metadata.drop_duplicates(subset="filename", keep="first")
         return metadata.merge(new_metadata, how="left", on="filename")
@@ -296,7 +298,7 @@ class MetadataParser:
                 raise FileNotFoundError(msg) from error
             except JSONDecodeError as error:
                 msg = f"Metadata file is not a valid JSON file: {metadata_path}. Please check the file"
-                logging.error("%s: line %s, column %s", msg, error.lineno, error.colno)
+                logger.error("%s: line %s, column %s", msg, error.lineno, error.colno)
                 raise JSONDecodeError(msg, doc=error.doc, pos=error.pos) from error
         self._validate_ifdo(metadata)
         self.dataset_metadata = metadata["image-set-header"]
@@ -352,8 +354,8 @@ class MetadataParser:
             pd.DataFrame: Updated metadata DataFrame.
         """
         if "image-datetime" not in metadata.columns:
-            logging.warning("Metadata does not have a datetime column")
-            logging.warning("Some functions may not work properly.")
+            logger.warning("Metadata does not have a datetime column")
+            logger.warning("Some functions may not work properly.")
         else:
             # if self.use_dask:
             #     metadata["image-datetime"] = dd.to_datetime(metadata["image-datetime"])
@@ -374,13 +376,13 @@ class MetadataParser:
             msg_warn = "Failed to validate the IFDO metadata.\n"
             msg_warn += "You can continue, but some functions may not work properly.\n"
             msg_warn += "Please set verbose to 3 (DEBUG) to see the validation errors."
-            logging.warning(msg_warn)
+            logger.warning(msg_warn)
             msg_debug = "Validation errors with the metadata:\n"
             for error in errors:
                 msg_debug += f"{format_ifdo_validation_error(error['path'])}: {error['message']}\n"
-            logging.debug(msg_debug)
+            logger.debug(msg_debug)
         else:
-            logging.info("Metadata file is valid.")
+            logger.info("Metadata file is valid.")
 
     def compute(self) -> None:
         """Compute the metadata if it is a Dask DataFrame."""
