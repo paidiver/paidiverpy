@@ -1,0 +1,8 @@
+apiVersion: v1
+appVersion: 0.1.0
+description: Paidiverpy GUI
+name: paidiverpy-gui
+version: 0.1.4
+maintainers:
+  - name: paidiver
+    url: https://github.com/paidiver

@@ -32,3 +32,5 @@ ENV IS_DOCKER=true
 ENTRYPOINT ["paidiverpy"]
 
 CMD ["--help"]
+
+EXPOSE 5006
