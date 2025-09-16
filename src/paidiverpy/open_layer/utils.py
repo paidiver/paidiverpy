@@ -81,15 +81,8 @@ def open_image_local(
     exif = extract_exif_single(img_path=img_path, image_type=image_type)
     if image_type in SUPPORTED_OPENCV_IMAGE_TYPES:
         img = cv2.imread(str(img_path), image_open_args.get("flags", cv2.IMREAD_UNCHANGED))
-        if "png" in image_type and len(img.shape) == NUM_DIMENSIONS_GREY:  # Grayscale PNG
-            # convert to 4 channel RGBA
-            img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGBA)
     else:
         img = load_raw_image(img_path, image_type=image_type, image_open_args=image_open_args)
-    logger.info("AAAAAAAAAAAAAAImage path is %s", img_path)
-    logger.info("AAAAAAAAAAAAAAImage type is %s", image_type)
-    logger.info("AAAAAAAAAAAAAAImage open args are %s", image_open_args)
-    logger.info("AAAAAAAAAAAAAAImage shape is %s", None if img is None else img.shape)
     img = correct_image_dims_and_format(img, image_type=image_type)
     return img, exif, img_path
 
@@ -107,7 +100,9 @@ def correct_image_dims_and_format(img: np.ndarray[Any, Any] | da.core.Array, ima
     logger.info("Original image shape: %s", None if img is None else img.shape)
     if img is None:
         return img
-    if img.ndim == NUM_DIMENSIONS_GREY:
+    if "png" in image_type and img.ndim == NUM_DIMENSIONS_GREY:
+        img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGBA)
+    elif img.ndim == NUM_DIMENSIONS_GREY:
         img = np.expand_dims(img, axis=-1)
     elif img.ndim == NUM_DIMENSIONS and img.shape[2] == NUM_CHANNELS_RGBA and image_type in SUPPORTED_OPENCV_IMAGE_TYPES:
         img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
