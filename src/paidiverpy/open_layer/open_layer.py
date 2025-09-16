@@ -269,6 +269,7 @@ class OpenLayer(Paidiverpy):
         image_list: list[np.ndarray[Any, Any] | da.core.Array] = []
         for img in images_info["image"]:
             padded = pad_image(img, max_height, max_width)
+            self.logger.info("Padded image shape: %s", padded.shape)
             image_list.append(padded)
 
         stacked_imgs = np.stack(image_list, axis=0)
