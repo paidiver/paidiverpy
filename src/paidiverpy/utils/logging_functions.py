@@ -90,7 +90,8 @@ def check_raise_error(raise_error: bool, message: str) -> None:
     Raises:
         ValueError: The error message.
     """
+    logger = logging.getLogger("paidiverpy")
     if raise_error:
-        logging.error(message)
+        logger.error(message)
         raise_value_error(message)
-    logging.warning(message)
+    logger.warning(message)
