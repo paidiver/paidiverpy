@@ -255,6 +255,8 @@ class ImagesLayer:
             s3_client (boto3.client, optional): The S3 client. Defaults to None.
         """
         saved_image = self.calculate_image(image)
+        logger.info("XXXXXXXXXXXXXXXXimage path: %s", str(img_path))
+        logger.info("XXXXXXXXXXXXXXXXimage path type: %s", type(img_path))
         img_path_with_suffix = img_path.with_suffix(f".{image_format}") if isinstance(img_path, Path) else f"{img_path}.{image_format}"
         if saved_image.dtype == np.uint16:
             if image_format.lower() in ["tiff", "png"]:
@@ -364,6 +366,8 @@ class ImagesLayer:
             int: The status code (0 for success).
         """
         cropped = img[:height, :width, :]
+        logger.info("222222222222222image path: %s", str(output_path))
         output_path = output_path + filename.item() if s3_client else output_path / filename.item()
+        logger.info("33333333333333333image path: %s", str(output_path))
         processor(cropped, output_path, image_format, s3_client)
         return 0
