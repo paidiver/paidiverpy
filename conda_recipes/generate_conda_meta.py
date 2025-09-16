@@ -142,7 +142,7 @@ def save_meta_yaml(meta_yaml_content: str, bioconda: bool = False) -> str:
     """
     output_file = "meta_bioconda.yaml" if bioconda else "meta.yaml"
     repo_root = Path.resolve(Path(__file__).parent)
-    meta_yaml_path = repo_root / "conda_recipes" / output_file
+    meta_yaml_path = repo_root / output_file
 
     with meta_yaml_path.open("w") as file:
         file.write(meta_yaml_content)

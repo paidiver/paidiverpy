@@ -65,6 +65,7 @@ dev = [
     "sphinx_rtd_theme",
     "sphinx-autoapi",
     "myst_parser",
+    "plotly",  # for benchmark plotting
 ]
 docs = [
     "sphinx",

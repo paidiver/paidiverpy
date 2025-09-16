@@ -72,6 +72,34 @@ def plot_results(results: list[dict[str, Any]], cluster_type: str, filename: str
     plt.gca().invert_yaxis()
     plt.savefig(f"{filename}.png")
 
+    try:
+        import plotly.graph_objects as go  # type: ignore  # noqa: PGH003
+    except ImportError:
+        go = None
+
+    fig = go.Figure(
+        go.Bar(
+            x=times,
+            y=labels,
+            orientation="h",
+            marker={"color": "skyblue"},
+            text=[f"{t:.2f}s" for t in times],
+            textposition="auto",
+        )
+    )
+
+    fig.update_layout(
+        title=f"Dask Benchmark on {cluster_type} cluster",
+        xaxis_title="Processing Time (seconds)",
+        yaxis_title=y_label,
+        yaxis={"autorange": "reversed"},  # match matplotlib invert_yaxis
+        template="plotly_white",
+        height=600,
+        width=1000,
+    )
+
+    fig.write_html(f"{filename}.html", include_plotlyjs="cdn")
+
 
 def update_yaml(file_path: str | Path, cluster_type: str | None, output_file: str | Path, n_jobs: int, **kwargs: dict[str, Any]) -> str | Path:
     """Update the YAML file with new benchmarking parameters and save it.

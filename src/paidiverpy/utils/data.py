@@ -10,7 +10,6 @@ from typing import Any
 import requests
 from tqdm import tqdm
 from paidiverpy.utils.docker import is_running_in_docker
-from paidiverpy.utils.logging_functions import initialise_logging
 
 NUM_CHANNELS_GREY = 1
 NUM_CHANNELS_RGB = 3

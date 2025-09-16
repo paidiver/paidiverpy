@@ -8,7 +8,7 @@ import sys
 from importlib.resources import files
 from paidiverpy.config.configuration import Configuration
 from paidiverpy.pipeline import Pipeline
-from paidiverpy.utils.benchmark_test import benchmark_handler
+from paidiverpy.utils.benchmark.benchmark_test import benchmark_handler
 from paidiverpy.utils.docker import is_running_in_docker
 from paidiverpy.utils.logging_functions import initialise_logging
 
