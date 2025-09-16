@@ -6,13 +6,14 @@ import json
 import logging
 import time
 from pathlib import Path
+from typing import Any
 import matplotlib.pyplot as plt
 import numpy as np
 import yaml
 from paidiverpy.pipeline.pipeline import Pipeline
 
 
-def benchmark_task(configuration_file: str, logger: logging.Logger) -> None:
+def benchmark_task(configuration_file: str | Path, logger: logging.Logger) -> tuple[float, float]:
     """Run the benchmark task.
 
     Args:
@@ -20,7 +21,7 @@ def benchmark_task(configuration_file: str, logger: logging.Logger) -> None:
         logger (logging.Logger): The logger to log messages.
     """
     pipeline = Pipeline(
-        config_file_path=configuration_file,
+        config_file_path=str(configuration_file),
         logger=logger,
         track_changes=False,
     )
@@ -32,7 +33,7 @@ def benchmark_task(configuration_file: str, logger: logging.Logger) -> None:
     return start_time, end_time
 
 
-def plot_results(results: list, cluster_type: str, filename: str) -> None:
+def plot_results(results: list[dict[str, Any]], cluster_type: str, filename: str) -> None:
     """Plot the benchmark results.
 
     Args:
@@ -72,7 +73,7 @@ def plot_results(results: list, cluster_type: str, filename: str) -> None:
     plt.savefig(f"{filename}.png")
 
 
-def update_yaml(file_path: str, cluster_type: str, output_file: str, n_jobs: int, **kwargs: dict) -> str:
+def update_yaml(file_path: str | Path, cluster_type: str | None, output_file: str | Path, n_jobs: int, **kwargs: dict[str, Any]) -> str | Path:
     """Update the YAML file with new benchmarking parameters and save it.
 
     Args:
@@ -124,18 +125,18 @@ def update_yaml(file_path: str, cluster_type: str, output_file: str, n_jobs: int
     return output_file
 
 
-def benchmark_threads(benchmark_params: dict, configuration_file: str, logger: logging.Logger) -> list:
+def benchmark_threads(benchmark_params: dict[str, Any], configuration_file: str | Path, logger: logging.Logger) -> list[dict[str, Any]]:
     """Handle the benchmark test for LocalCluster.
 
     Args:
         benchmark_params (dict): The benchmark parameters.
-        configuration_file (str): The path to the configuration files.
+        configuration_file (str | Path): The path to the configuration files.
         logger (logging.Logger): The logger to log messages.
 
     Returns:
         list: The benchmark results.
     """
-    benchmark_results = []
+    benchmark_results: list[dict[str, Any]] = []
     n_jobs = benchmark_params.get("n_jobs", [1])
     for n_job in n_jobs:
         output_file = f"config_threads_{n_job}.yml"
@@ -161,18 +162,18 @@ def benchmark_threads(benchmark_params: dict, configuration_file: str, logger: l
     return benchmark_results
 
 
-def benchmark_local(benchmark_params: dict, configuration_file: str, logger: logging.Logger) -> list:
+def benchmark_local(benchmark_params: dict[str, Any], configuration_file: str | Path, logger: logging.Logger) -> list[dict[str, Any]]:
     """Handle the benchmark test for LocalCluster.
 
     Args:
         benchmark_params (dict): The benchmark parameters.
-        configuration_file (str): The path to the configuration files.
+        configuration_file (str | Path): The path to the configuration files.
         logger (logging.Logger): The logger to log messages.
 
     Returns:
         list: The benchmark results.
     """
-    benchmark_results = []
+    benchmark_results: list[dict[str, Any]] = []
     cluster_type = "local"
     n_workers = benchmark_params.get("n_workers", [1])
     threads_per_worker = benchmark_params.get("threads_per_worker", [1])
@@ -208,18 +209,18 @@ def benchmark_local(benchmark_params: dict, configuration_file: str, logger: log
     return benchmark_results
 
 
-def benchmark_slurm(benchmark_params: dict, configuration_file: str, logger: logging.Logger) -> list:
+def benchmark_slurm(benchmark_params: dict[str, Any], configuration_file: str | Path, logger: logging.Logger) -> list[dict[str, Any]]:
     """Handle the benchmark test for SLURM.
 
     Args:
         benchmark_params (dict): The benchmark parameters.
-        configuration_file (str): The path to the configuration files.
+        configuration_file (str | Path): The path to the configuration files.
         logger (logging.Logger): The logger to log messages.
 
     Returns:
         list: The benchmark results.
     """
-    benchmark_results = []
+    benchmark_results: list[dict[str, Any]] = []
     cluster_type = "slurm"
     cores = benchmark_params.get("cores", [1])
     processes = benchmark_params.get("processes", [1])
@@ -260,7 +261,7 @@ def benchmark_slurm(benchmark_params: dict, configuration_file: str, logger: log
     return benchmark_results
 
 
-def benchmark_handler(benchmark_params: dict, configuration_file: str, logger: logging.Logger) -> None:
+def benchmark_handler(benchmark_params: dict[str, Any], configuration_file: str | Path, logger: logging.Logger) -> None:
     """Handle the benchmark test.
 
     Args:

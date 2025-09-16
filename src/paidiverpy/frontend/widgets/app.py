@@ -1,5 +1,6 @@
 """Paidiverpy App: Interactive Pipeline Builder and Image Processor."""
 
+from collections.abc import Callable
 from io import StringIO
 from pathlib import Path
 import panel as pn
@@ -50,7 +51,7 @@ class App:
             self.pipeline_widget = pn.Column(pn.pane.Markdown("### Pipeline not yet created. Please add configuration to the pipeline first."))
 
     def create_modal(
-        self, title: str = "", information: str = "", on_cancel: bool = False, on_confirm: callable | None = None, visible: bool = False
+        self, title: str = "", information: str = "", on_cancel: bool = False, on_confirm: Callable | None = None, visible: bool = False
     ) -> pn.Column:
         """Create a modal dialog for confirmation actions.
 
@@ -58,7 +59,7 @@ class App:
             title (str): The title of the modal.
             information (str): The information to display in the modal.
             on_cancel (bool): Whether to attach a cancel action.
-            on_confirm (callable, optional): A callback function for confirmation action.
+            on_confirm (Callable, optional): A callback function for confirmation action.
             visible (bool): Whether the modal should be visible initially.
 
         Returns:
@@ -78,14 +79,14 @@ class App:
             title_pane, information_pane, pn.Row(modal_confirm_button, modal_cancel_button), css_classes=["ppy-pn-danger-modal"], visible=visible
         )
 
-    def update_modal(self, title: str, information: str, on_confirm: callable | None = None, on_cancel: callable | None = None) -> None:
+    def update_modal(self, title: str, information: str, on_confirm: Callable | None = None, on_cancel: Callable | None = None) -> None:
         """Update the modal dialog with new content and callbacks.
 
         Args:
             title (str): The new title for the modal.
             information (str): The new information message for the modal.
-            on_confirm (callable, optional): A callback function for confirmation action.
-            on_cancel (callable, optional): A callback function for cancellation action.
+            on_confirm (Callable, optional): A callback function for confirmation action.
+            on_cancel (Callable, optional): A callback function for cancellation action.
         """
         self.modal.objects[0].object = title
         self.modal.objects[1].object = information
@@ -284,11 +285,11 @@ class App:
         def on_submit(event) -> None:  # noqa: ANN001, ARG001
             if self.general_widget.config:
 
-                def on_confirm(event) -> None:
+                def on_confirm(event: pn.widgets.Button) -> None:  # noqa: ARG001
                     self.confirm_general_update(self.general_form)
                     self.modal.visible = False
 
-                def on_cancel(event) -> None:
+                def on_cancel(event: pn.widgets.Button) -> None:  # noqa: ARG001
                     self.modal.visible = False
 
                 self.update_modal(

@@ -12,6 +12,7 @@ import subprocess
 import sys
 from importlib.metadata import version
 from pathlib import Path
+from typing import TextIO
 
 PIP_INSTALLED = {}
 try:
@@ -32,6 +33,7 @@ def get_sys_info() -> list[tuple[str, str]]:
     blob = []
 
     # get full commit hash
+    commit = None
     if Path(".git").is_dir() and Path("paidiverpy").is_dir():
         try:
             pipe = subprocess.Popen(  # noqa: S603
@@ -73,9 +75,17 @@ def get_sys_info() -> list[tuple[str, str]]:
     return blob
 
 
-def cli_version(cli_name):
+def cli_version(cli_name: str) -> str:
+    """Get the version of a CLI tool.
+
+    Args:
+        cli_name (str): The name of the CLI tool.
+
+    Returns:
+        str: The version of the CLI tool.
+    """
     try:
-        a = subprocess.run([cli_name, "--version"], capture_output=True, check=False)
+        a = subprocess.run([cli_name, "--version"], capture_output=True, check=False)  # noqa: S603
         return a.stdout.decode().strip("\n").replace(cli_name, "").strip()
     except:  # noqa: E722
         if shutil.which(cli_name):
@@ -83,7 +93,15 @@ def cli_version(cli_name):
         return "-"
 
 
-def pip_version(pip_name):
+def pip_version(pip_name: str) -> str:
+    """Get the version of a package installed via pip.
+
+    Args:
+        pip_name (str): The name of the package.
+
+    Returns:
+        str: The version of the package.
+    """
     version = "-"
     for name in [pip_name, pip_name.replace("_", "-"), pip_name.replace("-", "_")]:
         if name in PIP_INSTALLED:
@@ -91,7 +109,15 @@ def pip_version(pip_name):
     return version
 
 
-def get_version(module_name):
+def get_version(module_name: str) -> str:
+    """Get the version of a module.
+
+    Args:
+        module_name (str): The name of the module.
+
+    Returns:
+        str: The version of the module.
+    """
     ver = "-"
     try:
         ver = module_name.__version__
@@ -102,98 +128,75 @@ def get_version(module_name):
             try:
                 ver = pip_version(module_name)
             except:  # noqa: E722
-                try:
+                try:  # noqa: SIM105
                     ver = cli_version(module_name)
-                except:  # noqa: E722
+                except:  # noqa: E722, S110
                     pass
     if sum([int(v == "0") for v in ver.split(".")]) == len(ver.split(".")):
         ver = "-"
     return ver
 
 
-def show_versions(file=sys.stdout, conda=False) -> None:
+def show_versions(file: TextIO = sys.stdout, conda: bool = False) -> None:
     """Print the versions of paidiverpy and its dependencies.
 
-    Parameters
-    ----------
-    file : file-like, optional
-        print to the given file-like object. Defaults to sys.stdout.
-    conda: bool, optional
-        format versions to be copy/pasted on a conda environment file (default, False)
+    Args:
+        file (TextIO, optional): The file to write the versions to. Defaults to sys.stdout.
+        conda (bool, optional): Whether to format the output for conda. Defaults to False.
     """
     sys_info = get_sys_info()
 
-    DEPS = {
+    dependencies = {
         "core": sorted(
             [
                 ("paidiverpy", get_version),
-                ("xarray", get_version),
+                ("pandas", get_version),
+                ("pillow", get_version),
+                ("scikit-image", get_version),
+                ("PyYAML", get_version),
+                ("opencv-python", get_version),
+                ("rawpy", get_version),
+                ("pydantic", get_version),
                 ("scipy", get_version),
-                ("netCDF4", get_version),
-                ("h5netcdf", get_version),
-                ("erddapy", get_version),
-                ("fsspec", get_version),
-                ("aiohttp", get_version),
-                ("packaging", get_version),
-                # will come with xarray, Using 'version' to make API compatible with several fsspec releases
-                ("requests", get_version),
-                ("toolz", get_version),
-                ("decorator", get_version),
+                ("xarray", get_version),
+                ("openpyxl", get_version),
+                ("shapely", get_version),
+                ("geopandas", get_version),
+                ("geopy", get_version),
+                ("jsonschema", get_version),
             ]
         ),
         "ext.util": sorted(
             [
-                (
-                    "gsw",
-                    get_version,
-                ),  # Used by xarray accessor to compute new variables
                 ("tqdm", get_version),
             ]
         ),
         "ext.files": sorted(
             [
                 ("boto3", get_version),
-                ("numcodecs", get_version),
-                ("s3fs", get_version),
-                ("kerchunk", get_version),
-                ("zarr", get_version),
+                ("botocore", get_version),
             ]
         ),
         "ext.perf": sorted(
             [
                 ("dask", get_version),
+                ("dask-jobqueue", get_version),
                 ("distributed", get_version),
-                ("pyarrow", get_version),
             ]
         ),
         "ext.plot": sorted(
             [
-                ("cartopy", get_version),
                 ("IPython", get_version),
-                ("ipykernel", get_version),
-                ("ipywidgets", get_version),
                 ("matplotlib", get_version),
-                ("pyproj", get_version),
-                ("seaborn", get_version),
             ]
         ),
         "dev": sorted(
             [
-                ("aiofiles", get_version),
-                ("black", get_version),
-                ("bottleneck", get_version),
-                ("cftime", get_version),
-                ("cfgrib", get_version),
-                ("codespell", cli_version),
-                ("flake8", get_version),
+                ("ruff", get_version),
                 ("numpy", get_version),  # will come with xarray and pandas
                 ("pandas", get_version),  # will come with xarray
                 ("pip", get_version),
-                ("pytest", get_version),  # will come with pandas
-                ("pytest_env", get_version),  # will come with pandas
-                ("pytest_cov", get_version),  # will come with pandas
-                ("pytest_localftpserver", get_version),  # will come with pandas
-                ("setuptools", get_version),  # Provides : pkg_resources
+                ("pytest", get_version),
                 ("sphinx", get_version),
             ]
         ),
@@ -204,31 +207,29 @@ def show_versions(file=sys.stdout, conda=False) -> None:
         ),
     }
 
-    DEPS_blob = {}
-    for level in DEPS:
-        deps = DEPS[level]
+    dependencies_blob = {}
+    for level, deps in dependencies.items():
         deps_blob = []
         for modname, ver_f in deps:
             try:
                 ver = ver_f(modname)
                 deps_blob.append((modname, ver))
-            except Exception:
+            except Exception:  # noqa: BLE001, PERF203
                 deps_blob.append((modname, "installed"))
-        DEPS_blob[level] = deps_blob
+        dependencies_blob[level] = deps_blob
 
     print("\nSYSTEM", file=file)
     print("------", file=file)
     for k, stat in sys_info:
         print(f"{k}: {stat}", file=file)
 
-    for level in DEPS_blob:
+    for level, deps_blob in dependencies_blob.items():
         if conda:
             print(f"\n# {level.upper()}:", file=file)
         else:
             title = f"INSTALLED VERSIONS: {level.upper()}"
             print(f"\n{title}", file=file)
             print("-" * len(title), file=file)
-        deps_blob = DEPS_blob[level]
         for k, stat in deps_blob:
             if conda:
                 if k != "paidiverpy":
@@ -237,34 +238,3 @@ def show_versions(file=sys.stdout, conda=False) -> None:
                     print(f"{comment} - {kf} = {stat}", file=file)  # Format like a conda env line, useful to update ci/requirements
             else:
                 print(f"{k:<12}: {stat:<12}", file=file)
-
-
-@contextlib.contextmanager
-def modified_environ(*remove, **update):
-    """Temporarily updates the ``os.environ`` dictionary in-place.
-
-    The ``os.environ`` dictionary is updated in-place so that the modification
-    is sure to work in all situations.
-
-    :param remove: Environment variables to remove.
-    :param update: Dictionary of environment variables and values to add/update.
-    """
-    # Source: https://github.com/laurent-laporte-pro/stackoverflow-q2059482
-    env = os.environ
-    update = update or {}
-    remove = remove or []
-
-    # List of environment variables being updated or removed.
-    stomped = (set(update.keys()) | set(remove)) & set(env.keys())
-    # Environment variables and values to restore on exit.
-    update_after = {k: env[k] for k in stomped}
-    # Environment variables and values to remove on exit.
-    remove_after = frozenset(k for k in update if k not in env)
-
-    try:
-        env.update(update)
-        [env.pop(k, None) for k in remove]
-        yield
-    finally:
-        env.update(update_after)
-        [env.pop(k) for k in remove_after]

@@ -2,14 +2,23 @@
 
 import gc
 import logging
+from importlib.resources import files
+from typing import Any
+import dask
+from dask.diagnostics import ProgressBar
 from jsonschema import ValidationError
 from paidiverpy import Paidiverpy
 from paidiverpy.config.config_params import ConfigParams
 from paidiverpy.config.configuration import Configuration
+from paidiverpy.custom_layer.custom_layer import CustomLayer
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.open_layer import OpenLayer
 from paidiverpy.pipeline.pipeline_params import STEPS_CLASS_TYPES
 from paidiverpy.utils import formating_html
+from paidiverpy.utils.docker import is_running_in_docker
+from paidiverpy.utils.exceptions import raise_value_error
+from paidiverpy.utils.install_packages import check_and_install_dependencies
+from paidiverpy.utils.parallellisation import parse_client
 
 STEP_WITHOUT_PARAMS = 2
 STEP_WITH_PARAMS = 3
@@ -40,11 +49,11 @@ class Pipeline(Paidiverpy):
 
     def __init__(
         self,
-        config_params: dict | ConfigParams = None,
+        config_params: dict[str, Any] | ConfigParams | None = None,
         config_file_path: str | None = None,
-        config: Configuration = None,
-        metadata: MetadataParser = None,
-        steps: list[tuple] | None = None,
+        config: Configuration | None = None,
+        metadata: MetadataParser | None = None,
+        steps: list[tuple[str, type, dict[str, Any]]] | None = None,
         track_changes: bool | None = None,
         logger: logging.Logger | None = None,
         raise_error: bool = False,
@@ -60,7 +69,7 @@ class Pipeline(Paidiverpy):
             raise_error=raise_error,
             verbose=verbose,
         )
-
+        self.client = parse_client(self.config.general.client, self.config.general.n_jobs)
         if steps is None:
             steps = self._convert_config_to_steps()
         else:
@@ -90,11 +99,8 @@ class Pipeline(Paidiverpy):
         """
         self._validate_pipeline()
         self._validate_from_step(from_step)
+        self._log_client_info()
 
-        if not self.client:
-            self.logger.info("Processing images using %s cores", self.n_jobs)
-        else:
-            self.logger.info("Processing images using Dask client using the following dashboard link: %s", self.client.dashboard_link)
         for index, step in enumerate(self.steps):
             if index > self.runned_steps:
                 step_name, step_class, step_params = self._get_steps_params(step)
@@ -112,9 +118,9 @@ class Pipeline(Paidiverpy):
                         step_name=step_name,
                         parameters=step_params,
                     )
-                    dataset_metadata = self.metadata.metadata.attrs.get("dataset_metadata", {})
-                    dataset_metadata["input_path"] = str(self.config.general.input_path)
-                    self.metadata.metadata.attrs["dataset_metadata"] = dataset_metadata
+                    self.set_metadata(dataset_metadata={"input_path": str(self.config.general.input_path)})
+                elif step_class.__name__ == "CustomLayer":
+                    step_instance = self.process_custom_algorithm(step_params, index - 1)
                 else:
                     step_instance = step_class(
                         paidiverpy=self,
@@ -132,8 +138,69 @@ class Pipeline(Paidiverpy):
 
                 del step_instance
                 gc.collect()
-        if self.client and close_client:
+
+        if self.use_dask:
+            if self.client is not None:
+                future = self.client.compute(self.images.images)
+                dataset = self.client.gather(future)
+                self.images.set_images(dataset)
+            else:
+                with dask.config.set(scheduler="threads", num_workers=self.n_jobs), ProgressBar():
+                    self.images.set_images(dask.compute(self.images.images))
+        if isinstance(self.images.images, tuple):
+            self.images.set_images(self.images.images[0])
+
+        # if self.use_dask:
+        #     self.images.images.compute()
+        if self.client is not None and close_client:
             self.client.close()
+
+    def process_custom_algorithm(self, step_params: dict[str, Any], config_index: int) -> CustomLayer:
+        """Process a custom algorithm.
+
+        Args:
+            step_params (dict): The parameters of the custom algorithm.
+            config_index (int): The index of the configuration.
+
+        Raises:
+            ValueError: If the file path is not provided.
+            ValueError: If the file does not exist.
+            ValueError: If the custom algorithm does not have a 'run' method.
+
+        Returns:
+            CustomLayer: An instance of the custom algorithm class.
+        """
+        class_name = step_params.get("class_name")
+        algorithm_name = step_params.get("name")
+        file_path = step_params.get("file_path", "")
+        if not file_path:
+            msg = f"File path not provided for custom algorithm {algorithm_name}"
+            self.logger.error(msg)
+            raise ValueError(msg)
+        is_docker = is_running_in_docker()
+        if is_docker:
+            file_name = file_path.split("/")[-1]
+            file_path = "/app/custom_algorithms/" + file_name
+        if step_params.get("file_path") == "example":
+            file_path = files("paidiverpy").joinpath("custom_layer/_custom_algorithm_example.py")
+        elif step_params.get("file_path") == "example_dataset":
+            file_path = files("paidiverpy").joinpath("custom_layer/_custom_algorithm_example_dataset.py")
+        try:
+            step_class = self.load_custom_algorithm(file_path, class_name, algorithm_name)
+        except FileNotFoundError as e:
+            msg = f"File {file_path} not found for custom algorithm {algorithm_name}"
+            self.logger.error(msg)
+            raise FileNotFoundError(msg) from e
+        except AttributeError as e:
+            msg = f"Class {class_name} not found in file {file_path} for custom algorithm {algorithm_name}"
+            self.logger.error(msg)
+            raise AttributeError(msg) from e
+        return step_class(
+            paidiverpy=self,
+            step_name=algorithm_name,
+            parameters=step_params,
+            config_index=config_index,
+        )
 
     def _validate_pipeline(self) -> None:
         """Validate the pipeline.
@@ -145,20 +212,43 @@ class Pipeline(Paidiverpy):
             self.logger.error("No steps defined for the pipeline")
             msg = "No steps defined for the pipeline"
             raise ValueError(msg)
+        self._install_additional_dependencies()
 
     def _validate_from_step(self, from_step: int | None) -> None:
         """Validate the from_step parameter."""
         if from_step is not None:
+            if not self.images.images:
+                msg = "You cannot run the pipeline from a specific step if no step has been run"
+                self.logger.error(msg)
+                raise_value_error(msg)
             if len(self.images.images) > from_step:
                 self.runned_steps = from_step
-                self.clear_steps(from_step + 1)
+                self.metadata.metadata.loc[self.metadata.metadata["flag"] > from_step + 1, "flag"] = 0
+                self.images.remove_steps_by_order(from_step + 1)
             else:
                 self.logger.warning(
                     "Step %s does not exist. Run the pipeline from the beginning",
                     from_step,
                 )
 
-    def _get_steps_params(self, step: tuple) -> tuple:
+    def _log_client_info(self) -> None:
+        """Log information about the Dask client or number of jobs."""
+        if not self.client:
+            self.logger.info("Processing images using %s cores", self.n_jobs)
+        else:
+            self.logger.info(
+                "Processing images using Dask client at: %s",
+                self.client.dashboard_link,
+            )
+
+    def _install_additional_dependencies(self) -> None:
+        """Install additional dependencies for the pipeline."""
+        for step in self.steps:
+            _, step_class, step_params = self._get_steps_params(step)
+            if step_class.__name__ == "CustomLayer":
+                check_and_install_dependencies(step_params.get("dependencies"), step_params.get("dependencies_path"))
+
+    def _get_steps_params(self, step: tuple[str, type, dict[str, Any]] | tuple[str, type]) -> tuple[str, type, dict[str, Any]]:
         """Get the parameters of the step.
 
         Args:
@@ -167,7 +257,7 @@ class Pipeline(Paidiverpy):
         if len(step) == STEP_WITHOUT_PARAMS:
             step_name, step_class = step
             step_params = {}
-        elif len(step) == STEP_WITH_PARAMS:
+        else:
             step_name, step_class, step_params = step
         return step_name, step_class, step_params
 
@@ -186,8 +276,8 @@ class Pipeline(Paidiverpy):
     def add_step(
         self,
         step_name: str,
-        step_class: str | type,
-        parameters: dict,
+        step_class: type,
+        parameters: dict[str, Any],
         index: int | None = None,
         substitute: bool = False,
     ) -> None:
@@ -209,13 +299,21 @@ class Pipeline(Paidiverpy):
         try:
             if index:
                 if substitute:
+                    self.images.remove_steps_by_order(index)
                     self.config.add_step(index - 1, parameters, validate=True, step_class=step_class)
                     self.steps[index] = (step_name, step_class, parameters)
+                    if not self.images.images:
+                        return
+                    self.runned_steps = index - 1
                 else:
                     self.config.add_step(index - 1, parameters, insert=True, validate=True, step_class=step_class)
                     self.steps.insert(index, (step_name, step_class, parameters))
 
             else:
+                if substitute:
+                    msg = "To substitute a step you need to provide the index"
+                    self.logger.error(msg)
+                    raise_value_error(msg)
                 self.config.add_step(None, parameters, validate=True, step_class=step_class)
                 self.steps.append((step_name, step_class, parameters))
         except (ValidationError, ValueError) as e:
@@ -236,13 +334,13 @@ class Pipeline(Paidiverpy):
         val_list = list(STEPS_CLASS_TYPES.values())
         return key_list[val_list.index(step_class)]
 
-    def _convert_config_to_steps(self) -> list[tuple]:
+    def _convert_config_to_steps(self) -> list[tuple[str, type, dict[str, Any]]]:
         """Convert the configuration to steps.
 
         Returns:
-            List[tuple]: The steps of the pipeline.
+            list[tuple]: The steps of the pipeline.
         """
-        steps = []
+        steps: list[tuple[str, type, dict[str, Any]]] = []
         raw_step = ("raw", OpenLayer, self.config.general.to_dict(convert_path=False))
         steps.append(raw_step)
         for _, step in enumerate(self.config.steps):

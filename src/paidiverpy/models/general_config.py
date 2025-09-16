@@ -1,6 +1,7 @@
 """Configuration module."""
 
 from pathlib import Path
+from typing import Any
 from typing import ClassVar
 from typing import Literal
 from pydantic import Field
@@ -79,7 +80,7 @@ class GeneralConfig(BaseModel):
         ),
     )
 
-    model_config: ClassVar[dict] = {
+    model_config: ClassVar[dict[str, object]] = {
         "frozen": False,
         "json_schema_extra": {
             "anyOf": [
@@ -91,7 +92,7 @@ class GeneralConfig(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def validate_fields(cls, values: dict) -> dict:
+    def validate_fields(cls, values: dict[str, Any]) -> dict[str, Any]:
         """Validate the fields of the configuration.
 
         Args:
@@ -145,7 +146,7 @@ class GeneralConfig(BaseModel):
 
         return self
 
-    def update(self, **updates: dict) -> "GeneralConfig":
+    def update(self, **updates: dict[str, Any]) -> "GeneralConfig":
         """Update the model in-place with new values."""
         for key, value in updates.items():
             setattr(self, key, value)

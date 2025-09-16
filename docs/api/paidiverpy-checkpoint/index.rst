@@ -1,53 +1,14 @@
-paidiverpy
-==========
+paidiverpy-checkpoint
+=====================
 
-.. py:module:: paidiverpy
+.. py:module:: paidiverpy-checkpoint
 
 .. autoapi-nested-parse::
 
-   
-   Paidiverpy base package.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+   Main class for the paidiverpy package.
 
    ..
        !! processed by numpydoc !!
-
-
-Submodules
-----------
-
-.. toctree::
-   :maxdepth: 1
-
-   /api/paidiverpy/colour_layer/index
-   /api/paidiverpy/config/index
-   /api/paidiverpy/convert_layer/index
-   /api/paidiverpy/custom_layer/index
-   /api/paidiverpy/frontend/index
-   /api/paidiverpy/images_layer/index
-   /api/paidiverpy/investigation_layer/index
-   /api/paidiverpy/metadata_parser/index
-   /api/paidiverpy/models/index
-   /api/paidiverpy/open_layer/index
-   /api/paidiverpy/paidiverpy/index
-   /api/paidiverpy/pipeline/index
-   /api/paidiverpy/position_layer/index
-   /api/paidiverpy/sampling_layer/index
-   /api/paidiverpy/utils/index
 
 
 Classes
@@ -55,21 +16,13 @@ Classes
 
 .. autoapisummary::
 
-   paidiverpy.Paidiverpy
+   paidiverpy-checkpoint.Paidiverpy
 
 
-Functions
----------
+Module Contents
+---------------
 
-.. autoapisummary::
-
-   paidiverpy.show_versions
-
-
-Package Contents
-----------------
-
-.. py:class:: Paidiverpy(config_params: dict[str, Any] | paidiverpy.config.config_params.ConfigParams | None = None, config_file_path: str | None = None, config: paidiverpy.config.configuration.Configuration | None = None, metadata: paidiverpy.metadata_parser.MetadataParser | None = None, images: paidiverpy.images_layer.ImagesLayer | None = None, client: dask.distributed.Client | None = None, paidiverpy: Optional[Paidiverpy] = None, track_changes: bool | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
+.. py:class:: Paidiverpy(config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.configuration.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, client: dask.distributed.Client | None = None, paidiverpy: Paidiverpy = None, track_changes: bool | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
 
    
    Main class for the paidiverpy package.
@@ -152,7 +105,7 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: process_images(method: collections.abc.Callable, params: dict[str, Any] | paidiverpy.utils.base_model.BaseModel) -> xarray.Dataset
+   .. py:method:: process_images(method: callable, params: dict, custom: bool = False) -> xarray.Dataset
 
       
       Process the images sequentially.
@@ -160,9 +113,11 @@ Package Contents
       Method to process the images sequentially.
 
       :param method: The method to apply to the images.
-      :type method: Callable
+      :type method: callable
       :param params: The parameters for the method.
-      :type params: dict | BaseModel
+      :type params: dict
+      :param custom: Whether the method is a custom method. Defaults to False.
+      :type custom: bool, optional
 
       :returns: A dataset containing the processed images and the metadata.
       :rtype: xr.Dataset
@@ -185,18 +140,20 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: calculate_output_image(images: xarray.Dataset, func: collections.abc.Callable) -> tuple[dict[str, Any], numpy.dtype[Any]]
+   .. py:method:: calculate_output_bands(images: xarray.Dataset, func: callable, custom: bool = False) -> int
 
       
-      Calculate the output image dimensions and data type.
+      Calculate the number of output bands.
 
       :param images: The input images.
       :type images: xr.Dataset
       :param func: The processing function.
-      :type func: Callable
+      :type func: callable
+      :param custom: Whether the function is a custom function. Defaults to False.
+      :type custom: bool, optional
 
-      :returns: A tuple containing the dask_gufunc_kwargs and the output data type.
-      :rtype: tuple
+      :returns: The number of output bands.
+      :rtype: int
 
 
 
@@ -216,20 +173,22 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: process_dataset(images: xarray.Dataset, method: collections.abc.Callable, params: paidiverpy.utils.base_model.BaseModel) -> xarray.Dataset
+   .. py:method:: process_dataset(images: list[dask.array.core.Array], method: callable, params: paidiverpy.utils.base_model.BaseModel, custom: bool = False) -> tuple[list[numpy.ndarray], pandas.DataFrame]
 
       
       Process the images as a dataset.
 
-      :param images: The dataset of images to process.
-      :type images: xr.Dataset
+      :param images: The list of images to process.
+      :type images: List[da.core.Array]
       :param method: The method to apply to the images.
-      :type method: Callable
+      :type method: callable
       :param params: The parameters for the method.
       :type params: BaseModel
+      :param custom: Whether the method is a custom method. Defaults to False.
+      :type custom: bool, optional
 
-      :returns: A dataset containing the processed images
-      :rtype: xr.Dataset
+      :returns: A tuple containing the list of processed images and the metadata DataFrame.
+      :rtype: tuple[list[np.ndarray], pd.DataFrame]
 
 
 
@@ -249,18 +208,18 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: get_metadata(flag: int | str | None = None) -> pandas.DataFrame
+   .. py:method:: get_metadata(flag: int | None = None, output_format: str | None = None) -> xarray.DataArray
 
       
       Get the metadata object.
 
       :param flag: The flag to filter the metadata.
-                   If None, return all metadata. If "all", return all metadata sorted by image-datetime.
-                   Defaults to None.
-      :type flag: int | str | None, optional
+      :type flag: int | None
+      :param output_format: The format of the metadata.
+      :type output_format: str
 
       :returns: The metadata object.
-      :rtype: pd.DataFrame
+      :rtype: xr.DataArray
 
 
 
@@ -280,15 +239,15 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: set_metadata(metadata: pandas.DataFrame | None = None, dataset_metadata: dict[str, Any] | None = None) -> None
+   .. py:method:: set_metadata(metadata: xarray.DataArray, image_ds: xarray.Dataset | None = None) -> None
 
       
       Set the metadata.
 
       :param metadata: The metadata to set.
-      :type metadata: pd.DataFrame | None
-      :param dataset_metadata: The dataset metadata to set.
-      :type dataset_metadata: dict | None
+      :type metadata: xr.DataArray
+      :param image_ds: The image dataset.
+      :type image_ds: xr.Dataset, optional
 
 
 
@@ -362,20 +321,24 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: load_custom_algorithm(file_path: str, class_name: str, algorithm_name: str) -> collections.abc.Callable
+   .. py:method:: prepare_inputs(image_data: numpy.ndarray, params: paidiverpy.utils.base_model.BaseModel | None, default_params_factory: paidiverpy.utils.base_model.BaseModel, **kwargs: dict) -> tuple[numpy.ndarray, dict, paidiverpy.utils.base_model.BaseModel]
+      :staticmethod:
+
 
       
-      Load a custom algorithm class.
+      Standard preprocessing for convert layer methods.
 
-      :param file_path: The file path of the custom algorithm.
-      :type file_path: str
-      :param class_name: The class name.
-      :type class_name: str
-      :param algorithm_name: The algorithm name.
-      :type algorithm_name: str
+      :param image_data: The image data.
+      :type image_data: np.ndarray
+      :param params: The parameters.
+      :type params: BaseModel | None
+      :param default_params_factory: The default parameters factory.
+      :type default_params_factory: BaseModel
+      :param \*\*kwargs: Additional keyword arguments.
+      :type \*\*kwargs: dict
 
-      :returns: The custom algorithm class.
-      :rtype: class
+      :returns: The image data, metadata, and parameters.
+      :rtype: tuple[np.ndarray, dict, BaseModel]
 
 
 
@@ -395,7 +358,7 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: process_single(img: numpy.ndarray[Any, Any], flag: int, height: int, width: int, filename: str, output_bands: int | None, func: collections.abc.Callable, metadata: pandas.DataFrame) -> tuple[numpy.ndarray[Any, Any], int, int]
+   .. py:method:: process_single(img: numpy.ndarray, flag: int, height: int, width: int, metadata: dict, output_bands: int, func: callable, custom: bool) -> tuple[numpy.ndarray, dict]
       :staticmethod:
 
 
@@ -410,16 +373,16 @@ Package Contents
       :type height: int
       :param width: The width of the valid image area.
       :type width: int
-      :param filename: The filename of the image.
-      :type filename: str
+      :param metadata: The metadata to include.
+      :type metadata: dict
       :param output_bands: The number of output bands.
       :type output_bands: int
       :param func: The processing function.
-      :type func: Callable
-      :param metadata: The metadata DataFrame.
-      :type metadata: pd.DataFrame
+      :type func: callable
+      :param custom: Whether to use the custom processing.
+      :type custom: bool
 
-      :returns: A tuple containing the processed image, height, and width.
+      :returns: The processed image (with padding restored) and updated metadata.
       :rtype: tuple
 
 
@@ -439,31 +402,4 @@ Package Contents
       ..
           !! processed by numpydoc !!
 
-
-.. py:function:: show_versions(file: TextIO = sys.stdout, conda: bool = False) -> None
-
-   
-   Print the versions of paidiverpy and its dependencies.
-
-   :param file: The file to write the versions to. Defaults to sys.stdout.
-   :type file: TextIO, optional
-   :param conda: Whether to format the output for conda. Defaults to False.
-   :type conda: bool, optional
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   ..
-       !! processed by numpydoc !!
 

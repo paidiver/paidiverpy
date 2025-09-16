@@ -51,7 +51,7 @@ class StepConfig(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def resolve_params_schema(cls, values: dict) -> dict:
+    def resolve_params_schema(cls, values: dict[str, Any]) -> dict[str, Any]:
         """Resolve the parameters schema based on the step name and mode.
 
         Args:
@@ -63,7 +63,7 @@ class StepConfig(BaseModel):
         if isinstance(values, StepConfig):
             return values
         step_name = values.get("step_name")
-        params = values.get("params", {})
+        params: dict[str, Any] = values.get("params", {})
         mode = values.get("mode")
 
         if step_name == "custom":
@@ -83,7 +83,7 @@ class StepConfig(BaseModel):
             values["params"] = param_class(**params)
         return values
 
-    def update(self, **updates: dict) -> "StepConfig":
+    def update(self, **updates: dict[str, Any]) -> "StepConfig":
         """Update the model in-place with new values."""
         for key, value in updates.items():
             setattr(self, key, value)

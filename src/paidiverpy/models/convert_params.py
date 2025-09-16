@@ -1,5 +1,6 @@
 """Convert layer parameters models."""
 
+from typing import Any
 from pydantic import Field
 from paidiverpy.utils.base_model import BaseModel
 
@@ -31,9 +32,9 @@ class NormalizeParams(BaseModel):
 class ResizeParams(BaseModel):
     """This class contains the parameters for the image resizing."""
 
-    size: dict | None = Field(None, description="Target size {'width': value, 'height': value}")
+    size: dict[str, int] | None = Field(None, description="Target size {'width': value, 'height': value}")
     preserve_aspect: bool = Field(True, description="Preserve aspect ratio")
-    scale: float | dict = Field(1, description="Scale factor. Format {'width': value, 'height': value} or float for uniform scaling")
+    scale: float | dict[str, float] = Field(1, description="Scale factor. Format {'width': value, 'height': value} or float for uniform scaling")
     interpolation: str = Field("linear", description="Interpolation method")
     raise_error: bool = Field(False, description="Raise error on failure")
 
@@ -41,10 +42,10 @@ class ResizeParams(BaseModel):
 class CropParams(BaseModel):
     """This class contains the parameters for the image cropping."""
 
-    size: dict | float = Field(1, description="Crop size. Format {'width': value, 'height': value} or float for percentage")
+    size: dict[str, int] | float = Field(1, description="Crop size. Format {'width': value, 'height': value} or float for percentage")
     size_type: str = Field("percent", description="Size type: percent or pixels")
     mode: str = Field("center", description="Crop mode")
-    top_left: dict = Field({"top": 0, "left": 0}, description="Top-left corner for cropping. Format {'top': value, 'left': value}")
+    top_left: dict[str, int] = Field({"top": 0, "left": 0}, description="Top-left corner for cropping. Format {'top': value, 'left': value}")
     raise_error: bool = Field(False, description="Raise error on failure")
 
 
@@ -56,4 +57,4 @@ CONVERT_LAYER_METHODS = {
     "crop": {"params": CropParams, "method": "crop_images"},
 }
 
-ConvertParamsUnion = BitParams | ToParams | NormalizeParams | ResizeParams | CropParams | dict
+ConvertParamsUnion = BitParams | ToParams | NormalizeParams | ResizeParams | CropParams | dict[str, Any]

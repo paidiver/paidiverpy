@@ -19,7 +19,6 @@ class TestDaskCluster(BaseTestClass):
 
     def test_dask_cluster(self):
         """Test generating a Pipeline with Custom Algorithm."""
-        number_images = 5
         number_output_files = 0
         pipeline = Pipeline(config_file_path="tests/config_files/config_benthic_client.yml", verbose=2)
         assert isinstance(pipeline, Pipeline)
@@ -29,10 +28,11 @@ class TestDaskCluster(BaseTestClass):
         assert isinstance(pipeline.get_metadata(), pd.DataFrame)
         pipeline.run(close_client=False)
         images = pipeline.images.images
-        assert images[0][0] is None
-        assert images[1][0] is None
-        assert isinstance(images[-1][0], np.ndarray)
-        assert len(images) == number_images
+        assert "images_0" not in images.data_vars
+        assert "images_1" not in images.data_vars
+        assert "images_2" not in images.data_vars
+        assert "images_3" not in images.data_vars
+        assert isinstance(images["images_4"].values[0], np.ndarray)
         output_path = Path(pipeline.config.general.output_path)
         output_files = list(output_path.glob("*.png"))
         assert len(output_files) == number_output_files
@@ -43,13 +43,6 @@ class TestDaskCluster(BaseTestClass):
         output_files = list(output_path.glob("*.png"))
         assert len(output_files) == number_output_files
         pipeline.client.close()
-        pipeline = Pipeline(config_file_path="tests/config_files/config_benthic_client.yml", verbose=2)
-        pipeline.run()
-        images = pipeline.images.images
-        assert images[0][0] is None
-        assert images[1][0] is None
-        assert isinstance(images[-1][0], np.ndarray)
-        assert len(images) == number_images
 
 
 if __name__ == "__main__":

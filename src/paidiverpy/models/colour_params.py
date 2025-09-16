@@ -1,5 +1,6 @@
 """Colour layer parameters models."""
 
+from typing import Any
 from pydantic import Field
 from paidiverpy.utils.base_model import BaseModel
 
@@ -31,7 +32,7 @@ class ContrastAdjustmentParams(BaseModel):
     """Parameters for contrast adjustment."""
 
     method: str = Field("clahe", description="Contrast adjustment method")
-    kernel_size: dict | int | None = Field(
+    kernel_size: dict[str, int] | int | None = Field(
         None,
         description=(
             "Kernel size for CLAHE. It can be a dict with the format "
@@ -73,7 +74,7 @@ class EdgeDetectionParams(BaseModel):
 
     method: str = Field("sobel", description="Edge detection method")
     blur_radius: int = Field(1, description="Blur radius before edge detection")
-    threshold: dict | None = Field(
+    threshold: dict[str, float] | None = Field(
         None, description="Threshold for edge detection. It should have the format {'low': value, 'high': value}. High value is optional."
     )
     object_type: str = Field("bright", description="Type of object (bright or dark)")
@@ -84,6 +85,7 @@ class EdgeDetectionParams(BaseModel):
     deconv_iter: int = Field(10, description="Deconvolution iterations")
     deconv_mask_weight: float = Field(0.03, description="Deconvolution mask weighting")
     small_float_val: float = Field(1e-6, description="Small float to avoid division by zero")
+    save_features_as_file: bool = Field(False, description="Save features as file")
     raise_error: bool = Field(False, description="Raise error on failure")
 
 
@@ -111,5 +113,5 @@ ColourParamsUnion = (
     | IlluminationCorrectionParams
     | ColourAlterationParams
     | EdgeDetectionParams
-    | dict
+    | dict[str, Any]
 )

@@ -2,6 +2,7 @@
 
 import logging
 import multiprocessing
+from typing import Any
 import dask
 import dask.config
 from dask.distributed import Client
@@ -64,7 +65,7 @@ def parse_dask_job(job: dict, n_jobs: int) -> Client:
     return client
 
 
-def get_client(config_client: dict | ClientParams | None, n_jobs: int) -> Client:
+def parse_client(config_client: dict[str, Any] | ClientParams | None, n_jobs: int) -> Client | None:
     """Parse the client configuration.
 
     Args:
@@ -72,17 +73,17 @@ def get_client(config_client: dict | ClientParams | None, n_jobs: int) -> Client
         n_jobs (int): Number of jobs.
 
     Returns:
-        dask.distributed.Client: Dask client.
+        dask.distributed.Client | None: Dask client or None if no client is configured.
     """
     if config_client is None:
         return None
     config_client = config_client.to_dict() if isinstance(config_client, ClientParams) else config_client
-    job_id = None
+    # job_id = None
     cluster_type = config_client.get("cluster_type")
     if cluster_type == "slurm":
-        client, job_id = parse_dask_job(config_client, n_jobs)
+        client, _ = parse_dask_job(config_client, n_jobs)
     elif cluster_type == "local":
         client = parse_dask_job(config_client, n_jobs)
     if cluster_type == "slurm":
-        return client, job_id
+        return client
     return client

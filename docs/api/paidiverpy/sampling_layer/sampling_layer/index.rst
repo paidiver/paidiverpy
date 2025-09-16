@@ -24,7 +24,7 @@ Classes
 Module Contents
 ---------------
 
-.. py:class:: SamplingLayer(parameters: dict, config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.configuration.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: paidiverpy.Paidiverpy = None, step_name: str | None = None, client: dask.distributed.Client | None = None, config_index: int | None = None, add_new_step: bool = True, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
+.. py:class:: SamplingLayer(parameters: dict[str, Any], config_params: dict[str, Any] | paidiverpy.config.config_params.ConfigParams | None = None, config_file_path: str | None = None, config: paidiverpy.config.configuration.Configuration | None = None, metadata: paidiverpy.metadata_parser.MetadataParser | None = None, images: paidiverpy.images_layer.ImagesLayer | None = None, paidiverpy: Optional[paidiverpy.Paidiverpy] = None, step_name: str | None = None, client: dask.distributed.Client | None = None, config_index: int | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
 
    Bases: :py:obj:`paidiverpy.Paidiverpy`
 
@@ -59,8 +59,6 @@ Module Contents
    :type client: Client
    :param config_index: The index of the configuration.
    :type config_index: int
-   :param add_new_step: Whether to add a new step.
-   :type add_new_step: bool
    :param logger: The logger object.
    :type logger: logging.Logger
    :param raise_error: Whether to raise an error.
@@ -85,14 +83,55 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-   .. py:method:: run() -> None
+   .. py:method:: run(add_new_step: bool = True) -> None | pandas.DataFrame
 
       
       Run the resample layer steps on the images based on the configuration.
 
-      Run the resample layer steps on the images based on the configuration.
+      :param add_new_step: Whether to add a new step. Defaults to True.
+      :type add_new_step: bool, optional
 
       :raises ValueError: The mode is not defined in the configuration file.
+
+      :returns: The result of the resample layer step.
+      :rtype: None | pd.DataFrame
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: compute_mean(img: numpy.ndarray[Any, Any], height: int, width: int, bits: int) -> numpy.ndarray[Any, Any]
+      :staticmethod:
+
+
+      
+      Compute the mean of the image bands.
+
+      :param img: The input image array.
+      :type img: np.ndarray
+      :param height: The height of the image.
+      :type height: int
+      :param width: The width of the image.
+      :type width: int
+      :param bits: The bit depth of the image.
+      :type bits: int
+
+      :returns: The computed mean values for each band.
+      :rtype: np.ndarray
 
 
 

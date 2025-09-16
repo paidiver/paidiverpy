@@ -59,16 +59,7 @@ Clone the repository and build the image:
   cd paidiverpy
   docker build -t paidiverpy -f dockerfiles/Dockerfile .
 
-2. **Option 2: Pull the image from Docker Hub**:
-
-Fetch the latest image from Docker Hub:
-
-.. code-block:: text
-
-  docker pull soutobias/paidiverpy:latest
-  docker tag soutobias/paidiverpy:latest paidiverpy:latest
-
-3. **Option 3: Pull from GitHub Container Registry (GHCR)**:
+3. **Option 2: Pull from GitHub Container Registry (GHCR)**:
 
 Fetch the latest image from GitHub:
 

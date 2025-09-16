@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 import numpy as np
 import pandas as pd
+import xarray as xr
 from IPython.display import HTML
 from paidiverpy.config.configuration import Configuration
 from paidiverpy.config.configuration import GeneralConfig
@@ -31,7 +32,8 @@ class TestPipelineDask(BaseTestClass):
         assert isinstance(pipeline.get_metadata(), pd.DataFrame)
         pipeline.run()
         images = pipeline.images.images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         assert len(images) == number_images
         html_image = pipeline.images.show(image_number=2)
         assert isinstance(html_image, HTML)

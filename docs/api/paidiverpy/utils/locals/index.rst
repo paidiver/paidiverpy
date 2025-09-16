@@ -17,8 +17,10 @@ Functions
 .. autoapisummary::
 
    paidiverpy.utils.locals.get_sys_info
+   paidiverpy.utils.locals.cli_version
+   paidiverpy.utils.locals.pip_version
+   paidiverpy.utils.locals.get_version
    paidiverpy.utils.locals.show_versions
-   paidiverpy.utils.locals.modified_environ
 
 
 Module Contents
@@ -49,15 +51,16 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: show_versions(file=sys.stdout, conda=False) -> None
+.. py:function:: cli_version(cli_name: str) -> str
 
    
-   Print the versions of paidiverpy and its dependencies.
+   Get the version of a CLI tool.
 
-   :param file: print to the given file-like object. Defaults to sys.stdout.
-   :type file: file-like, optional
-   :param conda: format versions to be copy/pasted on a conda environment file (default, False)
-   :type conda: bool, optional
+   :param cli_name: The name of the CLI tool.
+   :type cli_name: str
+
+   :returns: The version of the CLI tool.
+   :rtype: str
 
 
 
@@ -76,16 +79,71 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: modified_environ(*remove, **update)
+.. py:function:: pip_version(pip_name: str) -> str
 
    
-   Temporarily updates the ``os.environ`` dictionary in-place.
+   Get the version of a package installed via pip.
 
-   The ``os.environ`` dictionary is updated in-place so that the modification
-   is sure to work in all situations.
+   :param pip_name: The name of the package.
+   :type pip_name: str
 
-   :param remove: Environment variables to remove.
-   :param update: Dictionary of environment variables and values to add/update.
+   :returns: The version of the package.
+   :rtype: str
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: get_version(module_name: str) -> str
+
+   
+   Get the version of a module.
+
+   :param module_name: The name of the module.
+   :type module_name: str
+
+   :returns: The version of the module.
+   :rtype: str
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: show_versions(file: TextIO = sys.stdout, conda: bool = False) -> None
+
+   
+   Print the versions of paidiverpy and its dependencies.
+
+   :param file: The file to write the versions to. Defaults to sys.stdout.
+   :type file: TextIO, optional
+   :param conda: Whether to format the output for conda. Defaults to False.
+   :type conda: bool, optional
 
 
 

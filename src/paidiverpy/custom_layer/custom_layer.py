@@ -1,19 +1,18 @@
-"""Color layer module.
+"""Custom layer module.
 
-This module contains the ColorLayer class for processing the images in the
-color layer.
+This module contains the CustomLayer class for processing the images in the
+custom layer.
 """
 
-import importlib.util
 import logging
-from importlib.resources import files
+from typing import Any
+from dask.distributed import Client
 from paidiverpy import Paidiverpy
 from paidiverpy.config.config_params import ConfigParams
 from paidiverpy.config.configuration import Configuration
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.models.custom_params import CustomParams
-from paidiverpy.utils.docker import is_running_in_docker
 from paidiverpy.utils.install_packages import check_and_install_dependencies
 
 
@@ -38,6 +37,7 @@ class CustomLayer(Paidiverpy):
         images (ImagesLayer): The images object.
         paidiverpy (Paidiverpy): The paidiverpy object.
         step_name (str): The name of the step.
+        client (Client): The Dask client.
         config_index (int): The index of the configuration.
         logger (logging.Logger): The logger object.
         raise_error (bool): Whether to raise an error.
@@ -46,14 +46,15 @@ class CustomLayer(Paidiverpy):
 
     def __init__(
         self,
-        parameters: dict,
-        config_params: dict | ConfigParams = None,
+        parameters: dict[str, Any] | None = None,
+        config_params: dict[str, Any] | ConfigParams | None = None,
         config_file_path: str | None = None,
-        config: Configuration = None,
-        metadata: MetadataParser = None,
-        images: ImagesLayer = None,
-        paidiverpy: "Paidiverpy" = None,
+        config: Configuration | None = None,
+        metadata: MetadataParser | None = None,
+        images: ImagesLayer | None = None,
+        paidiverpy: Paidiverpy | None = None,
         step_name: str | None = None,
+        client: Client | None = None,
         config_index: int | None = None,
         logger: logging.Logger | None = None,
         raise_error: bool = False,
@@ -66,6 +67,7 @@ class CustomLayer(Paidiverpy):
             config=config,
             images=images,
             paidiverpy=paidiverpy,
+            client=client,
             logger=logger,
             raise_error=raise_error,
             verbose=verbose,
@@ -87,56 +89,30 @@ class CustomLayer(Paidiverpy):
             add_new_step (bool, optional): Whether to add a new step to the images object.
         Defaults to True.
         """
-        algorithm_name = self.step_metadata.get("name")
-        file_path = self.step_metadata.get("file_path")
-        is_docker = is_running_in_docker()
-        if is_docker:
-            file_name = file_path.split("/")[-1]
-            file_path = "/app/custom_algorithms/" + file_name
-        if self.step_metadata.get("file_path") == "example":
-            file_path = files("paidiverpy").joinpath("custom_layer/_custom_algorithm_example.py")
-        elif self.step_metadata.get("file_path") == "example_dataset":
-            file_path = files("paidiverpy").joinpath("custom_layer/_custom_algorithm_example_dataset.py")
-        class_name = self.step_metadata.get("class_name")
         check_and_install_dependencies(self.step_metadata.get("dependencies"), self.step_metadata.get("dependencies_path"))
-        test = self.step_metadata.get("test")
+        test = self.step_metadata.get("test", False)
+        algorithm_name = self.step_metadata.get("name", "")
+        try:
+            method = getattr(self, algorithm_name)
+        except AttributeError as e:
+            msg = f"Method {algorithm_name} not found in CustomLayer."
+            self.logger.error(msg)
+            if self.raise_error:
+                raise AttributeError(msg) from e
+            return
         params = self.step_metadata.get("params") or {}
         params = CustomParams(**params) if isinstance(params, dict) else params
-        method = self.load_custom_algorithm(file_path, class_name, algorithm_name)
-        images = self.images.get_step(step=len(self.images.images) - 1)
         processing_type = self.step_metadata.get("processing_type")
         if processing_type == "dataset":
-            image_list, metadata = self.process_dataset(images, method, params, custom=True)
+            images = self.images.get_step(step=len(self.images.images) - 1)
+            images = self.process_dataset(images, method, params)
         else:
-            image_list, metadata = (
-                self.process_sequentially(images, method, params, custom=True)
-                if self.n_jobs == 1
-                else self.process_parallel(images, method, params, custom=True)
-            )
+            images = self.process_images(method, params)
         if not test:
-            self.step_name = algorithm_name if not self.step_name else self.step_name
-            self.set_metadata(metadata, flag=len(self.images.images))
+            self.step_name = f"step_{self.config_index}" if not self.step_name else self.step_name
             self.images.add_step(
                 step=self.step_name,
-                images=image_list,
+                images=images,
                 step_metadata=self.step_metadata,
-                metadata=self.get_metadata(),
                 track_changes=self.track_changes,
             )
-
-    def load_custom_algorithm(self, file_path: str, class_name: str, algorithm_name: str) -> callable:
-        """Load a custom algorithm class.
-
-        Args:
-            file_path (str): The file path of the custom algorithm.
-            class_name (str): The class name.
-            algorithm_name (str): The algorithm name.
-
-        Returns:
-            class: The custom algorithm class.
-        """
-        spec = importlib.util.spec_from_file_location(algorithm_name, file_path)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-
-        return getattr(module, class_name)

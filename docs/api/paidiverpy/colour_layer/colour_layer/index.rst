@@ -25,7 +25,7 @@ Classes
 Module Contents
 ---------------
 
-.. py:class:: ColourLayer(parameters: dict, config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.configuration.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: paidiverpy.Paidiverpy = None, step_name: str | None = None, config_index: int | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
+.. py:class:: ColourLayer(parameters: dict[str, object], config_params: dict[str, object] | paidiverpy.config.config_params.ConfigParams | None = None, config_file_path: str | None = None, config: paidiverpy.config.configuration.Configuration | None = None, metadata: paidiverpy.metadata_parser.MetadataParser | None = None, images: paidiverpy.images_layer.ImagesLayer | None = None, paidiverpy: paidiverpy.Paidiverpy | None = None, step_name: str | None = None, client: dask.distributed.Client | None = None, config_index: int | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
 
    Bases: :py:obj:`paidiverpy.Paidiverpy`
 
@@ -84,7 +84,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-   .. py:method:: grayscale(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.models.colour_params.GrayScaleParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
+   .. py:method:: grayscale(image_data: numpy.ndarray[Any, Any], params: paidiverpy.models.colour_params.GrayScaleParams | None = None, **_kwargs: dict[str, object]) -> numpy.ndarray[Any, Any]
       :staticmethod:
 
 
@@ -95,18 +95,16 @@ Module Contents
 
       :param image_data: The input image.
       :type image_data: np.ndarray
-      :param metadata: Metadata for the image.
-      :type metadata: dict, optional
       :param params: Parameters for the grayscale conversion.
                      Defaults to GrayScaleParams().
       :type params: GrayScaleParams, optional
-      :param \*\*kwargs: Additional keyword arguments.
-      :type \*\*kwargs: dict
+      :param \*\*_kwargs: Additional keyword arguments.
+      :type \*\*_kwargs: dict
 
       :raises ValueError: If the input image does not have 3 channels or 4 channels with alpha.
 
-      :returns: The updated image and the updated metadata.
-      :rtype: tuple[np.ndarray, dict]
+      :returns: The updated image.
+      :rtype: np.ndarray
 
 
 
@@ -126,7 +124,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: gaussian_blur(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.models.colour_params.GaussianBlurParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
+   .. py:method:: gaussian_blur(image_data: numpy.ndarray[Any, Any], params: paidiverpy.models.colour_params.GaussianBlurParams | None = None, **_kwargs: dict[str, object]) -> numpy.ndarray[Any, Any]
       :staticmethod:
 
 
@@ -137,18 +135,16 @@ Module Contents
 
       :param image_data: The image to apply Gaussian blur.
       :type image_data: np.ndarray
-      :param metadata: Metadata for the image.
-      :type metadata: dict, optional
       :param params: the parameters for the method.
                      Defaults to GaussianBlurParams().
       :type params: GaussianBlurParams, optional
-      :param \*\*kwargs: Additional keyword arguments.
-      :type \*\*kwargs: dict
+      :param \*\*_kwargs: Additional keyword arguments.
+      :type \*\*_kwargs: dict
 
       :raises ValueError: Error applying Gaussian blur.
 
-      :returns: The updated image and the updated metadata.
-      :rtype: tuple[np.ndarray, dict]
+      :returns: The updated image.
+      :rtype: np.ndarray
 
 
 
@@ -168,7 +164,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: sharpen(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.models.colour_params.SharpenParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
+   .. py:method:: sharpen(image_data: numpy.ndarray[Any, Any], params: paidiverpy.models.colour_params.SharpenParams | None = None, **_kwargs: dict[str, object]) -> numpy.ndarray[Any, Any]
       :staticmethod:
 
 
@@ -179,17 +175,15 @@ Module Contents
 
       :param image_data: The image to apply sharpening.
       :type image_data: np.ndarray
-      :param metadata: Metadata for the image.
-      :type metadata: dict, optional
       :param params: Params for method. Defaults to SharpenParams().
       :type params: SharpenParams, optional
-      :param \*\*kwargs: Additional keyword arguments.
-      :type \*\*kwargs: dict
+      :param \*\*_kwargs: Additional keyword arguments.
+      :type \*\*_kwargs: dict
 
       :raises ValueError: Error applying sharpening.
 
-      :returns: The updated image and the updated metadata.
-      :rtype: tuple[np.ndarray, dict]
+      :returns: The updated image.
+      :rtype: np.ndarray
 
 
 
@@ -209,7 +203,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: contrast_adjustment(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.models.colour_params.ContrastAdjustmentParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
+   .. py:method:: contrast_adjustment(image_data: numpy.ndarray[Any, Any], params: paidiverpy.models.colour_params.ContrastAdjustmentParams | None = None, **_kwargs: dict[str, Any]) -> numpy.ndarray[Any, Any]
       :staticmethod:
 
 
@@ -220,18 +214,16 @@ Module Contents
 
       :param image_data: The image to apply contrast adjustment.
       :type image_data: np.ndarray
-      :param metadata: Metadata for the image.
-      :type metadata: dict, optional
       :param params: Params for method.
                      Defaults to ContrastAdjustmentParams().
       :type params: ContrastAdjustmentParams, optional
-      :param \*\*kwargs: Additional keyword arguments.
-      :type \*\*kwargs: dict
+      :param \*\*_kwargs: Additional keyword arguments.
+      :type \*\*_kwargs: dict
 
       :raises ValueError: Error applying contrast adjustment.
 
-      :returns: The updated image and the updated metadata.
-      :rtype: tuple[np.ndarray, dict]
+      :returns: The updated image.
+      :rtype: np.ndarray
 
 
 
@@ -251,7 +243,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: illumination_correction(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.models.colour_params.IlluminationCorrectionParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
+   .. py:method:: illumination_correction(image_data: numpy.ndarray[Any, Any], params: paidiverpy.models.colour_params.IlluminationCorrectionParams | None = None, **_kwargs: dict[str, Any]) -> numpy.ndarray[Any, Any]
       :staticmethod:
 
 
@@ -262,18 +254,16 @@ Module Contents
 
       :param image_data: The image to apply illumination correction.
       :type image_data: np.ndarray
-      :param metadata: Metadata for the image.
-      :type metadata: dict, optional
       :param params: Params for method.
                      Defaults to IlluminationCorrectionParams().
       :type params: IlluminationCorrectionParams, optional
-      :param \*\*kwargs: Additional keyword arguments.
-      :type \*\*kwargs: dict
+      :param \*\*_kwargs: Additional keyword arguments.
+      :type \*\*_kwargs: dict
 
       :raises ValueError: Error applying illumination correction.
 
-      :returns: The updated image and the updated metadata.
-      :rtype: tuple[np.ndarray, dict]
+      :returns: The updated image.
+      :rtype: np.ndarray
 
 
 
@@ -293,7 +283,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: deblur(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.models.colour_params.DeblurParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
+   .. py:method:: deblur(image_data: numpy.ndarray[Any, Any], params: paidiverpy.models.colour_params.DeblurParams | None = None, **_kwargs: dict[str, object]) -> numpy.ndarray[Any, Any]
       :staticmethod:
 
 
@@ -304,21 +294,19 @@ Module Contents
 
       :param image_data: The image to apply deblurring.
       :type image_data: np.ndarray
-      :param metadata: Metadata for the image.
-      :type metadata: dict, optional
       :param params: Params for method.
                      Defaults to DeblurParams().
       :type params: DeblurParams, optional
-      :param \*\*kwargs: Additional keyword arguments.
-      :type \*\*kwargs: dict
+      :param \*\*_kwargs: Additional keyword arguments.
+      :type \*\*_kwargs: dict
 
       :raises ValueError: Unknown PSF type. Please use 'gaussian' or 'motion'.
       :raises ValueError: Unknown method type. Please use 'wiener'.
       :raises NotImplementedError: Unknown method type. Please use 'wiener'.
       :raises ValueError: Error applying contrast adjustment.
 
-      :returns: The updated image and the updated metadata.
-      :rtype: tuple[np.ndarray, dict]
+      :returns: The updated image.
+      :rtype: np.ndarray
 
 
 
@@ -338,7 +326,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: colour_alteration(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.models.colour_params.ColourAlterationParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
+   .. py:method:: colour_alteration(image_data: numpy.ndarray[Any, Any], params: paidiverpy.models.colour_params.ColourAlterationParams | None = None, **_kwargs: dict[str, object]) -> numpy.ndarray[Any, Any]
       :staticmethod:
 
 
@@ -347,19 +335,17 @@ Module Contents
 
       :param image_data: The image to alter colour channel.
       :type image_data: np.ndarray
-      :param metadata: Metadata for the image.
-      :type metadata: dict, optional
       :param params: Params for method. Defaults to None.
       :type params: ColourAlterationParams, optional
-      :param \*\*kwargs: Additional keyword arguments.
-      :type \*\*kwargs: dict
+      :param \*\*_kwargs: Additional keyword arguments.
+      :type \*\*_kwargs: dict
 
       :raises ValueError: Unknown method type. Please use 'white_balance'.
       :raises ValueError: Image is gray-scale'.
       :raises e: Error applying colour alteration.
 
-      :returns: The updated image and the updated metadata.
-      :rtype: tuple[np.ndarray, dict]
+      :returns: The updated image.
+      :rtype: np.ndarray
 
 
 
@@ -379,7 +365,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: edge_detection(image_data: numpy.ndarray, metadata: dict | None = None, params: paidiverpy.models.colour_params.EdgeDetectionParams = None, **kwargs: dict) -> tuple[numpy.ndarray, dict]
+   .. py:method:: edge_detection(image_data: numpy.ndarray[Any, Any], params: paidiverpy.models.colour_params.EdgeDetectionParams | None = None, **_kwargs: dict[str, object]) -> numpy.ndarray[Any, Any]
       :staticmethod:
 
 
@@ -390,18 +376,16 @@ Module Contents
 
       :param image_data: The image to apply edge detection.
       :type image_data: np.ndarray
-      :param metadata: Metadata for the image.
-      :type metadata: dict, optional
       :param params: Params for method.
                      Defaults to EdgeDetectionParams().
       :type params: EdgeDetectionParams, optional
-      :param \*\*kwargs: Additional keyword arguments.
-      :type \*\*kwargs: dict
+      :param \*\*_kwargs: Additional keyword arguments.
+      :type \*\*_kwargs: dict
 
       :raises e: Error applying edge detection.
 
-      :returns: The updated image and the updated metadata.
-      :rtype: tuple[np.ndarray, dict]
+      :returns: The updated image.
+      :rtype: np.ndarray
 
 
 
@@ -421,7 +405,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: get_object_features(gray_image_data: numpy.ndarray, label_image_data: numpy.ndarray, params: paidiverpy.models.colour_params.EdgeDetectionParams) -> tuple[dict, numpy.ndarray]
+   .. py:method:: get_object_features(gray_image_data: numpy.ndarray[Any, Any], label_image_data: numpy.ndarray[Any, Any], params: paidiverpy.models.colour_params.EdgeDetectionParams) -> tuple[dict[str, object], numpy.ndarray]
       :staticmethod:
 
 
@@ -458,7 +442,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: gaussian_psf(size: list[int], sigma: float) -> numpy.ndarray
+   .. py:method:: gaussian_psf(size: list[int], sigma: float) -> numpy.ndarray[Any, Any]
       :staticmethod:
 
 
@@ -493,7 +477,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: motion_psf(size: list[float], length: float, angle_xy: float, angle_z: int = 0) -> numpy.ndarray
+   .. py:method:: motion_psf(size: list[int], length: float, angle_xy: float, angle_z: int = 0) -> numpy.ndarray[Any, Any]
       :staticmethod:
 
 
@@ -503,7 +487,7 @@ Module Contents
       Create a motion point spread function (PSF).
 
       :param size: size of the PSF
-      :type size: float[]
+      :type size: list[int]
       :param length: length of the PSF
       :type length: float
       :param angle_xy: angle of the PSF
@@ -532,7 +516,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: deconvolution(img: numpy.ndarray, bw_img: numpy.ndarray, blurd_bw_img: numpy.ndarray, deconv: bool, deconv_method: str, deconv_iter: int, deconv_mask_weight: float, small_float_val: float = 1e-06) -> numpy.ndarray
+   .. py:method:: deconvolution(img: numpy.ndarray[Any, Any], bw_img: numpy.ndarray[Any, Any], blurd_bw_img: numpy.ndarray[Any, Any], deconv: bool, deconv_method: str, deconv_iter: int, deconv_mask_weight: float, small_float_val: float = 1e-06) -> numpy.ndarray[Any, Any]
       :staticmethod:
 
 
@@ -579,7 +563,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: sharpness_analysis(gray_img: numpy.ndarray, img: numpy.ndarray, features: dict, estimate_sharpness: bool = True) -> dict
+   .. py:method:: sharpness_analysis(gray_img: numpy.ndarray[Any, Any], img: numpy.ndarray[Any, Any], features: dict[str, object], estimate_sharpness: bool = True) -> dict[str, object]
       :staticmethod:
 
 
@@ -620,7 +604,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: detect_edges(img: numpy.ndarray, method: str, blur_radius: float, threshold: dict) -> numpy.ndarray
+   .. py:method:: detect_edges(img: numpy.ndarray[Any, Any], method: str, blur_radius: float, threshold: dict[str, float]) -> numpy.ndarray[Any, Any]
       :staticmethod:
 
 
@@ -659,7 +643,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: process_edges(edges_mag: numpy.ndarray, low_threshold: float, blur_radius: float) -> numpy.ndarray
+   .. py:method:: process_edges(edges_mag: numpy.ndarray[Any, Any], low_threshold: float, blur_radius: float) -> numpy.ndarray[Any, Any]
       :staticmethod:
 
 
@@ -696,7 +680,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: process_edges_mean(edges_mag: numpy.ndarray, blur_radius: float) -> numpy.ndarray
+   .. py:method:: process_edges_mean(edges_mag: numpy.ndarray[Any, Any], blur_radius: float) -> numpy.ndarray[Any, Any]
       :staticmethod:
 
 
@@ -731,7 +715,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: make_gaussian(size: int, fwhm: int = 3, center: tuple | None = None) -> numpy.ndarray
+   .. py:method:: make_gaussian(size: int, fwhm: int = 3, center: tuple[int, int] | None = None) -> numpy.ndarray[Any, Any]
       :staticmethod:
 
 

@@ -2,6 +2,7 @@
 
 import unittest
 import numpy as np
+import xarray as xr
 from paidiverpy.config.configuration import Configuration
 from paidiverpy.config.configuration import GeneralConfig
 from paidiverpy.pipeline import Pipeline
@@ -33,13 +34,13 @@ class TestConvertLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images, list)
-        assert isinstance(images[0][0], np.ndarray)
-        assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[1][0].dtype.itemsize == SIXTEEN_BITS_SIZE
-        assert images[2][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[3][0].dtype.itemsize == THIRTY_TWO_BITS_SIZE
-        assert images[4][0].dtype.itemsize == THIRTY_TWO_BITS_SIZE
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
+        assert images["images_0"].values.dtype.itemsize == EIGHT_BITS_SIZE
+        assert images["images_1"].values.dtype.itemsize == SIXTEEN_BITS_SIZE
+        assert images["images_2"].values.dtype.itemsize == EIGHT_BITS_SIZE
+        assert images["images_3"].values.dtype.itemsize == THIRTY_TWO_BITS_SIZE
+        assert images["images_4"].values.dtype.itemsize == THIRTY_TWO_BITS_SIZE
 
     def test_convert_bits_several(self):
         """Test the convert bits step."""
@@ -52,12 +53,12 @@ class TestConvertLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images, list)
-        assert isinstance(images[0][0], np.ndarray)
-        assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[1][0].dtype.itemsize == SIXTEEN_BITS_SIZE
-        assert images[2][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[3][0].dtype.itemsize == THIRTY_TWO_BITS_SIZE
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
+        assert images["images_0"].values.dtype.itemsize == EIGHT_BITS_SIZE
+        assert images["images_1"].values.dtype.itemsize == SIXTEEN_BITS_SIZE
+        assert images["images_2"].values.dtype.itemsize == EIGHT_BITS_SIZE
+        assert images["images_3"].values.dtype.itemsize == THIRTY_TWO_BITS_SIZE
 
     def test_convert_to_one(self):
         """Test the convert to step."""
@@ -70,15 +71,15 @@ class TestConvertLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images, list)
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         for idx in range(number_images):
-            assert images[idx][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[0][0].shape[-1] == NUM_CHANNELS_GREY
-        assert images[1][0].shape[-1] == NUM_CHANNELS_RGB
-        assert images[2][0].shape[-1] == NUM_CHANNELS_RGBA
-        assert images[3][0].shape[-1] == NUM_CHANNELS_GREY
-        assert images[4][0].shape[-1] == NUM_CHANNELS_GREY
+            assert images[f"images_{idx}"].values.dtype.itemsize == EIGHT_BITS_SIZE
+        assert images["images_0"].shape[-1] == NUM_CHANNELS_GREY
+        assert images["images_1"].shape[-1] == NUM_CHANNELS_RGB
+        assert images["images_2"].shape[-1] == NUM_CHANNELS_RGBA
+        assert images["images_3"].shape[-1] == NUM_CHANNELS_GREY
+        assert images["images_4"].shape[-1] == NUM_CHANNELS_GREY
 
     def test_convert_to_several(self):
         """Test the convert to step."""
@@ -91,18 +92,18 @@ class TestConvertLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images, list)
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         for idx in range(number_images):
-            assert images[idx][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[0][0].shape[-1] == NUM_CHANNELS_RGBA
-        assert images[1][0].shape[-1] == NUM_CHANNELS_RGB
-        assert images[2][0].shape[-1] == NUM_CHANNELS_RGB
-        assert images[3][0].shape[-1] == NUM_CHANNELS_RGBA
-        assert images[4][0].shape[-1] == NUM_CHANNELS_RGBA
-        assert images[5][0].shape[-1] == NUM_CHANNELS_RGB
-        assert images[6][0].shape[-1] == NUM_CHANNELS_GREY
-        assert images[7][0].shape[-1] == NUM_CHANNELS_RGBA
+            assert images[f"images_{idx}"].values.dtype.itemsize == EIGHT_BITS_SIZE
+        assert images["images_0"].shape[-1] == NUM_CHANNELS_RGBA
+        assert images["images_1"].shape[-1] == NUM_CHANNELS_RGB
+        assert images["images_2"].shape[-1] == NUM_CHANNELS_RGB
+        assert images["images_3"].shape[-1] == NUM_CHANNELS_RGBA
+        assert images["images_4"].shape[-1] == NUM_CHANNELS_RGBA
+        assert images["images_5"].shape[-1] == NUM_CHANNELS_RGB
+        assert images["images_6"].shape[-1] == NUM_CHANNELS_GREY
+        assert images["images_7"].shape[-1] == NUM_CHANNELS_RGBA
 
     def test_convert_normalise_one(self):
         """Test the convert normalise step."""
@@ -115,20 +116,20 @@ class TestConvertLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images, list)
-        assert isinstance(images[0][0], np.ndarray)
-        assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[0][0].max() <= EIGHT_BITS_MAX
-        assert images[0][0].min() >= 0
-        assert images[1][0].dtype.itemsize == THIRTY_TWO_BITS_SIZE
-        assert images[1][0].max() <= 1
-        assert images[1][0].min() >= 0
-        assert images[2][0].dtype.itemsize == THIRTY_TWO_BITS_SIZE
-        assert images[2][0].max() <= EIGHT_BITS_MAX
-        assert images[2][0].min() >= 0
-        assert images[3][0].dtype.itemsize == THIRTY_TWO_BITS_SIZE
-        assert images[3][0].max() <= EIGHT_BITS_MAX
-        assert images[3][0].min() >= 0
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
+        assert images["images_0"].values.dtype.itemsize == EIGHT_BITS_SIZE
+        assert images["images_0"].values.max() <= EIGHT_BITS_MAX
+        assert images["images_0"].values.min() >= 0
+        assert images["images_1"].values.dtype.itemsize == THIRTY_TWO_BITS_SIZE
+        assert images["images_1"].values.max() <= 1
+        assert images["images_1"].values.min() >= 0
+        assert images["images_2"].values.dtype.itemsize == THIRTY_TWO_BITS_SIZE
+        assert images["images_2"].values.max() <= EIGHT_BITS_MAX
+        assert images["images_2"].values.min() >= 0
+        assert images["images_3"].values.dtype.itemsize == THIRTY_TWO_BITS_SIZE
+        assert images["images_3"].values.max() <= EIGHT_BITS_MAX
+        assert images["images_3"].values.min() >= 0
 
     def test_convert_normalise_several(self):
         """Test the convert normalise step."""
@@ -141,21 +142,21 @@ class TestConvertLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images, list)
-        assert isinstance(images[0][0], np.ndarray)
-        assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[0][0].max() <= EIGHT_BITS_MAX
-        assert images[0][0].min() >= 0
-        assert images[1][0].dtype.itemsize == THIRTY_TWO_BITS_SIZE
-        assert images[1][0].max() <= 1
-        assert images[1][0].min() >= 0
-        assert images[2][0].dtype.itemsize == THIRTY_TWO_BITS_SIZE
-        assert images[2][0].max() <= EIGHT_BITS_MAX
-        assert images[2][0].min() >= 0
-        assert images[3][0].dtype.itemsize == THIRTY_TWO_BITS_SIZE
-        assert images[3][0].max() <= 1
-        assert images[3][0].min() >= 0
-        assert images[4][0].shape[-1] == NUM_CHANNELS_GREY
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
+        assert images["images_0"][0].dtype.itemsize == EIGHT_BITS_SIZE
+        assert images["images_0"][0].max() <= EIGHT_BITS_MAX
+        assert images["images_0"][0].min() >= 0
+        assert images["images_1"][0].dtype.itemsize == THIRTY_TWO_BITS_SIZE
+        assert images["images_1"][0].max() <= 1
+        assert images["images_1"][0].min() >= 0
+        assert images["images_2"][0].dtype.itemsize == THIRTY_TWO_BITS_SIZE
+        assert images["images_2"][0].max() <= EIGHT_BITS_MAX
+        assert images["images_2"][0].min() >= 0
+        assert images["images_3"][0].dtype.itemsize == THIRTY_TWO_BITS_SIZE
+        assert images["images_3"][0].max() <= 1
+        assert images["images_3"][0].min() >= 0
+        assert images["images_4"][0].shape[-1] == NUM_CHANNELS_GREY
 
     def test_convert_resize_one(self):
         """Test the convert resize step."""
@@ -168,28 +169,35 @@ class TestConvertLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images, list)
-        assert isinstance(images[0][0], np.ndarray)
-        assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        shape_image_0 = images[0][0].shape
-        shape_image_1 = images[1][0].shape
-        shape_image_2 = images[2][0].shape
-        shape_image_3 = images[3][0].shape
-        shape_image_4 = images[4][0].shape
-        shape_image_5 = images[5][0].shape
-        shape_image_6 = images[6][0].shape
-        assert shape_image_1[0] == int(shape_image_0[0] / 2)
-        assert shape_image_1[1] == int(shape_image_0[1] / 2)
-        assert shape_image_2[0] == int(shape_image_1[0] / 2)
-        assert shape_image_2[1] == int(shape_image_1[1] / 2)
-        assert shape_image_3[0] == shape_image_2[0]
-        assert shape_image_3[1] == shape_image_2[1]
-        assert shape_image_4[0] == shape_image_3[0]
-        assert shape_image_4[1] == shape_image_3[1]
-        assert shape_image_5[0] == 100  # noqa: PLR2004
-        assert shape_image_5[1] == 100  # noqa: PLR2004
-        assert shape_image_6[0] == 200  # noqa: PLR2004
-        assert shape_image_6[1] == 200  # noqa: PLR2004
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
+        assert images["images_0"][0].dtype.itemsize == EIGHT_BITS_SIZE
+        shape_image_0_h = images["original_height_0"][0]
+        shape_image_1_h = images["original_height_1"][0]
+        shape_image_2_h = images["original_height_2"][0]
+        shape_image_3_h = images["original_height_3"][0]
+        shape_image_4_h = images["original_height_4"][0]
+        shape_image_5_h = images["original_height_5"][0]
+        shape_image_6_h = images["original_height_6"][0]
+        shape_image_0_w = images["original_width_0"][0]
+        shape_image_1_w = images["original_width_1"][0]
+        shape_image_2_w = images["original_width_2"][0]
+        shape_image_3_w = images["original_width_3"][0]
+        shape_image_4_w = images["original_width_4"][0]
+        shape_image_5_w = images["original_width_5"][0]
+        shape_image_6_w = images["original_width_6"][0]
+        assert shape_image_1_h == int(shape_image_0_h / 2)
+        assert shape_image_1_w == int(shape_image_0_w / 2)
+        assert shape_image_2_h == int(shape_image_1_h / 2)
+        assert shape_image_2_w == int(shape_image_1_w / 2)
+        assert shape_image_3_h == shape_image_2_h
+        assert shape_image_3_w == shape_image_2_w
+        assert shape_image_4_h == shape_image_3_h
+        assert shape_image_4_w == shape_image_3_w
+        assert shape_image_5_h == 100  # noqa: PLR2004
+        assert shape_image_5_w == 100  # noqa: PLR2004
+        assert shape_image_6_h == 200  # noqa: PLR2004
+        assert shape_image_6_w == 200  # noqa: PLR2004
 
     def test_convert_resize_several(self):
         """Test the convert resize step for several channel images."""
@@ -202,28 +210,35 @@ class TestConvertLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images, list)
-        assert isinstance(images[0][0], np.ndarray)
-        assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        shape_image_0 = images[0][0].shape
-        shape_image_1 = images[1][0].shape
-        shape_image_2 = images[2][0].shape
-        shape_image_3 = images[3][0].shape
-        shape_image_4 = images[4][0].shape
-        shape_image_5 = images[5][0].shape
-        shape_image_6 = images[6][0].shape
-        assert shape_image_1[0] == int(shape_image_0[0] / 2)
-        assert shape_image_1[1] == int(shape_image_0[1] / 2)
-        assert shape_image_2[0] == int(shape_image_1[0] / 2)
-        assert shape_image_2[1] == int(shape_image_1[1] / 2)
-        assert shape_image_3[0] == shape_image_2[0]
-        assert shape_image_3[1] == shape_image_2[1]
-        assert shape_image_4[0] == shape_image_3[0]
-        assert shape_image_4[1] == shape_image_3[1]
-        assert shape_image_5[0] == 100  # noqa: PLR2004
-        assert shape_image_5[1] == 100  # noqa: PLR2004
-        assert shape_image_6[0] == 200  # noqa: PLR2004
-        assert shape_image_6[1] == 200  # noqa: PLR2004
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
+        assert images["images_0"][0].dtype.itemsize == EIGHT_BITS_SIZE
+        shape_image_0_h = images["original_height_0"][0]
+        shape_image_1_h = images["original_height_1"][0]
+        shape_image_2_h = images["original_height_2"][0]
+        shape_image_3_h = images["original_height_3"][0]
+        shape_image_4_h = images["original_height_4"][0]
+        shape_image_5_h = images["original_height_5"][0]
+        shape_image_6_h = images["original_height_6"][0]
+        shape_image_0_w = images["original_width_0"][0]
+        shape_image_1_w = images["original_width_1"][0]
+        shape_image_2_w = images["original_width_2"][0]
+        shape_image_3_w = images["original_width_3"][0]
+        shape_image_4_w = images["original_width_4"][0]
+        shape_image_5_w = images["original_width_5"][0]
+        shape_image_6_w = images["original_width_6"][0]
+        assert shape_image_1_h == int(shape_image_0_h / 2)
+        assert shape_image_1_w == int(shape_image_0_w / 2)
+        assert shape_image_2_h == int(shape_image_1_h / 2)
+        assert shape_image_2_w == int(shape_image_1_w / 2)
+        assert shape_image_3_h == shape_image_2_h
+        assert shape_image_3_w == shape_image_2_w
+        assert shape_image_4_h == shape_image_3_h
+        assert shape_image_4_w == shape_image_3_w
+        assert shape_image_5_h == 100  # noqa: PLR2004
+        assert shape_image_5_w == 100  # noqa: PLR2004
+        assert shape_image_6_h == 200  # noqa: PLR2004
+        assert shape_image_6_w == 200  # noqa: PLR2004
 
     def test_convert_crop_one(self):
         """Test the convert crop step."""
@@ -238,31 +253,39 @@ class TestConvertLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images, list)
-        assert isinstance(images[0][0], np.ndarray)
-        assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        shape_image_0 = images[0][0].shape
-        shape_image_1 = images[1][0].shape
-        shape_image_2 = images[2][0].shape
-        shape_image_3 = images[3][0].shape
-        shape_image_4 = images[4][0].shape
-        shape_image_5 = images[5][0].shape
-        shape_image_6 = images[6][0].shape
-        shape_image_7 = images[7][0].shape
-        assert shape_image_1[0] == int(shape_image_0[0])
-        assert shape_image_1[1] == int(shape_image_0[1])
-        assert shape_image_2[0] == int(shape_image_1[0] * 0.9)
-        assert shape_image_2[1] == int(shape_image_1[1] * 0.9)
-        assert shape_image_3[0] == image_100
-        assert shape_image_3[1] == image_100
-        assert shape_image_4[0] == image_90
-        assert shape_image_4[1] == image_90
-        assert shape_image_5[0] == image_90
-        assert shape_image_5[1] == image_90
-        assert shape_image_6[0] == image_90
-        assert shape_image_6[1] == image_90
-        assert shape_image_7[0] == image_90
-        assert shape_image_7[1] == image_90
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
+        assert images["images_0"][0].dtype.itemsize == EIGHT_BITS_SIZE
+        shape_image_0_h = images["original_height_0"][0]
+        shape_image_1_h = images["original_height_1"][0]
+        shape_image_2_h = images["original_height_2"][0]
+        shape_image_3_h = images["original_height_3"][0]
+        shape_image_4_h = images["original_height_4"][0]
+        shape_image_5_h = images["original_height_5"][0]
+        shape_image_6_h = images["original_height_6"][0]
+        shape_image_7_h = images["original_height_7"][0]
+        shape_image_0_w = images["original_width_0"][0]
+        shape_image_1_w = images["original_width_1"][0]
+        shape_image_2_w = images["original_width_2"][0]
+        shape_image_3_w = images["original_width_3"][0]
+        shape_image_4_w = images["original_width_4"][0]
+        shape_image_5_w = images["original_width_5"][0]
+        shape_image_6_w = images["original_width_6"][0]
+        shape_image_7_w = images["original_width_7"][0]
+        assert shape_image_1_h == int(shape_image_0_h)
+        assert shape_image_1_w == int(shape_image_0_w)
+        assert shape_image_2_h == int(shape_image_1_h * 0.9)
+        assert shape_image_2_w == int(shape_image_1_w * 0.9)
+        assert shape_image_3_h == image_100
+        assert shape_image_3_w == image_100
+        assert shape_image_4_h == image_90
+        assert shape_image_4_w == image_90
+        assert shape_image_5_h == image_90
+        assert shape_image_5_w == image_90
+        assert shape_image_6_h == image_90
+        assert shape_image_6_w == image_90
+        assert shape_image_7_h == image_90
+        assert shape_image_7_w == image_90
 
     def test_convert_crop_several(self):
         """Test the convert crop step."""
@@ -277,31 +300,39 @@ class TestConvertLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images, list)
-        assert isinstance(images[0][0], np.ndarray)
-        assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        shape_image_0 = images[0][0].shape
-        shape_image_1 = images[1][0].shape
-        shape_image_2 = images[2][0].shape
-        shape_image_3 = images[3][0].shape
-        shape_image_4 = images[4][0].shape
-        shape_image_5 = images[5][0].shape
-        shape_image_6 = images[6][0].shape
-        shape_image_7 = images[7][0].shape
-        assert shape_image_1[0] == int(shape_image_0[0])
-        assert shape_image_1[1] == int(shape_image_0[1])
-        assert shape_image_2[0] == int(shape_image_1[0] * 0.9)
-        assert shape_image_2[1] == int(shape_image_1[1] * 0.9)
-        assert shape_image_3[0] == image_100
-        assert shape_image_3[1] == image_100
-        assert shape_image_4[0] == image_90
-        assert shape_image_4[1] == image_90
-        assert shape_image_5[0] == image_90
-        assert shape_image_5[1] == image_90
-        assert shape_image_6[0] == image_90
-        assert shape_image_6[1] == image_90
-        assert shape_image_7[0] == image_90
-        assert shape_image_7[1] == image_90
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
+        assert images["images_0"][0].dtype.itemsize == EIGHT_BITS_SIZE
+        shape_image_0_h = images["original_height_0"][0]
+        shape_image_1_h = images["original_height_1"][0]
+        shape_image_2_h = images["original_height_2"][0]
+        shape_image_3_h = images["original_height_3"][0]
+        shape_image_4_h = images["original_height_4"][0]
+        shape_image_5_h = images["original_height_5"][0]
+        shape_image_6_h = images["original_height_6"][0]
+        shape_image_7_h = images["original_height_7"][0]
+        shape_image_0_w = images["original_width_0"][0]
+        shape_image_1_w = images["original_width_1"][0]
+        shape_image_2_w = images["original_width_2"][0]
+        shape_image_3_w = images["original_width_3"][0]
+        shape_image_4_w = images["original_width_4"][0]
+        shape_image_5_w = images["original_width_5"][0]
+        shape_image_6_w = images["original_width_6"][0]
+        shape_image_7_w = images["original_width_7"][0]
+        assert shape_image_1_h == int(shape_image_0_h)
+        assert shape_image_1_w == int(shape_image_0_w)
+        assert shape_image_2_h == int(shape_image_1_h * 0.9)
+        assert shape_image_2_w == int(shape_image_1_w * 0.9)
+        assert shape_image_3_h == image_100
+        assert shape_image_3_w == image_100
+        assert shape_image_4_h == image_90
+        assert shape_image_4_w == image_90
+        assert shape_image_5_h == image_90
+        assert shape_image_5_w == image_90
+        assert shape_image_6_h == image_90
+        assert shape_image_6_w == image_90
+        assert shape_image_7_h == image_90
+        assert shape_image_7_w == image_90
 
 
 if __name__ == "__main__":

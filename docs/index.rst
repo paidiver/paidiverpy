@@ -35,11 +35,13 @@ Documentation
     package_organisation
     configuration_file
     images_metadata
+    images_layer
     preprocessing_steps
     example_data
     gui
     gallery
     scientific_background
+    benchmarks
 
 .. toctree::
     :maxdepth: 2

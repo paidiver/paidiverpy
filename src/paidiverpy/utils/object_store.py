@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def define_storage_options(path: str | Path) -> dict:
+def define_storage_options(path: str | Path) -> dict[str, str]:
     """Define storage options for reading metadata file.
 
     Args:
@@ -37,10 +37,10 @@ def define_storage_options(path: str | Path) -> dict:
         }
         if os_endpoint:
             storage_options["endpoint_url"] = os_endpoint
-    return storage_options
+    return {str(k): v for k, v in (storage_options or {}).items()}
 
 
-def get_file_from_bucket(file_path: str, storage_options: dict | None = None) -> bytes:
+def get_file_from_bucket(file_path: str, storage_options: dict[str, str] | None = None) -> bytes:
     """Get a file from an object store bucket.
 
     Args:
@@ -53,6 +53,7 @@ def get_file_from_bucket(file_path: str, storage_options: dict | None = None) ->
     if file_path.startswith("s3://"):
         s3_path = file_path[5:]
         bucket_name, key = s3_path.split("/", 1)
+        storage_options = {str(k): v for k, v in (storage_options or {}).items()}
         s3_client = boto3.client(**storage_options)
         response = s3_client.get_object(Bucket=bucket_name, Key=key)
         return response["Body"].read()
@@ -101,11 +102,11 @@ def upload_file_to_bucket(file_obj: io.BytesIO, output_path: str, client: boto3.
     client.put_object(Body=file_obj.getvalue(), Bucket=bucket_name, Key=key)
 
 
-def path_is_remote(path: str) -> bool:
+def path_is_remote(path: str | Path) -> bool:
     """Check if the path is a remote path.
 
     Args:
-        path (str): The path to check.
+        path (str | Path): The path to check.
 
     Returns:
         bool: True if the path is remote, False otherwise.

@@ -4,6 +4,7 @@ import argparse
 import copy
 import json
 from pathlib import Path
+from typing import Any
 from paidiverpy.config.configuration import config_name_mapping
 from paidiverpy.models.config_model import ConfigModel
 from paidiverpy.utils.logging_functions import initialise_logging
@@ -27,7 +28,7 @@ def generate_schema(output_path: str) -> None:
     logger.info("Schema saved to %s", output_path)
 
 
-def wrap_ref(schema: dict, target_ref: str, wrapper_key: str) -> dict:
+def wrap_ref(schema: dict[str, Any], target_ref: str, wrapper_key: str) -> dict[str, Any] | list[Any]:
     """Wrap a reference in the schema with a key.
 
     Args:
@@ -39,7 +40,7 @@ def wrap_ref(schema: dict, target_ref: str, wrapper_key: str) -> dict:
         dict: The modified schema with the reference wrapped.
     """
 
-    def _transform(obj: dict | list | str | float | bool, parent_key: str = "") -> dict:
+    def _transform(obj: dict[str, Any] | list[Any], parent_key: str = "") -> dict[str, Any] | list[Any]:
         """Recursively transform the schema.
 
         Args:

@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 import numpy as np
 import pytest
+import xarray as xr
 from paidiverpy.config.configuration import Configuration
 from paidiverpy.config.configuration import GeneralConfig
 from paidiverpy.pipeline import Pipeline
@@ -30,7 +31,8 @@ class TestPositionLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         output_path = Path(pipeline.config.general.output_path)
         output_graphs = list(output_path.glob("1_calculate_corners/*graph_*.png"))
         assert len(output_graphs) == number_graphs

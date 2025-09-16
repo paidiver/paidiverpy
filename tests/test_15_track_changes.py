@@ -19,7 +19,6 @@ class TestTrackChanges(BaseTestClass):
 
     def test_processing_no_track_changes(self):
         """Test no track changes."""
-        number_images = 6
         pipeline = Pipeline(config_file_path="tests/config_files/config_simple_no_track_changes.yml")
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
@@ -27,16 +26,16 @@ class TestTrackChanges(BaseTestClass):
         assert isinstance(pipeline._repr_html_(), str)
         pipeline.run()
         images = pipeline.images.images
-        assert len(images) == number_images
-        assert images[0][0] is None
-        assert images[1][0] is None
-        assert images[2][0] is None
-        assert images[3][0] is None
-        assert images[4][0] is None
-        assert isinstance(images[5][0], np.ndarray)
+        assert "images_0" not in images.data_vars
+        assert "images_1" not in images.data_vars
+        assert "images_2" not in images.data_vars
+        assert "images_3" not in images.data_vars
+        assert "images_4" not in images.data_vars
+        assert "images_5" in images.data_vars
+        assert isinstance(images["images_5"][0].values, np.ndarray)
         output_html = pipeline.images._repr_html_()
         assert isinstance(output_html, str)
-        assert "No image to show" in output_html
+        assert "Images for this step are not available" in output_html
 
 
 if __name__ == "__main__":
