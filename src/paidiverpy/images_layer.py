@@ -208,7 +208,7 @@ class ImagesLayer:
             s3_client = create_client()
             bucket_name = str(output_path)[5:].split("/")[0]
             check_create_bucket_exists(bucket_name, s3_client)
-
+        logger.info("AAAAAAAAAAAAAASaving images to %s", str(output_path))
         tasks = xr.apply_ufunc(
             ImagesLayer.process_single_image,
             images["images"],
@@ -276,6 +276,7 @@ class ImagesLayer:
                 buffer = io.BytesIO(encoded_image.tobytes())
                 upload_file_to_bucket(buffer, str(img_path_with_suffix), s3_client)
             else:
+                logger.info("Saving image to %s", str(img_path_with_suffix))
                 cv2.imwrite(str(img_path_with_suffix), saved_image)
                 # plt.imsave(img_path_with_suffix, saved_image, cmap=cmap, format=image_format)
 
