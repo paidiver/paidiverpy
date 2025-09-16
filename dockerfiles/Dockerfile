@@ -22,7 +22,7 @@ RUN mkdir /app/input
 RUN mkdir /app/metadata
 RUN mkdir /app/custom_algorithms
 COPY pyproject.toml .
-COPY LICENSE README.md ./
+COPY LICENSE README.rst ./
 COPY src/ src/
 
 RUN pip install .

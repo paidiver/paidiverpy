@@ -1,7 +1,7 @@
 # Developer Guide – `paidiverpy`
 
 This document contains guidelines and instructions for contributors and maintainers of **`paidiverpy`**.
-For user-facing documentation, see [README.md](README.md).
+For user-facing documentation, see [README.rst](README.rst).
 
 ---
 
