@@ -54,9 +54,9 @@ jobs:
 
       - name: Link Checker
         id: lychee
-        uses: lycheeverse/lychee-action@v2
+        uses: lycheeverse/lychee-action@v2.0.2
         with:
-          args: --timeout 40
+          args: --timeout 40 .
           fail: false
 
       - name: Set Issue Title
