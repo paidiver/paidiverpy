@@ -1,6 +1,7 @@
 """This module provides functions to extract values from a Panel layout and convert them into a structured JSON-like dictionary."""
 
 import re
+from typing import Any
 import panel as pn
 
 
@@ -48,7 +49,7 @@ def check_valid_inputs(widget: pn.widgets.Widget, step: bool = False) -> bool:
     return "Provide" not in widget.name
 
 
-def parse_name(name: str) -> list:
+def parse_name(name: str) -> list[Any]:
     """Parse a widget name into a list of keys.
 
     Args:
@@ -60,13 +61,13 @@ def parse_name(name: str) -> list:
     return [int(part) if part.isdigit() else part for part in re.findall(r"\w+|\[\d+\]", name.replace("[", ".").replace("]", ""))]
 
 
-def insert_nested(result: dict, keys: list, value: any) -> None:
+def insert_nested(result: dict[str, Any], keys: list[Any], value: Any) -> None:  # noqa: ANN401
     """Insert a value into a nested dictionary structure based on keys.
 
     Args:
         result (dict): The dictionary to insert into.
         keys (list): A list of keys indicating the path to insert the value.
-        value (any): The value to insert.
+        value (Any): The value to insert.
     """
     current = result
     for i, key in enumerate(keys):
@@ -82,7 +83,7 @@ def insert_nested(result: dict, keys: list, value: any) -> None:
             current[key] = value
 
 
-def extract_values(widgets: list[pn.widgets.Widget], step: bool = False) -> dict:
+def extract_values(widgets: list[pn.widgets.Widget], step: bool = False) -> dict[str, Any]:
     """Extract values from a list of widgets and return them as a structured dictionary.
 
     Args:
@@ -125,7 +126,7 @@ def extract_values(widgets: list[pn.widgets.Widget], step: bool = False) -> dict
     return result
 
 
-def extract_json(layout: pn.widgets.Widget, step: bool = False) -> dict:
+def extract_json(layout: pn.widgets.Widget, step: bool = False) -> dict[str, Any]:
     """Extract JSON-like dictionary from a Panel layout or widget.
 
     Args:

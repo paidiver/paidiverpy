@@ -2,9 +2,6 @@
 Contributing to paidiverpy
 **************************
 
-.. contents:: Table of contents:
-   :local:
-
 First off, thanks for taking the time to contribute!
 
 .. note::
@@ -48,11 +45,8 @@ Bug reports must:
 
 #. Include a short, self contained Python snippet reproducing the problem:
 
-      ```python
       >>> from paidiverpy.pipeline import Pipeline
       >>> pipeline = Pipeline(config_file_path="../examples/config_files/config_simple2.yml")
-      ...
-      ```
 
 #. Include the full version string of *paidiverpy* and its dependencies. You can use the
    built in function::
@@ -77,9 +71,6 @@ there are sections of the docs that are worse off after being written by
 experts. If something in the docs doesn't make sense to you, updating the
 relevant section after you figure it out is a great way to ensure it will help
 the next person.
-
-.. contents:: Paidiverpy Docs:
-   :local:
 
 
 About the *paidiverpy* documentation
@@ -245,8 +236,44 @@ incorporated into paidiverpy.
 Virtual environment
 -------------------
 
-ADD HOW TO CREATE A VIRTUAL ENVIRONMENT
 
+To set up a development environment, you can use either `conda` (recommended) or `venv`.
+
+- Option A: conda
+
+  .. code-block:: bash
+
+   conda init
+   exec bash  # restart terminal if needed
+
+   conda env create -f environment.yml
+   conda activate Paidiverpy
+
+   # install paidiverpy as editable package
+   pip install --no-cache-dir --editable .
+   # install dev dependencies
+   pip install --no-cache-dir --editable .[dev]
+   # install docs dependencies only
+   pip install --no-cache-dir --editable .[docs]
+
+- Option B: venv
+
+  .. code-block:: bash
+
+
+   python -m venv env
+   source env/bin/activate
+
+   python -m pip install --upgrade pip setuptools
+
+   # install paidiverpy as editable package
+   python -m pip install --no-cache-dir --editable .
+   # install dev dependencies
+   python -m pip install --no-cache-dir --editable .[dev]
+   # install docs dependencies only
+   python -m pip install --no-cache-dir --editable .[docs]
+
+---
 
 Code standards
 --------------
@@ -260,19 +287,25 @@ Thus, good style is a requirement for submitting code to *paidiverpy*.
 Code Formatting
 ---------------
 
-*paidiverpy* uses several tools to ensure a consistent code format throughout the project:
+*paidiverpy* uses `ruff <https://github.com/charliermarsh/ruff>`_ for code linting and formatting.
 
-* `Flake8 <http://flake8.pycqa.org/en/latest/>`_ for general code quality
+To install `ruff`, use `pip`:
 
-``pip``::
+.. code-block:: bash
 
-   pip install flake8
+   pip install ruff
 
-and then run from the root of the paidiverpy repository::
+And then run from the root of the paidiverpy repository:
 
-   flake8
+.. code-block:: bash
 
-to qualify your code.
+   ruff .
+
+To qualify your code.
+
+.. code-block:: bash
+
+   ruff check .
 
 
 .. _contributing.code:
@@ -280,4 +313,4 @@ to qualify your code.
 Contributing to the code base
 =============================
 
-ADD HOW TO CONTRIBUTE TO THE CODE BASE. SEPARATE THIS SECTION INTO SEVERAL SUBSECTIONS, EACH ONE RELATED TO ONE LAYER.
+This section is under construction.

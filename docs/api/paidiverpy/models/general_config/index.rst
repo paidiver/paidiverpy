@@ -51,7 +51,7 @@ Module Contents
        !! processed by numpydoc !!
 
    .. py:attribute:: model_config
-      :type:  ClassVar[dict]
+      :type:  ClassVar[dict[str, object]]
 
       
       Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].
@@ -75,7 +75,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: validate_fields(values: dict) -> dict
+   .. py:method:: validate_fields(values: dict[str, Any]) -> dict[str, Any]
       :classmethod:
 
 
@@ -130,7 +130,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: update(**updates: dict) -> GeneralConfig
+   .. py:method:: update(**updates: dict[str, Any]) -> GeneralConfig
 
       
       Update the model in-place with new values.

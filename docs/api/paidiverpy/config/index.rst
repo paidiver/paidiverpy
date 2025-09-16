@@ -48,7 +48,7 @@ Classes
 Package Contents
 ----------------
 
-.. py:class:: Configuration(config_file_path: str | None = None, add_general: dict | None = None, add_steps: list[dict] | None = None)
+.. py:class:: Configuration(config_file_path: str | None = None, add_general: dict[str, Any] | None = None, add_steps: list[dict[str, Any]] | None = None)
 
    
    Configuration class.
@@ -58,7 +58,7 @@ Package Contents
    :param add_general: The general configuration. Defaults to None.
    :type add_general: dict, optional
    :param add_steps: The steps configuration. Defaults to None.
-   :type add_steps: dict, optional
+   :type add_steps: list[dict], optional
 
 
 
@@ -77,7 +77,7 @@ Package Contents
    ..
        !! processed by numpydoc !!
 
-   .. py:method:: validate_config(config: dict | str | pathlib.Path, local: bool = True) -> None
+   .. py:method:: validate_config(config: dict[str, Any] | str | pathlib.Path, local: bool = True) -> None
       :staticmethod:
 
 
@@ -107,7 +107,7 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: add_general(config: dict, validate: bool = False) -> None
+   .. py:method:: add_general(config: dict[str, Any], validate: bool = False) -> None
 
       
       Add a configuration.
@@ -137,7 +137,7 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: add_step(config_index: int | None = None, parameters: dict | None = None, insert: bool = False, validate: bool = False, step_class: paidiverpy.utils.base_model.BaseModel | None = None) -> int
+   .. py:method:: add_step(config_index: int | None = None, parameters: dict[str, Any] | None = None, insert: bool = False, validate: bool = False, step_class: type[paidiverpy.colour_layer.ColourLayer] | type[paidiverpy.convert_layer.ConvertLayer] | type[paidiverpy.position_layer.PositionLayer] | type[paidiverpy.sampling_layer.SamplingLayer] | type[paidiverpy.custom_layer.CustomLayer] | type[paidiverpy.investigation_layer.InvestigationLayer] | None = None) -> int
 
       
       Add a step to the configuration.
@@ -176,7 +176,38 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: export(output_path: str | None) -> None | str
+   .. py:method:: remove_step(config_index: int | None = None) -> int
+
+      
+      Remove a step from the configuration.
+
+      :param config_index: The configuration index. Defaults to None, which means the last step will be removed.
+      :type config_index: int, optional
+
+      :raises ValueError: Invalid step index.
+
+      :returns: The step index.
+      :rtype: int
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: export(output_path: pathlib.Path | str | None) -> None | str
 
       
       Export the configuration to a file.
@@ -208,7 +239,7 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: get_output_path(output_path: str | None = None) -> tuple[pathlib.Path | str, bool]
+   .. py:method:: get_output_path(output_path: str | pathlib.Path | None = None) -> tuple[pathlib.Path | str, bool]
 
       
       Get the output path.
@@ -237,7 +268,7 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: to_dict(yaml_convert: bool = False) -> dict
+   .. py:method:: to_dict(yaml_convert: bool = False) -> dict[str, Any]
 
       
       Convert the configuration to a dictionary.

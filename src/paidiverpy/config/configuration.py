@@ -4,6 +4,8 @@ import copy
 import json
 from importlib.resources import files
 from pathlib import Path
+from typing import TYPE_CHECKING
+from typing import Any
 import yaml
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
@@ -14,14 +16,23 @@ from paidiverpy.models.step_config import CustomConfig
 from paidiverpy.models.step_config import PositionConfig
 from paidiverpy.models.step_config import SamplingConfig
 from paidiverpy.models.step_config import StepConfig
+from paidiverpy.models.step_config import StepConfigUnion
 from paidiverpy.utils import formating_html
-from paidiverpy.utils.base_model import BaseModel
 from paidiverpy.utils.docker import is_running_in_docker
 from paidiverpy.utils.exceptions import raise_value_error
 from paidiverpy.utils.install_packages import check_and_install_dependencies
 from paidiverpy.utils.logging_functions import initialise_logging
 from paidiverpy.utils.object_store import get_file_from_bucket
 from paidiverpy.utils.object_store import path_is_remote
+
+if TYPE_CHECKING:
+    from paidiverpy.colour_layer import ColourLayer
+    from paidiverpy.convert_layer import ConvertLayer
+    from paidiverpy.custom_layer import CustomLayer
+    from paidiverpy.investigation_layer import InvestigationLayer
+    from paidiverpy.position_layer import PositionLayer
+    from paidiverpy.sampling_layer import SamplingLayer
+
 
 logger = initialise_logging()
 
@@ -40,19 +51,19 @@ class Configuration:
     Args:
         config_file_path (str, optional): The configuration file path. Defaults to None.
         add_general (dict, optional): The general configuration. Defaults to None.
-        add_steps (dict, optional): The steps configuration. Defaults to None.
+        add_steps (list[dict], optional): The steps configuration. Defaults to None.
     """
 
     def __init__(
         self,
         config_file_path: str | None = None,
-        add_general: dict | None = None,
-        add_steps: list[dict] | None = None,
+        add_general: dict[str, Any] | None = None,
+        add_steps: list[dict[str, Any]] | None = None,
     ):
-        self.general = None
+        self.general: GeneralConfig | None = None
         self.is_remote = False
         self.output_is_remote = False
-        self.steps = []
+        self.steps: list[StepConfigUnion] = []
 
         if config_file_path:
             self._load_config_from_file(config_file_path)
@@ -81,8 +92,8 @@ class Configuration:
             yaml.YAMLError: yaml error.
         """
         try:
-            config_file_path = Path(config_file_path)
-            with config_file_path.open(encoding="utf-8") as config_file:
+            config_path = Path(config_file_path)
+            with config_path.open(encoding="utf-8") as config_file:
                 config_data = yaml.safe_load(config_file)
             Configuration.validate_config(config_data)
         except FileNotFoundError as e:
@@ -101,7 +112,7 @@ class Configuration:
         self._load_steps(config_data)
 
     @staticmethod
-    def validate_config(config: dict | str | Path, local: bool = True) -> None:
+    def validate_config(config: dict[str, Any] | str | Path, local: bool = True) -> None:
         """Validate the configuration.
 
         Args:
@@ -110,8 +121,8 @@ class Configuration:
         """
         schema_json_remote = "https://raw.githubusercontent.com/paidiver/paidiverpy/refs/heads/main/src/paidiverpy/configuration-schema.json"
         schema_file_path = files("paidiverpy").joinpath("configuration-schema.json") if local else schema_json_remote
-        if path_is_remote(schema_file_path):
-            schema = get_file_from_bucket(schema_file_path)
+        if path_is_remote(str(schema_file_path)):
+            schema = get_file_from_bucket(str(schema_file_path))
             schema = json.loads(schema.decode("utf-8"))
         else:
             with schema_file_path.open("r", encoding="utf-8") as schema_file:
@@ -127,7 +138,7 @@ class Configuration:
                 msg += f"{error}: {error.message}\n"
             raise ValidationError(msg)
 
-    def _load_steps(self, config_data: dict) -> None:
+    def _load_steps(self, config_data: dict[str, Any]) -> None:
         """Load the steps from the configuration data.
 
         Args:
@@ -146,6 +157,10 @@ class Configuration:
                         step_config["name"] = f"{step_name}_{step_order + 1}"
                     step_config["step_name"] = step_name
                     config_class = config_name_mapping.get(step_name)
+                    if config_class is None:
+                        msg = f"Invalid step name: {step_name}"
+                        raise_value_error(msg)
+                        return
                     step_instance = config_class(**step_config)
                     self.steps.append(step_instance)
 
@@ -155,7 +170,7 @@ class Configuration:
             self.is_remote = path_is_remote(str(self.general.input_path)) if self.general.input_path else False
             self.output_is_remote = path_is_remote(str(self.general.output_path)) if self.general.output_path else False
 
-    def add_general(self, config: dict, validate: bool = False) -> None:
+    def add_general(self, config: dict[str, Any], validate: bool = False) -> None:
         """Add a configuration.
 
         Args:
@@ -169,7 +184,9 @@ class Configuration:
         if self.general is None:
             self.general = GeneralConfig(**config)
         else:
-            self.general.update(**config)
+            self.general = self.general.model_copy(update=config)
+
+            # self.general.update(**config)
         config_data = self.to_dict(yaml_convert=True)
         if validate:
             try:
@@ -184,10 +201,16 @@ class Configuration:
     def add_step(
         self,
         config_index: int | None = None,
-        parameters: dict | None = None,
+        parameters: dict[str, Any] | None = None,
         insert: bool = False,
         validate: bool = False,
-        step_class: BaseModel | None = None,
+        step_class: type["ColourLayer"]
+        | type["ConvertLayer"]
+        | type["PositionLayer"]
+        | type["SamplingLayer"]
+        | type["CustomLayer"]
+        | type["InvestigationLayer"]
+        | None = None,
     ) -> int:
         """Add a step to the configuration.
 
@@ -259,7 +282,7 @@ class Configuration:
             raise_value_error(msg)
         self.steps.pop(config_index)
 
-    def export(self, output_path: str | None) -> None | str:
+    def export(self, output_path: Path | str | None) -> None | str:
         """Export the configuration to a file.
 
         Args:
@@ -285,7 +308,7 @@ class Configuration:
             )
             return None
 
-    def get_output_path(self, output_path: str | None = None) -> tuple[Path | str, bool]:
+    def get_output_path(self, output_path: str | Path | None = None) -> tuple[Path | str, bool]:
         """Get the output path.
 
         Args:
@@ -307,7 +330,7 @@ class Configuration:
                 output_path.mkdir(parents=True, exist_ok=True)
         return output_path, is_remote
 
-    def to_dict(self, yaml_convert: bool = False) -> dict:
+    def to_dict(self, yaml_convert: bool = False) -> dict[str, Any]:
         """Convert the configuration to a dictionary.
 
         Args:
@@ -316,7 +339,7 @@ class Configuration:
         Returns:
             dict: The configuration as a dictionary.
         """
-        result = {}
+        result: dict[str, Any] = {}
         if self.general:
             result["general"] = self.general.to_dict()
         if yaml_convert:

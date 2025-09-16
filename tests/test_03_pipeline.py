@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
+import xarray as xr
 from IPython.display import HTML
 from paidiverpy.config.configuration import Configuration
 from paidiverpy.config.configuration import GeneralConfig
@@ -32,11 +33,13 @@ class TestSimplePipeline(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         pipeline.run(from_step=2)
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         metadata = pipeline.get_metadata()
         assert isinstance(metadata, pd.DataFrame)
         html_image = pipeline.images.show(image_number=5)
@@ -54,9 +57,6 @@ class TestSimplePipeline(BaseTestClass):
         pipeline.remove_images()
         output_files = list(output_path.glob("*.tiff"))
         assert len(output_files) == number_output_files
-        output_repr = pipeline.images.__repr__()
-        assert isinstance(output_repr, str)
-        assert "Image:" in output_repr
         output_html = pipeline.images._repr_html_()
         assert isinstance(output_html, str)
         assert "<style>" in output_html
@@ -77,11 +77,13 @@ class TestSimplePipeline(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         pipeline.run(from_step=2)
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         metadata = pipeline.get_metadata()
         assert isinstance(metadata, pd.DataFrame)
         html_image = pipeline.images.show(image_number=5)

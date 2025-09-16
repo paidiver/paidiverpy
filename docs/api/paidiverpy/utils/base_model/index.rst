@@ -48,7 +48,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-   .. py:method:: to_dict(convert_path: bool = True) -> dict
+   .. py:method:: to_dict(convert_path: bool = True) -> dict[str, Any]
 
       
       Convert model to dictionary, excluding None and empty values.

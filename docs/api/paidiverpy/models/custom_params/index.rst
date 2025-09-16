@@ -51,7 +51,7 @@ Module Contents
        !! processed by numpydoc !!
 
    .. py:attribute:: model_config
-      :type:  ClassVar[dict]
+      :type:  ClassVar[dict[str, object]]
 
       
       Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].

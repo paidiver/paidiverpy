@@ -48,7 +48,7 @@ Classes
 Package Contents
 ----------------
 
-.. py:class:: OpenLayer(config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.configuration.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: paidiverpy.Paidiverpy = None, step_name: str = 'raw', parameters: dict | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
+.. py:class:: OpenLayer(config_params: dict[str, Any] | paidiverpy.config.config_params.ConfigParams | None = None, config_file_path: str | None = None, config: paidiverpy.config.configuration.Configuration | None = None, metadata: paidiverpy.metadata_parser.MetadataParser | None = None, images: paidiverpy.images_layer.ImagesLayer | None = None, paidiverpy: paidiverpy.Paidiverpy | None = None, step_name: str = 'raw', client: dask.distributed.Client | None = None, parameters: dict[str, Any] | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
 
    Bases: :py:obj:`paidiverpy.Paidiverpy`
 
@@ -79,6 +79,8 @@ Package Contents
    :type step_name: str
    :param parameters: The parameters for the step.
    :type parameters: dict
+   :param client: The Dask client.
+   :type client: Client
    :param logger: The logger object.
    :type logger: logging.Logger
    :param raise_error: Whether to raise an error.
@@ -151,16 +153,27 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: create_dataset(images_and_exifs: list[tuple[numpy.ndarray | dask.array.core.Array, dict, str]]) -> dask.array.core.Array
+   .. py:method:: process_single_image(img_path: str | pathlib.Path, func: collections.abc.Callable, metadata: xarray.DataArray, rename: str, image_type: str, image_open_args: dict[str, Any], storage_options: dict[str, Any]) -> tuple[numpy.ndarray[Any, Any] | dask.array.core.Array, dict[str, Any], str] | None
+      :staticmethod:
+
 
       
-      Create a Dask array from the processed images and EXIF data.
+      Process a single image.
 
-      :param images_and_exifs: The list of processed images and EXIF data.
-      :type images_and_exifs: list[tuple[np.ndarray | dask.array.core.Array, dict, str]]
-
-      :returns: The Dask array containing the images.
-      :rtype: dask.array.core.Array
+      :param img_path: The path to the image.
+      :type img_path: str | Path
+      :param func: The function to process the image.
+      :type func: Callable
+      :param metadata: The metadata DataArray.
+      :type metadata: xr.DataArray
+      :param rename: The rename strategy.
+      :type rename: str
+      :param image_type: The image type.
+      :type image_type: str
+      :param image_open_args: The image open arguments.
+      :type image_open_args: dict
+      :param storage_options: The storage options.
+      :type storage_options: dict
 
 
 
@@ -180,20 +193,16 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: rename_images(rename: str, image_ds: xarray.Dataset) -> pandas.DataFrame
+   .. py:method:: create_dataset(images_info: dict[str, Any]) -> xarray.Dataset
 
       
-      Rename images based on the rename mode.
+      Create a Dask array from the processed images and EXIF data.
 
-      :param rename: The rename mode
-      :type rename: str
-      :param metadata: The metadata
-      :type metadata: pd.DataFrame
+      :param images_info: A dictionary containing processed image information.
+      :type images_info: dict
 
-      :raises ValueError: Unknown rename mode
-
-      :returns: The renamed metadata
-      :rtype: pd.DataFrame
+      :returns: The image dataset.
+      :rtype: xr.Dataset
 
 
 

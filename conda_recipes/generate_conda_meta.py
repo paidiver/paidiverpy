@@ -1,4 +1,4 @@
-"""Generate the meta.yaml file for the conda recipe."""
+"""Generate the meta.yaml file for the conda recipe."""  # noqa: INP001
 
 import sys
 from pathlib import Path
@@ -81,7 +81,7 @@ def load_toml() -> dict:
         return toml.load(file)
 
 
-def create_meta_yaml(pyproject_data: dict, bioconda: bool = False) -> str:
+def create_meta_yaml(pyproject_data: dict[str, object], bioconda: bool = False) -> str:
     """Create the meta.yaml file content.
 
     Args:

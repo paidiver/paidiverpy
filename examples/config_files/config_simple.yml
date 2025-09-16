@@ -7,9 +7,6 @@ general:
       params:
         value: 0.1
   convert:
-    - mode: 'bits'
-      params:
-        output_bits: 8
     - mode: 'to'
       params:
         to: 'gray'

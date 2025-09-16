@@ -19,7 +19,7 @@ Functions
    paidiverpy.utils.parallellisation.get_n_jobs
    paidiverpy.utils.parallellisation.update_dask_config
    paidiverpy.utils.parallellisation.parse_dask_job
-   paidiverpy.utils.parallellisation.get_client
+   paidiverpy.utils.parallellisation.parse_client
 
 
 Module Contents
@@ -108,7 +108,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: get_client(config_client: dict | paidiverpy.models.client_params.ClientParams | None, n_jobs: int) -> dask.distributed.Client
+.. py:function:: parse_client(config_client: dict[str, Any] | paidiverpy.models.client_params.ClientParams | None, n_jobs: int) -> dask.distributed.Client | None
 
    
    Parse the client configuration.
@@ -118,8 +118,8 @@ Module Contents
    :param n_jobs: Number of jobs.
    :type n_jobs: int
 
-   :returns: Dask client.
-   :rtype: dask.distributed.Client
+   :returns: Dask client or None if no client is configured.
+   :rtype: dask.distributed.Client | None
 
 
 

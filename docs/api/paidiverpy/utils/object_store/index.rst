@@ -27,7 +27,7 @@ Functions
 Module Contents
 ---------------
 
-.. py:function:: define_storage_options(path: str | pathlib.Path) -> dict
+.. py:function:: define_storage_options(path: str | pathlib.Path) -> dict[str, str]
 
    
    Define storage options for reading metadata file.
@@ -55,7 +55,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: get_file_from_bucket(file_path: str, storage_options: dict | None = None) -> bytes
+.. py:function:: get_file_from_bucket(file_path: str, storage_options: dict[str, str] | None = None) -> bytes
 
    
    Get a file from an object store bucket.
@@ -110,7 +110,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: check_create_bucket_exists(bucket_name: str, client: boto3.client, logger: logging.Logger) -> None
+.. py:function:: check_create_bucket_exists(bucket_name: str, client: boto3.client) -> None
 
    
    Check if a bucket exists.
@@ -119,8 +119,6 @@ Module Contents
    :type bucket_name: str
    :param client: The boto3 client for S3.
    :type client: boto3.client
-   :param logger: The logger to log messages.
-   :type logger: logging.Logger
 
 
 
@@ -168,13 +166,13 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: path_is_remote(path: str) -> bool
+.. py:function:: path_is_remote(path: str | pathlib.Path) -> bool
 
    
    Check if the path is a remote path.
 
    :param path: The path to check.
-   :type path: str
+   :type path: str | Path
 
    :returns: True if the path is remote, False otherwise.
    :rtype: bool

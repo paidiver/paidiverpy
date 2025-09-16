@@ -1,5 +1,6 @@
 """Position layer parameters models."""
 
+from typing import Any
 from pydantic import Field
 from paidiverpy.utils.base_model import BaseModel
 
@@ -17,4 +18,4 @@ POSITION_LAYER_METHODS = {
     "calculate_corners": {"params": CalculateCornersParams, "method": "calculate_corners"},
 }
 
-PositionParamsUnion = CalculateCornersParams | dict
+PositionParamsUnion = CalculateCornersParams | dict[str, Any]

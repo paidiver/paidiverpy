@@ -1,5 +1,6 @@
 """Client parameters module."""
 
+from typing import Any
 from typing import Literal
 from pydantic import Field
 from paidiverpy.utils.base_model import BaseModel
@@ -13,4 +14,4 @@ class ClientParams(BaseModel):
     """
 
     cluster_type: Literal["local", "slurm"] = Field(default="local", description="Type of cluster")
-    params: dict = Field({"n_workers": 0}, description="Parameters for the cluster")
+    params: dict[str, Any] = Field({"n_workers": 0}, description="Parameters for the cluster")

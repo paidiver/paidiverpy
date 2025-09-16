@@ -1,6 +1,7 @@
 """Configuration parameters module."""
 
 from pathlib import Path
+from typing import Any
 from pydantic import model_validator
 from paidiverpy.utils.base_model import BaseModel
 
@@ -28,7 +29,7 @@ class ConfigParams(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def validate_required_keys(cls, values: dict) -> dict:
+    def validate_required_keys(cls, values: dict[str, Any]) -> dict[str, Any]:
         """Validate the required keys in the configuration parameters.
 
         Args:
