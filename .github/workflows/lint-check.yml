@@ -1,4 +1,4 @@
-name: link-check
+name: lint-check
 
 on:
   workflow_dispatch:
