@@ -169,6 +169,7 @@ def show_versions(file: TextIO = sys.stdout, conda: bool = False) -> None:
         "ext.util": sorted(
             [
                 ("tqdm", get_version),
+                ("requests", get_version),
             ]
         ),
         "ext.files": sorted(

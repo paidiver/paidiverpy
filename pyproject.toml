@@ -45,6 +45,7 @@ dependencies = [
   "opencv-python>=4.11",
   "rawpy>=0.24.0",
   "pydantic>=2.9.2",
+  "requests>=2.25.1",
   "xarray>=2024.12.0",
   ]
 license = {file = "LICENSE"}
