@@ -73,16 +73,7 @@ jobs:
           conda run -n Paidiverpy pip install build twine wheel
           conda run -n Paidiverpy python -m build
 
-      - name: Update conda meta file
-        # only runs in linux and python 3.10
-        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
-        run: |
-          sha256=$(sha256sum dist/*.tar.gz | cut -d ' ' -f 1)
-          sed -i "1s/^/{% set sha256 = \"$sha256\" %}\n/" conda_recipes/meta.yaml
-          sed -i "1s/^/{% set sha256 = \"$sha256\" %}\n/" conda_recipes/meta_bioconda.yaml
-
-
-      - name: Commit and Push Changes
+      - name: Update conda meta file and commit
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
         run: |
           git config --global user.name "github-actions[bot]"
@@ -99,7 +90,11 @@ jobs:
           git fetch origin $BRANCH
           git checkout $BRANCH
 
+          # Now modify files safely
+          sha256=$(sha256sum dist/*.tar.gz | cut -d ' ' -f 1)
+          sed -i "1s/^/{% set sha256 = \"$sha256\" %}\n/" conda_recipes/meta.yaml
+          sed -i "1s/^/{% set sha256 = \"$sha256\" %}\n/" conda_recipes/meta_bioconda.yaml
+
           git add conda_recipes/meta_bioconda.yaml conda_recipes/meta.yaml
           git commit -m "chore: update conda recipe" || true
-
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:$BRANCH

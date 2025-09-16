@@ -83,6 +83,7 @@ def open_image_local(
         img = cv2.imread(str(img_path), image_open_args.get("flags", cv2.IMREAD_UNCHANGED))
     else:
         img = load_raw_image(img_path, image_type=image_type, image_open_args=image_open_args)
+    logger.info("AAAAAAAAAAAAAALoaded image shape: %s", None if img is None else img.shape)
     img = correct_image_dims_and_format(img, image_type=image_type)
     return img, exif, img_path
 
