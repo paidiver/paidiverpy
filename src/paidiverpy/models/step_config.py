@@ -16,9 +16,6 @@ from paidiverpy.models.position_params import PositionParamsUnion
 from paidiverpy.models.sampling_params import SAMPLING_LAYER_METHODS
 from paidiverpy.models.sampling_params import SamplingParamsUnion
 from paidiverpy.utils.base_model import BaseModel
-from paidiverpy.utils.logging_functions import initialise_logging
-
-# from paidiverpy.config.custom_params import CustomParamsUnion
 
 steps_params_mapping = {
     "colour": COLOUR_LAYER_METHODS,
@@ -31,8 +28,6 @@ PositionModeLiteral = cast(type, Literal.__getitem__(tuple(POSITION_LAYER_METHOD
 ColourModeLiteral = cast(type, Literal.__getitem__(tuple(COLOUR_LAYER_METHODS.keys())))
 ConvertModeLiteral = cast(type, Literal.__getitem__(tuple(CONVERT_LAYER_METHODS.keys())))
 SamplingModeLiteral = cast(type, Literal.__getitem__(tuple(SAMPLING_LAYER_METHODS.keys())))
-
-logger = initialise_logging()
 
 
 class StepConfig(BaseModel):

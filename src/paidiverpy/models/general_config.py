@@ -12,10 +12,7 @@ from paidiverpy.models.step_config import ConvertConfig
 from paidiverpy.models.step_config import SamplingConfig
 from paidiverpy.utils.base_model import BaseModel
 from paidiverpy.utils.data import PaidiverpyData
-from paidiverpy.utils.logging_functions import initialise_logging
 from paidiverpy.utils.object_store import path_is_remote
-
-logger = initialise_logging()
 
 
 class GeneralConfig(BaseModel):

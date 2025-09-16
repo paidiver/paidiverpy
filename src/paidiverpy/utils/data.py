@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import logging
 import shutil
 import zipfile
 from pathlib import Path
@@ -86,7 +87,7 @@ class PaidiverpyData:
     """A class to download and load datasets."""
 
     def __init__(self):
-        self.logger = initialise_logging()
+        self.logger = logging.getLogger("paidiverpy")
 
     def load(self, dataset_name: str) -> dict[str, str]:
         """Download, unzip, and load the specified dataset.

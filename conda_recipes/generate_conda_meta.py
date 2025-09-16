@@ -74,7 +74,7 @@ def load_toml() -> dict:
     Returns:
         dict: The pyproject.toml data.
     """
-    repo_root = Path.resolve(Path(__file__).parent)
+    repo_root = Path.resolve(Path(__file__).parent.parent)
     toml_path = repo_root / "pyproject.toml"
 
     with toml_path.open() as file:

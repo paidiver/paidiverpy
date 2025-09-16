@@ -2,6 +2,7 @@
 
 import copy
 import json
+import logging
 from importlib.resources import files
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -21,7 +22,6 @@ from paidiverpy.utils import formating_html
 from paidiverpy.utils.docker import is_running_in_docker
 from paidiverpy.utils.exceptions import raise_value_error
 from paidiverpy.utils.install_packages import check_and_install_dependencies
-from paidiverpy.utils.logging_functions import initialise_logging
 from paidiverpy.utils.object_store import get_file_from_bucket
 from paidiverpy.utils.object_store import path_is_remote
 
@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from paidiverpy.sampling_layer import SamplingLayer
 
 
-logger = initialise_logging()
+logger = logging.getLogger("paidiverpy")
 
 config_name_mapping = {
     "colour": ColourConfig,

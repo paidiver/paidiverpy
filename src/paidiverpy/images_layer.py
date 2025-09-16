@@ -25,6 +25,8 @@ from paidiverpy.utils.object_store import check_create_bucket_exists
 from paidiverpy.utils.object_store import create_client
 from paidiverpy.utils.object_store import upload_file_to_bucket
 
+logger = logging.getLogger("paidiverpy")
+
 
 class ImagesLayer:
     """Class to handle images and metadata for each step in the pipeline.
@@ -227,13 +229,13 @@ class ImagesLayer:
 
         if use_dask:
             if client:
-                logging.info("Saving images using Dask")
+                logger.info("Saving images using Dask")
 
                 futures = client.compute(tasks)
                 with ProgressBar():
                     client.gather(futures)
             else:
-                logging.info("Saving images using Threads")
+                logger.info("Saving images using Threads")
                 with dask.config.set(scheduler="threads", num_workers=n_jobs), ProgressBar():
                     tasks.compute()
 

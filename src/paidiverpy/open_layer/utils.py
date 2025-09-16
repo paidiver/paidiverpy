@@ -22,6 +22,8 @@ from paidiverpy.utils.data import SIXTEEN_BITS
 from paidiverpy.utils.exceptions import raise_value_error
 from paidiverpy.utils.object_store import get_file_from_bucket
 
+logger = logging.getLogger("paidiverpy")
+
 
 def open_image_remote(
     img_path: str, image_type: str, image_open_args: dict[str, Any], **kwargs: dict[str, Any]
@@ -53,7 +55,7 @@ def open_image_remote(
             exif = extract_exif_single(BytesIO(img_bytes), image_type=image_type, image_name=img_path.split("/")[-1])
     except (FileNotFoundError, OSError, TypeError) as e:
         img = None
-        logging.warning("Failed to open %s: %s", img_path, e)
+        logger.warning("Failed to open %s: %s", img_path, e)
 
     img = correct_image_dims_and_format(img, image_type=image_type)
     return img, exif, img_path
@@ -156,12 +158,12 @@ def load_raw_image(
             with rawpy.imread(img_bytes) as raw:
                 img = raw.postprocess(**image_open_args)
         except rawpy.LibRawFileUnsupportedError as e:
-            logging.warning("Failed to open %s using rawpy: %s. Trying using raw loader", img_path, e)
+            logger.warning("Failed to open %s using rawpy: %s. Trying using raw loader", img_path, e)
     else:
         try:
             img = load_raw_image_using_path_open(img_bytes, image_open_args, remote)
         except (FileNotFoundError, OSError, TypeError, ValueError, NotImplementedError) as e:
-            logging.warning("Failed to open %s: %s", img_path, e)
+            logger.warning("Failed to open %s: %s", img_path, e)
     return img
 
 
@@ -307,7 +309,7 @@ def extract_exif_single(img_path: str | BytesIO, image_type: str, image_name: st
     """
     exif: dict[str, Any] = {}
     if image_type and image_type not in SUPPORTED_EXIF_IMAGE_TYPES:
-        logging.debug("Image type %s not supported for EXIF extraction", image_type)
+        logger.debug("Image type %s not supported for EXIF extraction", image_type)
         return exif
     try:
         img_pil = Image.open(img_path)
@@ -323,9 +325,9 @@ def extract_exif_single(img_path: str | BytesIO, image_type: str, image_name: st
                 tag_name = TAGS.get(tag, tag)
                 exif[str(tag_name)] = value
     except FileNotFoundError as e:
-        logging.debug("Failed to open %s: %s", img_path, e)
+        logger.debug("Failed to open %s: %s", img_path, e)
     except OSError as e:
-        logging.debug("Failed to open %s: %s", img_path, e)
+        logger.debug("Failed to open %s: %s", img_path, e)
     except Exception as e:  # noqa: BLE001
-        logging.debug("Failed to extract EXIF data from %s: %s", img_path, e)
+        logger.debug("Failed to extract EXIF data from %s: %s", img_path, e)
     return exif
