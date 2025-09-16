@@ -200,7 +200,7 @@ class SamplingLayer(Paidiverpy):
         else:
             # if isinstance(metadata, dd.DataFrame) and self.use_dask:
             #     metadata = metadata.compute()
-            flagged_index = metadata.sample(n=(len(metadata) - params.value)).index
+            flagged_index = metadata.sample(n=(len(metadata) - params.value), random_state=42).index
             metadata.loc[flagged_index, "flag"] = step_order
         if test:
             InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="resample").run()
