@@ -100,10 +100,12 @@ def correct_image_dims_and_format(img: np.ndarray[Any, Any] | da.core.Array, ima
     logger.info("Original image shape: %s", None if img is None else img.shape)
     if img is None:
         return img
-    if "png" in image_type and img.ndim == NUM_DIMENSIONS_GREY:
-        img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGBA)
+    if image_type == "png":
+        if img.ndim == NUM_DIMENSIONS_GREY:  # grayscale
+            img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGRA)
+        elif img.shape[2] == NUM_CHANNELS_RGB:  # RGB
+            img = cv2.cvtColor(img, cv2.COLOR_RGB2BGRA)
         if img.shape[2] != NUM_CHANNELS_RGBA:
-            # add a dummy alpha channel
             img = np.dstack((img, np.full(img.shape[:2], 255, dtype=img.dtype)))
     elif img.ndim == NUM_DIMENSIONS_GREY:
         img = np.expand_dims(img, axis=-1)
