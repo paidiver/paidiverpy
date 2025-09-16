@@ -34,6 +34,14 @@ jobs:
         run: |
           conda init bash
 
+      - name: Configure Conda retries
+        shell: bash -l {0}
+        run: |
+          conda config --set remote_read_timeout_secs 60
+          conda config --set remote_connect_timeout_secs 60
+          conda config --set retry_max 3
+          conda config --set retry_sleep 10
+
       - name: Create conda environment
         shell: bash -l {0}
         run: |
@@ -79,9 +87,14 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config pull.rebase false
+
+          git fetch origin ${{ github.head_ref }}:pr_branch
+
+          git checkout pr_branch
+          git cherry-pick ${{ github.sha }} || true
+
           git diff --quiet -- conda_recipes/meta_bioconda.yaml conda_recipes/meta.yaml || (
             git add conda_recipes/meta_bioconda.yaml conda_recipes/meta.yaml
-            git commit -m "chore: update conda recipe"
+            git commit -m "chore: update conda recipe" || true
             git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:refs/heads/${{ github.head_ref }}
           )

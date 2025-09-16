@@ -113,8 +113,8 @@ class PaidiverpyData:
 
         self.unzip_file(zip_path, dataset_name, extract_dir)
         if is_running_in_docker():
-            self.copy_files_docker(extract_dir)
-            extract_dir = Path("/app")
+            self.copy_files_docker(extract_dir, dataset_name)
+            extract_dir = Path("/app") / "sample_data" / dataset_name
         paths[dataset_name] = str(extract_dir)
 
         self.save_persistent_paths(paths)
@@ -123,10 +123,15 @@ class PaidiverpyData:
 
         return self.calculate_information(dataset_name, extract_dir, dataset_information)
 
-    def copy_files_docker(self, extract_dir: Path) -> None:
-        """Copy files from the extract directory to the appropriate location in the Docker container."""
-        metadata_path = Path("/app") / "metadata"
-        images_path = Path("/app") / "input"
+    def copy_files_docker(self, extract_dir: Path, dataset_name: str) -> None:
+        """Copy files from the extract directory to the appropriate location in the Docker container.
+
+        Args:
+            extract_dir (Path): The directory where the dataset has been extracted.
+            dataset_name (str): The name of the dataset.
+        """
+        metadata_path = Path("/app") / "sample_data" / dataset_name / "metadata"
+        images_path = Path("/app") / "sample_data" / dataset_name / "input"
         if metadata_path.exists():
             shutil.rmtree(metadata_path)
         if images_path.exists():
