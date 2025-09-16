@@ -82,19 +82,25 @@ jobs:
           sed -i "1s/^/{% set sha256 = \"$sha256\" %}\n/" conda_recipes/meta.yaml
           sed -i "1s/^/{% set sha256 = \"$sha256\" %}\n/" conda_recipes/meta_bioconda.yaml
 
+
       - name: Commit and Push Changes
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          git fetch origin ${{ github.head_ref }}:pr_branch
+          # Figure out which branch to push to
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BRANCH="${{ github.head_ref }}"
+          else
+            BRANCH="${{ github.ref_name }}"
+          fi
 
-          git checkout pr_branch
-          git cherry-pick ${{ github.sha }} || true
+          # Make sure we’re on the correct branch (not detached HEAD)
+          git fetch origin $BRANCH
+          git checkout $BRANCH
 
-          git diff --quiet -- conda_recipes/meta_bioconda.yaml conda_recipes/meta.yaml || (
-            git add conda_recipes/meta_bioconda.yaml conda_recipes/meta.yaml
-            git commit -m "chore: update conda recipe" || true
-            git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:refs/heads/${{ github.head_ref }}
-          )
+          git add conda_recipes/meta_bioconda.yaml conda_recipes/meta.yaml
+          git commit -m "chore: update conda recipe" || true
+
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:$BRANCH
