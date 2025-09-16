@@ -97,6 +97,7 @@ def correct_image_dims_and_format(img: np.ndarray[Any, Any] | da.core.Array, ima
     Returns:
         np.ndarray[Any, Any] | da.core.Array: The corrected image data
     """
+    logger.info("Original image shape: %s", None if img is None else img.shape)
     if img is None:
         return img
     if img.ndim == NUM_DIMENSIONS_GREY:
@@ -105,6 +106,7 @@ def correct_image_dims_and_format(img: np.ndarray[Any, Any] | da.core.Array, ima
         img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
     elif img.ndim == NUM_DIMENSIONS and img.shape[2] == NUM_CHANNELS_RGB and image_type in SUPPORTED_OPENCV_IMAGE_TYPES:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    logger.info("Corrected image shape: %s", img.shape)
     return img
 
 
