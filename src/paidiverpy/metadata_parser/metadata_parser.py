@@ -328,7 +328,7 @@ class MetadataParser:
             metadata = df_pandas
             # metadata = dd.from_pandas(df_pandas, npartitions=2) if self.use_dask else df_pandas
         else:
-            if is_running_in_docker():
+            if is_running_in_docker() and not self.config.general.sample_data:
                 metadata_filename = Path(self.metadata_path).name
                 self.metadata_path = f"/app/metadata/{metadata_filename}"
 

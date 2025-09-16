@@ -39,8 +39,7 @@ jobs:
         run: |
           conda config --set remote_read_timeout_secs 60
           conda config --set remote_connect_timeout_secs 60
-          conda config --set retry_max 3
-          conda config --set retry_sleep 10
+          conda config --set remote_max_retries 3
 
       - name: Create conda environment
         shell: bash -l {0}
