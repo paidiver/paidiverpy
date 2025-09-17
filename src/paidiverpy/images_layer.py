@@ -209,6 +209,7 @@ class ImagesLayer:
             bucket_name = str(output_path)[5:].split("/")[0]
             check_create_bucket_exists(bucket_name, s3_client)
         logger.info("AAAAAAAAAAAAAASaving images to %s", str(output_path))
+        logger.info("88888888888888images['filename']: %s", images["filename"].values)
         tasks = xr.apply_ufunc(
             ImagesLayer.process_single_image,
             images["images"],
