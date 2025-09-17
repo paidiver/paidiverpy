@@ -9,8 +9,10 @@
 - Add the possibility to work with several images at the same time on the image processing \(instead of one image per time\) [\#200](https://github.com/paidiver/paidiverpy/issues/200)
 - Function to open and export metadata to different formats [\#187](https://github.com/paidiver/paidiverpy/issues/187)
 - Generate interactive notebook from config [\#184](https://github.com/paidiver/paidiverpy/issues/184)
+- Build package on top of xarray using padding instead of a list of arrays [\#167](https://github.com/paidiver/paidiverpy/issues/167)
 - Create a configuration file json schema automatically [\#164](https://github.com/paidiver/paidiverpy/issues/164)
 - Create an Output Class to Standardize Jupyter Notebook Outputs [\#29](https://github.com/paidiver/paidiverpy/issues/29)
+- General data investigation conducted for each parameter of interest for processing [\#27](https://github.com/paidiver/paidiverpy/issues/27)
 
 **Fixed bugs:**
 
@@ -18,6 +20,19 @@
 
 **Closed issues:**
 
+- Link Checker Report - 2025-09-16 [\#231](https://github.com/paidiver/paidiverpy/issues/231)
+- Link Checker Report [\#230](https://github.com/paidiver/paidiverpy/issues/230)
+- Link Checker Report [\#229](https://github.com/paidiver/paidiverpy/issues/229)
+- Link Checker Report [\#228](https://github.com/paidiver/paidiverpy/issues/228)
+- Link Checker Report [\#227](https://github.com/paidiver/paidiverpy/issues/227)
+- Link Checker Report [\#226](https://github.com/paidiver/paidiverpy/issues/226)
+- Link Checker Report - 2025-09-16 [\#225](https://github.com/paidiver/paidiverpy/issues/225)
+- Link Checker Report - 2025-09-16 [\#224](https://github.com/paidiver/paidiverpy/issues/224)
+- Link Checker Report - 2025-09-16 [\#223](https://github.com/paidiver/paidiverpy/issues/223)
+- Create a CI to deploy paidiverpy gui on kubernetes [\#221](https://github.com/paidiver/paidiverpy/issues/221)
+- Working with a unique numpy/dask array per step instead of a list of numpy/dask arrays [\#219](https://github.com/paidiver/paidiverpy/issues/219)
+- Update shapely version to be above 2.0.7 [\#216](https://github.com/paidiver/paidiverpy/issues/216)
+- Organise .md files and check the content of them. Organise the files on the root path [\#213](https://github.com/paidiver/paidiverpy/issues/213)
 - Reference funding details in readme [\#204](https://github.com/paidiver/paidiverpy/issues/204)
 - Are resample by depth and by altitude the same thing? [\#198](https://github.com/paidiver/paidiverpy/issues/198)
 - Fix and Re-enable SonarCloud Workflow in CI [\#162](https://github.com/paidiver/paidiverpy/issues/162)
@@ -26,6 +41,7 @@
 
 **Merged pull requests:**
 
+- Update code, but change strategy [\#220](https://github.com/paidiver/paidiverpy/pull/220) ([soutobias](https://github.com/soutobias))
 - Correct frontend rendering [\#218](https://github.com/paidiver/paidiverpy/pull/218) ([soutobias](https://github.com/soutobias))
 - 186 enhance exif handling in processed images [\#210](https://github.com/paidiver/paidiverpy/pull/210) ([soutobias](https://github.com/soutobias))
 - 187 function to open and export metadata to different formats [\#208](https://github.com/paidiver/paidiverpy/pull/208) ([soutobias](https://github.com/soutobias))
