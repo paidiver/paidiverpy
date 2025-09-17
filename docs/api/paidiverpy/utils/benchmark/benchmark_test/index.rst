@@ -1,7 +1,7 @@
-paidiverpy.utils.benchmark_test
-===============================
+paidiverpy.utils.benchmark.benchmark_test
+=========================================
 
-.. py:module:: paidiverpy.utils.benchmark_test
+.. py:module:: paidiverpy.utils.benchmark.benchmark_test
 
 .. autoapi-nested-parse::
 
@@ -16,13 +16,13 @@ Functions
 
 .. autoapisummary::
 
-   paidiverpy.utils.benchmark_test.benchmark_task
-   paidiverpy.utils.benchmark_test.plot_results
-   paidiverpy.utils.benchmark_test.update_yaml
-   paidiverpy.utils.benchmark_test.benchmark_threads
-   paidiverpy.utils.benchmark_test.benchmark_local
-   paidiverpy.utils.benchmark_test.benchmark_slurm
-   paidiverpy.utils.benchmark_test.benchmark_handler
+   paidiverpy.utils.benchmark.benchmark_test.benchmark_task
+   paidiverpy.utils.benchmark.benchmark_test.plot_results
+   paidiverpy.utils.benchmark.benchmark_test.update_yaml
+   paidiverpy.utils.benchmark.benchmark_test.benchmark_threads
+   paidiverpy.utils.benchmark.benchmark_test.benchmark_local
+   paidiverpy.utils.benchmark.benchmark_test.benchmark_slurm
+   paidiverpy.utils.benchmark.benchmark_test.benchmark_handler
 
 
 Module Contents
