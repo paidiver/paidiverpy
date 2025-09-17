@@ -234,12 +234,11 @@ class OpenLayer(Paidiverpy):
             image_open_args (dict): The image open arguments.
             storage_options (dict): The storage options.
         """
-        img, exif, img_path = func(img_path=img_path, image_type=image_type, image_open_args=image_open_args, storage_options=storage_options)
+        img, exif, filename = func(img_path=img_path, image_type=image_type, image_open_args=image_open_args, storage_options=storage_options)
         if img is None:
             return None
         height = img.shape[0] if img is not None else 0
         width = img.shape[1] if img is not None else 0
-        filename = str(img_path).split("/")[-1]
         new_filename = filename
         if rename == "datetime":
             new_filename = metadata["image-datetime"].isoformat()

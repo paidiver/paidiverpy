@@ -58,7 +58,8 @@ def open_image_remote(
         logger.warning("Failed to open %s: %s", img_path, e)
 
     img = correct_image_dims_and_format(img, image_type=image_type)
-    return img, exif, img_path
+    filename = str(img_path).split("/")[-1]
+    return img, exif, filename
 
 
 def open_image_local(
@@ -76,7 +77,7 @@ def open_image_local(
         ValueError: Failed to open the image
 
     Returns:
-        tuple[np.ndarray[Any, Any] | da.core.Array, dict, str]: The image data, the EXIF data, and the image path
+        tuple[np.ndarray[Any, Any] | da.core.Array, dict, str]: The image data, the EXIF data, and the filename
     """
     exif = extract_exif_single(img_path=img_path, image_type=image_type)
     if image_type in SUPPORTED_OPENCV_IMAGE_TYPES:
@@ -86,7 +87,8 @@ def open_image_local(
     if image_type == "png":
         logger.info("AAAAAAAAAAAAAAAimage shape: %s", None if img is None else img.shape)
     img = correct_image_dims_and_format(img, image_type=image_type)
-    return img, exif, img_path
+    filename = Path(img_path).name
+    return img, exif, filename
 
 
 def correct_image_dims_and_format(img: np.ndarray[Any, Any] | da.core.Array, image_type: str | None = None) -> np.ndarray[Any, Any] | da.core.Array:
