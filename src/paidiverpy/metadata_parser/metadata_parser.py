@@ -72,9 +72,8 @@ class MetadataParser:
             pd.DataFrame: Metadata DataFrame.
         """
         logger.info(
-            "Metadata type is not specified. Loading files from the input path.",
+            "Metadata type is not specified. Metadata will be created from the files in the input path.",
         )
-        logger.info("Metadata will be created from the files in the input path.")
         input_path = Path(self.config.general.input_path)
         file_pattern = self.config.general.file_name_pattern
         list_of_files = list(input_path.glob(file_pattern))

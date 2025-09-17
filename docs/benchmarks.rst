@@ -37,11 +37,17 @@ Test configurations
 
 The benchmarks were run under different client configurations:
 
+- **Serial execution**: with ``n_jobs`` set to 1.
+
+  .. code-block:: yaml
+
+     n_jobs: [1]
+
 - **Thread-based execution**: varying only the ``n_jobs`` parameter:
 
   .. code-block:: yaml
 
-     n_jobs: [1, 2, 4, 8, 16]
+     n_jobs: [2, 4, 8, 16]
 
 - **Local Dask cluster**: varying the number of workers, threads per worker, and memory limit:
 
@@ -57,16 +63,20 @@ The benchmarks were run under different client configurations:
 Results
 -------
 
-The detailed benchmark results are stored in a JSON file, available here:
-`benchmark.json <https://github.com/paidiver/paidiverpy/blob/dev/src/paidiverpy/utils/benchmark/benchmark.json>`_
+This section is still under development. Preliminary results indicate that Paidiverpy scales well with increased resources, particularly in multi-threaded and distributed configurations.
 
-This file includes execution time and memory usage for each preprocessing run.
+We are planning to include more detailed analyses and visualisations in future updates.
 
-A graphical representation of the results is shown below:
+.. The detailed benchmark results are stored in a JSON file, available here:
+.. `benchmark.json <https://github.com/paidiver/paidiverpy/blob/dev/src/paidiverpy/utils/benchmark/benchmark.json>`_
 
-.. image:: _static/benchmark_plot.png
-   :width: 600px
-   :alt: Benchmark Plot
+.. This file includes execution time and memory usage for each preprocessing run.
+
+.. A graphical representation of the results is shown below:
+
+.. .. image:: _static/benchmark_plot.png
+..    :width: 600px
+..    :alt: Benchmark Plot
 
 
 How to run your own benchmarks

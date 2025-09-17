@@ -343,7 +343,7 @@ class Paidiverpy:
             use_dask=self.use_dask,
         )
         self.set_metadata(dataset_metadata={"output_path": str(output_path)})
-        self.logger.info("Images are saved to: %s", output_path)
+        self.logger.info("Images are saved to the path: %s", output_path)
 
     def remove_images(self) -> None:
         """Remove output images from the output path."""

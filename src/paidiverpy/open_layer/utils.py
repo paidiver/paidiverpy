@@ -84,8 +84,6 @@ def open_image_local(
         img = cv2.imread(str(img_path), image_open_args.get("flags", cv2.IMREAD_UNCHANGED))
     else:
         img = load_raw_image(img_path, image_type=image_type, image_open_args=image_open_args)
-    if image_type == "png":
-        logger.info("AAAAAAAAAAAAAAAimage shape: %s", None if img is None else img.shape)
     img = correct_image_dims_and_format(img, image_type=image_type)
     filename = Path(img_path).name
     return img, exif, filename
@@ -104,14 +102,13 @@ def correct_image_dims_and_format(img: np.ndarray[Any, Any] | da.core.Array, ima
     if img is None:
         return img
     if image_type == "png":
-        logger.info("Original image shape: %s", None if img is None else img.shape)
+        # this section was necessary because cv2.imread was not reading alpha channel for some png images in Windows
         if img.ndim == NUM_DIMENSIONS_GREY:  # grayscale
             img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGRA)
         elif img.shape[2] == NUM_CHANNELS_RGB:  # RGB
             img = cv2.cvtColor(img, cv2.COLOR_RGB2BGRA)
         if img.shape[2] != NUM_CHANNELS_RGBA:
             img = np.dstack((img, np.full(img.shape[:2], 255, dtype=img.dtype)))
-        logger.info("Corrected image shape: %s", img.shape)
 
     if img.ndim == NUM_DIMENSIONS_GREY:
         img = np.expand_dims(img, axis=-1)
