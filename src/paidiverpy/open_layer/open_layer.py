@@ -172,7 +172,6 @@ class OpenLayer(Paidiverpy):
             delayed_list = []
             for filename, file_metadata in metadata.iterrows():
                 img_path = self.correct_input_path + filename if remote else self.correct_input_path / filename
-                self.logger.info("PPPPPPPPPPPPPPPPPPPPOpening image: %s, %s, %s", filename, self.correct_input_path, img_path)
                 delayed_list.append(
                     delayed(OpenLayer.process_single_image)(
                         img_path=img_path,
@@ -198,6 +197,7 @@ class OpenLayer(Paidiverpy):
         else:
             for filename, file_metadata in metadata.iterrows():
                 img_path = self.correct_input_path + filename if remote else self.correct_input_path / filename
+                self.logger.info("PPPPPPPPPPPPPPPPPPPPOpening image: %s, %s, %s", filename, self.correct_input_path, img_path)
                 img, metadata, height, width = OpenLayer.process_single_image(
                     img_path=img_path,
                     func=func,
