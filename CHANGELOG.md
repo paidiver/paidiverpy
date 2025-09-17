@@ -41,6 +41,7 @@
 
 **Merged pull requests:**
 
+-  Version0.2.0 [\#232](https://github.com/paidiver/paidiverpy/pull/232) ([soutobias](https://github.com/soutobias))
 - Update code, but change strategy [\#220](https://github.com/paidiver/paidiverpy/pull/220) ([soutobias](https://github.com/soutobias))
 - Correct frontend rendering [\#218](https://github.com/paidiver/paidiverpy/pull/218) ([soutobias](https://github.com/soutobias))
 - 186 enhance exif handling in processed images [\#210](https://github.com/paidiver/paidiverpy/pull/210) ([soutobias](https://github.com/soutobias))

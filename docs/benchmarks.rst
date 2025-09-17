@@ -6,7 +6,6 @@ Benchmarks
 This section provides an overview of the benchmarks conducted to evaluate the performance of the **Paidiverpy** library.
 
 The benchmarks focus on execution speed, memory usage, and scalability across different configurations. By publishing these results, our goal is to give users insights into the performance characteristics of Paidiverpy and to provide guidance on how to tune resources for their own use cases.
-
 Paidiverpy also makes it easy to run **custom benchmark tests** using the
 `benchmark_test.py <https://github.com/paidiver/paidiverpy/blob/dev/src/paidiverpy/utils/benchmark/benchmark_test.py>`_
 script. Instructions for running your own benchmarks are provided at the end of this section.
@@ -15,21 +14,15 @@ script. Instructions for running your own benchmarks are provided at the end of 
 About the tests
 ---------------
 
-For our benchmark experiments, we used the **benthic_ifdo** dataset, described in the :ref:`example data <example_data>` section.
-
-This dataset contains images and metadata from the Haig Fras area in the UK, collected in 2012. It is publicly available through the British Oceanographic Data Centre (BODC) and can be accessed here:
-
-`https://www.bodc.ac.uk/data/published_data_library/catalogue/10.5285/093edbc7-3552-3d35-e063-6c86abc099d5/`_
-
+For our benchmark experiments, we used the **benthic_ifdo** dataset, described in the :ref:`example data <example_data>` section. This dataset contains images and metadata from the Haig Fras area in the UK, collected in 2012.
+It is publicly available through the British Oceanographic Data Centre (BODC) and can be accessed `here <https://www.bodc.ac.uk/data/published_data_library/catalogue/10.5285/093edbc7-3552-3d35-e063-6c86abc099d5/>`_.
 For benchmarking, we used a **subset** of this dataset (≈290 MB), which contains 100 images with varying resolutions.
 
 The pipeline configuration for preprocessing is defined in the following YAML file:
 
-.. literalinclude:: ../../../src/paidiverpy/src/paidiverpy/utils/benchmark/config_benchmark.yml
+.. literalinclude:: ../src/paidiverpy/utils/benchmark/config_benchmark.yml
 
-This configuration applies several preprocessing steps, mainly from the **ColourLayer** and **ConvertLayer** components.
-
-The ``benchmark_test.py`` script executes this pipeline, measuring performance across multiple configurations by varying the number of threads, workers, and memory resources depending on the cluster type.
+This configuration applies several preprocessing steps, mainly from the **ColourLayer** and **ConvertLayer** components. The ``benchmark_test.py`` script executes this pipeline, measuring performance across multiple configurations by varying the number of threads, workers, and memory resources depending on the cluster type.
 
 
 Test configurations
@@ -109,6 +102,6 @@ You can run benchmarks tailored to your dataset and pipeline configuration by fo
 
    Additionally, the script generates a PNG plot and an HTML output for visual inspection. You may need to install plotly to generate the HTML output:
 
-    .. code-block:: bash
+   .. code-block:: bash
 
-        pip install plotly
+      pip install plotly

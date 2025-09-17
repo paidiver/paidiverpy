@@ -11,7 +11,6 @@ benchmark_*.json
 benchmark_*.png
 test_examples/*
 examples/examples_notebooks/workshop/
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
