@@ -5,10 +5,10 @@ paidiverpy.custom_layer.custom_layer
 
 .. autoapi-nested-parse::
 
-   Color layer module.
+   Custom layer module.
 
-   This module contains the ColorLayer class for processing the images in the
-   color layer.
+   This module contains the CustomLayer class for processing the images in the
+   custom layer.
 
    ..
        !! processed by numpydoc !!

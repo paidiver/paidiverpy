@@ -1,7 +1,7 @@
 .. _images_layer:
 
-How Images are Managed: ImagesLayer
-===================================
+How we handle the images
+========================
 
 In the Paidiverpy package, images are managed through the :class:`ImagesLayer` class.
 This class is the central container for storing and tracking the results of each image
