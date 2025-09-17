@@ -47,7 +47,7 @@ Module Contents
 
    :raises ValueError: Failed to open the image
 
-   :returns: The image data, the EXIF data, and the image path
+   :returns: The image data, the EXIF data, and the filename
    :rtype: tuple[np.ndarray[Any, Any] | da.core.Array, dict[str, Any], str]
 
 
@@ -83,7 +83,7 @@ Module Contents
 
    :raises ValueError: Failed to open the image
 
-   :returns: The image data, the EXIF data, and the image path
+   :returns: The image data, the EXIF data, and the filename
    :rtype: tuple[np.ndarray[Any, Any] | da.core.Array, dict, str]
 
 
