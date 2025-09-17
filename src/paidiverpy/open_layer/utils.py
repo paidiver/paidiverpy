@@ -41,7 +41,7 @@ def open_image_remote(
         ValueError: Failed to open the image
 
     Returns:
-        tuple[np.ndarray[Any, Any] | da.core.Array, dict[str, Any], str]: The image data, the EXIF data, and the image path
+        tuple[np.ndarray[Any, Any] | da.core.Array, dict[str, Any], str]: The image data, the EXIF data, and the filename
     """
     exif = {}
     try:
