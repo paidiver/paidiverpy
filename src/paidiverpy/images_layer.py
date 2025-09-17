@@ -367,7 +367,8 @@ class ImagesLayer:
         """
         cropped = img[:height, :width, :]
         logger.info("222222222222222image path: %s", str(output_path))
+        logger.info("333333333333333filename %s: %s", filename.item(), type(filename))
         output_path = output_path + filename.item() if s3_client else output_path / filename.item()
-        logger.info("33333333333333333image path: %s", str(output_path))
+        logger.info("4444444444444444444image path: %s", str(output_path))
         processor(cropped, output_path, image_format, s3_client)
         return 0
