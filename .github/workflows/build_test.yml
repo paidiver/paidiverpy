@@ -95,6 +95,7 @@ jobs:
           git add conda_recipes/meta_bioconda.yaml conda_recipes/meta.yaml
           git commit -m "chore: update conda recipe" || true
 
-          # Rebase before pushing
+          git stash --all || true
           git pull --rebase origin $BRANCH
+          git stash drop || true
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:$BRANCH
