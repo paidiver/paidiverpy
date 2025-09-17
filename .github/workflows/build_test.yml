@@ -79,22 +79,22 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Figure out which branch to push to
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             BRANCH="${{ github.head_ref }}"
           else
             BRANCH="${{ github.ref_name }}"
           fi
 
-          # Make sure we’re on the correct branch (not detached HEAD)
           git fetch origin $BRANCH
           git checkout $BRANCH
 
-          # Now modify files safely
           sha256=$(sha256sum dist/*.tar.gz | cut -d ' ' -f 1)
           sed -i "1s/^/{% set sha256 = \"$sha256\" %}\n/" conda_recipes/meta.yaml
           sed -i "1s/^/{% set sha256 = \"$sha256\" %}\n/" conda_recipes/meta_bioconda.yaml
 
           git add conda_recipes/meta_bioconda.yaml conda_recipes/meta.yaml
           git commit -m "chore: update conda recipe" || true
+
+          # Rebase before pushing
+          git pull --rebase origin $BRANCH
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:$BRANCH
