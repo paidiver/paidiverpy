@@ -48,7 +48,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: wrap_ref(schema: dict, target_ref: str, wrapper_key: str) -> dict
+.. py:function:: wrap_ref(schema: dict[str, Any], target_ref: str, wrapper_key: str) -> dict[str, Any] | list[Any]
 
    
    Wrap a reference in the schema with a key.

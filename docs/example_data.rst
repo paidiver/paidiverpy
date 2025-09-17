@@ -64,6 +64,7 @@ Benthic 2: Dataset name **"benthic_ifdo"**
 - Benthic Images (2012) – Haig Fras, UK.
 - Equipment: Camera mounted on the front of an ROV
 - Metadata: IFDO File
+- Citation: Benoist, N.; Bett, B.J.; Morris, K.; Ruhl, H. (2023): Greater Haig Fras autonomous underwater vehicle seafloor survey - mosaicked image tiles used to assess benthic assemblages and seabed types (2012).. NERC EDS British Oceanographic Data Centre NOC, 27 November 2023. doi:10.5285/093edbc7-3552-3d35-e063-6c86abc099d5. https://dx.doi.org/10.5285/093edbc7-3552-3d35-e063-6c86abc099d5
 
 .. image:: _static/benthic_hf2.png
     :width: 100px

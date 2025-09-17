@@ -7,10 +7,6 @@ general:
     - mode: "fixed"
       params:
         value: 20
-  convert:
-    - mode: "bits"
-      params:
-        output_bits: 8
 
 steps:
   - sampling:

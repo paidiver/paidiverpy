@@ -2,9 +2,11 @@
 
 import unittest
 from pathlib import Path
+from subprocess import CalledProcessError
 import numpy as np
 import pandas as pd
 import pytest
+import xarray as xr
 import yaml
 from paidiverpy.config.configuration import Configuration
 from paidiverpy.config.configuration import GeneralConfig
@@ -35,7 +37,8 @@ class TestPipelineCustomAlgorithm(BaseTestClass):
         assert len(pipeline.steps) == number_pipeline_steps
         pipeline.run()
         images = pipeline.images.images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         assert len(images) == number_images
 
     def test_custom_algorithm2(self):
@@ -60,7 +63,8 @@ class TestPipelineCustomAlgorithm(BaseTestClass):
         assert len(pipeline.steps) == number_pipeline_steps
         pipeline.run()
         images = pipeline.images.images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         assert len(images) == number_images
         Path(output_file_path).unlink(missing_ok=True)
 
@@ -70,12 +74,12 @@ class TestPipelineCustomAlgorithm(BaseTestClass):
         output_file_path = "tests/config_files/custom_layer/config_custom_algorithm2_with_error_dependency.yml"
         with Path(file_path).open() as file:
             data = yaml.safe_load(file)
-        data["steps"][1]["custom"]["dependencies"] = "no-existent package ;asd1"
+        data["steps"][1]["custom"]["dependencies"] = "no-existent-package"
         with Path(output_file_path).open("w") as file:
             yaml.dump(data, file, sort_keys=False)
-        with pytest.raises(ValueError) as cm:
+        with pytest.raises(CalledProcessError) as cm:
             Pipeline(config_file_path=output_file_path, verbose=1)
-        assert "Invalid package name or version" in str(cm.value)
+        assert "'pip', 'install', 'no-existent-package']' returned non-zero exit status 1." in str(cm.value)
         Path(output_file_path).unlink(missing_ok=True)
 
     def test_custom_algorithm_dataset(self):
@@ -94,7 +98,8 @@ class TestPipelineCustomAlgorithm(BaseTestClass):
         assert len(pipeline.steps) == number_pipeline_steps
         pipeline.run()
         images = pipeline.images.images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         assert len(images) == number_images
 
 

@@ -1,9 +1,8 @@
-name: Release Package
-
+name: Build and Upload to PyPI
 on:
-  push:
-    branches:
-      - main
+  release:
+    types: published
+  workflow_dispatch:
 
 jobs:
   release:
@@ -34,6 +33,13 @@ jobs:
 
     - name: Build Package
       run: python -m build
+
+    - name: Publish to Test PyPI
+      env:
+        TWINE_USERNAME: "__token__"
+        TWINE_PASSWORD: ${{ secrets.TEST_PYPI_PASSWORD }}
+      run: python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+
 
     - name: Publish to PyPI
       env:

@@ -64,18 +64,17 @@ def initialise_logging(verbose: int = 2, logger_name: str = "paidiverpy") -> log
         msg = f"Invalid verbose level: {verbose}. Choose from {list(VerboseLevel)}."
         raise ValueError(msg) from err
 
-    handler = logging.StreamHandler(sys.stdout)
-    formatter = ColorFormatter(
-        "☁ paidiverpy ☁  | %(levelname)10s | %(asctime)s | %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
-    handler.setFormatter(formatter)
-    handler.setLevel(log_level)  # Set level on the handler too
-
-    logger = logging.getLogger(logger_name)
+    logger = logging.getLogger(logger_name)  # ✅ always the same instance
     logger.setLevel(log_level)
 
     if not any(isinstance(h, logging.StreamHandler) for h in logger.handlers):
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = ColorFormatter(
+            "☁ paidiverpy ☁  | %(levelname)10s | %(asctime)s | %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
+        handler.setFormatter(formatter)
+        handler.setLevel(log_level)
         logger.addHandler(handler)
 
     return logger
@@ -91,7 +90,8 @@ def check_raise_error(raise_error: bool, message: str) -> None:
     Raises:
         ValueError: The error message.
     """
+    logger = logging.getLogger("paidiverpy")
     if raise_error:
-        logging.error(message)
+        logger.error(message)
         raise_value_error(message)
-    logging.warning(message)
+    logger.warning(message)

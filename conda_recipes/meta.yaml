@@ -1,3 +1,13 @@
+{% set sha256 = "11f3dc90a7db3d4034b7c0120092928ce4103d7c6a8a1422d45048d7f3adc358" %}
+{% set sha256 = "d28f8b2c3108d1993fed8a7f69458e8feb1058576486fd939ce02521d6ad86f4" %}
+{% set sha256 = "71d52708aa5f6e9e295bfdcadcc3b1387d446ada5fa9209325f52dd64d3429fa" %}
+{% set sha256 = "980300c1d557056a65ff4a4faf0ef74af2bc083375dc4cd69b4d56ccce6014a6" %}
+{% set sha256 = "135edbe87de362558416417168f09bb04b66cf7ed3bbf6efc10ca51996ebcb84" %}
+{% set sha256 = "2535764c1bee0da3f3ad06ae3a7f5bad675934a399da37d6617dc697347fa0d8" %}
+{% set sha256 = "1b82e697aefb9266bceb0ecd9984bc619bbcd50096e7e870cd0632b08711b8a6" %}
+{% set sha256 = "a2299b97452b6588595121b03e0253fa41d455d97940a8dd9cc49c0b85ec5776" %}
+{% set sha256 = "00f8333cd7474c8285718c87344edf88b96b43ecc1f8bfc5fe0104483639c6ba" %}
+{% set sha256 = "ee90f3acc1ce91a310b907dcbc6c6e1977124846ed5c20e8def07e413dbc9a31" %}
 {% set python_min = "3.10" %}
 {% set version = "0.1.3" %}
 {% set name = "paidiverpy" %}

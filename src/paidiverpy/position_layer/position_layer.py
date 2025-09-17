@@ -4,6 +4,8 @@ Process the images in the position layer.
 """
 
 import logging
+from typing import Any
+from typing import Optional
 import numpy as np
 import pandas as pd
 from dask.distributed import Client
@@ -51,13 +53,13 @@ class PositionLayer(Paidiverpy):
 
     def __init__(
         self,
-        parameters: dict,
-        config_params: dict | ConfigParams = None,
+        parameters: dict[str, Any],
+        config_params: dict[str, Any] | ConfigParams | None = None,
         config_file_path: str | None = None,
-        config: Configuration = None,
-        metadata: MetadataParser = None,
-        images: ImagesLayer = None,
-        paidiverpy: "Paidiverpy" = None,
+        config: Configuration | None = None,
+        metadata: MetadataParser | None = None,
+        images: ImagesLayer | None = None,
+        paidiverpy: Optional["Paidiverpy"] = None,
         step_name: str | None = None,
         client: Client | None = None,
         config_index: int | None = None,
@@ -87,41 +89,46 @@ class PositionLayer(Paidiverpy):
         self.layer_methods = POSITION_LAYER_METHODS
         self.add_new_step = add_new_step
 
-    def run(self) -> None:
+    def run(self) -> pd.DataFrame | None:
         """Run the resample layer steps on the images based on the configuration.
 
         Run the resample layer steps on the images based on the configuration.
 
         Raises:
             ValueError: The mode is not defined in the configuration file.
+
+        Returns:
+            pd.DataFrame | None: The metadata with the corners if not adding a new step, else None.
         """
         mode = self.step_metadata.get("mode")
-        test = self.step_metadata.get("test")
+        test = self.step_metadata.get("test", False)
         params = self.step_metadata.get("params") or {}
         method, params = self._get_method_by_mode(params, self.layer_methods, mode, False)
         try:
             metadata = method(self.step_order, test=test, params=params)
+            new_metadata = self._merge_metadata(metadata)
         except Exception as e:  # noqa: BLE001
             self.logger.error("Error in position layer: %s", e)
             if self.raise_error:
                 raise_value_error("Position layer step failed.")
             self.logger.error("Position layer step will be skipped.")
-            return self.get_metadata(flag="all")
+            new_metadata = self.get_metadata(flag="all")
         if not self.add_new_step:
+            self.config.remove_step(self.config_index)
             return metadata
         if not test:
-            self.set_metadata(metadata)
             self.step_name = f"position_{mode}" if not self.step_name else self.step_name
+            self.set_metadata(new_metadata)
             self.images.add_step(
                 step=self.step_name,
+                images=self.images.get_step(last=True),
                 step_metadata=self.step_metadata,
-                metadata=self.get_metadata(),
-                update_metadata=True,
+                metadata=new_metadata,
                 track_changes=self.track_changes,
             )
         return None
 
-    def calculate_corners(self, step_order: int | None = None, params: CalculateCornersParams = None, test: bool = False) -> pd.DataFrame:
+    def calculate_corners(self, step_order: int | None = None, params: CalculateCornersParams = None, test: bool = False) -> pd.DataFrame | None:
         """Calculate the corners of the images.
 
         Args:
@@ -129,8 +136,11 @@ class PositionLayer(Paidiverpy):
             test (bool, optional): Whether to test the step. Defaults to False.
             params (CalculateCornersParams, optional): The parameters for the position.
         Defaults to CalculateCornersParams().
+
+        Returns:
+            pd.DataFrame | None: The metadata with the corners if not testing, else None.
         """
-        params = CalculateCornersParams() if params is None else params
+        params = params or CalculateCornersParams()
         metadata = self.get_metadata()
         metadata.loc[:, "image-camera-pitch-degrees"] = metadata["image-camera-pitch-degrees"].abs()
         metadata.loc[:, "image-camera-roll-degrees"] = metadata["image-camera-roll-degrees"].abs()
@@ -201,7 +211,7 @@ class PositionLayer(Paidiverpy):
             coordsm = pd.DataFrame(chm, columns=["long_deg", "lat_deg"])
             polygon_m = Polygon(coordsm.values)
             metadata.loc[i, "polygon_m"] = polygon_m
-        self.set_metadata(metadata, flag=True)
+        # self.set_metadata(metadata, flag=True)
         if test:
             InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="polygon").run()
             return None
@@ -281,7 +291,7 @@ class PositionLayer(Paidiverpy):
         headingoffset_rad: float,
         cornerdist_m: float,
         angle_offset: float,
-    ) -> tuple:
+    ) -> tuple[float, float]:
         """Calculate the corner coordinates.
 
         Args:

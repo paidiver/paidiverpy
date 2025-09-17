@@ -53,7 +53,7 @@ class TestIFDOUtilsClass(BaseTestClass):
         assert Path(output_metadata_path).exists()
         errors = validate_ifdo(output_metadata_path.absolute())
         assert isinstance(errors, list)
-        assert len(errors) > 0
+        assert len(errors) == 0
         output_metadata_path.unlink()
 
 

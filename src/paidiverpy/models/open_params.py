@@ -4,6 +4,7 @@ This module contains the dataclasses for the parameters used in the custom_param
 """
 
 from typing import Literal
+from pydantic import ConfigDict
 from pydantic import Field
 from pydantic import model_validator
 from paidiverpy.utils.base_model import BaseModel
@@ -69,10 +70,7 @@ SUPPORTED_RAWPY_IMAGE_TYPES = {
 class ImageOpenArgsRawPyParams(BaseModel):
     """Parameters for RawPy postprocessing (rawpy.RawPy.postprocess)."""
 
-    class Config:
-        """Configuration for the RawPy parameters model."""
-
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 class ImageOpenArgsRawParams(BaseModel):

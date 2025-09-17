@@ -78,7 +78,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: resolve_params_schema(values: dict) -> dict
+   .. py:method:: resolve_params_schema(values: dict[str, Any]) -> dict[str, Any]
       :classmethod:
 
 
@@ -109,7 +109,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: update(**updates: dict) -> StepConfig
+   .. py:method:: update(**updates: dict[str, Any]) -> StepConfig
 
       
       Update the model in-place with new values.

@@ -11,12 +11,12 @@ from paidiverpy.utils.docker import is_running_in_docker
 PACKAGE_REGEX = re.compile(r"^[a-zA-Z0-9_-]+(==[a-zA-Z0-9_.-]+)?$")
 
 
-def check_and_install_dependencies(dependencies: str | None, dependencies_path: str | None) -> None:
+def check_and_install_dependencies(dependencies: str | None, dependencies_path: str | Path | None) -> None:
     """Check and install dependencies.
 
     Args:
         dependencies (str, None): The dependencies to check and install.
-        dependencies_path (str, None): The path to the dependencies file.
+        dependencies_path (str, Path, None): The path to a file containing dependencies.
 
     Raises:
         PackageNotFoundError: If the package is not found.
@@ -26,7 +26,7 @@ def check_and_install_dependencies(dependencies: str | None, dependencies_path: 
     if dependencies_path:
         is_docker = is_running_in_docker()
         if is_docker:
-            dependencies_filename = dependencies_path.split("/")[-1]
+            dependencies_filename = str(dependencies_path).split("/")[-1]
             dependencies_path = "/app/custom_algorithms/" + dependencies_filename
         dependencies_path = Path(dependencies_path)
         with Path.open(dependencies_path) as file:

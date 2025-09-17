@@ -22,7 +22,6 @@ classifiers = [
 ]
 
 dependencies = [
-  "numpy<2.0",
   "pandas>=2.2.2",
   "pillow>=10.4.0",
   "scikit-image>=0.24.0",
@@ -46,6 +45,8 @@ dependencies = [
   "opencv-python>=4.11",
   "rawpy>=0.24.0",
   "pydantic>=2.9.2",
+  "requests>=2.25.1",
+  "xarray>=2024.12.0",
   ]
 license = {file = "LICENSE"}
 version = "0.1.4"
@@ -59,11 +60,12 @@ dev = [
     "pytest",
     "pytest-cov",
     "ruff==0.9.5",
+    # "pyright",
     "sphinx",
     "sphinx_rtd_theme",
     "sphinx-autoapi",
-    "tox",
     "myst_parser",
+    "plotly",  # for benchmark plotting
 ]
 docs = [
     "sphinx",
@@ -130,15 +132,13 @@ parallel = true
 concurrency = ["thread", "multiprocessing"]
 relative_files = true
 
-[tool.tox]
-legacy_tox_ini = """
-[tox]
-envlist = py38,py39,py310,py311,py312
-skip_missing_interpreters = true
-[testenv]
-commands = pytest
-extras = dev
-"""
+# [tool.pyright]
+# include = ["src", "tests"]
+# exclude = ["build", "dist", "**/__pycache__"]
+# typeCheckingMode = "strict"
+# reportMissingImports = true
+# reportUnusedImport = true
+# pythonVersion = "3.11"
 
 [tool.ruff]
 line-length = 150
@@ -167,6 +167,7 @@ ignore = [
     "ISC001",
     "PLR0913",
     "ERA001",  # Commented code
+    "PD011",
 
 ]
 pydocstyle.convention = "google"
@@ -184,17 +185,33 @@ known-first-party = ["paidiverpy"]
 force-single-line = true
 no-lines-before = ["future","standard-library","third-party","first-party","local-folder"]
 
+
 [tool.bumpversion]
-current_version = "0.1.4"
+current_version = "0.1.4"  # Current version
+parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
+serialize = ["{major}.{minor}.{patch}"]
+search = "{current_version}"
+replace = "{new_version}"
+regex = false
+ignore_missing_version = false
+ignore_missing_files = false
+tag = true  # Automatically tag the commit with the new version
+sign_tags = false
+tag_name = "v{new_version}"  # Tag format (e.g., v0.1.2)
+tag_message = "Bump version: {current_version} → {new_version}"
+allow_dirty = false
+commit = true  # Automatically commit the changes
+message = "Bump version: {current_version} → {new_version}"
+commit_args = "--no-verify"  # Optional: prevent pre-commit hooks from running during version bump
+setup_hooks = []
+pre_commit_hooks = []
+post_commit_hooks = []
 
 [[tool.bumpversion.files]]
-filename = "src/paidiverpy/__init__.py"
-
+filename = "src/paidiverpy/__init__.py"  # File to update the version
 [[tool.bumpversion.files]]
-filename = "pyproject.toml"
-
+filename = "pyproject.toml"  # File to update the version in the [project] section
 [[tool.bumpversion.files]]
-filename = "CITATION.cff"
-
+filename = "CITATION.cff"  # Optional, if you want to include this
 [[tool.bumpversion.files]]
-filename = "docs/conf.py"
+filename = "docs/conf.py"  # Optional, if you want to include this

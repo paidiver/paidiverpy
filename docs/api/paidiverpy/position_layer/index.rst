@@ -47,7 +47,7 @@ Classes
 Package Contents
 ----------------
 
-.. py:class:: PositionLayer(parameters: dict, config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.configuration.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: paidiverpy.Paidiverpy = None, step_name: str | None = None, client: dask.distributed.Client | None = None, config_index: int | None = None, add_new_step: bool = True, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
+.. py:class:: PositionLayer(parameters: dict[str, Any], config_params: dict[str, Any] | paidiverpy.config.config_params.ConfigParams | None = None, config_file_path: str | None = None, config: paidiverpy.config.configuration.Configuration | None = None, metadata: paidiverpy.metadata_parser.MetadataParser | None = None, images: paidiverpy.images_layer.ImagesLayer | None = None, paidiverpy: Optional[paidiverpy.Paidiverpy] = None, step_name: str | None = None, client: dask.distributed.Client | None = None, config_index: int | None = None, add_new_step: bool = True, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
 
    Bases: :py:obj:`paidiverpy.Paidiverpy`
 
@@ -110,7 +110,7 @@ Package Contents
    ..
        !! processed by numpydoc !!
 
-   .. py:method:: run() -> None
+   .. py:method:: run() -> pandas.DataFrame | None
 
       
       Run the resample layer steps on the images based on the configuration.
@@ -118,6 +118,9 @@ Package Contents
       Run the resample layer steps on the images based on the configuration.
 
       :raises ValueError: The mode is not defined in the configuration file.
+
+      :returns: The metadata with the corners if not adding a new step, else None.
+      :rtype: pd.DataFrame | None
 
 
 
@@ -137,7 +140,7 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: calculate_corners(step_order: int | None = None, params: paidiverpy.models.position_params.CalculateCornersParams = None, test: bool = False) -> pandas.DataFrame
+   .. py:method:: calculate_corners(step_order: int | None = None, params: paidiverpy.models.position_params.CalculateCornersParams = None, test: bool = False) -> pandas.DataFrame | None
 
       
       Calculate the corners of the images.
@@ -150,6 +153,9 @@ Package Contents
       :type params: CalculateCornersParams, optional
 
       Defaults to CalculateCornersParams().
+
+      :returns: The metadata with the corners if not testing, else None.
+      :rtype: pd.DataFrame | None
 
 
 
@@ -200,7 +206,7 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: calculate_corner(lat: float, lon: float, heading_deg: float, headingoffset_rad: float, cornerdist_m: float, angle_offset: float) -> tuple
+   .. py:method:: calculate_corner(lat: float, lon: float, heading_deg: float, headingoffset_rad: float, cornerdist_m: float, angle_offset: float) -> tuple[float, float]
       :staticmethod:
 
 
