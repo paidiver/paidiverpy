@@ -3,7 +3,6 @@ channels:
   - conda-forge
 dependencies:
   - python>=3.10
-  - numpy<2.0
   - pandas=2.2.2
   - pillow=10.4.0
   - scikit-image=0.24.0
@@ -16,6 +15,7 @@ dependencies:
   - geopandas>=1.0.1
   - dask-image=2024.5.3
   - dask>=2024.10.0
+  - xarray>=2024.12.0
   - distributed>=2024.10.0
   - jsonschema>=4.23.0
   - matplotlib-base>=3.5.0
@@ -26,6 +26,7 @@ dependencies:
   - botocore>=1.35.92
   - opencv>=4.11
   - ipykernel>=6.29.5
+  - requests>=2.25.1
   - pydantic>=2.9.2
   - pip>=22
   - setuptools>=64.0.0

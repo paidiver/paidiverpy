@@ -29,7 +29,7 @@ class TestSimpleProcessing(BaseTestClass):
         assert isinstance(open_layer_config, Configuration)
         open_layer.run()
         assert len(open_layer.images.images) > 0
-        assert isinstance(open_layer.images.images[0][0], np.ndarray)
+        assert isinstance(open_layer.images.images["images_0"].values, np.ndarray)
         images = open_layer.images.images
         assert len(images) == 1
         metadata = open_layer.get_metadata()
@@ -91,7 +91,7 @@ class TestSimpleProcessing(BaseTestClass):
         assert isinstance(open_layer_config, Configuration)
         open_layer.run()
         assert len(open_layer.images.images) > 0
-        assert isinstance(open_layer.images.images[0][0], np.ndarray)
+        assert isinstance(open_layer.images.images["images_0"].values, np.ndarray)
         images = open_layer.images.images
         assert len(images) == 1
         metadata = open_layer.get_metadata()

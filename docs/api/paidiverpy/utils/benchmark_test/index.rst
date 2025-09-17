@@ -28,7 +28,7 @@ Functions
 Module Contents
 ---------------
 
-.. py:function:: benchmark_task(configuration_file: str, logger: logging.Logger) -> None
+.. py:function:: benchmark_task(configuration_file: str | pathlib.Path, logger: logging.Logger) -> tuple[float, float]
 
    
    Run the benchmark task.
@@ -55,7 +55,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: plot_results(results: list, cluster_type: str, filename: str) -> None
+.. py:function:: plot_results(results: list[dict[str, Any]], cluster_type: str, filename: str) -> None
 
    
    Plot the benchmark results.
@@ -84,7 +84,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: update_yaml(file_path: str, cluster_type: str, output_file: str, n_jobs: int, **kwargs: dict) -> str
+.. py:function:: update_yaml(file_path: str | pathlib.Path, cluster_type: str | None, output_file: str | pathlib.Path, n_jobs: int, **kwargs: dict[str, Any]) -> str | pathlib.Path
 
    
    Update the YAML file with new benchmarking parameters and save it.
@@ -129,7 +129,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: benchmark_threads(benchmark_params: dict, configuration_file: str, logger: logging.Logger) -> list
+.. py:function:: benchmark_threads(benchmark_params: dict[str, Any], configuration_file: str | pathlib.Path, logger: logging.Logger) -> list[dict[str, Any]]
 
    
    Handle the benchmark test for LocalCluster.
@@ -137,7 +137,7 @@ Module Contents
    :param benchmark_params: The benchmark parameters.
    :type benchmark_params: dict
    :param configuration_file: The path to the configuration files.
-   :type configuration_file: str
+   :type configuration_file: str | Path
    :param logger: The logger to log messages.
    :type logger: logging.Logger
 
@@ -161,7 +161,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: benchmark_local(benchmark_params: dict, configuration_file: str, logger: logging.Logger) -> list
+.. py:function:: benchmark_local(benchmark_params: dict[str, Any], configuration_file: str | pathlib.Path, logger: logging.Logger) -> list[dict[str, Any]]
 
    
    Handle the benchmark test for LocalCluster.
@@ -169,7 +169,7 @@ Module Contents
    :param benchmark_params: The benchmark parameters.
    :type benchmark_params: dict
    :param configuration_file: The path to the configuration files.
-   :type configuration_file: str
+   :type configuration_file: str | Path
    :param logger: The logger to log messages.
    :type logger: logging.Logger
 
@@ -193,7 +193,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: benchmark_slurm(benchmark_params: dict, configuration_file: str, logger: logging.Logger) -> list
+.. py:function:: benchmark_slurm(benchmark_params: dict[str, Any], configuration_file: str | pathlib.Path, logger: logging.Logger) -> list[dict[str, Any]]
 
    
    Handle the benchmark test for SLURM.
@@ -201,7 +201,7 @@ Module Contents
    :param benchmark_params: The benchmark parameters.
    :type benchmark_params: dict
    :param configuration_file: The path to the configuration files.
-   :type configuration_file: str
+   :type configuration_file: str | Path
    :param logger: The logger to log messages.
    :type logger: logging.Logger
 
@@ -225,7 +225,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: benchmark_handler(benchmark_params: dict, configuration_file: str, logger: logging.Logger) -> None
+.. py:function:: benchmark_handler(benchmark_params: dict[str, Any], configuration_file: str | pathlib.Path, logger: logging.Logger) -> None
 
    
    Handle the benchmark test.

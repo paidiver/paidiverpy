@@ -81,7 +81,7 @@ Module Contents
       :param on_cancel: Whether to attach a cancel action.
       :type on_cancel: bool
       :param on_confirm: A callback function for confirmation action.
-      :type on_confirm: callable, optional
+      :type on_confirm: Callable, optional
       :param visible: Whether the modal should be visible initially.
       :type visible: bool
 
@@ -116,9 +116,9 @@ Module Contents
       :param information: The new information message for the modal.
       :type information: str
       :param on_confirm: A callback function for confirmation action.
-      :type on_confirm: callable, optional
+      :type on_confirm: Callable, optional
       :param on_cancel: A callback function for cancellation action.
-      :type on_cancel: callable, optional
+      :type on_cancel: Callable, optional
 
 
 

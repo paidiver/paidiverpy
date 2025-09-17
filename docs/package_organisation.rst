@@ -31,7 +31,7 @@ Supporting Classes
 
 - **Metadata**: Manages metadata associated with images. This class is responsible for loading, validating, and processing metadata files, ensuring that the required contextual information is readily available for image processing tasks. It supports both IFDO and CSV formats, making it versatile for different use cases. For more information, see the :ref:`images_metadata` section.
 
-- **ImagesLayer**: This class stores the outputs from each image processing step. It acts as a container for processed images, allowing users to access intermediate results easily. This organization helps in tracking changes made to images throughout the processing pipeline.
+- **ImagesLayer**: This class stores the outputs from each image processing step. It acts as a container for processed images, allowing users to access intermediate results easily. This organization helps in tracking changes made to images throughout the processing pipeline. The images are handled as `xarray.Dataset <https://xarray.pydata.org/en/stable/>`_ objects. For more information, see the :ref:`images_layer` section.
 
 - **InvestigationLayer**: This layer is designed for exploratory data analysis and visualization. It provides tools for generating visual representations of images and their associated metadata, helping users gain insights into the data. For more information, see the :ref:`guide_test_mode` section.
 

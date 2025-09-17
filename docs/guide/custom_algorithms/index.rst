@@ -8,43 +8,51 @@ In `paidiverpy`, you have the flexibility to add your own algorithm to the suite
 Creating a Custom Algorithm
 ---------------------------
 
-To create a custom algorithm, start by creating a new file that contains a class inheriting from the `BaseCustomAlgorithm` class. This base class is located in the `paidiverpy.custom_layer.base_custom_algorithm` module, shown below:
+To create a custom algorithm, start by creating a new file that contains a class inheriting from the `CustomLayer` class. This base class is located in the `paidiverpy.custom_layer.custom_layer` module, shown below:
 
-.. literalinclude:: ../../../src/paidiverpy/custom_layer/base_custom_algorithm.py
+.. literalinclude:: ../../../src/paidiverpy/custom_layer/custom_layer.py
 
-Your custom algorithm class should extend `BaseCustomAlgorithm` and implement the `process` method. Here's a simple example:
+Your custom algorithm class should extend `CustomLayer` and implement a new method to it with a chosen name (e.g., `multiply_data`, `process`, etc.). This method will contain the logic of your algorithm.
+You can see below an example of a custom class that multiplies each image by a parameter:
 
 .. code-block:: python
 
-    from paidiverpy.custom_layer.base_custom_algorithm import BaseCustomAlgorithm
+    from paidiverpy.custom_layer.custom_layer import CustomLayer
 
-    class MyMethod(BaseCustomAlgorithm):
-        def process(self):
-            return self.image_data * self.params.some_param, self.metadata
+    class MyCustomClass(CustomLayer):
+
+        @staticmethod
+        def multiply_data(image_data, params, **kwargs):
+            return image_data * params.some_param
 
 
-Your `process` method will receive different inputs based on the processing type:
+Your method can be a static method or an instance method, depending on he processing type:
 
 **Image-level processing** (default):
 
-- `image_data`: a single NumPy or Dask array with shape `(height, width, channels)`
-- `metadata`: a dictionary of image-related metadata
-- `params`: an object with algorithm-specific parameters
-- **Returns**: a tuple `(processed_image, metadata)`
+- It needs to be a `@staticmethod`.
+- It processes one image at a time.
+- It receives the following parameters:
+  - `image_data`: a single NumPy or Dask array with shape `(height, width, channels)`
+  - `params`: an object with algorithm-specific parameters
+  - `kwargs`: a dictionary that contains the metadata of the whole dataset and the filename of the current image being processed (kwargs["metadata"] and kwargs["filename"])
+- **Returns**: a NumPy or Dask array with the processed image.
 
 **Dataset-level processing**:
 
-- `image_data`: a list of NumPy or Dask arrays
-- `metadata`: a dictionary of dataset-level metadata
-- `params`: an object with algorithm-specific parameters
-- **Returns**: a tuple `(list_of_processed_images, metadata)`
-
+- It can be a regular instance method (without the `@staticmethod` decorator).
+- It processes the entire dataset at once.
+- It receives the following parameters:
+  - `images`: an `xarray.Dataset` containing all images in the dataset. The images are represented as a variable named `images` within the dataset, with dimensions `(filename, y, x, band)`.
+  - `params`: an object with algorithm-specific parameters
+- **Returns**: an updated `xarray.Dataset` with the processed images and dimensions `(filename, y, x, band)`.
+- You can access the metadata by using `self.get_metadata()`.
+- In this case, if you are working with images with different sizes, you will need to handle the padding and cropping of images manually. Please refer to the :ref:`images_layer` section for more details.
 
 .. admonition:: Important
 
    - Each `image_data` (or `image_data[i]`) is a 3D array, even for grayscale images (singleton channel dimension).
    - Multi-channel images follow RGB or RGBA conventions.
-   - The `process` method **must** return both the processed data and metadata in the same format it was received.
 
 .. note::
 
@@ -65,9 +73,9 @@ After creating your custom algorithm, specify it in the configuration file as a 
     # Steps before the custom algorithm
 
     - custom:
-        name: "my_custom_algorithm"   # Name of the algorithm
+        name: "my_custom_algorithm"   # Name of the algorithm and the method in the class
         file_path: "/path/to/file.py" # Path to the module implementing the custom algorithm
-        class_name: "MyMethod"        # Name of the custom algorithm class
+        class_name: "MyCustomClass"        # Name of the custom algorithm class
         dependencies: "marimba,scikit-learn==0.24.2"
         dependencies_path: "/path/to/requirements.txt"  # Optional path to a requirements file
         params:                       # Algorithm parameters
@@ -78,7 +86,7 @@ After creating your custom algorithm, specify it in the configuration file as a 
 
 In this example:
 
-* The custom algorithm, named `my_custom_algorithm`, is defined in the file `/path/to/file.py` and implemented in the class `MyMethod`.
+* The custom algorithm, named `my_custom_algorithm`, is defined in the file `/path/to/file.py` and implemented in the class `MyCustomClass`.
 * The algorithm accepts parameters such as `some_param` (set to 10) and `another_param` (set to 0.5).
 * External dependencies are declared in two ways:
 
@@ -108,7 +116,7 @@ This will ensure that the `process` method receives a list of images instead of 
     - custom:
         name: "my_custom_algorithm"
         file_path: "/path/to/file.py"
-        class_name: "MyMethod"
+        class_name: "MyCustomClass"
         dependencies: "marimba,scikit-learn==0.24.2"
         dependencies_path: "/path/to/requirements.txt"
         processing_type: "dataset"  # Set to 'dataset' for dataset-level processing
@@ -142,7 +150,7 @@ The corresponding configuration file might look like this:
     - custom:
         name: "min_max_data"
         file_path: "/path/to/file.py"
-        class_name: "MyMethod"
+        class_name: "MyCustomClass"
         dependencies:
           - "scikit-learn"
         params:
@@ -152,7 +160,7 @@ The corresponding configuration file might look like this:
 
 In this setup:
 
-* The custom algorithm `min_max_data` resides in `/path/to/file.py`, with the class name `MyMethod`.
+* The custom algorithm `min_max_data` resides in `/path/to/file.py`, with the class name `MyCustomClass`.
 * The algorithm has one parameter, `feature_range`, set to `(0, 1)`.
 * The dependency `scikit-learn` is installed before the algorithm runs.
 

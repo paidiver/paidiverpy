@@ -87,7 +87,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: parse_name(name: str) -> list
+.. py:function:: parse_name(name: str) -> list[Any]
 
    
    Parse a widget name into a list of keys.
@@ -115,7 +115,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: insert_nested(result: dict, keys: list, value: any) -> None
+.. py:function:: insert_nested(result: dict[str, Any], keys: list[Any], value: Any) -> None
 
    
    Insert a value into a nested dictionary structure based on keys.
@@ -125,7 +125,7 @@ Module Contents
    :param keys: A list of keys indicating the path to insert the value.
    :type keys: list
    :param value: The value to insert.
-   :type value: any
+   :type value: Any
 
 
 
@@ -144,7 +144,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: extract_values(widgets: list[panel.widgets.Widget], step: bool = False) -> dict
+.. py:function:: extract_values(widgets: list[panel.widgets.Widget], step: bool = False) -> dict[str, Any]
 
    
    Extract values from a list of widgets and return them as a structured dictionary.
@@ -174,7 +174,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: extract_json(layout: panel.widgets.Widget, step: bool = False) -> dict
+.. py:function:: extract_json(layout: panel.widgets.Widget, step: bool = False) -> dict[str, Any]
 
    
    Extract JSON-like dictionary from a Panel layout or widget.

@@ -48,7 +48,7 @@ Classes
 Package Contents
 ----------------
 
-.. py:class:: Pipeline(config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.configuration.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, steps: list[tuple] | None = None, track_changes: bool | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
+.. py:class:: Pipeline(config_params: dict[str, Any] | paidiverpy.config.config_params.ConfigParams | None = None, config_file_path: str | None = None, config: paidiverpy.config.configuration.Configuration | None = None, metadata: paidiverpy.metadata_parser.MetadataParser | None = None, steps: list[tuple[str, type, dict[str, Any]]] | None = None, track_changes: bool | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
 
    Bases: :py:obj:`paidiverpy.Paidiverpy`
 
@@ -132,6 +132,41 @@ Package Contents
           !! processed by numpydoc !!
 
 
+   .. py:method:: process_custom_algorithm(step_params: dict[str, Any], config_index: int) -> paidiverpy.custom_layer.custom_layer.CustomLayer
+
+      
+      Process a custom algorithm.
+
+      :param step_params: The parameters of the custom algorithm.
+      :type step_params: dict
+      :param config_index: The index of the configuration.
+      :type config_index: int
+
+      :raises ValueError: If the file path is not provided.
+      :raises ValueError: If the file does not exist.
+      :raises ValueError: If the custom algorithm does not have a 'run' method.
+
+      :returns: An instance of the custom algorithm class.
+      :rtype: CustomLayer
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
    .. py:method:: export_config(output_path: str | None = None) -> None | str
 
       
@@ -164,7 +199,7 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: add_step(step_name: str, step_class: str | type, parameters: dict, index: int | None = None, substitute: bool = False) -> None
+   .. py:method:: add_step(step_name: str, step_class: type, parameters: dict[str, Any], index: int | None = None, substitute: bool = False) -> None
 
       
       Add a step to the pipeline.

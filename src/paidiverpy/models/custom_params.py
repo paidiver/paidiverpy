@@ -13,7 +13,7 @@ class CustomParams(BaseModel):
 
     raise_error: bool = Field(default=False, description="Raise error on failure")
 
-    model_config: ClassVar[dict] = {
+    model_config: ClassVar[dict[str, object]] = {
         "extra": "allow",
     }
 

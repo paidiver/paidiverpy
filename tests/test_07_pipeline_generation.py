@@ -3,6 +3,7 @@
 import unittest
 from pathlib import Path
 import numpy as np
+import xarray as xr
 from paidiverpy.colour_layer import ColourLayer
 from paidiverpy.open_layer import OpenLayer
 from paidiverpy.pipeline import Pipeline
@@ -42,7 +43,8 @@ class TestPipelineGenerator(BaseTestClass):
         assert len(pipeline.config.general.sampling) == number_general_sampling
         pipeline.run()
         images = pipeline.images.images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         assert len(images) == number_images
 
     def test_pipeline_generator2(self):
@@ -75,7 +77,8 @@ class TestPipelineGenerator(BaseTestClass):
         assert len(pipeline.config.general.sampling) == number_general_sampling
         pipeline.run()
         images = pipeline.images.images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         assert len(images) == number_images
         pipeline.export_config("new_config.yml")
         config_output_path = Path("./new_config.yml")
@@ -84,7 +87,8 @@ class TestPipelineGenerator(BaseTestClass):
         pipeline = Pipeline(config_file_path="new_config.yml")
         pipeline.run()
         images = pipeline.images.images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         assert len(images) == number_images
         config_output_path.unlink()
         output_files = list(config_output_path.parent.glob(config_output_path.name))

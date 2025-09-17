@@ -47,7 +47,7 @@ Classes
 Package Contents
 ----------------
 
-.. py:class:: InvestigationLayer(config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.configuration.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: paidiverpy.Paidiverpy = None, step_order: str | None = None, step_name: str | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2, plots: list | str | None = None, plot_metadata: pandas.DataFrame = None)
+.. py:class:: InvestigationLayer(plots: list[Any] | str, config_params: dict[str, Any] | paidiverpy.config.config_params.ConfigParams | None = None, config_file_path: str | None = None, config: paidiverpy.config.configuration.Configuration | None = None, metadata: paidiverpy.metadata_parser.MetadataParser | None = None, images: paidiverpy.images_layer.ImagesLayer | None = None, paidiverpy: Optional[paidiverpy.Paidiverpy] = None, step_order: int | None = None, step_name: str | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2, plot_metadata: pandas.DataFrame | None = None)
 
    Bases: :py:obj:`paidiverpy.Paidiverpy`
 
@@ -57,6 +57,8 @@ Package Contents
 
    This class processes the images in the position layer.
 
+   :param plots: The plots to generate.
+   :type plots: list | str
    :param config_params: The configuration parameters.
                          It can contain the following keys / attributes:
                          - input_path (str): The path to the input files.
@@ -88,9 +90,7 @@ Package Contents
    :type raise_error: bool
    :param verbose: verbose level (0 = none, 1 = errors/warnings, 2 = info).
    :type verbose: int
-   :param plots: The plots to generate.
-   :type plots: list | str
-   :param plot_metadata: The metadata for the
+   :param plot_metadata: The metadata for the plots.
    :type plot_metadata: pd.DataFrame
 
 

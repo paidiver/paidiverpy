@@ -56,7 +56,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-   .. py:method:: validate_required_keys(values: dict) -> dict
+   .. py:method:: validate_required_keys(values: dict[str, Any]) -> dict[str, Any]
       :classmethod:
 
 

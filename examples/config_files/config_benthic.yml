@@ -1,7 +1,7 @@
 general:
   sample_data: "benthic_csv"
   output_path: "./output"
-  n_jobs: 1
+  n_jobs: 8
   image_open_args:
     image_type: "JPG"
   sampling:
@@ -41,6 +41,22 @@ steps:
       params:
         alpha: 1.5
         beta: -0.5
+
+  # - colour:
+  #     name: "edge_detection"
+  #     mode: "edge_detection"
+  #     params:
+  #       method: "scharr_with_mean"
+  #       object_type: "isolated"
+  #       object_selection: "largest_area"
+  #       blur_radius: 3
+  #       threshold: {"low": 0.5, "high": 1.0}
+  #       deconv: True
+  #       deconv_method: "LR"
+  #       deconv_iter: 7
+  #       deconv_mask_weight: 0.5
+  #       estimate_sharpness: True
+  #       small_float_val: 0.0001
 
   - colour:
       name: "contrast"

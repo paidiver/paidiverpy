@@ -4,5 +4,6 @@ __version__ = "0.1.4"
 __author__ = "Tobias Ferreira"
 __credits__ = "National Oceanography Centre"
 from .paidiverpy import Paidiverpy
+from .utils.locals import show_versions
 
-__all__ = ["Paidiverpy"]
+__all__ = ("Paidiverpy", "show_versions")

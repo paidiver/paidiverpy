@@ -35,11 +35,13 @@ Documentation
     package_organisation
     configuration_file
     images_metadata
+    images_layer
     preprocessing_steps
     example_data
     gui
     gallery
     scientific_background
+    benchmarks
 
 .. toctree::
     :maxdepth: 2
@@ -72,10 +74,10 @@ Documentation
 
 .. |License| image:: https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square
     :target: https://www.apache.org/licenses/
-.. .. |Python version| image:: https://img.shields.io/pypi/pyversions/argopy
-..    :target: //pypi.org/project/argopy/
-.. .. |Anaconda-Server Badge| image:: https://anaconda.org/conda-forge/argopy/badges/platforms.svg
-..    :target: https://anaconda.org/conda-forge/argopy
+.. .. |Python version| image:: https://img.shields.io/pypi/pyversions/paidiverpy
+..    :target: //pypi.org/project/paidiverpy/
+.. .. |Anaconda-Server Badge| image:: https://anaconda.org/conda-forge/paidiverpy/badges/platforms.svg
+..    :target: https://anaconda.org/conda-forge/paidiverpy
 .. |lifecycle| image:: https://img.shields.io/badge/lifecycle-experimental-green.svg
    :target: https://www.tidyverse.org/lifecycle/#stable
 .. |DOI| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.14641878.svg
