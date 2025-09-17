@@ -46,7 +46,7 @@ jobs:
         run: |
           conda env create -f environment.yml
           conda activate Paidiverpy
-          conda run -n Paidiverpy pip install .
+          conda run -n Paidiverpy pip install -e .
           conda run -n Paidiverpy pip install .[test]
           conda run -n Paidiverpy pip install .[dev,publishing]
 

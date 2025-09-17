@@ -208,8 +208,6 @@ class ImagesLayer:
             s3_client = create_client()
             bucket_name = str(output_path)[5:].split("/")[0]
             check_create_bucket_exists(bucket_name, s3_client)
-        logger.info("AAAAAAAAAAAAAASaving images to %s", str(output_path))
-        logger.info("88888888888888images['filename']: %s", images["filename"].values)
         tasks = xr.apply_ufunc(
             ImagesLayer.process_single_image,
             images["images"],
@@ -256,8 +254,6 @@ class ImagesLayer:
             s3_client (boto3.client, optional): The S3 client. Defaults to None.
         """
         saved_image = self.calculate_image(image)
-        logger.info("XXXXXXXXXXXXXXXXimage path: %s", str(img_path))
-        logger.info("XXXXXXXXXXXXXXXXimage path type: %s", type(img_path))
         img_path_with_suffix = img_path.with_suffix(f".{image_format}") if isinstance(img_path, Path) else f"{img_path}.{image_format}"
         if saved_image.dtype == np.uint16:
             if image_format.lower() in ["tiff", "png"]:
@@ -279,7 +275,6 @@ class ImagesLayer:
                 buffer = io.BytesIO(encoded_image.tobytes())
                 upload_file_to_bucket(buffer, str(img_path_with_suffix), s3_client)
             else:
-                logger.info("Saving image to %s", str(img_path_with_suffix))
                 cv2.imwrite(str(img_path_with_suffix), saved_image)
                 # plt.imsave(img_path_with_suffix, saved_image, cmap=cmap, format=image_format)
 
@@ -367,9 +362,6 @@ class ImagesLayer:
             int: The status code (0 for success).
         """
         cropped = img[:height, :width, :]
-        logger.info("222222222222222image path: %s", str(output_path))
-        logger.info("333333333333333filename %s: %s", filename.item(), type(filename))
         output_path = output_path + filename.item() if s3_client else output_path / filename.item()
-        logger.info("4444444444444444444image path: %s", str(output_path))
         processor(cropped, output_path, image_format, s3_client)
         return 0

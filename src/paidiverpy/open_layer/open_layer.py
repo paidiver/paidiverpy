@@ -197,7 +197,6 @@ class OpenLayer(Paidiverpy):
         else:
             for filename, file_metadata in metadata.iterrows():
                 img_path = self.correct_input_path + filename if remote else self.correct_input_path / filename
-                self.logger.info("PPPPPPPPPPPPPPPPPPPPOpening image: %s, %s, %s", filename, self.correct_input_path, img_path)
                 img, metadata, height, width = OpenLayer.process_single_image(
                     img_path=img_path,
                     func=func,
@@ -269,7 +268,6 @@ class OpenLayer(Paidiverpy):
         image_list: list[np.ndarray[Any, Any] | da.core.Array] = []
         for img in images_info["image"]:
             padded = pad_image(img, max_height, max_width)
-            self.logger.info("Padded image shape: %s", padded.shape)
             image_list.append(padded)
 
         stacked_imgs = np.stack(image_list, axis=0)
