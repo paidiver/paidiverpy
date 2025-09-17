@@ -2,10 +2,11 @@ general:
   sample_data: "benthic_ifdo"
   output_path: "./output"
   track_changes: False
-  convert:
-    - mode: "bits"
+  sampling:
+    - mode: "fixed"
       params:
-        output_bits: 8
+        value: 20
+
 steps:
   - colour:
       name: "colour_correction"
