@@ -20,11 +20,11 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: '3.12'
 
     - name: Create conda environment
       run: |
-        conda env create -f environment.yml
+        conda env create -f environment.yml python=3.12 -y
         echo "conda activate Paidiverpy" >> ~/.bashrc
         source ~/.bashrc
         pip install --upgrade pip

@@ -54,7 +54,6 @@ jobs:
 
       - name: Run Notebooks in "examples/example_notebooks"
         run: |
-          source ~/.bashrc
           conda activate Paidiverpy
 
           for notebook in examples/example_notebooks/*.ipynb; do
