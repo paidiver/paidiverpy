@@ -1,3 +1,4 @@
+{% set sha256 = "4d33c0baca299e04999a493a168b8464aaa06b23ec9262a381ade13e72b8b160" %}
 {% set sha256 = "98dce926ae60695bce5fdeccad7a32a5642311a1f504f2ffbb3c370d6f37a9da" %}
 {% set python_min = "3.10" %}
 {% set version = "0.1.3" %}
