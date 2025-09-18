@@ -3,8 +3,9 @@ branch = True
 source =
     src/paidiverpy
 omit =
-    src/paidiverpy/utils/benchmark_test.py
+    src/paidiverpy/utils/benchmark/benchmark_test.py
     src/paidiverpy/utils/schema_json_handler.py
+    src/paidiverpy/models/config_model.py
     src/paidiverpy/frontend/*
 
 

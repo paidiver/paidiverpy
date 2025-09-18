@@ -46,9 +46,9 @@ jobs:
         run: |
           conda env create -f environment.yml python=${{ matrix.python-version }} -y
           conda activate Paidiverpy
-          pip install -e . --src src
-          pip install .[test]
-          pip install .[dev,publishing]
+          pip install -e .
+          pip install -e ".[test]"
+          pip install -e ".[dev,publishing]"
 
       - name: Test with pytest
         shell: bash -l {0}
