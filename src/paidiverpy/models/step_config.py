@@ -16,9 +16,6 @@ from paidiverpy.models.position_params import PositionParamsUnion
 from paidiverpy.models.sampling_params import SAMPLING_LAYER_METHODS
 from paidiverpy.models.sampling_params import SamplingParamsUnion
 from paidiverpy.utils.base_model import BaseModel
-from paidiverpy.utils.logging_functions import initialise_logging
-
-# from paidiverpy.config.custom_params import CustomParamsUnion
 
 steps_params_mapping = {
     "colour": COLOUR_LAYER_METHODS,
@@ -31,8 +28,6 @@ PositionModeLiteral = cast(type, Literal.__getitem__(tuple(POSITION_LAYER_METHOD
 ColourModeLiteral = cast(type, Literal.__getitem__(tuple(COLOUR_LAYER_METHODS.keys())))
 ConvertModeLiteral = cast(type, Literal.__getitem__(tuple(CONVERT_LAYER_METHODS.keys())))
 SamplingModeLiteral = cast(type, Literal.__getitem__(tuple(SAMPLING_LAYER_METHODS.keys())))
-
-logger = initialise_logging()
 
 
 class StepConfig(BaseModel):
@@ -51,7 +46,7 @@ class StepConfig(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def resolve_params_schema(cls, values: dict) -> dict:
+    def resolve_params_schema(cls, values: dict[str, Any]) -> dict[str, Any]:
         """Resolve the parameters schema based on the step name and mode.
 
         Args:
@@ -63,7 +58,7 @@ class StepConfig(BaseModel):
         if isinstance(values, StepConfig):
             return values
         step_name = values.get("step_name")
-        params = values.get("params", {})
+        params: dict[str, Any] = values.get("params", {})
         mode = values.get("mode")
 
         if step_name == "custom":
@@ -83,7 +78,7 @@ class StepConfig(BaseModel):
             values["params"] = param_class(**params)
         return values
 
-    def update(self, **updates: dict) -> "StepConfig":
+    def update(self, **updates: dict[str, Any]) -> "StepConfig":
         """Update the model in-place with new values."""
         for key, value in updates.items():
             setattr(self, key, value)
@@ -102,10 +97,10 @@ class PositionConfig(StepConfig):
     )
     test: bool = Field(False, description="Test mode")
     params: PositionParamsUnion | None = Field(default=None, description="Position parameters")
-    processing_type: Literal["image", "dataset"] = Field(
-        "image",
-        description=("If the images are processed individually (image option) or as a dataset (dataset option)"),
-    )
+    # processing_type: Literal["image", "dataset"] = Field(
+    #     "image",
+    #     description=("If the images are processed individually (image option) or as a dataset (dataset option)"),
+    # )
 
 
 class ColourConfig(StepConfig):
@@ -117,10 +112,10 @@ class ColourConfig(StepConfig):
     )
     test: bool = Field(False, description="Test mode")
     params: ColourParamsUnion | None = Field(default=None, description="Colour parameters")
-    processing_type: Literal["image", "dataset"] = Field(
-        "image",
-        description=("If the images are processed individually (image option) or as a dataset (dataset option)"),
-    )
+    # processing_type: Literal["image", "dataset"] = Field(
+    #     "image",
+    #     description=("If the images are processed individually (image option) or as a dataset (dataset option)"),
+    # )
 
 
 class ConvertConfig(StepConfig):
@@ -130,10 +125,10 @@ class ConvertConfig(StepConfig):
     mode: ConvertModeLiteral = Field(description="Mode for the convert step")
     test: bool = Field(False, description="Test mode")
     params: ConvertParamsUnion | None = Field(default=None, description="Convert parameters")
-    processing_type: Literal["image", "dataset"] = Field(
-        "image",
-        description=("If the images are processed individually (image option) or as a dataset (dataset option)"),
-    )
+    # processing_type: Literal["image", "dataset"] = Field(
+    #     "image",
+    #     description=("If the images are processed individually (image option) or as a dataset (dataset option)"),
+    # )
 
 
 class SamplingConfig(StepConfig):
@@ -143,10 +138,10 @@ class SamplingConfig(StepConfig):
     mode: SamplingModeLiteral = Field(description="Mode for the sampling step")
     test: bool = Field(False, description="Test mode")
     params: SamplingParamsUnion | None = Field(default=None, description="Sampling parameters")
-    processing_type: Literal["image", "dataset"] = Field(
-        "image",
-        description=("If the images are processed individually (image option) or as a dataset (dataset option)"),
-    )
+    # processing_type: Literal["image", "dataset"] = Field(
+    #     "image",
+    #     description=("If the images are processed individually (image option) or as a dataset (dataset option)"),
+    # )
 
 
 class CustomConfig(BaseModel):

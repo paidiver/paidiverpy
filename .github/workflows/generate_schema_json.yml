@@ -49,4 +49,7 @@ jobs:
           fi
 
           git commit -m "chore: update json schema"
-          git push
+
+          # Make sure we are up to date
+          git pull --rebase origin dev
+          git push origin dev

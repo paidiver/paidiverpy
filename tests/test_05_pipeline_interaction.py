@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 import numpy as np
 import pytest
+import xarray as xr
 from paidiverpy.colour_layer.colour_layer import ColourLayer
 from paidiverpy.config.configuration import Configuration
 from paidiverpy.config.configuration import GeneralConfig
@@ -33,7 +34,8 @@ class TestPipelineInteraction(BaseTestClass):
         assert pipeline.steps[-1][2]["test"] is False
         assert len(pipeline.steps) == number_pipeline_steps
         images = pipeline.images.images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         assert len(images) == number_images
         pipeline.add_step(
             "Area1",
@@ -46,13 +48,15 @@ class TestPipelineInteraction(BaseTestClass):
         assert len(pipeline.steps) == number_pipeline_steps
         pipeline.run(from_step=0)
         images = pipeline.images.images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         assert len(images) == number_images
         pipeline.add_step("contrast", ColourLayer, {"mode": "contrast"})
         assert len(pipeline.steps) == number_pipeline_steps + 1
         pipeline.run()
         images = pipeline.images.images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         assert len(images) == number_images + 1
 
     def test_pipeline_export(self):
@@ -75,7 +79,8 @@ class TestPipelineInteraction(BaseTestClass):
         pipeline = Pipeline(config_file_path="./new_config_plankton.yml")
         pipeline.run()
         images = pipeline.images.images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         assert len(images) == number_images
         config_output_path = Path("./new_config_plankton.yml")
         output_files = list(config_output_path.parent.glob(config_output_path.name))

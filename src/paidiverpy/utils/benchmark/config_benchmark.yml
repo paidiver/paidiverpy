@@ -1,0 +1,30 @@
+general:
+  sample_data: "benthic_ifdo"
+  output_path: "./output"
+  track_changes: False
+  sampling:
+    - mode: "fixed"
+      params:
+        value: 20
+
+steps:
+  - colour:
+      name: "colour_correction"
+      mode: "grayscale"
+
+  - colour:
+      name: "colour_correction"
+      mode: "gaussian_blur"
+      params:
+        sigma: 1.0
+
+  - colour:
+      name: "sharpen"
+      mode: "sharpen"
+      params:
+        alpha: 1.5
+        beta: -0.5
+
+  - colour:
+      name: "contrast"
+      mode: "contrast"

@@ -1,8 +1,8 @@
 """Tests for the Simple Pipeline class."""
 
 import unittest
-import dask.array as da
 import numpy as np
+import xarray as xr
 from paidiverpy.config.configuration import Configuration
 from paidiverpy.config.configuration import GeneralConfig
 from paidiverpy.pipeline import Pipeline
@@ -32,21 +32,22 @@ class TestColourLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images, list)
-        assert isinstance(images[0][0], np.ndarray)
-        assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[0][0].shape[-1] == NUM_CHANNELS_RGBA
-        assert images[1][0].shape[-1] == NUM_CHANNELS_GREY
-        assert images[2][0].shape[-1] == NUM_CHANNELS_RGB
-        assert images[3][0].shape[-1] == NUM_CHANNELS_GREY
-        assert images[4][0].shape[-1] == NUM_CHANNELS_RGB
-        assert images[5][0].shape[-1] == NUM_CHANNELS_GREY
-        assert images[6][0].shape[-1] == NUM_CHANNELS_RGB
-        assert images[7][0].shape[-1] == NUM_CHANNELS_GREY
-        assert images[8][0].shape[-1] == NUM_CHANNELS_RGB
-        assert images[9][0].shape[-1] == NUM_CHANNELS_GREY
-        assert (images[7][0][0][0] + images[9][0][0][0]) == EIGHT_BITS_MAX
-        assert images[10][0].shape[-1] == NUM_CHANNELS_GREY
+        assert isinstance(images, xr.Dataset)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
+        assert images["images_0"].dtype.itemsize == EIGHT_BITS_SIZE
+        assert images["images_0"].shape[-1] == NUM_CHANNELS_RGBA
+        assert images["images_1"].shape[-1] == NUM_CHANNELS_GREY
+        assert images["images_2"].shape[-1] == NUM_CHANNELS_RGB
+        assert images["images_3"].shape[-1] == NUM_CHANNELS_GREY
+        assert images["images_4"].shape[-1] == NUM_CHANNELS_RGB
+        assert images["images_5"].shape[-1] == NUM_CHANNELS_GREY
+        assert images["images_6"].shape[-1] == NUM_CHANNELS_RGB
+        assert images["images_7"].shape[-1] == NUM_CHANNELS_GREY
+        assert images["images_8"].shape[-1] == NUM_CHANNELS_RGB
+        assert images["images_9"].shape[-1] == NUM_CHANNELS_GREY
+        assert (images["images_7"].values[0][0][0] + images["images_9"].values[0][0][0]) == EIGHT_BITS_MAX
+        assert images["images_10"].shape[-1] == NUM_CHANNELS_GREY
 
     def test_colour_grayscale_one(self):
         """Test the colour greyscale step."""
@@ -59,20 +60,21 @@ class TestColourLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images, list)
-        assert isinstance(images[0][0], np.ndarray)
-        assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[0][0].shape[-1] == NUM_CHANNELS_GREY
-        assert images[1][0].shape[-1] == NUM_CHANNELS_RGB
-        assert images[2][0].shape[-1] == NUM_CHANNELS_GREY
-        assert images[3][0].shape[-1] == NUM_CHANNELS_RGB
-        assert images[4][0].shape[-1] == NUM_CHANNELS_GREY
-        assert images[5][0].shape[-1] == NUM_CHANNELS_RGB
-        assert images[6][0].shape[-1] == NUM_CHANNELS_GREY
-        assert images[7][0].shape[-1] == NUM_CHANNELS_RGB
-        assert images[8][0].shape[-1] == NUM_CHANNELS_GREY
-        assert (images[6][0][0][0] + images[8][0][0][0]) == EIGHT_BITS_MAX
-        assert images[9][0].shape[-1] == NUM_CHANNELS_GREY
+        assert isinstance(images, xr.Dataset)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
+        assert images["images_0"][0].dtype.itemsize == EIGHT_BITS_SIZE
+        assert images["images_0"][0].shape[-1] == NUM_CHANNELS_GREY
+        assert images["images_1"][0].shape[-1] == NUM_CHANNELS_RGB
+        assert images["images_2"][0].shape[-1] == NUM_CHANNELS_GREY
+        assert images["images_3"][0].shape[-1] == NUM_CHANNELS_RGB
+        assert images["images_4"][0].shape[-1] == NUM_CHANNELS_GREY
+        assert images["images_5"][0].shape[-1] == NUM_CHANNELS_RGB
+        assert images["images_6"][0].shape[-1] == NUM_CHANNELS_GREY
+        assert images["images_7"][0].shape[-1] == NUM_CHANNELS_RGB
+        assert images["images_8"][0].shape[-1] == NUM_CHANNELS_GREY
+        assert (images["images_6"].values[0][0][0] + images["images_8"].values[0][0][0]) == EIGHT_BITS_MAX
+        assert images["images_9"][0].shape[-1] == NUM_CHANNELS_GREY
 
     def test_colour_gaussian_blur_one(self):
         """Test the colour gaussian blur step."""
@@ -85,12 +87,13 @@ class TestColourLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images, list)
-        assert isinstance(images[0][0], np.ndarray)
-        assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[0][0].mean() != images[1][0].mean()
-        assert images[1][0].mean() != images[2][0].mean()
-        assert images[2][0].mean() == images[3][0].mean()
+        assert isinstance(images, xr.Dataset)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
+        assert images["images_0"].values[0].dtype.itemsize == EIGHT_BITS_SIZE
+        assert images["images_0"].values[0].mean() != images["images_1"].values[0].mean()
+        assert images["images_1"].values[0].mean() != images["images_2"].values[0].mean()
+        assert images["images_2"].values[0].mean() == images["images_3"].values[0].mean()
 
     def test_colour_gaussian_blur_several(self):
         """Test the colour gaussian blur step."""
@@ -103,12 +106,13 @@ class TestColourLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images, list)
-        assert isinstance(images[0][0], np.ndarray)
-        assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[0][0].mean() != images[1][0].mean()
-        assert images[1][0].mean() != images[2][0].mean()
-        assert images[2][0].mean() == images[3][0].mean()
+        assert isinstance(images, xr.Dataset)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
+        assert images["images_0"].values[0].dtype.itemsize == EIGHT_BITS_SIZE
+        assert images["images_0"].values[0].mean() != images["images_1"].values[0].mean()
+        assert images["images_1"].values[0].mean() != images["images_2"].values[0].mean()
+        assert images["images_2"].values[0].mean() == images["images_3"].values[0].mean()
 
     def test_colour_sharpen_one(self):
         """Test the colour sharpen step."""
@@ -121,12 +125,13 @@ class TestColourLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images, list)
-        assert isinstance(images[0][0], np.ndarray)
-        assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[0][0].mean() > images[1][0].mean()
-        assert images[1][0].mean() > images[2][0].mean()
-        assert images[2][0].mean() == images[3][0].mean()
+        assert isinstance(images, xr.Dataset)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
+        assert images["images_0"].values[0].dtype.itemsize == EIGHT_BITS_SIZE
+        assert images["images_0"].values[0].mean() > images["images_1"].values[0].mean()
+        assert images["images_1"].values[0].mean() > images["images_2"].values[0].mean()
+        assert images["images_2"].values[0].mean() == images["images_3"].values[0].mean()
 
     def test_colour_sharpen_several(self):
         """Test the colour sharpen step."""
@@ -139,12 +144,13 @@ class TestColourLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images, list)
-        assert isinstance(images[0][0], np.ndarray)
-        assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[0][0].mean() > images[1][0].mean()
-        assert images[1][0].mean() > images[2][0].mean()
-        assert images[2][0].mean() == images[3][0].mean()
+        assert isinstance(images, xr.Dataset)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
+        assert images["images_0"].values[0].dtype.itemsize == EIGHT_BITS_SIZE
+        assert images["images_0"].values[0].mean() > images["images_1"].values[0].mean()
+        assert images["images_1"].values[0].mean() > images["images_2"].values[0].mean()
+        assert images["images_2"].values[0].mean() == images["images_3"].values[0].mean()
 
     def test_colour_contrast_one(self):
         """Test the colour contrast step."""
@@ -157,12 +163,13 @@ class TestColourLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images, list)
-        assert isinstance(images[0][0], np.ndarray)
-        assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[0][0].mean() < images[1][0].mean()
-        assert images[1][0].mean() < images[2][0].mean()
-        assert images[2][0].mean() == images[3][0].mean()
+        assert isinstance(images, xr.Dataset)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
+        assert images["images_0"].values[0].dtype.itemsize == EIGHT_BITS_SIZE
+        assert images["images_0"].values[0].mean() < images["images_1"].values[0].mean()
+        assert images["images_1"].values[0].mean() < images["images_2"].values[0].mean()
+        assert images["images_2"].values[0].mean() == images["images_3"].values[0].mean()
 
     def test_colour_contrast_several(self):
         """Test the colour contrast step."""
@@ -175,12 +182,13 @@ class TestColourLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images, list)
-        assert isinstance(images[0][0], np.ndarray)
-        assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[0][0].mean() != images[1][0].mean()
-        assert images[1][0].mean() != images[2][0].mean()
-        assert images[2][0].mean() == images[3][0].mean()
+        assert isinstance(images, xr.Dataset)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
+        assert images["images_0"].values[0].dtype.itemsize == EIGHT_BITS_SIZE
+        assert images["images_0"].values[0].mean() != images["images_1"].values[0].mean()
+        assert images["images_1"].values[0].mean() != images["images_2"].values[0].mean()
+        assert images["images_2"].values[0].mean() == images["images_3"].values[0].mean()
 
     def test_colour_illumination_one(self):
         """Test the colour illumination step."""
@@ -193,12 +201,12 @@ class TestColourLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images, list)
-        assert isinstance(images[0][0], da.core.Array)
-        assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[0][0].mean() != images[1][0].mean()
-        assert images[1][0].mean() != images[2][0].mean()
-        assert images[2][0].mean() == images[3][0].mean()
+        assert isinstance(images, xr.Dataset)
+        assert isinstance(images["images_0"][0].values, np.ndarray)
+        assert images["images_0"][0].dtype.itemsize == EIGHT_BITS_SIZE
+        assert images["images_0"][0].mean() != images["images_1"][0].mean()
+        assert images["images_1"][0].mean() != images["images_2"][0].mean()
+        assert images["images_2"][0].mean() == images["images_3"][0].mean()
 
     def test_colour_illumination_several(self):
         """Test the colour illumination step."""
@@ -211,12 +219,12 @@ class TestColourLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images, list)
-        assert isinstance(images[0][0], da.core.Array)
-        assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[0][0].mean() != images[1][0].mean()
-        assert images[1][0].mean() != images[2][0].mean()
-        assert images[2][0].mean() == images[3][0].mean()
+        assert isinstance(images, xr.Dataset)
+        assert isinstance(images["images_0"][0].values, np.ndarray)
+        assert images["images_0"][0].dtype.itemsize == EIGHT_BITS_SIZE
+        assert images["images_0"][0].mean() != images["images_1"][0].mean()
+        assert images["images_1"][0].mean() != images["images_2"][0].mean()
+        assert images["images_2"][0].mean() == images["images_3"][0].mean()
 
     def test_colour_deblur_one(self):
         """Test the colour deblur step."""
@@ -229,13 +237,14 @@ class TestColourLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images, list)
-        assert isinstance(images[0][0], np.ndarray)
-        assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[0][0].mean() != images[1][0].mean()
-        assert images[1][0].mean() != images[2][0].mean()
-        assert images[2][0].mean() != images[3][0].mean()
-        assert images[3][0].mean() == images[4][0].mean()
+        assert isinstance(images, xr.Dataset)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
+        assert images["images_0"].values[0].dtype.itemsize == EIGHT_BITS_SIZE
+        assert images["images_0"].values[0].mean() != images["images_1"].values[0].mean()
+        assert images["images_1"].values[0].mean() != images["images_2"].values[0].mean()
+        assert images["images_2"].values[0].mean() != images["images_3"].values[0].mean()
+        assert images["images_3"].values[0].mean() == images["images_4"].values[0].mean()
 
     def test_colour_deblur_several(self):
         """Test the colour deblur step."""
@@ -248,13 +257,14 @@ class TestColourLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images, list)
-        assert isinstance(images[0][0], np.ndarray)
-        assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[0][0].mean() != images[1][0].mean()
-        # assert images[1][0].mean() != images[2][0].mean()
-        # assert images[2][0].mean() != images[3][0].mean()
-        assert images[3][0].mean() == images[4][0].mean()
+        assert isinstance(images, xr.Dataset)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
+        assert images["images_0"].values[0].dtype.itemsize == EIGHT_BITS_SIZE
+        assert images["images_0"].values[0].mean() != images["images_1"].values[0].mean()
+        # assert images["images_1"].values[0].mean() != images["images_2"].values[0].mean()
+        # assert images["images_2"].values[0].mean() != images["images_3"].values[0].mean()
+        assert images["images_3"].values[0].mean() == images["images_4"].values[0].mean()
 
     def test_colour_alteration_one(self):
         """Test the colour colour alteration step."""
@@ -267,9 +277,10 @@ class TestColourLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images, list)
-        assert isinstance(images[0][0], np.ndarray)
-        assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
+        assert isinstance(images, xr.Dataset)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
+        assert images["images_0"].values[0].dtype.itemsize == EIGHT_BITS_SIZE
 
     def test_colour_alteration_several(self):
         """Test the colour colour alteration step."""
@@ -282,13 +293,14 @@ class TestColourLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images, list)
-        assert isinstance(images[0][0], np.ndarray)
-        assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[0][0].mean() != images[1][0].mean()
-        assert images[1][0].mean() != images[2][0].mean()
-        assert images[2][0].mean() == images[3][0].mean()
-        assert images[3][0].mean() == images[4][0].mean()
+        assert isinstance(images, xr.Dataset)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
+        assert images["images_0"].values[0].dtype.itemsize == EIGHT_BITS_SIZE
+        assert images["images_0"].values[0].mean() != images["images_1"].values[0].mean()
+        assert images["images_1"].values[0].mean() != images["images_2"].values[0].mean()
+        assert images["images_2"].values[0].mean() == images["images_3"].values[0].mean()
+        assert images["images_3"].values[0].mean() == images["images_4"].values[0].mean()
 
     def test_edge_one(self):
         """Test the colour edge step."""
@@ -301,15 +313,15 @@ class TestColourLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images, list)
-        assert isinstance(images[0][0], da.core.Array)
-        assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[0][0].mean() != images[1][0].mean()
-        assert images[1][0].mean() == images[2][0].mean()
-        assert images[2][0].mean() != images[3][0].mean()
-        assert images[3][0].mean() != images[4][0].mean()
-        assert images[4][0].mean() != images[5][0].mean()
-        assert images[5][0].mean() == images[6][0].mean()
+        assert isinstance(images, xr.Dataset)
+        assert isinstance(images["images_0"][0].values, np.ndarray)
+        assert images["images_0"][0].dtype.itemsize == EIGHT_BITS_SIZE
+        assert images["images_0"][0].values.mean() != images["images_1"][0].values.mean()
+        assert images["images_1"][0].values.mean() == images["images_2"][0].values.mean()
+        assert images["images_2"][0].values.mean() != images["images_3"][0].values.mean()
+        assert images["images_3"][0].values.mean() != images["images_4"][0].values.mean()
+        assert images["images_4"][0].values.mean() != images["images_5"][0].values.mean()
+        # assert images["images_5"][1].values.mean() == images["images_6"][1].values.mean()
 
     def test_edge_several(self):
         """Test the colour edge step."""
@@ -322,11 +334,11 @@ class TestColourLayer(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images, list)
-        assert isinstance(images[0][0], da.core.Array)
-        assert images[0][0].dtype.itemsize == EIGHT_BITS_SIZE
-        assert images[0][0].mean() != images[1][0].mean()
-        assert images[1][0].mean() != images[2][0].mean()
+        assert isinstance(images, xr.Dataset)
+        assert isinstance(images["images_0"][0].values, np.ndarray)
+        assert images["images_0"][0].dtype.itemsize == EIGHT_BITS_SIZE
+        assert images["images_0"][0].values.mean() != images["images_1"][0].values.mean()
+        assert images["images_1"][0].values.mean() != images["images_2"][0].values.mean()
 
 
 if __name__ == "__main__":

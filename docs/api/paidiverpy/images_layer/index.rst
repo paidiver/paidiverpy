@@ -22,13 +22,13 @@ Classes
 Module Contents
 ---------------
 
-.. py:class:: ImagesLayer(output_path: str | None = None)
+.. py:class:: ImagesLayer(output_path: str | pathlib.Path | None = None)
 
    
    Class to handle images and metadata for each step in the pipeline.
 
    :param output_path: Path to save the images. Default is None.
-   :type output_path: str
+   :type output_path: str | Path | None
 
 
 
@@ -47,22 +47,73 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-   .. py:method:: add_step(step: str, images: numpy.ndarray | dask.array.core.Array = None, metadata: pandas.DataFrame = None, step_metadata: dict | None = None, update_metadata: bool = False, track_changes: bool = True) -> None
+   .. py:method:: add_step(step: str, images: xarray.Dataset, step_metadata: dict[str, object], metadata: pandas.DataFrame | None = None, track_changes: bool = True) -> None
 
       
       Add a step to the pipeline.
 
       :param step: The step to add
       :type step: str
-      :param images: The images to add.
-      :type images: np.ndarray | da.core.Array, optional
+      :param images: The images for the step.
+      :type images: xr.Dataset
+      :param step_metadata: The metadata for the step.
+      :type step_metadata: dict
+      :param metadata: The metadata to set. Defaults to None.
+      :type metadata: pd.DataFrame | None, optional
+      :param track_changes: Whether to track changes. Defaults to True.
+      :type track_changes: bool, optional
 
-      Defaults to None.
-          metadata (pd.DataFrame, optional): The metadata to add. Defaults to None.
-          step_metadata (dict, optional): The metadata for the step.
-      Defaults to None.
-          update_metadata (bool, optional): Whether to update the metadata.
-          track_changes (bool, optional): Whether to track changes. Defaults to True.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: replace_step(images: xarray.Dataset) -> None
+
+      
+      Add a step to the pipeline.
+
+      :param images: The images for the step.
+      :type images: xr.Dataset
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: set_images(images: xarray.Dataset) -> None
+
+      
+      Set the images for the layer.
+
+      :param images: The images to set.
+      :type images: xr.Dataset
 
 
 
@@ -108,7 +159,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: get_step(step: str | int | None = None, last: bool = False) -> list[numpy.ndarray | dask.array.core.Array]
+   .. py:method:: get_step(step: str | int | None = None, last: bool = False, flag: None | int = None) -> xarray.Dataset
 
       
       Get a step by name or order.
@@ -117,9 +168,11 @@ Module Contents
       :type step: str | int, optional
       :param last: If True, get the last step. Defaults to False.
       :type last: bool, optional
+      :param flag: The flag to filter the images. Defaults to None.
+      :type flag: None | int, optional
 
-      :returns: The images for the step
-      :rtype: list[np.ndarray | da.core.Array]
+      :returns: The images for the step or None if the step does not exist.
+      :rtype: xr.Dataset | None
 
 
 
@@ -168,7 +221,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: save(step: str | int | None = None, last: bool = True, output_path: str | None = None, image_format: str = 'png', config: paidiverpy.config.configuration.Configuration | None = None, metadata: pandas.DataFrame | None = None, client: dask.distributed.Client = None, n_jobs: int = 1, logger: logging.Logger | None = None) -> None
+   .. py:method:: save(config: paidiverpy.config.configuration.Configuration, step: str | int | None = None, last: bool = True, output_path: str | pathlib.Path | None = None, image_format: str = 'png', client: dask.distributed.Client | None = None, n_jobs: int = 1, use_dask: bool = False) -> None
 
       
       Save the images in the pipeline.
@@ -183,14 +236,12 @@ Module Contents
       :type image_format: str, optional
       :param config: The configuration object. Defaults to None.
       :type config: Configuration, optional
-      :param metadata: The metadata object. Defaults to None.
-      :type metadata: pd.DataFrame, optional
       :param client: The Dask client. Defaults to None.
       :type client: Client, optional
       :param n_jobs: The number of jobs to use. Defaults to 1.
       :type n_jobs: int, optional
-      :param logger: The logger to log messages. Defaults to None.
-      :type logger: logging.Logger, optional
+      :param use_dask: Whether to use Dask. Defaults to False.
+      :type use_dask: bool, optional
 
 
 
@@ -210,87 +261,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: save_remote(images: list[numpy.ndarray | dask.array.core.Array], output_path: str, image_format: str, metadata: pandas.DataFrame, client: dask.distributed.Client, n_jobs: int, step_order: int, logger: logging.Logger) -> None
-
-      
-      Save the images to a remote location.
-
-      :param images: The images to save.
-      :type images: list
-      :param output_path: The output path to save the images.
-      :type output_path: str
-      :param image_format: The image format to save.
-      :type image_format: str
-      :param metadata: The metadata object.
-      :type metadata: pd.DataFrame
-      :param client: The Dask client.
-      :type client: Client
-      :param n_jobs: The number of jobs to use.
-      :type n_jobs: int
-      :param step_order: The step order.
-      :type step_order: int
-      :param logger: The logger to log messages.
-      :type logger: logging.Logger
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      ..
-          !! processed by numpydoc !!
-
-
-   .. py:method:: save_local(images: list[numpy.ndarray | dask.array.core.Array], output_path: str, image_format: str, metadata: pandas.DataFrame, client: dask.distributed.Client, n_jobs: int, step_order: int, logger: logging.Logger) -> None
-
-      
-      Save the images to a local location.
-
-      :param images: The images to save.
-      :type images: list
-      :param output_path: The output path to save the images.
-      :type output_path: str
-      :param image_format: The image format to save.
-      :type image_format: str
-      :param metadata: The metadata object.
-      :type metadata: pd.DataFrame
-      :param client: The Dask client.
-      :type client: Client
-      :param n_jobs: The number of jobs to use.
-      :type n_jobs: int
-      :param step_order: The step order.
-      :type step_order: int
-      :param logger: The logger to log messages.
-      :type logger: logging.Logger
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      ..
-          !! processed by numpydoc !!
-
-
-   .. py:method:: process_and_upload(image: numpy.ndarray | dask.array.core.Array, img_path: str | pathlib.Path, image_format: str, s3_client: dask.distributed.Client | None = None, metadata: pandas.DataFrame | None = None) -> None
+   .. py:method:: process_and_upload(image: numpy.ndarray[Any, Any] | dask.array.core.Array, img_path: str | pathlib.Path, image_format: str, s3_client: dask.distributed.Client | None = None) -> None
 
       
       Process and upload the images.
@@ -303,8 +274,6 @@ Module Contents
       :type image_format: str
       :param s3_client: The S3 client. Defaults to None.
       :type s3_client: boto3.client, optional
-      :param metadata: The metadata object. Defaults to None.
-      :type metadata: pd.DataFrame, optional
 
 
 
@@ -324,7 +293,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: calculate_image(image: numpy.ndarray | dask.array.core.Array) -> tuple
+   .. py:method:: calculate_image(image: numpy.ndarray[Any, Any] | dask.array.core.Array) -> numpy.ndarray[Any, Any]
 
       
       Calculate the image.
@@ -332,8 +301,8 @@ Module Contents
       :param image: The image to calculate.
       :type image: np.ndarray | da.core.Array
 
-      :returns: The saved image and the colormap.
-      :rtype: tuple[np.ndarray, str]
+      :returns: The calculated image.
+      :rtype: np.ndarray
 
 
 
@@ -353,39 +322,13 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: remove(output_path: str | None = None) -> None
+   .. py:method:: remove(output_path: str | pathlib.Path | None = None) -> None
 
       
       Remove the images from the output path.
 
       :param output_path: The output path to save the images. Defaults to None.
-      :type output_path: str, optional
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      ..
-          !! processed by numpydoc !!
-
-
-   .. py:method:: __repr__() -> str
-
-      
-      Return the string representation of the object.
-
-      :returns: The string representation of the object
-      :rtype: str
+      :type output_path: str | Path, optional
 
 
 
@@ -417,6 +360,51 @@ Module Contents
 
       :returns: The HTML representation of the object
       :rtype: HTML
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: process_single_image(img: numpy.ndarray[Any, Any], height: numpy.ndarray[Any, Any], width: numpy.ndarray[Any, Any], filename: numpy.ndarray[Any, Any], output_path: pathlib.Path, image_format: str, s3_client: dask.distributed.Client | None, processor: collections.abc.Callable) -> int
+      :staticmethod:
+
+
+      
+      Process a single image and save it.
+
+      :param img: The image to process.
+      :type img: np.ndarray
+      :param height: The height of the image.
+      :type height: np.ndarray
+      :param width: The width of the image.
+      :type width: np.ndarray
+      :param filename: The filename of the image.
+      :type filename: np.ndarray
+      :param output_path: The path to save the output.
+      :type output_path: Path
+      :param image_format: The format to save the image.
+      :type image_format: str
+      :param s3_client: The S3 client to use for uploading.
+      :type s3_client: Client | None
+      :param processor: The processing function to use.
+      :type processor: Callable
+
+      :returns: The status code (0 for success).
+      :rtype: int
 
 
 

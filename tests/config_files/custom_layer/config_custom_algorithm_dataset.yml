@@ -13,10 +13,10 @@ steps:
       mode: "grayscale"
 
   - custom:
-      name: "min_max_data"
+      name: "min_max_data_dataset"
       file_path: "example_dataset"
       processing_type: dataset
-      class_name: "MyMethod"
+      class_name: "MyDatasetCustomClass"
       dependencies: "scikit-learn,numpy"
       params:
         feature_range: (0, 1)

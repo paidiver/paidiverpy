@@ -4,9 +4,12 @@ Process the images in the position layer.
 """
 
 import logging
+from typing import Any
+from typing import Optional
 import geopandas as gpd
 import pandas as pd
 from matplotlib import pyplot as plt
+from matplotlib.patches import Polygon as MplPolygon
 from paidiverpy import Paidiverpy
 from paidiverpy.config.config_params import ConfigParams
 from paidiverpy.config.configuration import Configuration
@@ -20,6 +23,7 @@ class InvestigationLayer(Paidiverpy):
     This class processes the images in the position layer.
 
     Args:
+        plots (list | str): The plots to generate.
         config_params (dict | ConfigParams, optional): The configuration parameters.
             It can contain the following keys / attributes:
             - input_path (str): The path to the input files.
@@ -39,25 +43,24 @@ class InvestigationLayer(Paidiverpy):
         logger (logging.Logger): The logger object.
         raise_error (bool): Whether to raise an error.
         verbose (int): verbose level (0 = none, 1 = errors/warnings, 2 = info).
-        plots (list | str): The plots to generate.
-        plot_metadata (pd.DataFrame): The metadata for the
+        plot_metadata (pd.DataFrame): The metadata for the plots.
     """
 
     def __init__(
         self,
-        config_params: dict | ConfigParams = None,
+        plots: list[Any] | str,
+        config_params: dict[str, Any] | ConfigParams | None = None,
         config_file_path: str | None = None,
-        config: Configuration = None,
-        metadata: MetadataParser = None,
-        images: ImagesLayer = None,
-        paidiverpy: "Paidiverpy" = None,
-        step_order: str | None = None,
+        config: Configuration | None = None,
+        metadata: MetadataParser | None = None,
+        images: ImagesLayer | None = None,
+        paidiverpy: Optional["Paidiverpy"] = None,
+        step_order: int | None = None,
         step_name: str | None = None,
         logger: logging.Logger | None = None,
         raise_error: bool = False,
         verbose: int = 2,
-        plots: list | str | None = None,
-        plot_metadata: pd.DataFrame = None,
+        plot_metadata: pd.DataFrame | None = None,
     ):
         super().__init__(
             config_params=config_params,
@@ -115,17 +118,20 @@ class InvestigationLayer(Paidiverpy):
         ax.set_xlabel("Longitude")
         ax.set_ylabel("Latitude")
         ax.set_title("Comparison of Original and Samplingd Images")
-        if self.metadata.dataset_metadata.get("trimmed_polygon") is not None:
-            self.metadata.dataset_metadata["trimmed_polygon"].plot(ax=ax, color="none", edgecolor="black", linewidth=2)
+        dataset_metadata = self.metadata.dataset_metadata
+
+        if dataset_metadata.get("trimmed_polygon") is not None:
+            for polygon in dataset_metadata["trimmed_polygon"]:
+                patch = MplPolygon(list(polygon.exterior.coords), fill=False, edgecolor="black", linewidth=2)
+                ax.add_patch(patch)
+
         plt.savefig(self.output_path / "graph_trimmed_images.png")
         plt.close()
 
     def plot_polygons(self) -> None:
         """Plot the polygons."""
-        metadata = self.get_metadata()
-        gdf = gpd.GeoDataFrame(metadata, geometry="polygon_m")
+        gdf = gpd.GeoDataFrame(self.plot_metadata, geometry="polygon_m")
         _, ax = plt.subplots(figsize=(15, 15))
-
         no_overlap = gdf[gdf.overlap == 0]
         overlap = gdf[gdf.overlap == 1]
         no_overlap.plot(ax=ax, facecolor="none", edgecolor="black", label="No Overlap")

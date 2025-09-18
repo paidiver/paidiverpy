@@ -4,14 +4,18 @@ import ast
 import json
 import logging
 import re
+import uuid
 from pathlib import Path
+from typing import Any
 import pandas as pd
 from jsonschema import Draft202012Validator
 from jsonschema import ValidationError
 from paidiverpy.utils.object_store import get_file_from_bucket
 
+logger = logging.getLogger("paidiverpy")
 
-def validate_ifdo(file_path: str | None = None, ifdo_data: dict | None = None) -> list:
+
+def validate_ifdo(file_path: str | None = None, ifdo_data: dict[str, Any] | None = None) -> list[dict[str, Any]]:
     """validate_ifdo method.
 
     Validates input data against iFDO scheme. Raises an exception if the
@@ -19,7 +23,7 @@ def validate_ifdo(file_path: str | None = None, ifdo_data: dict | None = None) -
 
     Args:
         file_path (str): Path to the iFDO file. If not provided, ifdo_data must be.
-        ifdo_data (Dict): parsed iFDO data from the file. If not provided, file_path must be.
+        ifdo_data (dict): parsed iFDO data from the file. If not provided, file_path must be.
 
     Returns:
         list: List of validation errors.
@@ -34,7 +38,7 @@ def validate_ifdo(file_path: str | None = None, ifdo_data: dict | None = None) -
     if not ifdo_version:
         msg = "No iFDO version found in metadata."
         raise ValidationError(msg)
-    schema_file_path = f"https://www.marine-imaging.com/fair/schemas/ifdo-{ifdo_version}.json"
+    schema_file_path = f"https://www.ifdo-schema.org/schemas/{ifdo_version}/ifdo.json"
     schema = json.loads(get_file_from_bucket(schema_file_path))
     validator = Draft202012Validator(schema)
     errors = sorted(validator.iter_errors(ifdo_data), key=lambda e: e.path)
@@ -49,16 +53,16 @@ def validate_ifdo(file_path: str | None = None, ifdo_data: dict | None = None) -
     return parse_validation_errors(errors, schema)
 
 
-def convert_to_ifdo(dataset_metadata: dict, metadata: dict, output_path: str) -> None:
+def convert_to_ifdo(dataset_metadata: dict[str, Any], metadata: pd.DataFrame, output_path: str) -> None:
     """Convert metadata to iFDO format.
 
     Args:
         dataset_metadata (dict): Dataset metadata.
-        metadata (dict): Metadata to convert.
+        metadata (pd.DataFrame): Metadata to convert.
         output_path (str): Path to save the converted metadata.
     """
     ifdo_version = dataset_metadata.get("image-set-ifdo-version", "v2.1.0")
-    schema_file_path = f"https://www.marine-imaging.com/fair/schemas/ifdo-{ifdo_version}.json"
+    schema_file_path = f"https://www.ifdo-schema.org/schemas/{ifdo_version}/ifdo.json"
     ifdo_schema = json.loads(get_file_from_bucket(schema_file_path))
     image_set_header, missing_fields_header = parse_ifdo_header(dataset_metadata, ifdo_schema, metadata)
     for col in metadata.select_dtypes(include=["datetime64[ns]"]).columns:
@@ -66,13 +70,13 @@ def convert_to_ifdo(dataset_metadata: dict, metadata: dict, output_path: str) ->
     image_set_header["image-set-ifdo-version"] = ifdo_version
     image_set_items, missing_fields_items = parse_ifdo_items(metadata, ifdo_schema)
     if missing_fields_header or missing_fields_items:
-        logging.warning("Missing required fields in iFDO header or items")
-        logging.warning("You need to set then in the metadata or dataset_metadata arguments")
-        logging.warning("The missing fields will be set to the description value on the iFDO schema file")
+        logger.warning("Missing required fields in iFDO header or items")
+        logger.warning("You need to set then in the metadata or dataset_metadata arguments")
+        logger.warning("The missing fields will be set to the description value on the iFDO schema file")
     if missing_fields_header:
-        logging.warning("Missing fields in iFDO header: %s", missing_fields_header)
+        logger.warning("Missing fields in iFDO header: %s", missing_fields_header)
     if missing_fields_items:
-        logging.warning("Missing fields in iFDO items: %s", missing_fields_items)
+        logger.warning("Missing fields in iFDO items: %s", missing_fields_items)
     ifdo_data = {
         "image-set-header": image_set_header,
         "image-set-items": image_set_items,
@@ -82,21 +86,21 @@ def convert_to_ifdo(dataset_metadata: dict, metadata: dict, output_path: str) ->
         msg_error = "Validation errors in the output iFDO metadata file:\n"
         for error in errors:
             msg_error += f"{format_ifdo_validation_error(error['path'])}: {error['message']}\n"
-        logging.warning(msg_error)
+        logger.warning(msg_error)
         # raise_value_error(f"Validation errors: {error_messages}")
     with Path(output_path).open("w") as file:
         json.dump(ifdo_data, file, indent=4)
 
 
-def parse_ifdo_items(metadata: dict, ifdo_schema: dict) -> list:
+def parse_ifdo_items(metadata: pd.DataFrame, ifdo_schema: dict[str, Any]) -> tuple[dict[str, Any], list[str]]:
     """Parse iFDO items from metadata.
 
     Args:
-        metadata (dict): Metadata to parse.
+        metadata (pd.DataFrame): Metadata to parse.
         ifdo_schema (dict): iFDO schema.
 
     Returns:
-        list: Parsed iFDO items.
+        tuple: Parsed iFDO items and list of missing fields.
     """
     ifdo_fields, required_fields, non_required_fields = get_ifdo_fields(ifdo_schema, "items")
     missing_fields = []
@@ -110,18 +114,22 @@ def parse_ifdo_items(metadata: dict, ifdo_schema: dict) -> list:
         for key in exif_data:
             if key not in metadata.columns:
                 metadata[key] = list(exif_data[key].values())
-    metadata = metadata.to_dict(orient="records")
-    for item in metadata:
+    if metadata["ID"].dtype == "int64":
+        metadata["image-uuid"] = pd.Series((str(uuid.uuid4()) for _ in range(len(metadata))), index=metadata.index)
+    else:
+        metadata["image-uuid"] = metadata["ID"].astype(str)
+    metadata_list = metadata.to_dict(orient="records")
+    for item in metadata_list:
         missing_field = []
         ifdo_item = {}
         ifdo_item = map_fields_to_ifdo(item, ifdo_item, ifdo_fields, required_fields, missing_field, required=True)
         ifdo_item = map_fields_to_ifdo(item, ifdo_item, ifdo_fields, non_required_fields, missing_field, required=False)
-        ifdo_items[item["image-filename"]] = ifdo_item
+        ifdo_items[item["filename"]] = ifdo_item
         missing_fields.append(missing_field)
     return ifdo_items, missing_fields
 
 
-def parse_ifdo_header(dataset_metadata: dict, ifdo_schema: dict, metadata: pd.DataFrame) -> tuple:
+def parse_ifdo_header(dataset_metadata: dict[str, Any], ifdo_schema: dict[str, Any], metadata: pd.DataFrame) -> tuple[dict[str, Any], list[str]]:
     """Parse iFDO header from dataset metadata.
 
     Args:
@@ -130,11 +138,11 @@ def parse_ifdo_header(dataset_metadata: dict, ifdo_schema: dict, metadata: pd.Da
         metadata (pd.DataFrame): Metadata to parse.
 
     Returns:
-        dict: Parsed iFDO header.
+        tuple: Parsed iFDO header and list of missing fields.
     """
     ifdo_fields, required_fields, non_required_fields = get_ifdo_fields(ifdo_schema, "header")
-    missing_fields = []
-    ifdo_header = {}
+    missing_fields: list[str] = []
+    ifdo_header: dict[str, Any] = {}
     if "output_path" in dataset_metadata:
         dataset_metadata["image-set-handle"] = str(dataset_metadata["output_path"])
     if "input_path" in dataset_metadata and "image-set-handle" not in dataset_metadata:
@@ -157,14 +165,14 @@ def parse_ifdo_header(dataset_metadata: dict, ifdo_schema: dict, metadata: pd.Da
 
 
 def map_fields_to_ifdo(
-    data: dict,
-    ifdo_data: dict,
-    schema: dict,
-    fields: list,
-    missing_fields: list,
+    data: dict[str, Any],
+    ifdo_data: dict[str, Any],
+    schema: dict[str, Any],
+    fields: list[str] | set[str],
+    missing_fields: list[str],
     missing_fields_suffix: str = "",
     required: bool = False,
-) -> dict:
+) -> dict[str, Any]:
     """Map fields from dataset metadata to iFDO header.
 
     Args:
@@ -211,7 +219,7 @@ def map_fields_to_ifdo(
     return ifdo_data
 
 
-def map_exif_to_ifdo(metadata: dict) -> str | None:
+def map_exif_to_ifdo(metadata: dict[str, Any]) -> str | None | dict[str, Any]:
     """Map EXIF metadata to iFDO format.
 
     Args:
@@ -221,11 +229,11 @@ def map_exif_to_ifdo(metadata: dict) -> str | None:
         str | None: Converted metadata in iFDO format.
     """
 
-    def clean_dict(dict_to_clean: dict) -> dict:
+    def clean_dict(dict_to_clean: dict[str, Any] | Any) -> Any:  # noqa: ANN401
         """Recursively remove keys with None, empty strings, or empty dictionaries.
 
         Args:
-            dict_to_clean (dict): Dictionary to clean.
+            dict_to_clean (dict | Any): Dictionary to clean.
 
         Returns:
             dict: Cleaned dictionary.
@@ -247,7 +255,7 @@ def map_exif_to_ifdo(metadata: dict) -> str | None:
     except TypeError:
         image_altitude = ""
 
-    exif_to_ifdo = {
+    exif_to_ifdo: dict[str, Any] = {
         "image-latitude": image_latitude,
         "image-longitude": image_longitude,
         "image-sensor": {
@@ -278,7 +286,7 @@ def map_exif_to_ifdo(metadata: dict) -> str | None:
     return cleaned if cleaned else {}
 
 
-def format_ifdo_validation_error(text: list) -> str:
+def format_ifdo_validation_error(text: list[str]) -> str:
     """Format error message.
 
     Args:
@@ -292,7 +300,7 @@ def format_ifdo_validation_error(text: list) -> str:
     return ".".join(map(str, text))
 
 
-def parse_validation_errors(errors: list, schema: dict) -> list:
+def parse_validation_errors(errors: list[dict[str, Any]], schema: dict[str, Any]) -> list[dict[str, Any]]:
     """Parse validation errors.
 
     Args:
@@ -311,7 +319,8 @@ def parse_validation_errors(errors: list, schema: dict) -> list:
             error_message = ast.literal_eval(error_message)
             missing = [field for field in required_fields if field not in error_message]
             additional = [item for item in error_message if item not in ifdo_fields]
-            is_valid_uuid = bool(re.match(image_uuid_pattern, error_message.get("image-uuid", "")))
+            image_uuid_value = str(error_message.get("image-uuid", ""))
+            is_valid_uuid = bool(re.match(image_uuid_pattern, image_uuid_value))
             output_error_message = ""
             if missing:
                 output_error_message += f"Missing fields: {missing}. "
@@ -325,7 +334,7 @@ def parse_validation_errors(errors: list, schema: dict) -> list:
     return errors
 
 
-def get_ifdo_fields(schema: dict, section: str) -> tuple:
+def get_ifdo_fields(schema: dict[str, Any], section: str) -> tuple[dict[str, Any], list[str], set[str]]:
     """Get required fields from iFDO schema.
 
     Args:
@@ -336,7 +345,10 @@ def get_ifdo_fields(schema: dict, section: str) -> tuple:
         tuple: iFDO fields, required fields, non-required fields.
     """
     required_fields = schema["$defs"]["image-item-core"]["required"] if section == "items" else schema["properties"]["image-set-header"]["required"]
-    ifdo_fields = schema["$defs"]["iFDO-fields"]["properties"]
+    ifdo_fields: dict[str, Any] = {}
+    for field in schema["$defs"]["iFDO-fields"]["anyOf"]:
+        field_name = field["$ref"].split("/")[-1]
+        ifdo_fields.update(schema["$defs"][field_name]["properties"])
     if section == "items":
         excluding_items = ["image-set-name", "image-set-handle", "image-set-ifdo-version", "image-set-uuid"]
         ifdo_item_fields = [field for field in ifdo_fields if field not in excluding_items]

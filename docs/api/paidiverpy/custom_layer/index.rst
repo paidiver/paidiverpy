@@ -33,7 +33,6 @@ Submodules
 .. toctree::
    :maxdepth: 1
 
-   /api/paidiverpy/custom_layer/base_custom_algorithm/index
    /api/paidiverpy/custom_layer/custom_layer/index
 
 
@@ -48,7 +47,7 @@ Classes
 Package Contents
 ----------------
 
-.. py:class:: CustomLayer(parameters: dict, config_params: dict | paidiverpy.config.config_params.ConfigParams = None, config_file_path: str | None = None, config: paidiverpy.config.configuration.Configuration = None, metadata: paidiverpy.metadata_parser.MetadataParser = None, images: paidiverpy.images_layer.ImagesLayer = None, paidiverpy: paidiverpy.Paidiverpy = None, step_name: str | None = None, config_index: int | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
+.. py:class:: CustomLayer(parameters: dict[str, Any] | None = None, config_params: dict[str, Any] | paidiverpy.config.config_params.ConfigParams | None = None, config_file_path: str | None = None, config: paidiverpy.config.configuration.Configuration | None = None, metadata: paidiverpy.metadata_parser.MetadataParser | None = None, images: paidiverpy.images_layer.ImagesLayer | None = None, paidiverpy: paidiverpy.Paidiverpy | None = None, step_name: str | None = None, client: dask.distributed.Client | None = None, config_index: int | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
 
    Bases: :py:obj:`paidiverpy.Paidiverpy`
 
@@ -81,6 +80,8 @@ Package Contents
    :type paidiverpy: Paidiverpy
    :param step_name: The name of the step.
    :type step_name: str
+   :param client: The Dask client.
+   :type client: Client
    :param config_index: The index of the configuration.
    :type config_index: int
    :param logger: The logger object.
@@ -119,39 +120,6 @@ Package Contents
       :type add_new_step: bool, optional
 
       Defaults to True.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      ..
-          !! processed by numpydoc !!
-
-
-   .. py:method:: load_custom_algorithm(file_path: str, class_name: str, algorithm_name: str) -> callable
-
-      
-      Load a custom algorithm class.
-
-      :param file_path: The file path of the custom algorithm.
-      :type file_path: str
-      :param class_name: The class name.
-      :type class_name: str
-      :param algorithm_name: The algorithm name.
-      :type algorithm_name: str
-
-      :returns: The custom algorithm class.
-      :rtype: class
 
 
 

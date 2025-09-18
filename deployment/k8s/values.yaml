@@ -1,0 +1,116 @@
+# Default values for paidiver.
+replicaCount: 1
+
+image:
+  repository: soutobias/paidiverpy
+  tag: latest
+  pullPolicy: Always
+  command: "/bin/bash"
+  args:
+    - "-c"
+    - "pip install panel && paidiverpy -gui '--port 5006 --address 0.0.0.0 --allow-websocket-origin paidiverpy.paidiver.site'"
+
+nameOverride: ""
+fullnameOverride: ""
+
+terminationGracePeriodSeconds: 30
+
+service:
+  type: ClusterIP
+  port: 5006
+
+ingress:
+  enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-paidiver
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+
+    # Add these for CORS
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "Authorization,Content-Type"
+    nginx.ingress.kubernetes.io/cors-max-age: "3600"
+
+    # Add these for rate limiting
+    nginx.ingress.kubernetes.io/limit-rpm: "1000"
+    nginx.ingress.kubernetes.io/limit-burst-multiplier: "1"
+    nginx.ingress.kubernetes.io/limit-connections: "20"
+
+    # Optional: max client request size
+    # nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+
+  hosts:
+    - host: paidiverpy.paidiver.site
+      paths:
+        - path: /
+          pathType: Prefix
+  className: nginx
+  tls:
+   - secretName: letsencrypt-paidiverpy-tls
+     hosts:
+       - paidiverpy.paidiver.site
+
+extraHostPathMounts: []
+  # - name: map-sources
+  #   mountPath: /map-sources/
+  #   hostPath: /home/ubuntu/map-sources
+  #   readOnly: false
+  #   mountPropagation: HostToContainer # OPTIONAL
+
+imagePullSecrets: []
+
+env:
+  PYTHONWARNINGS: "ignore"
+
+existingSecret: paidiver-secret
+envFromSecret: true
+
+resources:
+  limits:
+    cpu: 1
+    memory: 2Gi
+  requests:
+    cpu: 1
+    memory: 2Gi
+
+serviceAccountName: ""
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #     - ALL
+  # readOnlyRootFilesystem: true
+  # allowPrivilegeEscalation: false
+  # runAsNonRoot: true
+  # runAsUser: 1001
+
+podSecurityContext: {}
+  # fsGroup: 1001
+  # runAsNonRoot: true
+  # runAsUser: 1001
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 5006
+  initialDelaySeconds: 60  # wait long enough for pip install + Panel startup
+  periodSeconds: 10
+  timeoutSeconds: 2
+  failureThreshold: 10
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 5006
+  initialDelaySeconds: 120
+  periodSeconds: 30
+  timeoutSeconds: 2
+  failureThreshold: 5

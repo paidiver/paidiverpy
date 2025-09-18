@@ -30,7 +30,7 @@ Functions
 Module Contents
 ---------------
 
-.. py:function:: validate_ifdo(file_path: str | None = None, ifdo_data: dict | None = None) -> list
+.. py:function:: validate_ifdo(file_path: str | None = None, ifdo_data: dict[str, Any] | None = None) -> list[dict[str, Any]]
 
    
    validate_ifdo method.
@@ -41,7 +41,7 @@ Module Contents
    :param file_path: Path to the iFDO file. If not provided, ifdo_data must be.
    :type file_path: str
    :param ifdo_data: parsed iFDO data from the file. If not provided, file_path must be.
-   :type ifdo_data: Dict
+   :type ifdo_data: dict
 
    :returns: List of validation errors.
    :rtype: list
@@ -63,7 +63,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: convert_to_ifdo(dataset_metadata: dict, metadata: dict, output_path: str) -> None
+.. py:function:: convert_to_ifdo(dataset_metadata: dict[str, Any], metadata: pandas.DataFrame, output_path: str) -> None
 
    
    Convert metadata to iFDO format.
@@ -71,7 +71,7 @@ Module Contents
    :param dataset_metadata: Dataset metadata.
    :type dataset_metadata: dict
    :param metadata: Metadata to convert.
-   :type metadata: dict
+   :type metadata: pd.DataFrame
    :param output_path: Path to save the converted metadata.
    :type output_path: str
 
@@ -92,18 +92,18 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: parse_ifdo_items(metadata: dict, ifdo_schema: dict) -> list
+.. py:function:: parse_ifdo_items(metadata: pandas.DataFrame, ifdo_schema: dict[str, Any]) -> tuple[dict[str, Any], list[str]]
 
    
    Parse iFDO items from metadata.
 
    :param metadata: Metadata to parse.
-   :type metadata: dict
+   :type metadata: pd.DataFrame
    :param ifdo_schema: iFDO schema.
    :type ifdo_schema: dict
 
-   :returns: Parsed iFDO items.
-   :rtype: list
+   :returns: Parsed iFDO items and list of missing fields.
+   :rtype: tuple
 
 
 
@@ -122,7 +122,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: parse_ifdo_header(dataset_metadata: dict, ifdo_schema: dict, metadata: pandas.DataFrame) -> tuple
+.. py:function:: parse_ifdo_header(dataset_metadata: dict[str, Any], ifdo_schema: dict[str, Any], metadata: pandas.DataFrame) -> tuple[dict[str, Any], list[str]]
 
    
    Parse iFDO header from dataset metadata.
@@ -134,8 +134,8 @@ Module Contents
    :param metadata: Metadata to parse.
    :type metadata: pd.DataFrame
 
-   :returns: Parsed iFDO header.
-   :rtype: dict
+   :returns: Parsed iFDO header and list of missing fields.
+   :rtype: tuple
 
 
 
@@ -154,7 +154,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: map_fields_to_ifdo(data: dict, ifdo_data: dict, schema: dict, fields: list, missing_fields: list, missing_fields_suffix: str = '', required: bool = False) -> dict
+.. py:function:: map_fields_to_ifdo(data: dict[str, Any], ifdo_data: dict[str, Any], schema: dict[str, Any], fields: list[str] | set[str], missing_fields: list[str], missing_fields_suffix: str = '', required: bool = False) -> dict[str, Any]
 
    
    Map fields from dataset metadata to iFDO header.
@@ -194,7 +194,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: map_exif_to_ifdo(metadata: dict) -> str | None
+.. py:function:: map_exif_to_ifdo(metadata: dict[str, Any]) -> str | None | dict[str, Any]
 
    
    Map EXIF metadata to iFDO format.
@@ -222,7 +222,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: format_ifdo_validation_error(text: list) -> str
+.. py:function:: format_ifdo_validation_error(text: list[str]) -> str
 
    
    Format error message.
@@ -250,7 +250,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: parse_validation_errors(errors: list, schema: dict) -> list
+.. py:function:: parse_validation_errors(errors: list[dict[str, Any]], schema: dict[str, Any]) -> list[dict[str, Any]]
 
    
    Parse validation errors.
@@ -280,7 +280,7 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-.. py:function:: get_ifdo_fields(schema: dict, section: str) -> tuple
+.. py:function:: get_ifdo_fields(schema: dict[str, Any], section: str) -> tuple[dict[str, Any], list[str], set[str]]
 
    
    Get required fields from iFDO schema.
