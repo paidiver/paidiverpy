@@ -1,7 +1,7 @@
 .. _guide_test_mode:
 
-Test Mode: InvestigationLayer
-=============================
+Test Mode
+=========
 
 Overview
 --------

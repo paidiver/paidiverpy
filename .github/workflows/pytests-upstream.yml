@@ -1,0 +1,67 @@
+name: CI tests Upstream
+
+# Runs daily and can also be triggered manually
+# Tests Paidiverpy with unpinned/latest dependencies
+on:
+  schedule:
+    - cron: "0 0 * * *" # Daily at 00:00 UTC
+  workflow_dispatch:
+
+jobs:
+  upstream-latest:
+    name: Test with latest dependencies - Py${{ matrix.python-version }} - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        branch: ["main", "dev"]
+        python-version: ["3.10", "3.11", "3.12"]
+        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
+
+    steps:
+      - name: Checkout ${{ matrix.branch }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.branch }}
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Initialize Conda
+        run: conda init bash
+
+      - name: Create conda environment with latest deps
+        shell: bash -l {0}
+        run: |
+          conda env create -f environment.yml python=${{ matrix.python-version }} -y
+          conda activate Paidiverpy
+          conda run -n Paidiverpy pip install --upgrade pip
+          conda run -n Paidiverpy pip install -e .
+          conda run -n Paidiverpy pip install .[test]
+          conda run -n Paidiverpy pip install .[dev,publishing]
+          conda run -n Paidiverpy pip install nbconvert nbclient
+
+      - name: Run tests
+        shell: bash -l {0}
+        run: |
+          conda run -n Paidiverpy pytest -ra -v -s \
+            --cov=src/paidiverpy \
+            --cov-config=.coveragerc \
+            --cov-report term-missing
+
+
+      - name: Run Notebooks in "examples/example_notebooks"
+        run: |
+          conda activate Paidiverpy
+
+          for notebook in examples/example_notebooks/*.ipynb; do
+            echo "Running $notebook..."
+            notebook_name=$(basename "$notebook")
+            executed_notebook="executed_$notebook_name"
+            # Execute the notebook and save it as executed_<name>
+            (cd examples/example_notebooks && jupyter nbconvert --to notebook --execute "$notebook_name" --output "$executed_notebook") || exit 1
+            # Rename the executed notebook to the original notebook name, overwriting it if necessary
+            mv -f examples/example_notebooks/"$executed_notebook" examples/example_notebooks/"$notebook_name"
+          done

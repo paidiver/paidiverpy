@@ -76,7 +76,7 @@ class SamplingRegionParams(BaseModel):
     """Parameters for region-based resampling."""
 
     file: str | None | Path = Field(default=None, description="Path to the region file")
-    limits: dict | None = Field(
+    limits: dict[str, float] | None = Field(
         default=None,
         description=("Dict of region limits. Format {'min_lon': value, 'max_lon': value, 'min_lat': value, 'max_lat': value}"),
     )

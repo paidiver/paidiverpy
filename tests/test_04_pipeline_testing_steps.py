@@ -3,6 +3,7 @@
 import unittest
 from pathlib import Path
 import numpy as np
+import xarray as xr
 from paidiverpy.colour_layer.colour_layer import ColourLayer
 from paidiverpy.config.configuration import Configuration
 from paidiverpy.config.configuration import GeneralConfig
@@ -35,7 +36,8 @@ class TestPipelineTestSteps(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         assert pipeline.steps[1][2]["test"]
         pipeline.add_step(
             "overlapping",
@@ -123,7 +125,8 @@ class TestPipelineTestSteps(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         assert pipeline.steps[1][2]["test"]
         pipeline.add_step(
             "percent",
@@ -173,7 +176,8 @@ class TestPipelineTestSteps(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         assert pipeline.steps[1][2]["test"]
         pipeline.add_step(
             "fixed",
@@ -246,7 +250,8 @@ class TestPipelineTestSteps(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         assert pipeline.steps[1][2]["test"]
         pipeline.add_step(
             "depth",
@@ -318,7 +323,8 @@ class TestPipelineTestSteps(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         assert pipeline.steps[1][2]["test"]
         pipeline.add_step(
             "altitude",
@@ -368,7 +374,8 @@ class TestPipelineTestSteps(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         assert pipeline.steps[1][2]["test"]
         pipeline.add_step(
             "pitch_roll",
@@ -418,7 +425,8 @@ class TestPipelineTestSteps(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         assert pipeline.steps[1][2]["test"]
         pipeline.add_step(
             "region",
@@ -500,7 +508,8 @@ class TestPipelineTestSteps(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         assert pipeline.steps[1][2]["test"]
         pipeline.add_step(
             "region",
@@ -566,7 +575,8 @@ class TestPipelineTestSteps(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
         assert pipeline.steps[1][2]["test"]
         pipeline.add_step(
             "obscure",
@@ -629,7 +639,7 @@ class TestPipelineTestSteps(BaseTestClass):
         assert len(images) == number_images
         output_path = Path(pipeline.config.general.output_path)
         output_graphs = list(output_path.glob("1_obscure/*graph_*.png"))
-        assert len(output_graphs) == obscure_number_graphs_1_channel
+        assert len(output_graphs) == obscure_number_graphs_3_channels
         for output_graph in output_graphs:
             output_graph.unlink()
         output_graphs = list(output_path.glob("1_obscure/*graph_*.png"))
@@ -655,8 +665,9 @@ class TestPipelineTestSteps(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images[0][0], np.ndarray)
-        assert len(images[-1][0].shape) == NUM_DIMENSIONS
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
+        assert len(images["images_1"].values[0].shape) == NUM_DIMENSIONS
         pipeline.add_step(
             "obscure",
             SamplingLayer,

@@ -53,10 +53,10 @@ Module Contents
    ..
        !! processed by numpydoc !!
 
-   .. py:class:: Config
+   .. py:attribute:: model_config
 
       
-      Configuration for the RawPy parameters model.
+      Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].
 
 
 

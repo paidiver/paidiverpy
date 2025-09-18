@@ -2,15 +2,60 @@
 
 ## [Unreleased](https://github.com/paidiver/paidiverpy/tree/HEAD)
 
-[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.1.3...HEAD)
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.1.4...HEAD)
 
 **Implemented enhancements:**
 
 - Add the possibility to work with several images at the same time on the image processing \(instead of one image per time\) [\#200](https://github.com/paidiver/paidiverpy/issues/200)
 - Function to open and export metadata to different formats [\#187](https://github.com/paidiver/paidiverpy/issues/187)
 - Generate interactive notebook from config [\#184](https://github.com/paidiver/paidiverpy/issues/184)
+- Build package on top of xarray using padding instead of a list of arrays [\#167](https://github.com/paidiver/paidiverpy/issues/167)
 - Create a configuration file json schema automatically [\#164](https://github.com/paidiver/paidiverpy/issues/164)
 - Create an Output Class to Standardize Jupyter Notebook Outputs [\#29](https://github.com/paidiver/paidiverpy/issues/29)
+- General data investigation conducted for each parameter of interest for processing [\#27](https://github.com/paidiver/paidiverpy/issues/27)
+
+**Fixed bugs:**
+
+- Adjust edge dectection method [\#50](https://github.com/paidiver/paidiverpy/issues/50)
+
+**Closed issues:**
+
+- Correct coverage calculation [\#234](https://github.com/paidiver/paidiverpy/issues/234)
+- Link Checker Report - 2025-09-16 [\#231](https://github.com/paidiver/paidiverpy/issues/231)
+- Link Checker Report [\#230](https://github.com/paidiver/paidiverpy/issues/230)
+- Link Checker Report [\#229](https://github.com/paidiver/paidiverpy/issues/229)
+- Link Checker Report [\#228](https://github.com/paidiver/paidiverpy/issues/228)
+- Link Checker Report [\#227](https://github.com/paidiver/paidiverpy/issues/227)
+- Link Checker Report [\#226](https://github.com/paidiver/paidiverpy/issues/226)
+- Link Checker Report - 2025-09-16 [\#225](https://github.com/paidiver/paidiverpy/issues/225)
+- Link Checker Report - 2025-09-16 [\#224](https://github.com/paidiver/paidiverpy/issues/224)
+- Link Checker Report - 2025-09-16 [\#223](https://github.com/paidiver/paidiverpy/issues/223)
+- Create a CI to deploy paidiverpy gui on kubernetes [\#221](https://github.com/paidiver/paidiverpy/issues/221)
+- Working with a unique numpy/dask array per step instead of a list of numpy/dask arrays [\#219](https://github.com/paidiver/paidiverpy/issues/219)
+- Update shapely version to be above 2.0.7 [\#216](https://github.com/paidiver/paidiverpy/issues/216)
+- Organise .md files and check the content of them. Organise the files on the root path [\#213](https://github.com/paidiver/paidiverpy/issues/213)
+- Reference funding details in readme [\#204](https://github.com/paidiver/paidiverpy/issues/204)
+- Are resample by depth and by altitude the same thing? [\#198](https://github.com/paidiver/paidiverpy/issues/198)
+- Fix and Re-enable SonarCloud Workflow in CI [\#162](https://github.com/paidiver/paidiverpy/issues/162)
+- Include metadata in each image preprocessing step [\#156](https://github.com/paidiver/paidiverpy/issues/156)
+- Add support to load different types of images [\#2](https://github.com/paidiver/paidiverpy/issues/2)
+
+**Merged pull requests:**
+
+- Update workflow [\#235](https://github.com/paidiver/paidiverpy/pull/235) ([soutobias](https://github.com/soutobias))
+-  Version0.2.0 [\#232](https://github.com/paidiver/paidiverpy/pull/232) ([soutobias](https://github.com/soutobias))
+- Update code, but change strategy [\#220](https://github.com/paidiver/paidiverpy/pull/220) ([soutobias](https://github.com/soutobias))
+- Correct frontend rendering [\#218](https://github.com/paidiver/paidiverpy/pull/218) ([soutobias](https://github.com/soutobias))
+- 186 enhance exif handling in processed images [\#210](https://github.com/paidiver/paidiverpy/pull/210) ([soutobias](https://github.com/soutobias))
+- 187 function to open and export metadata to different formats [\#208](https://github.com/paidiver/paidiverpy/pull/208) ([soutobias](https://github.com/soutobias))
+- 2 add support to load different types of images [\#206](https://github.com/paidiver/paidiverpy/pull/206) ([soutobias](https://github.com/soutobias))
+
+## [v0.1.4](https://github.com/paidiver/paidiverpy/tree/v0.1.4) (2025-05-13)
+
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.1.3...v0.1.4)
+
+**Implemented enhancements:**
+
 - Illumination correction [\#19](https://github.com/paidiver/paidiverpy/issues/19)
 - Addressing blur [\#17](https://github.com/paidiver/paidiverpy/issues/17)
 - Contrast alteration  [\#14](https://github.com/paidiver/paidiverpy/issues/14)
@@ -20,31 +65,22 @@
 
 - Clean the configuration parser and correct bug with the default params for each step [\#196](https://github.com/paidiver/paidiverpy/issues/196)
 - Correct resize function [\#182](https://github.com/paidiver/paidiverpy/issues/182)
-- Adjust edge dectection method [\#50](https://github.com/paidiver/paidiverpy/issues/50)
 
 **Closed issues:**
 
-- Reference funding details in readme [\#204](https://github.com/paidiver/paidiverpy/issues/204)
 - Raise error is not been added per step \(it is only added in the beginning of the pipeline\) [\#201](https://github.com/paidiver/paidiverpy/issues/201)
 - Validate new config added when you add a new step in the pipeline [\#199](https://github.com/paidiver/paidiverpy/issues/199)
-- Are resample by depth and by altitude the same thing? [\#198](https://github.com/paidiver/paidiverpy/issues/198)
 - Deploy code on bioconda [\#194](https://github.com/paidiver/paidiverpy/issues/194)
 - Rename pelagic to plankton [\#188](https://github.com/paidiver/paidiverpy/issues/188)
 - Enhance crop function [\#183](https://github.com/paidiver/paidiverpy/issues/183)
 - Create a conda distribution and add build for mac and windows [\#174](https://github.com/paidiver/paidiverpy/issues/174)
-- Fix and Re-enable SonarCloud Workflow in CI [\#162](https://github.com/paidiver/paidiverpy/issues/162)
-- Include metadata in each image preprocessing step [\#156](https://github.com/paidiver/paidiverpy/issues/156)
 - Increase test coverage [\#84](https://github.com/paidiver/paidiverpy/issues/84)
 - Add data investigation feature [\#26](https://github.com/paidiver/paidiverpy/issues/26)
 - Create a simple frontend using streamlit for pipeline management [\#25](https://github.com/paidiver/paidiverpy/issues/25)
 - Colour alteration  [\#13](https://github.com/paidiver/paidiverpy/issues/13)
-- Add support to load different types of images [\#2](https://github.com/paidiver/paidiverpy/issues/2)
 
 **Merged pull requests:**
 
-- 186 enhance exif handling in processed images [\#210](https://github.com/paidiver/paidiverpy/pull/210) ([soutobias](https://github.com/soutobias))
-- 187 function to open and export metadata to different formats [\#208](https://github.com/paidiver/paidiverpy/pull/208) ([soutobias](https://github.com/soutobias))
-- 2 add support to load different types of images [\#206](https://github.com/paidiver/paidiverpy/pull/206) ([soutobias](https://github.com/soutobias))
 - update config validation [\#203](https://github.com/paidiver/paidiverpy/pull/203) ([soutobias](https://github.com/soutobias))
 - 84 increase test coverage [\#202](https://github.com/paidiver/paidiverpy/pull/202) ([soutobias](https://github.com/soutobias))
 - update tests [\#197](https://github.com/paidiver/paidiverpy/pull/197) ([soutobias](https://github.com/soutobias))

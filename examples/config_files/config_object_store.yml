@@ -9,10 +9,9 @@ general:
     - mode: "percent"
       params:
         value: 0.1
-  convert:
-    - mode: "bits"
+    - mode: "fixed"
       params:
-        output_bits: 8
+        value: 3
 
 steps:
   - colour:

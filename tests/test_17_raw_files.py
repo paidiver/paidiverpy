@@ -2,6 +2,7 @@
 
 import unittest
 import numpy as np
+import xarray as xr
 from paidiverpy.config.configuration import Configuration
 from paidiverpy.models.general_config import GeneralConfig
 from paidiverpy.pipeline import Pipeline
@@ -30,7 +31,8 @@ class TestRawFiles(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
 
     def test_raw_nef_files_remote(self):
         """Test raw nef files."""
@@ -48,7 +50,8 @@ class TestRawFiles(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
 
     def test_raw_files(self):
         """Test raw nef files."""
@@ -61,7 +64,8 @@ class TestRawFiles(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
 
     def test_raw_files_remote(self):
         """Test raw nef files."""
@@ -79,7 +83,8 @@ class TestRawFiles(BaseTestClass):
         pipeline.run()
         images = pipeline.images.images
         assert len(images) == number_images
-        assert isinstance(images[0][0], np.ndarray)
+        assert isinstance(images["images_0"], xr.DataArray)
+        assert isinstance(images["images_0"].values, np.ndarray)
 
 
 if __name__ == "__main__":

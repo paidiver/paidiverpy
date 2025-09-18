@@ -3,11 +3,14 @@
 Sampling the images based on the configuration file.
 """
 
-import copy
 import logging
+from typing import TYPE_CHECKING
+from typing import Any
+from typing import Optional
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+import xarray as xr
 from dask.distributed import Client
 from shapely.geometry import Polygon
 from paidiverpy import Paidiverpy
@@ -27,11 +30,11 @@ from paidiverpy.models.sampling_params import SamplingPercentParams
 from paidiverpy.models.sampling_params import SamplingPitchRollParams
 from paidiverpy.models.sampling_params import SamplingRegionParams
 from paidiverpy.position_layer.position_layer import PositionLayer
-from paidiverpy.utils.data import EIGHT_BITS_SIZE
 from paidiverpy.utils.data import NUM_CHANNELS_RGB
-from paidiverpy.utils.data import SIXTEEN_BITS_SIZE
-from paidiverpy.utils.data import THIRTY_TWO_BITS_SIZE
 from paidiverpy.utils.exceptions import raise_value_error
+
+if TYPE_CHECKING:
+    from paidiverpy.utils.base_model import BaseModel
 
 
 class SamplingLayer(Paidiverpy):
@@ -55,7 +58,6 @@ class SamplingLayer(Paidiverpy):
         step_name (str): The name of the step.
         client (Client): The Dask client.
         config_index (int): The index of the configuration.
-        add_new_step (bool): Whether to add a new step.
         logger (logging.Logger): The logger object.
         raise_error (bool): Whether to raise an error.
         verbose (int): verbose level (0 = none, 1 = errors/warnings, 2 = info).
@@ -63,17 +65,16 @@ class SamplingLayer(Paidiverpy):
 
     def __init__(
         self,
-        parameters: dict,
-        config_params: dict | ConfigParams = None,
+        parameters: dict[str, Any],
+        config_params: dict[str, Any] | ConfigParams | None = None,
         config_file_path: str | None = None,
-        config: Configuration = None,
-        metadata: MetadataParser = None,
-        images: ImagesLayer = None,
-        paidiverpy: "Paidiverpy" = None,
+        config: Configuration | None = None,
+        metadata: MetadataParser | None = None,
+        images: ImagesLayer | None = None,
+        paidiverpy: Optional["Paidiverpy"] = None,
         step_name: str | None = None,
         client: Client | None = None,
         config_index: int | None = None,
-        add_new_step: bool = True,
         logger: logging.Logger | None = None,
         raise_error: bool = False,
         verbose: int = 2,
@@ -91,56 +92,60 @@ class SamplingLayer(Paidiverpy):
             verbose=verbose,
         )
         if not parameters.get("mode"):
-            self.logger.error("Mode is not defined for the resample layer.")
-            raise_value_error("Mode is not defined for the resample layer.")
+            msg = "Mode is not defined for the resample layer."
+            self.logger.error(msg)
+            raise_value_error(msg)
         self.step_name = step_name or "sampling"
         if not parameters.get("step_name"):
             parameters["step_name"] = self.step_name
         self.config_index = self.config.add_step(config_index=config_index, parameters=parameters, step_class=SamplingLayer)
         self.step_order = len(self.images.steps)
         self.step_metadata = self._calculate_steps_metadata(self.config.steps[self.config_index])
-        self.add_new_step = add_new_step
         self.raise_error = self._calculate_raise_error()
 
-    def run(self) -> None:
+    def run(self, add_new_step: bool = True) -> None | pd.DataFrame:
         """Run the resample layer steps on the images based on the configuration.
 
-        Run the resample layer steps on the images based on the configuration.
+        Args:
+            add_new_step (bool, optional): Whether to add a new step. Defaults to True.
 
         Raises:
             ValueError: The mode is not defined in the configuration file.
+
+        Returns:
+            None | pd.DataFrame: The result of the resample layer step.
         """
-        mode = self.step_metadata.get("mode")
-        test = self.step_metadata.get("test")
-        params = self.step_metadata.get("params") or {}
+        mode = self.step_metadata.get("mode", "")
+        test = self.step_metadata.get("test", False)
+        params: dict[str, Any] | BaseModel = self.step_metadata.get("params") or {}
         method, params = self._get_method_by_mode(params, SAMPLING_LAYER_METHODS, mode, False)
+        step_order = -9999 if self.step_order == 0 else self.step_order
         try:
-            metadata = method(self.step_order, test=test, params=params)
-            new_metadata = self.get_metadata(flag="all")
-            mask = ~new_metadata["image-filename"].isin(metadata["image-filename"]) & (new_metadata["flag"] == 0)
-            new_metadata.loc[mask, "flag"] = self.step_order
-            number_of_images_in_this_step = len(new_metadata[new_metadata["flag"].isin([0, self.step_order])])
+            metadata = method(step_order, test=test, params=params)
+            if not add_new_step:
+                return metadata.loc[metadata["flag"] == 0]
+            new_metadata = self._merge_metadata(metadata)
             self.logger.info(
-                "Number of images to be removed: %s. Total number of images: %s",
-                number_of_images_in_this_step - len(metadata),
-                number_of_images_in_this_step,
+                "Number of images before the sampling step: %s. Total number of images after: %s",
+                len(metadata),
+                len(metadata.query("flag == 0 or flag > @self.step_order")),
             )
         except Exception as e:  # noqa: BLE001
             self.logger.error("Error in resample layer: %s", e)
             if self.raise_error:
                 raise_value_error("Sampling layer step failed.")
-            self.logger.error("Sampling layer step will be skipped.")
             new_metadata = self.get_metadata(flag="all")
-        if not self.add_new_step:
-            return metadata
-        if not test:
-            self.set_metadata(new_metadata)
+            self.logger.error("Sampling layer step will be skipped.")
+        if not add_new_step:
+            return new_metadata.loc[new_metadata["flag"] == 0]
+        if not test and add_new_step:
             self.step_name = f"trim_{mode}" if not self.step_name else self.step_name
+            self.set_metadata(new_metadata)
             self.images.add_step(
                 step=self.step_name,
+                images=self.images.get_step(last=True),
                 step_metadata=self.step_metadata,
-                metadata=self.get_metadata(),
-                update_metadata=True,
+                metadata=new_metadata,
                 track_changes=self.track_changes,
             )
         return None
@@ -149,7 +154,7 @@ class SamplingLayer(Paidiverpy):
         self,
         step_order: int | None = None,
         test: bool = False,
-        params: SamplingPercentParams = None,
+        params: SamplingPercentParams | None = None,
     ) -> pd.DataFrame:
         """Sampling the metadata by a percentage.
 
@@ -162,18 +167,19 @@ class SamplingLayer(Paidiverpy):
         Returns:
             pd.DataFrame: Metadata with the images to be removed flagged.
         """
-        params = SamplingPercentParams() if params is None else params
-        metadata = self.get_metadata().sample(frac=1, random_state=np.random.default_rng())
-        new_metadata = metadata.sample(frac=params.value)
+        params = params or SamplingPercentParams()
+        metadata = self.get_metadata()
+        flagged_index = metadata.sample(frac=(1 - params.value)).index
+        metadata.loc[flagged_index, "flag"] = step_order
         if test:
-            InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=new_metadata, plots="resample").run()
-        return new_metadata
+            InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="resample").run()
+        return metadata
 
     def _by_fixed_number(
         self,
         step_order: int | None = None,
         test: bool = False,
-        params: SamplingFixedParams = None,
+        params: SamplingFixedParams | None = None,
     ) -> pd.DataFrame:
         """Sampling the metadata by a fixed number of images.
 
@@ -186,13 +192,16 @@ class SamplingLayer(Paidiverpy):
         Returns:
             pd.DataFrame: Metadata with the images to be removed flagged.
         """
-        params = SamplingFixedParams() if params is None else params
-        metadata = self.get_metadata().sample(frac=1, random_state=np.random.default_rng())
+        params = params or SamplingFixedParams()
+        metadata = self.get_metadata()
         if params.value >= len(metadata):
             self.logger.info("Number of images to be removed is greater than the number of images in the metadata.")
             self.logger.info("No images will be removed.")
         else:
-            metadata = metadata.sample(n=params.value)
+            # if isinstance(metadata, dd.DataFrame) and self.use_dask:
+            #     metadata = metadata.compute()
+            flagged_index = metadata.sample(n=(len(metadata) - params.value), random_state=42).index
+            metadata.loc[flagged_index, "flag"] = step_order
         if test:
             InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="resample").run()
         return metadata
@@ -201,7 +210,7 @@ class SamplingLayer(Paidiverpy):
         self,
         step_order: int | None = None,
         test: bool = False,
-        params: SamplingDatetimeParams = None,
+        params: SamplingDatetimeParams | None = None,
     ) -> pd.DataFrame:
         """Sampling the metadata by datetime.
 
@@ -217,9 +226,8 @@ class SamplingLayer(Paidiverpy):
         Returns:
             pd.DataFrame: Metadata with the images to be removed flagged.
         """
-        params = SamplingDatetimeParams() if params is None else params
+        params = params or SamplingDatetimeParams()
         metadata = self.get_metadata()
-
         start_date = params.min
         end_date = params.max
         if not start_date and not end_date:
@@ -230,7 +238,7 @@ class SamplingLayer(Paidiverpy):
             if start_date > end_date:
                 msg = "Start date cannot be greater than end date"
                 raise ValueError(msg)
-            metadata = metadata.loc[(metadata["image-datetime"] >= start_date) & (metadata["image-datetime"] <= end_date)]
+            metadata.loc[~((metadata["image-datetime"] >= start_date) & (metadata["image-datetime"] <= end_date)), "flag"] = step_order
         if test:
             InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="resample").run()
 
@@ -240,7 +248,7 @@ class SamplingLayer(Paidiverpy):
         self,
         step_order: int | None = None,
         test: bool = False,
-        params: SamplingDepthParams = None,
+        params: SamplingDepthParams | None = None,
     ) -> pd.DataFrame:
         """Sampling the metadata by depth.
 
@@ -253,13 +261,13 @@ class SamplingLayer(Paidiverpy):
         Returns:
             pd.DataFrame: Metadata with the images to be removed flagged.
         """
-        params = SamplingDepthParams() if params is None else params
+        params = params or SamplingDepthParams()
         metadata = self.get_metadata()
         metadata.loc[:, "image-depth"] = metadata["image-depth"].abs()
         if params.by == "lower":
-            metadata = metadata.loc[metadata["image-depth"] > params.value]
+            metadata.loc[metadata["image-depth"] <= params.value]["flag"] = step_order
         else:
-            metadata = metadata.loc[metadata["image-depth"] < params.value]
+            metadata.loc[metadata["image-depth"] >= params.value]["flag"] = step_order
         if test:
             InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="resample").run()
         return metadata
@@ -268,7 +276,7 @@ class SamplingLayer(Paidiverpy):
         self,
         step_order: int | None = None,
         test: bool = False,
-        params: SamplingAltitudeParams = None,
+        params: SamplingAltitudeParams | None = None,
     ) -> pd.DataFrame:
         """Sampling the metadata by altitude.
 
@@ -281,13 +289,13 @@ class SamplingLayer(Paidiverpy):
         Returns:
             pd.DataFrame: Metadata with the images to be removed flagged.
         """
-        params = SamplingAltitudeParams() if params is None else params
+        params = params or SamplingAltitudeParams()
         metadata = self.get_metadata()
         metadata.loc[:, "image-altitude-meters"] = metadata["image-altitude-meters"].abs()
         if params.by == "lower":
-            metadata = metadata.loc[metadata["image-altitude-meters"] > params.value]
+            metadata.loc[metadata["image-altitude-meters"] <= params.value]["flag"] = step_order
         else:
-            metadata = metadata.loc[metadata["image-altitude-meters"] < params.value]
+            metadata.loc[metadata["image-altitude-meters"] >= params.value]["flag"] = step_order
         if test:
             InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="resample").run()
         return metadata
@@ -296,7 +304,7 @@ class SamplingLayer(Paidiverpy):
         self,
         step_order: int | None = None,
         test: bool = False,
-        params: SamplingPitchRollParams = None,
+        params: SamplingPitchRollParams | None = None,
     ) -> pd.DataFrame:
         """Sampling the metadata by pitch and roll.
 
@@ -309,12 +317,14 @@ class SamplingLayer(Paidiverpy):
         Returns:
             pd.DataFrame: Metadata with the images to be removed flagged.
         """
-        params = SamplingPitchRollParams() if params is None else params
+        params = params or SamplingPitchRollParams()
         metadata = self.get_metadata()
         metadata.loc[:, "image-camera-pitch-degrees"] = metadata["image-camera-pitch-degrees"].abs()
         metadata.loc[:, "image-camera-roll-degrees"] = metadata["image-camera-roll-degrees"].abs()
 
-        metadata = metadata.loc[~((metadata["image-camera-pitch-degrees"] > params.pitch) & ~(metadata["image-camera-roll-degrees"] > params.roll))]
+        metadata.loc[((metadata["image-camera-pitch-degrees"] > params.pitch) & (metadata["image-camera-roll-degrees"] > params.roll))]["flag"] = (
+            step_order
+        )
         if test:
             InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="resample").run()
         return metadata
@@ -323,7 +333,7 @@ class SamplingLayer(Paidiverpy):
         self,
         step_order: int | None = None,
         test: bool = False,
-        params: SamplingRegionParams = None,
+        params: SamplingRegionParams | None = None,
     ) -> pd.DataFrame:
         """Sampling the metadata by region.
 
@@ -336,7 +346,7 @@ class SamplingLayer(Paidiverpy):
         Returns:
             pd.DataFrame: _description_
         """
-        params = SamplingRegionParams() if params is None else params
+        params = params or SamplingRegionParams()
         metadata = self.get_metadata()
         if not params.limits and not params.file:
             self.logger.info("No limits or file provided. No images will be removed.")
@@ -360,7 +370,7 @@ class SamplingLayer(Paidiverpy):
             def _point_in_any_polygon(point: tuple) -> bool:
                 return any(polygon.contains(point) for polygon in polygons.geometry)
 
-            metadata = metadata.loc[metadata["point"].apply(_point_in_any_polygon)]
+            metadata.loc[~metadata["point"].apply(_point_in_any_polygon), "flag"] = step_order
             self.metadata.dataset_metadata["trimmed_polygon"] = polygons.geometry
         if test:
             InvestigationLayer(paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="resample").run()
@@ -370,7 +380,7 @@ class SamplingLayer(Paidiverpy):
         self,
         step_order: int | None = None,
         test: bool = False,
-        params: SamplingObscureParams = None,
+        params: SamplingObscureParams | None = None,
     ) -> pd.DataFrame:
         """Sampling the metadata by obscure images.
 
@@ -383,40 +393,50 @@ class SamplingLayer(Paidiverpy):
         Returns:
             pd.DataFrame: Metadata with the images to be removed flagged.
         """
-        params = SamplingObscureParams() if params is None else params
+        params = params or SamplingObscureParams()
         metadata = self.get_metadata()
         if params.max < params.min:
             self.logger.error("Max value cannot be less than min value.")
             self.logger.error("No images will be removed.")
             return metadata
-        images = self.images.get_step(step=self.config_index)
-        bits = images[0].dtype.itemsize
-        if self.n_jobs == 1:
-            brightness = SamplingLayer._compute_mean(images, bits)
-        else:
-            images.map_blocks(SamplingLayer._compute_mean, bits=bits, meta=np.float32)
+        images = self.images.get_step(step=self.config_index, flag=0)
+        bits = images["images"].dtype.itemsize
+        brightness = xr.apply_ufunc(
+            SamplingLayer.compute_mean,
+            images["images"],
+            images["original_height"],
+            images["original_width"],
+            kwargs={"bits": bits},
+            input_core_dims=[["y", "x", "band"], [], []],
+            output_core_dims=[["band"]],
+            vectorize=True,
+            dask="parallelized",
+            output_dtypes=[float],
+        )
+        brightness = brightness.compute().to_numpy()
+
         if brightness.ndim == 1:
             brightness = np.expand_dims(brightness, axis=1)
         brightness = brightness[:, :3] if brightness.shape[1] > NUM_CHANNELS_RGB else brightness
         if brightness.shape[1] == 1:
             brightness = brightness[:, 0]
             metadata["brightness"] = brightness
+            mask = ~((metadata["brightness"] > params.min) & (metadata["brightness"] < params.max))
+            metadata.loc[mask, "flag"] = step_order
         elif params.channel == "mean":
             metadata["brightness"] = np.mean(brightness, axis=1)
-            metadata = metadata.loc[(metadata["brightness"] > params.min) & (metadata["brightness"] < params.max)]
+            mask = ~((metadata["brightness"] > params.min) & (metadata["brightness"] < params.max))
+            metadata.loc[mask, "flag"] = step_order
         else:
             for channel in range(brightness.shape[1]):
                 metadata[f"brightness_{channel + 1}"] = brightness[:, channel]
             if params.channel == "all":
                 for channel in range(brightness.shape[1]):
-                    metadata = metadata.loc[
-                        (metadata[f"brightness_{channel + 1}"] > params.min) & (metadata[f"brightness_{channel + 1}"] < params.max)
-                    ]
+                    mask = ~((metadata[f"brightness_{channel + 1}"] > params.min) & (metadata[f"brightness_{channel + 1}"] < params.max))
+                    metadata.loc[mask, "flag"] = step_order
             else:
-                metadata = metadata.loc[
-                    (metadata[f"brightness_{params.channel}"] > params.min) & (metadata[f"brightness_{params.channel}"] < params.max)
-                ]
-        self.set_metadata(metadata, flag=True)
+                mask = ~((metadata[f"brightness_{params.channel}"] > params.min) & (metadata[f"brightness_{params.channel}"] < params.max))
+                metadata.loc[mask, "flag"] = step_order
         if test:
             InvestigationLayer(
                 paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="resample-obscure"
@@ -427,7 +447,7 @@ class SamplingLayer(Paidiverpy):
         self,
         step_order: int | None = None,
         test: bool = False,
-        params: SamplingOverlappingParams = None,
+        params: SamplingOverlappingParams | None = None,
     ) -> pd.DataFrame:
         """Sampling the metadata by overlapping images.
 
@@ -440,7 +460,7 @@ class SamplingLayer(Paidiverpy):
         Returns:
             pd.DataFrame: Metadata with the images to be removed flagged.
         """
-        params = SamplingOverlappingParams() if params is None else params
+        params = params or SamplingOverlappingParams()
         metadata = self.get_metadata()
         theta = params.theta
         omega = params.omega
@@ -448,7 +468,7 @@ class SamplingLayer(Paidiverpy):
         camera_distance = params.camera_distance
 
         if "polygon_m" not in metadata.columns:
-            new_config = copy.copy(self.config)
+            # new_config = copy.copy(self.config)
             step_params = {
                 "step_name": "position",
                 "name": "corners",
@@ -459,17 +479,11 @@ class SamplingLayer(Paidiverpy):
                     "camera_distance": camera_distance,
                 },
             }
-            self.set_metadata(
-                PositionLayer(
-                    config=new_config,
-                    metadata=self.metadata,
-                    parameters=step_params,
-                    client=self.client,
-                    add_new_step=False,
-                ).run(),
-                flag=0,
-            )
-        metadata = self.get_metadata()
+            metadata = PositionLayer(
+                paidiverpy=self,
+                parameters=step_params,
+                add_new_step=False,
+            ).run()
         metadata["overlap"] = 0
         index_comparison = 0
         for i in metadata.index[1:]:
@@ -490,8 +504,7 @@ class SamplingLayer(Paidiverpy):
             else:
                 index_comparison = i
                 metadata.loc[i, "overlap"] = 0
-        self.set_metadata(metadata, flag=True)
-        metadata = metadata.loc[metadata["overlap"] == 0]
+        metadata.loc[metadata["overlap"] == 1, "flag"] = step_order
         if test:
             InvestigationLayer(
                 paidiverpy=self, step_order=step_order, step_name=self.step_name, plot_metadata=metadata, plots="resample-polygon"
@@ -499,13 +512,19 @@ class SamplingLayer(Paidiverpy):
         return metadata
 
     @staticmethod
-    def _compute_mean(image_chunk: np.ndarray, bits: int) -> np.ndarray:
-        if bits == EIGHT_BITS_SIZE:
-            result = np.mean(image_chunk, axis=(1, 2)) / 255
-        elif bits == SIXTEEN_BITS_SIZE:
-            result = np.mean(image_chunk, axis=(1, 2)) / 65535
-        elif bits == THIRTY_TWO_BITS_SIZE:
-            result = np.mean(image_chunk, axis=(1, 2)) / 4294967295
-        else:
-            result = np.mean(image_chunk, axis=(1, 2)) / 255
-        return result
+    def compute_mean(img: np.ndarray[Any, Any], height: int, width: int, bits: int) -> np.ndarray[Any, Any]:
+        """Compute the mean of the image bands.
+
+        Args:
+            img (np.ndarray): The input image array.
+            height (int): The height of the image.
+            width (int): The width of the image.
+            bits (int): The bit depth of the image.
+
+        Returns:
+            np.ndarray: The computed mean values for each band.
+        """
+        cropped = img[:height, :width, :]
+        mean_per_band = cropped.mean(axis=(0, 1))
+        denom = (1 << (bits * 8)) - 1
+        return mean_per_band / denom

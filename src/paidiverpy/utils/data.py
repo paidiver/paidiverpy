@@ -2,11 +2,14 @@
 
 import hashlib
 import json
+import logging
+import shutil
 import zipfile
 from pathlib import Path
+from typing import Any
 import requests
 from tqdm import tqdm
-from paidiverpy.utils.logging_functions import initialise_logging
+from paidiverpy.utils.docker import is_running_in_docker
 
 NUM_CHANNELS_GREY = 1
 NUM_CHANNELS_RGB = 3
@@ -83,9 +86,9 @@ class PaidiverpyData:
     """A class to download and load datasets."""
 
     def __init__(self):
-        self.logger = initialise_logging()
+        self.logger = logging.getLogger("paidiverpy")
 
-    def load(self, dataset_name: str) -> dict:
+    def load(self, dataset_name: str) -> dict[str, str]:
         """Download, unzip, and load the specified dataset.
 
         Args:
@@ -94,7 +97,7 @@ class PaidiverpyData:
         Returns:
             dict: A dictionary containing the input path, metadata path, metadata type, and image type.
         """
-        dataset_information = DATASET_URLS.get(dataset_name)
+        dataset_information = DATASET_URLS.get(dataset_name, {})
         paths = self.load_persistent_paths()
 
         if dataset_name in paths and Path(paths[dataset_name]).exists():
@@ -102,32 +105,52 @@ class PaidiverpyData:
         self.logger.info("Downloading sample dataset: '%s'", dataset_name)
 
         extract_dir = CACHE_DIR / dataset_name
-        if dataset_information is None:
+        if dataset_information == {}:
             msg = f"Dataset '{dataset_name}' not found."
             raise ValueError(msg)
-        url = dataset_information["url"]
-        zip_path = self.download_file(url, dataset_name)
+        url = dataset_information.get("url", "")
+        zip_path = self.download_file(str(url), dataset_name)
 
         self.unzip_file(zip_path, dataset_name, extract_dir)
+        if is_running_in_docker():
+            self.copy_files_docker(extract_dir, dataset_name)
+            extract_dir = Path("/app") / "sample_data" / dataset_name
         paths[dataset_name] = str(extract_dir)
+
         self.save_persistent_paths(paths)
 
         self.logger.info("Dataset '%s' is available at: %s", dataset_name, extract_dir)
 
         return self.calculate_information(dataset_name, extract_dir, dataset_information)
 
-    def load_persistent_paths(self) -> dict:
+    def copy_files_docker(self, extract_dir: Path, dataset_name: str) -> None:
+        """Copy files from the extract directory to the appropriate location in the Docker container.
+
+        Args:
+            extract_dir (Path): The directory where the dataset has been extracted.
+            dataset_name (str): The name of the dataset.
+        """
+        metadata_path = Path("/app") / "sample_data" / dataset_name / "metadata"
+        images_path = Path("/app") / "sample_data" / dataset_name / "input"
+        if metadata_path.exists():
+            shutil.rmtree(metadata_path)
+        if images_path.exists():
+            shutil.rmtree(images_path)
+        shutil.copytree(extract_dir / "metadata", metadata_path)
+        shutil.copytree(extract_dir / "images", images_path)
+
+    def load_persistent_paths(self) -> dict[str, str]:
         """Load the persistent paths from the cache directory.
 
         Returns:
-            dict: The persistent paths.
+            dict[str, str]: The persistent paths.
         """
         if PERSISTENCE_FILE.exists():
             with PERSISTENCE_FILE.open(encoding="UTF-8") as f:
                 return json.load(f)
         return {}
 
-    def save_persistent_paths(self, paths: dict) -> None:
+    def save_persistent_paths(self, paths: dict[str, str]) -> None:
         """Save the persistent paths to the cache directory.
 
         Args:
@@ -189,7 +212,11 @@ class PaidiverpyData:
             try:
                 with zipfile.ZipFile(zip_path, "r") as zip_ref:
                     total_files = len(zip_ref.infolist())
-                    with tqdm(total=total_files, unit="file", desc=f"Extracting {dataset_name} files") as bar:
+                    with tqdm(
+                        total=total_files,
+                        unit="file",
+                        desc=f"Extracting {dataset_name} files",
+                    ) as bar:
                         for file_info in zip_ref.infolist():
                             zip_ref.extract(file_info, extract_dir)
                             bar.update(1)
@@ -202,7 +229,7 @@ class PaidiverpyData:
         else:
             self.logger.info("Using cached extraction at %s", extract_dir)
 
-    def calculate_information(self, dataset_name: str, extract_dir: Path, dataset_information: dict) -> dict:
+    def calculate_information(self, dataset_name: str, extract_dir: Path, dataset_information: dict[str, Any]) -> dict[str, str]:
         """Calculate the information for the dataset.
 
         Args:
@@ -215,7 +242,7 @@ class PaidiverpyData:
         """
         metadata_path = dataset_information["metadata_path"]
         information = {
-            "input_path": str(extract_dir / "images"),
+            "input_path": str(extract_dir / "input") if is_running_in_docker() else str(extract_dir / "images"),
             "metadata_path": str(extract_dir / "metadata" / metadata_path),
             "metadata_type": dataset_information["metadata_type"],
             "image_open_args": dataset_information["image_open_args"],

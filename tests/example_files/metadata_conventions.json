@@ -1,5 +1,5 @@
 {
-  "image-filename": ["filename", "file_name", "FileName", "File Name"],
+  "filename": ["image-filename", "file_name", "FileName", "File Name"],
   "ID": ["index", "id", "Index", "Id"],
   "image-datetime": ["datetime", "date_time", "DateTime", "Datetime"],
   "image-latitude": ["lat", "latitude_deg", "latitude", "Latitude", "Latitude_deg", "Lat"],

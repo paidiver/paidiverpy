@@ -9,4 +9,4 @@ def is_running_in_docker() -> bool:
     Returns:
         bool: Whether the code is running in a Docker container.
     """
-    return os.getenv("IS_DOCKER", None)
+    return bool(os.getenv("IS_DOCKER"))

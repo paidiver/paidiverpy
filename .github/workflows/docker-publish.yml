@@ -2,8 +2,8 @@ name: Build and Publish Docker Image
 
 on:
   push:
-    # branches:
-    #   - dev
+    branches:
+      - main
   release:
     types: [published]
 
@@ -38,11 +38,11 @@ jobs:
 
       - name: Build and Tag Image
         run: |
-          docker build -t ghcr.io/${{ env.IMAGE_NAME_LOWER }}:${{ env.IMAGE_TAG }} -t ghcr.io/${{ env.IMAGE_NAME_LOWER }}:${{ env.LATEST_TAG }} .
+          docker build -t ghcr.io/${{ env.IMAGE_NAME_LOWER }}:${{ env.IMAGE_TAG }} -t ghcr.io/${{ env.IMAGE_NAME_LOWER }}:${{ env.LATEST_TAG }} -f dockerfiles/Dockerfile .
           # tag the image for Docker Hub (instead of paidiver/paidiverpy:latest, it will be paidiverpy:latest)
           docker tag ghcr.io/${{ env.IMAGE_NAME_LOWER }}:${{ env.IMAGE_TAG }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME_LOWER_DOCKERHUB }}:${{ env.IMAGE_TAG }}
           docker tag ghcr.io/${{ env.IMAGE_NAME_LOWER }}:${{ env.LATEST_TAG }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME_LOWER_DOCKERHUB }}:${{ env.LATEST_TAG }}
-          # docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME_LOWER }}:${{ env.IMAGE_TAG }} -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME_LOWER }}:${{ env.LATEST_TAG }} .
+          # docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME_LOWER }}:${{ env.IMAGE_TAG }} -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME_LOWER }}:${{ env.LATEST_TAG }} -f dockerfiles/Dockerfile .
 
       - name: Push to GitHub Container Registry
         run: |

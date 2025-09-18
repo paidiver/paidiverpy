@@ -25,7 +25,7 @@ author = "Paidiver Developers"
 # built documents.
 #
 # The short X.Y version.
-version = "0.1.4"
+version = "0.2.0"
 # The full version, including alpha/beta/rc tags.
 release = version
 
@@ -116,7 +116,6 @@ html_theme_options = {
     "use_edit_page_button": True,
     "use_download_button": True,
     "repository_branch": "master",
-    # "html_logo": "_static/argopy_logo_long.png",
     "logo": {"image": html_logo},
     # "display_version": True,
     # "logo_only": True,
