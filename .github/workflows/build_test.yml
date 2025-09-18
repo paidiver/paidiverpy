@@ -44,18 +44,18 @@ jobs:
       - name: Create conda environment
         shell: bash -l {0}
         run: |
-          conda env create -f environment.yml
+          conda env create -f environment.yml python=${{ matrix.python-version }} -y
           conda activate Paidiverpy
-          conda run -n Paidiverpy pip install -e .
-          conda run -n Paidiverpy pip install .[test]
-          conda run -n Paidiverpy pip install .[dev,publishing]
+          pip install -e .
+          pip install -e ".[test]"
+          pip install -e ".[dev,publishing]"
 
       - name: Test with pytest
         shell: bash -l {0}
         run: |
-          conda run -n Paidiverpy pytest -ra -v -s \
-            --cov=src/paidiverpy \
-            --cov-config=.coveragerc \
+          conda activate Paidiverpy
+          pytest -ra -v -s \
+            --cov \
             --cov-report xml:cov.xml \
             --cov-report term-missing \
             --junitxml=junit.xml -o junit_family=legacy
@@ -70,8 +70,8 @@ jobs:
 
       - name: Verify that we can build the package
         run:  |
-          conda run -n Paidiverpy pip install build twine wheel
-          conda run -n Paidiverpy python -m build
+          pip install build twine wheel
+          python -m build
 
       - name: Update conda meta file and commit
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12' && github.event_name == 'push'
