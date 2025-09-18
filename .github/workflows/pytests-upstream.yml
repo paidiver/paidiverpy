@@ -35,14 +35,13 @@ jobs:
       - name: Create conda environment with latest deps
         shell: bash -l {0}
         run: |
-          conda create -n paidiverpy-latest python=${{ matrix.python-version }} -y
-          conda activate paidiverpy-latest
-          # Install your package with no pinned deps
-          conda run -n pip install --upgrade pip
-          conda run -n Paidiverpy pip install .
-          conda run -n pip install --upgrade .[test]
-          conda run -n pip install nbconvert nbclient
-
+          conda env create -f environment.yml python=${{ matrix.python-version }} -y
+          conda activate Paidiverpy
+          conda run -n Paidiverpy pip install --upgrade pip
+          conda run -n Paidiverpy pip install -e .
+          conda run -n Paidiverpy pip install .[test]
+          conda run -n Paidiverpy pip install .[dev,publishing]
+          conda run -n Paidiverpy pip install nbconvert nbclient
 
       - name: Run tests
         shell: bash -l {0}

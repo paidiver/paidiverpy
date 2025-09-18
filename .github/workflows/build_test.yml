@@ -44,7 +44,7 @@ jobs:
       - name: Create conda environment
         shell: bash -l {0}
         run: |
-          conda env create -f environment.yml
+          conda env create -f environment.yml python=${{ matrix.python-version }} -y
           conda activate Paidiverpy
           conda run -n Paidiverpy pip install -e .
           conda run -n Paidiverpy pip install .[test]
@@ -53,7 +53,10 @@ jobs:
       - name: Test with pytest
         shell: bash -l {0}
         run: |
-          conda run -n Paidiverpy pytest -ra -v -s \
+          source ~/.bashrc
+          conda activate Paidiverpy
+
+          pytest -ra -v -s \
             --cov=src/paidiverpy \
             --cov-config=.coveragerc \
             --cov-report xml:cov.xml \
