@@ -1,8 +1,11 @@
 name: Build and Upload to PyPI
+
 on:
+  push:
+    branches:
+      - main
   release:
-    types: published
-  workflow_dispatch:
+    types: [published]
 
 jobs:
   release:

@@ -3,7 +3,6 @@ name: Python package
 on:
   push:
     branches:
-    - main
     - dev
   pull_request:
     branches:
@@ -89,8 +88,17 @@ jobs:
           git checkout $BRANCH
 
           sha256=$(sha256sum dist/*.tar.gz | cut -d ' ' -f 1)
-          sed -i "1s/^/{% set sha256 = \"$sha256\" %}\n/" conda_recipes/meta.yaml
-          sed -i "1s/^/{% set sha256 = \"$sha256\" %}\n/" conda_recipes/meta_bioconda.yaml
+          if grep -q '{% set sha256' conda_recipes/meta.yaml; then
+              sed -i "s|{% set sha256 = .* %}|{% set sha256 = \"$sha256\" %}|" conda_recipes/meta.yaml
+          else
+              sed -i "1i{% set sha256 = \"$sha256\" %}" conda_recipes/meta.yaml
+          fi
+
+          if grep -q '{% set sha256' conda_recipes/meta_bioconda.yaml; then
+              sed -i "s|{% set sha256 = .* %}|{% set sha256 = \"$sha256\" %}|" conda_recipes/meta_bioconda.yaml
+          else
+              sed -i "1i{% set sha256 = \"$sha256\" %}" conda_recipes/meta_bioconda.yaml
+          fi
 
           git add conda_recipes/meta_bioconda.yaml conda_recipes/meta.yaml
           git commit -m "chore: update conda recipe" || true

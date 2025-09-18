@@ -46,9 +46,15 @@
 -  Version0.2.0 [\#232](https://github.com/paidiver/paidiverpy/pull/232) ([soutobias](https://github.com/soutobias))
 - Update code, but change strategy [\#220](https://github.com/paidiver/paidiverpy/pull/220) ([soutobias](https://github.com/soutobias))
 - Correct frontend rendering [\#218](https://github.com/paidiver/paidiverpy/pull/218) ([soutobias](https://github.com/soutobias))
+- Update custom algorithm and add GUI [\#211](https://github.com/paidiver/paidiverpy/pull/211) ([soutobias](https://github.com/soutobias))
 - 186 enhance exif handling in processed images [\#210](https://github.com/paidiver/paidiverpy/pull/210) ([soutobias](https://github.com/soutobias))
 - 187 function to open and export metadata to different formats [\#208](https://github.com/paidiver/paidiverpy/pull/208) ([soutobias](https://github.com/soutobias))
 - 2 add support to load different types of images [\#206](https://github.com/paidiver/paidiverpy/pull/206) ([soutobias](https://github.com/soutobias))
+- New realease with conda forge [\#193](https://github.com/paidiver/paidiverpy/pull/193) ([soutobias](https://github.com/soutobias))
+- Release 0.1.2 [\#181](https://github.com/paidiver/paidiverpy/pull/181) ([soutobias](https://github.com/soutobias))
+- Create new release 0.1.1 [\#153](https://github.com/paidiver/paidiverpy/pull/153) ([soutobias](https://github.com/soutobias))
+- Create a new package release [\#142](https://github.com/paidiver/paidiverpy/pull/142) ([soutobias](https://github.com/soutobias))
+- First package release [\#102](https://github.com/paidiver/paidiverpy/pull/102) ([soutobias](https://github.com/soutobias))
 
 ## [v0.1.4](https://github.com/paidiver/paidiverpy/tree/v0.1.4) (2025-05-13)
 
