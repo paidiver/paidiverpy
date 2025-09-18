@@ -20,6 +20,7 @@
 
 **Closed issues:**
 
+- Correct coverage calculation [\#234](https://github.com/paidiver/paidiverpy/issues/234)
 - Link Checker Report - 2025-09-16 [\#231](https://github.com/paidiver/paidiverpy/issues/231)
 - Link Checker Report [\#230](https://github.com/paidiver/paidiverpy/issues/230)
 - Link Checker Report [\#229](https://github.com/paidiver/paidiverpy/issues/229)
@@ -41,6 +42,7 @@
 
 **Merged pull requests:**
 
+- Update workflow [\#235](https://github.com/paidiver/paidiverpy/pull/235) ([soutobias](https://github.com/soutobias))
 -  Version0.2.0 [\#232](https://github.com/paidiver/paidiverpy/pull/232) ([soutobias](https://github.com/soutobias))
 - Update code, but change strategy [\#220](https://github.com/paidiver/paidiverpy/pull/220) ([soutobias](https://github.com/soutobias))
 - Correct frontend rendering [\#218](https://github.com/paidiver/paidiverpy/pull/218) ([soutobias](https://github.com/soutobias))
