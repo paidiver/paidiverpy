@@ -17,6 +17,9 @@ on:
 
 jobs:
   upstream-latest:
+    env:
+      PYTHONIOENCODING: utf-8
+    if: github.actor != 'github-actions[bot]'
     name: Test with latest dependencies - Py${{ matrix.python-version }} - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
