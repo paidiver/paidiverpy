@@ -3,9 +3,17 @@ name: CI tests Upstream
 # Runs daily and can also be triggered manually
 # Tests Paidiverpy with unpinned/latest dependencies
 on:
-  schedule:
-    - cron: "0 0 * * *" # Daily at 00:00 UTC
-  workflow_dispatch:
+  push:
+    branches:
+    - dev
+  pull_request:
+    branches:
+    - dev
+
+# on:
+#   schedule:
+#     - cron: "0 0 * * *" # Daily at 00:00 UTC
+#   workflow_dispatch:
 
 jobs:
   upstream-latest:
@@ -51,17 +59,15 @@ jobs:
             --cov-config=.coveragerc \
             --cov-report term-missing
 
-
       - name: Run Notebooks in "examples/example_notebooks"
+        shell: bash -l {0}
         run: |
-          conda activate Paidiverpy
-
           for notebook in examples/example_notebooks/*.ipynb; do
             echo "Running $notebook..."
             notebook_name=$(basename "$notebook")
             executed_notebook="executed_$notebook_name"
             # Execute the notebook and save it as executed_<name>
-            (cd examples/example_notebooks && jupyter nbconvert --to notebook --execute "$notebook_name" --output "$executed_notebook") || exit 1
+            (cd examples/example_notebooks && conda run -n Paidiverpy jupyter nbconvert --to notebook --execute "$notebook_name" --output "$executed_notebook") || exit 1
             # Rename the executed notebook to the original notebook name, overwriting it if necessary
             mv -f examples/example_notebooks/"$executed_notebook" examples/example_notebooks/"$notebook_name"
           done
