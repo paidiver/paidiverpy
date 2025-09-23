@@ -2,7 +2,15 @@
 
 ## [Unreleased](https://github.com/paidiver/paidiverpy/tree/HEAD)
 
-[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.1.4...HEAD)
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v.0.2.0...HEAD)
+
+**Merged pull requests:**
+
+- Releasev0.2.1 [\#237](https://github.com/paidiver/paidiverpy/pull/237) ([soutobias](https://github.com/soutobias))
+
+## [v.0.2.0](https://github.com/paidiver/paidiverpy/tree/v.0.2.0) (2025-09-18)
+
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.1.4...v.0.2.0)
 
 **Implemented enhancements:**
 
@@ -42,7 +50,9 @@
 
 **Merged pull requests:**
 
+- Correct errors on release [\#236](https://github.com/paidiver/paidiverpy/pull/236) ([soutobias](https://github.com/soutobias))
 - Update workflow [\#235](https://github.com/paidiver/paidiverpy/pull/235) ([soutobias](https://github.com/soutobias))
+- Release 0.2.0 [\#233](https://github.com/paidiver/paidiverpy/pull/233) ([soutobias](https://github.com/soutobias))
 -  Version0.2.0 [\#232](https://github.com/paidiver/paidiverpy/pull/232) ([soutobias](https://github.com/soutobias))
 - Update code, but change strategy [\#220](https://github.com/paidiver/paidiverpy/pull/220) ([soutobias](https://github.com/soutobias))
 - Correct frontend rendering [\#218](https://github.com/paidiver/paidiverpy/pull/218) ([soutobias](https://github.com/soutobias))
