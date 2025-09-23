@@ -3,23 +3,14 @@ name: CI tests Upstream
 # Runs daily and can also be triggered manually
 # Tests Paidiverpy with unpinned/latest dependencies
 on:
-  push:
-    branches:
-    - dev
-  pull_request:
-    branches:
-    - dev
-
-# on:
-#   schedule:
-#     - cron: "0 0 * * *" # Daily at 00:00 UTC
-#   workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *" # Daily at 00:00 UTC
+  workflow_dispatch:
 
 jobs:
   upstream-latest:
     env:
       PYTHONIOENCODING: utf-8
-    if: github.actor != 'github-actions[bot]'
     name: Test with latest dependencies - Py${{ matrix.python-version }} - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
