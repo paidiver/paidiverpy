@@ -1,0 +1,154 @@
+{
+    "image-set-header": {
+        "image-set-name": "A unique name for the image set, should include image-project, image-event, image-sensor and optionally the purpose of imaging",
+        "image-set-uuid": "83afeab9-ce56-48c1-9df3-9b700b52030a",
+        "image-set-handle": "/home/tobfer/.paidiverpy_cache/benthic_csv/images",
+        "image-set-ifdo-version": "v2.1.0",
+        "image-datetime": "2018-06-11 04:16:46",
+        "image-latitude": 11.251673539999999,
+        "image-longitude": -153.605292175,
+        "image-altitude-meters": "Z-coordinate of camera center in meters. Has negative values when camera is below sea level. Has positive values when the camera is above sea level.",
+        "image-coordinate-reference-system": "The coordinate reference system, e.g. EPSG:4326",
+        "image-coordinate-uncertainty-meters": "The average/static uncertainty of coordinates in this dataset, given in meters. Computed e.g. as the standard deviation of coordinate corrections during smoothing / splining.",
+        "image-context": {
+            "name": "The name of the context"
+        },
+        "image-project": {
+            "name": "The name of the project"
+        },
+        "image-event": {
+            "name": "The name of the event"
+        },
+        "image-platform": {
+            "name": "The name of the platform"
+        },
+        "image-sensor": {
+            "name": "The name of the sensor"
+        },
+        "image-pi": {
+            "name": "The name of the PI"
+        },
+        "image-creators": [
+            "A list containing dicts for all creators containing:"
+        ],
+        "image-license": {
+            "name": "The name of the license"
+        },
+        "image-copyright": "Copyright statement or contact person or office",
+        "image-abstract": "500 - 2000 characters describing what, when, where, why and how the data was collected. Includes general information on the event (aka station, experiment), e.g. overlap between images/frames, parameters on platform movement, aims, purpose of image capture etc."
+    },
+    "image-set-items": {
+        "20180611041431.png": {
+            "image-uuid": "afee50a9-0042-4e26-b8ee-c5e204c50d72",
+            "image-hash-sha256": "An SHA256 hash to represent the whole file (including UUID in file metadata header!) to verify integrity on disk",
+            "image-handle": "The URI pointing to a downloadable version of the image data",
+            "image-longitude": -153.60531372,
+            "image-camera-pitch-degrees": 1.993,
+            "image-datetime": "2018-06-11 04:14:31",
+            "image-camera-roll-degrees": 1.326,
+            "image-latitude": 11.25171832,
+            "image-acquisition-settings": {
+                "exposure_time": 0.01666666667,
+                "f_number": 8,
+                "white_balance": "FLASH       "
+            },
+            "image-altitude-meters": 1.5
+        },
+        "20180611041531.png": {
+            "image-uuid": "2b0dafcd-6ef8-4cbb-9fdf-346a37023416",
+            "image-hash-sha256": "An SHA256 hash to represent the whole file (including UUID in file metadata header!) to verify integrity on disk",
+            "image-handle": "The URI pointing to a downloadable version of the image data",
+            "image-longitude": -153.60532046,
+            "image-camera-pitch-degrees": 3.255,
+            "image-datetime": "2018-06-11 04:15:31",
+            "image-camera-roll-degrees": 0.7,
+            "image-latitude": 11.25168357,
+            "image-acquisition-settings": {
+                "exposure_time": 0.01666666667,
+                "f_number": 8,
+                "white_balance": "FLASH       "
+            },
+            "image-altitude-meters": 1.5
+        },
+        "20180611041601.png": {
+            "image-uuid": "3e3b2e39-74ac-4c0d-9166-2e1a64ee676c",
+            "image-hash-sha256": "An SHA256 hash to represent the whole file (including UUID in file metadata header!) to verify integrity on disk",
+            "image-handle": "The URI pointing to a downloadable version of the image data",
+            "image-longitude": -153.60532189,
+            "image-camera-pitch-degrees": 1.101,
+            "image-datetime": "2018-06-11 04:16:01",
+            "image-camera-roll-degrees": 0.837,
+            "image-latitude": 11.25165983,
+            "image-acquisition-settings": {
+                "exposure_time": 0.01666666667,
+                "f_number": 8,
+                "white_balance": "FLASH       "
+            },
+            "image-altitude-meters": 1.6
+        },
+        "20180611041641.png": {
+            "image-uuid": "249598f6-0e34-4aea-a304-7c3505ef1250",
+            "image-hash-sha256": "An SHA256 hash to represent the whole file (including UUID in file metadata header!) to verify integrity on disk",
+            "image-handle": "The URI pointing to a downloadable version of the image data",
+            "image-longitude": -153.60532022,
+            "image-camera-pitch-degrees": 3.037,
+            "image-datetime": "2018-06-11 04:16:41",
+            "image-camera-roll-degrees": 0.705,
+            "image-latitude": 11.25164222,
+            "image-acquisition-settings": {
+                "exposure_time": 0.01666666667,
+                "f_number": 8,
+                "white_balance": "FLASH       "
+            },
+            "image-altitude-meters": 1.5
+        },
+        "20180611041741.png": {
+            "image-uuid": "f03aea5f-6a51-4a8b-a24d-04f787e3f31d",
+            "image-hash-sha256": "An SHA256 hash to represent the whole file (including UUID in file metadata header!) to verify integrity on disk",
+            "image-handle": "The URI pointing to a downloadable version of the image data",
+            "image-longitude": -153.60531468,
+            "image-camera-pitch-degrees": 2.673,
+            "image-datetime": "2018-06-11 04:17:41",
+            "image-camera-roll-degrees": 0.575,
+            "image-latitude": 11.25162876,
+            "image-acquisition-settings": {
+                "exposure_time": 0.01666666667,
+                "f_number": 8,
+                "white_balance": "FLASH       "
+            },
+            "image-altitude-meters": 1.5
+        },
+        "20180611041811.png": {
+            "image-uuid": "41d19ea0-48fa-415e-a754-060dab3292b2",
+            "image-hash-sha256": "An SHA256 hash to represent the whole file (including UUID in file metadata header!) to verify integrity on disk",
+            "image-handle": "The URI pointing to a downloadable version of the image data",
+            "image-longitude": -153.60529894,
+            "image-camera-pitch-degrees": 0.435,
+            "image-datetime": "2018-06-11 04:18:11",
+            "image-camera-roll-degrees": 0.374,
+            "image-latitude": 11.25163219,
+            "image-acquisition-settings": {
+                "exposure_time": 0.01666666667,
+                "f_number": 8,
+                "white_balance": "FLASH       "
+            },
+            "image-altitude-meters": 1.9
+        },
+        "20180611041901.png": {
+            "image-uuid": "89c1df02-a861-4530-b74a-01f7ca991bb0",
+            "image-hash-sha256": "An SHA256 hash to represent the whole file (including UUID in file metadata header!) to verify integrity on disk",
+            "image-handle": "The URI pointing to a downloadable version of the image data",
+            "image-longitude": -153.60526246,
+            "image-camera-pitch-degrees": 0.176,
+            "image-datetime": "2018-06-11 04:19:01",
+            "image-camera-roll-degrees": 0.286,
+            "image-latitude": 11.25164123,
+            "image-acquisition-settings": {
+                "exposure_time": 0.01666666667,
+                "f_number": 8,
+                "white_balance": "FLASH       "
+            },
+            "image-altitude-meters": 1.7
+        }
+    }
+}
