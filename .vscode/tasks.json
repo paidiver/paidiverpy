@@ -1,0 +1,433 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "test-images-config-branches",
+			"type": "shell",
+			"command": "/home/tobfer/.pyenv/versions/paidiverpy/bin/python",
+			"args": [
+				"-m",
+				"pytest",
+				"tests/test_24_images_configuration_branches.py",
+				"--cov=src/paidiverpy/images_layer.py",
+				"--cov=src/paidiverpy/config/configuration.py",
+				"--cov-branch",
+				"--cov-report=term-missing",
+				"-q"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "test-images-config-branches-2",
+			"type": "shell",
+			"command": "/home/tobfer/.pyenv/versions/paidiverpy/bin/python",
+			"args": [
+				"-m",
+				"pytest",
+				"tests/test_24_images_configuration_branches.py",
+				"--cov=src/paidiverpy/images_layer.py",
+				"--cov=src/paidiverpy/config/configuration.py",
+				"--cov-branch",
+				"--cov-report=term-missing",
+				"-q"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "test-images-config-branches-3",
+			"type": "shell",
+			"command": "/home/tobfer/.pyenv/versions/paidiverpy/bin/python",
+			"args": [
+				"-m",
+				"pytest",
+				"tests/test_24_images_configuration_branches.py",
+				"--cov=paidiverpy.images_layer",
+				"--cov=paidiverpy.config.configuration",
+				"--cov-branch",
+				"--cov-report=term-missing",
+				"-q"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "coverage-images-config-direct",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"/home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage erase && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage run --branch -m pytest -p no:cov tests/test_24_images_configuration_branches.py -q && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage report -m src/paidiverpy/images_layer.py src/paidiverpy/config/configuration.py"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "coverage-images-config-direct-2",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"/home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage erase && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage run --branch -m pytest -p no:cov -o addopts='' tests/test_24_images_configuration_branches.py -q && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage report -m src/paidiverpy/images_layer.py src/paidiverpy/config/configuration.py"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "show-images-lines",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"awk 'NR>=250 && NR<=340 {print NR \":\" $0}' src/paidiverpy/images_layer.py"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "show-images-lines-2",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"awk \"NR>=250 && NR<=340 {print NR \\\":\\\" $0}\" src/paidiverpy/images_layer.py"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "show-images-lines-3",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"nl -ba src/paidiverpy/images_layer.py | sed -n \"250,340p\""
+			],
+			"isBackground": false
+		},
+		{
+			"label": "show-config-lines",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"nl -ba src/paidiverpy/config/configuration.py | sed -n \"20,340p\""
+			],
+			"isBackground": false
+		},
+		{
+			"label": "show-images-lines-4",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"nl -ba src/paidiverpy/images_layer.py | sed -n \"196,244p\""
+			],
+			"isBackground": false
+		},
+		{
+			"label": "coverage-images-config-direct-3",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"/home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage erase && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage run --branch -m pytest -p no:cov -o addopts='' tests/test_24_images_configuration_branches.py -q && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage report -m src/paidiverpy/images_layer.py src/paidiverpy/config/configuration.py"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "coverage-images-config-direct-verify",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"/home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage erase && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage run --branch -m pytest -p no:cov -o addopts='' tests/test_24_images_configuration_branches.py -q && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage report -m src/paidiverpy/images_layer.py src/paidiverpy/config/configuration.py"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "coverage-images-config-direct-verify-2",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"/home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage erase && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage run --branch -m pytest -p no:cov -o addopts='' tests/test_24_images_configuration_branches.py -q && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage report -m src/paidiverpy/images_layer.py src/paidiverpy/config/configuration.py"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "show-target-line-snippets-25",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"nl -ba src/paidiverpy/utils/locals.py | sed -n '1,260p' && echo '---' && nl -ba src/paidiverpy/custom_layer/custom_layer.py | sed -n '1,180p' && echo '---' && nl -ba src/paidiverpy/paidiverpy.py | sed -n '90,520p' && echo '---' && nl -ba src/paidiverpy/open_layer/open_layer.py | sed -n '210,340p' && echo '---' && nl -ba src/paidiverpy/open_layer/utils.py | sed -n '90,260p' && echo '---' && nl -ba src/paidiverpy/investigation_layer/investigation_layer.py | sed -n '70,200p'"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "show-locals-numbered",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"nl -ba src/paidiverpy/utils/locals.py | sed -n '1,240p'"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "show-paidiverpy-numbered-targets",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"nl -ba src/paidiverpy/paidiverpy.py | sed -n '108,145p'; echo '---'; nl -ba src/paidiverpy/paidiverpy.py | sed -n '180,200p'; echo '---'; nl -ba src/paidiverpy/paidiverpy.py | sed -n '322,336p'; echo '---'; nl -ba src/paidiverpy/paidiverpy.py | sed -n '388,412p'; echo '---'; nl -ba src/paidiverpy/paidiverpy.py | sed -n '480,490p'"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "show-custom-layer-numbered-targets",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"nl -ba src/paidiverpy/custom_layer/custom_layer.py | sed -n '90,120p'"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "show-open-layer-numbered-targets",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"nl -ba src/paidiverpy/open_layer/open_layer.py | sed -n '232,318p'"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "coverage-target-25-initial",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"/home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage erase && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage run --branch -m pytest -p no:cov -o addopts='' tests/test_25_target_branch_gaps.py -q && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage report -m src/paidiverpy/utils/locals.py src/paidiverpy/custom_layer/custom_layer.py src/paidiverpy/paidiverpy.py src/paidiverpy/open_layer/open_layer.py src/paidiverpy/open_layer/utils.py src/paidiverpy/investigation_layer/investigation_layer.py"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "coverage-target-25-rerun",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"/home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage erase && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage run --branch -m pytest -p no:cov -o addopts='' tests/test_25_target_branch_gaps.py -q && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage report -m src/paidiverpy/utils/locals.py src/paidiverpy/custom_layer/custom_layer.py src/paidiverpy/paidiverpy.py src/paidiverpy/open_layer/open_layer.py src/paidiverpy/open_layer/utils.py src/paidiverpy/investigation_layer/investigation_layer.py"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "coverage-target-25-rerun-2",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"/home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage erase && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage run --branch -m pytest -p no:cov -o addopts='' tests/test_25_target_branch_gaps.py -q && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage report -m src/paidiverpy/utils/locals.py src/paidiverpy/custom_layer/custom_layer.py src/paidiverpy/paidiverpy.py src/paidiverpy/open_layer/open_layer.py src/paidiverpy/open_layer/utils.py src/paidiverpy/investigation_layer/investigation_layer.py"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "coverage-target-25-combined",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"/home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage erase && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage run --branch -m pytest -p no:cov -o addopts='' tests/test_19_utils_unit.py tests/test_20_openlayer_models_parallel.py tests/test_21_config_pipeline_metadata_html_unit.py tests/test_22_remaining_coverage.py tests/test_23_metadata_parser_branches.py tests/test_24_images_configuration_branches.py tests/test_25_target_branch_gaps.py -q && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage report -m src/paidiverpy/utils/locals.py src/paidiverpy/custom_layer/custom_layer.py src/paidiverpy/paidiverpy.py src/paidiverpy/open_layer/open_layer.py src/paidiverpy/open_layer/utils.py src/paidiverpy/investigation_layer/investigation_layer.py"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "coverage-target-25-combined-rerun",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"/home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage erase && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage run --branch -m pytest -p no:cov -o addopts='' tests/test_19_utils_unit.py tests/test_20_openlayer_models_parallel.py tests/test_21_config_pipeline_metadata_html_unit.py tests/test_22_remaining_coverage.py tests/test_23_metadata_parser_branches.py tests/test_24_images_configuration_branches.py tests/test_25_target_branch_gaps.py -q && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage report -m src/paidiverpy/utils/locals.py src/paidiverpy/custom_layer/custom_layer.py src/paidiverpy/paidiverpy.py src/paidiverpy/open_layer/open_layer.py src/paidiverpy/open_layer/utils.py src/paidiverpy/investigation_layer/investigation_layer.py"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "show-target-lines-26",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"nl -ba src/paidiverpy/pipeline/pipeline.py | sed -n '120,320p'; echo '---'; nl -ba src/paidiverpy/sampling_layer/sampling_layer.py | sed -n '1,520p'; echo '---'; nl -ba src/paidiverpy/utils/formating_html.py | sed -n '1,460p'; echo '---'; nl -ba src/paidiverpy/metadata_parser/ifdo_tools.py | sed -n '60,360p'"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "show-pipeline-lines-target",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"nl -ba src/paidiverpy/pipeline/pipeline.py | sed -n '120,320p'"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "show-sampling-html-lines-target",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"nl -ba src/paidiverpy/sampling_layer/sampling_layer.py | sed -n '1,520p'; echo '---'; nl -ba src/paidiverpy/utils/formating_html.py | sed -n '1,460p'; echo '---'; nl -ba src/paidiverpy/utils/data.py | sed -n '100,160p'; echo '---'; nl -ba src/paidiverpy/utils/install_packages.py | sed -n '20,50p'; echo '---'; nl -ba src/paidiverpy/utils/object_store.py | sed -n '30,60p'; echo '---'; nl -ba src/paidiverpy/utils/parallellisation.py | sed -n '50,100p'"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "show-sampling-miss-lines",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"nl -ba src/paidiverpy/sampling_layer/sampling_layer.py | sed -n '30,45p'; echo '---'; nl -ba src/paidiverpy/sampling_layer/sampling_layer.py | sed -n '130,145p'; echo '---'; nl -ba src/paidiverpy/sampling_layer/sampling_layer.py | sed -n '288,308p'; echo '---'; nl -ba src/paidiverpy/sampling_layer/sampling_layer.py | sed -n '388,425p'; echo '---'; nl -ba src/paidiverpy/sampling_layer/sampling_layer.py | sed -n '486,505p'"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "show-colour-miss-lines",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"nl -ba src/paidiverpy/colour_layer/colour_layer.py | sed -n '258,272p'; echo '---'; nl -ba src/paidiverpy/colour_layer/colour_layer.py | sed -n '344,360p'; echo '---'; nl -ba src/paidiverpy/colour_layer/colour_layer.py | sed -n '426,438p'; echo '---'; nl -ba src/paidiverpy/colour_layer/colour_layer.py | sed -n '452,466p'; echo '---'; nl -ba src/paidiverpy/colour_layer/colour_layer.py | sed -n '580,590p'; echo '---'; nl -ba src/paidiverpy/colour_layer/colour_layer.py | sed -n '624,636p'; echo '---'; nl -ba src/paidiverpy/colour_layer/colour_layer.py | sed -n '652,664p'; echo '---'; nl -ba src/paidiverpy/colour_layer/colour_layer.py | sed -n '744,756p'; echo '---'; nl -ba src/paidiverpy/colour_layer/colour_layer.py | sed -n '804,820p'; echo '---'; nl -ba src/paidiverpy/colour_layer/colour_layer.py | sed -n '852,872p'"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "check-numpy-bool-branch",
+			"type": "shell",
+			"command": "python",
+			"args": [
+				"-c",
+				"import numpy as np; v=np.bool_(True); print(isinstance(v,(int,float)), isinstance(v,bool), type(v))"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "pytest-test-26-initial",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"/home/tobfer/.pyenv/versions/paidiverpy/bin/python -m pytest -p no:cov -o addopts='' tests/test_26_more_branch_gaps.py -q"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "pytest-test-26-rerun",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"/home/tobfer/.pyenv/versions/paidiverpy/bin/python -m pytest -p no:cov -o addopts='' tests/test_26_more_branch_gaps.py -q"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "pytest-test-26-rerun-2",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"/home/tobfer/.pyenv/versions/paidiverpy/bin/python -m pytest -p no:cov -o addopts='' tests/test_26_more_branch_gaps.py -q"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "coverage-target-26-combined",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"/home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage erase && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage run --branch -m pytest -p no:cov -o addopts='' tests/test_19_utils_unit.py tests/test_20_openlayer_models_parallel.py tests/test_21_config_pipeline_metadata_html_unit.py tests/test_22_remaining_coverage.py tests/test_23_metadata_parser_branches.py tests/test_24_images_configuration_branches.py tests/test_25_target_branch_gaps.py tests/test_26_more_branch_gaps.py -q && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage report -m src/paidiverpy/colour_layer/colour_layer.py src/paidiverpy/metadata_parser/ifdo_tools.py src/paidiverpy/models/general_config.py src/paidiverpy/models/open_params.py src/paidiverpy/models/step_config.py src/paidiverpy/pipeline/pipeline.py src/paidiverpy/sampling_layer/sampling_layer.py src/paidiverpy/utils/data.py src/paidiverpy/utils/formating_html.py src/paidiverpy/utils/install_packages.py src/paidiverpy/utils/object_store.py src/paidiverpy/utils/parallellisation.py"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "pytest-test-26-latest",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"/home/tobfer/.pyenv/versions/paidiverpy/bin/python -m pytest -p no:cov -o addopts='' tests/test_26_more_branch_gaps.py -q"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "coverage-target-26-combined-latest",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"/home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage erase && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage run --branch -m pytest -p no:cov -o addopts='' tests/test_19_utils_unit.py tests/test_20_openlayer_models_parallel.py tests/test_21_config_pipeline_metadata_html_unit.py tests/test_22_remaining_coverage.py tests/test_23_metadata_parser_branches.py tests/test_24_images_configuration_branches.py tests/test_25_target_branch_gaps.py tests/test_26_more_branch_gaps.py -q && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage report -m src/paidiverpy/colour_layer/colour_layer.py src/paidiverpy/metadata_parser/ifdo_tools.py src/paidiverpy/models/general_config.py src/paidiverpy/models/open_params.py src/paidiverpy/models/step_config.py src/paidiverpy/pipeline/pipeline.py src/paidiverpy/sampling_layer/sampling_layer.py src/paidiverpy/utils/data.py src/paidiverpy/utils/formating_html.py src/paidiverpy/utils/install_packages.py src/paidiverpy/utils/object_store.py src/paidiverpy/utils/parallellisation.py"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "show-open-params-lines",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"nl -ba src/paidiverpy/models/open_params.py | sed -n '118,140p'"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "pytest-test-26-after-openparams-ifdo",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"/home/tobfer/.pyenv/versions/paidiverpy/bin/python -m pytest -p no:cov -o addopts='' tests/test_26_more_branch_gaps.py -q"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "coverage-target-26-combined-after-small-fixes",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"/home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage erase && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage run --branch -m pytest -p no:cov -o addopts='' tests/test_19_utils_unit.py tests/test_20_openlayer_models_parallel.py tests/test_21_config_pipeline_metadata_html_unit.py tests/test_22_remaining_coverage.py tests/test_23_metadata_parser_branches.py tests/test_24_images_configuration_branches.py tests/test_25_target_branch_gaps.py tests/test_26_more_branch_gaps.py -q && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage report -m src/paidiverpy/colour_layer/colour_layer.py src/paidiverpy/metadata_parser/ifdo_tools.py src/paidiverpy/models/general_config.py src/paidiverpy/models/open_params.py src/paidiverpy/models/step_config.py src/paidiverpy/pipeline/pipeline.py src/paidiverpy/sampling_layer/sampling_layer.py src/paidiverpy/utils/data.py src/paidiverpy/utils/formating_html.py src/paidiverpy/utils/install_packages.py src/paidiverpy/utils/object_store.py src/paidiverpy/utils/parallellisation.py"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "pytest-test-26-after-pipeline-sampling",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"/home/tobfer/.pyenv/versions/paidiverpy/bin/python -m pytest -p no:cov -o addopts='' tests/test_26_more_branch_gaps.py -q"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "pytest-test-26-after-fix",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"/home/tobfer/.pyenv/versions/paidiverpy/bin/python -m pytest -p no:cov -o addopts='' tests/test_26_more_branch_gaps.py -q"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "coverage-target-26-combined-after-pipeline-sampling",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"/home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage erase && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage run --branch -m pytest -p no:cov -o addopts='' tests/test_19_utils_unit.py tests/test_20_openlayer_models_parallel.py tests/test_21_config_pipeline_metadata_html_unit.py tests/test_22_remaining_coverage.py tests/test_23_metadata_parser_branches.py tests/test_24_images_configuration_branches.py tests/test_25_target_branch_gaps.py tests/test_26_more_branch_gaps.py -q && /home/tobfer/.pyenv/versions/paidiverpy/bin/python -m coverage report -m src/paidiverpy/colour_layer/colour_layer.py src/paidiverpy/metadata_parser/ifdo_tools.py src/paidiverpy/models/general_config.py src/paidiverpy/models/open_params.py src/paidiverpy/models/step_config.py src/paidiverpy/pipeline/pipeline.py src/paidiverpy/sampling_layer/sampling_layer.py src/paidiverpy/utils/data.py src/paidiverpy/utils/formating_html.py src/paidiverpy/utils/install_packages.py src/paidiverpy/utils/object_store.py src/paidiverpy/utils/parallellisation.py"
+			],
+			"isBackground": false
+		}
+	]
+}
