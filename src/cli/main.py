@@ -39,16 +39,17 @@ def submit_slurm_driver(configuration_file: str) -> None:
 
     submit_dir = Path.cwd().resolve()
     config_path = Path(configuration_file).resolve()
+    python_executable = sys.executable
 
     script_content = "\n".join(
         [
             "#!/bin/bash",
-            "set -euo pipefail",
             "#SBATCH --job-name=paidiverpy-driver",
             "#SBATCH --output=paidiverpy-driver-%j.out",
             "#SBATCH --error=paidiverpy-driver-%j.err",
+            "set -euo pipefail",
             f"cd {shlex.quote(str(submit_dir))}",
-            f"paidiverpy -c {shlex.quote(str(config_path))}",
+            f"{shlex.quote(python_executable)} -m cli.main -c {shlex.quote(str(config_path))}",
             "",
         ],
     )
