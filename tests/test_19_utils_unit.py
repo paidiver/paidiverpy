@@ -1,138 +1,20 @@
 """Focused unit tests for utility helper modules."""
 
-# ruff: noqa
-
 from __future__ import annotations
-
 import io
 import json
 import zipfile
 from pathlib import Path
 from types import SimpleNamespace
-
-import botocore
+from typing import NoReturn
 import pytest
-
 from paidiverpy.utils import data as data_utils
 from paidiverpy.utils import install_packages as install_utils
 from paidiverpy.utils import locals as local_utils
 from paidiverpy.utils import object_store
-
-
-class _DummyTqdm:
-    """Small context manager replacement for tqdm in tests."""
-
-    def __init__(self, *args, **kwargs):
-        self.total = kwargs.get("total")
-        self.updated = 0
-
-    def __enter__(self):
-        """Return self for context manager usage."""
-        return self
-
-    def __exit__(self, exc_type: type | None, exc: BaseException | None, tb: type | None) -> bool:
-        """Exit the context manager.
-
-        Args:
-            exc_type (type | None): The type of the exception, if any.
-            exc (BaseException | None): The exception instance, if any.
-            tb (type | None): The traceback, if any.
-
-        Returns:
-            bool: False to indicate that exceptions should not be suppressed.
-        """
-        return False
-
-    def update(self, value: int):
-        """Simulate tqdm update by incrementing the internal counter.
-
-        Args:
-            value (int): The amount to increment the counter by.
-        """
-        self.updated += value
-
-
-class _DummyResponse:
-    """Dummy requests response for download/get tests."""
-
-    def __init__(self, chunks: list[bytes], content: bytes = b"", status_ok: bool = True):
-        self._chunks = chunks
-        self.content = content
-        self.headers = {"content-length": str(sum(len(c) for c in chunks))}
-        self._status_ok = status_ok
-
-    def raise_for_status(self):
-        """Simulate raise_for_status method of requests response."""
-        if not self._status_ok:
-            raise RuntimeError("request failed")
-
-    def iter_content(self, _block_size: int):
-        """Simulate iter_content method of requests response.
-
-        Args:
-            _block_size (int): The block size for iteration (ignored in dummy).
-
-        Yields:
-            bytes: Chunks of data.
-        """
-        yield from self._chunks
-
-
-class _DummyS3Client:
-    """Simple fake S3 client used by object-store tests."""
-
-    def __init__(self):
-        self.created_bucket = None
-        self.put_calls = []
-        self.should_raise_head = False
-
-    def get_object(self, Bucket: str, Key: str) -> dict:
-        """Simulate get_object method of S3 client.
-
-        Args:
-            Bucket (str): The name of the bucket.
-            Key (str): The key of the object.
-
-        Returns:
-            dict: A dictionary with a 'Body' key containing a SimpleNamespace with a read method.
-        """
-        assert Bucket == "bucket"
-        assert Key == "path/to/file.bin"
-        return {"Body": SimpleNamespace(read=lambda: b"s3-bytes")}
-
-    def head_bucket(self, Bucket: str) -> dict:
-        """Simulate head_bucket method of S3 client.
-
-        Args:
-            Bucket (str): The name of the bucket.
-
-        Raises:
-            botocore.exceptions.ClientError: If the bucket does not exist and should_raise_head is True.
-
-        Returns:
-            dict: A dictionary with bucket information if the bucket exists.
-        """
-        if self.should_raise_head:
-            raise botocore.exceptions.ClientError({"Error": {"Code": "404"}}, "HeadBucket")
-        return {"Bucket": Bucket}
-
-    def create_bucket(self, Bucket: str) -> None:
-        """Simulate create_bucket method of S3 client.
-
-        Args:
-            Bucket (str): The name of the bucket to create.
-        """
-        self.created_bucket = Bucket
-
-    def put_object(self, Body: bytes, Bucket: str, Key: str) -> None:
-        """Simulate put_object method of S3 client.
-
-        Args:
-            Body (bytes): The content to upload.
-            Bucket (str): The name of the bucket.
-            Key (str): The key of the object.
-        """
-        self.put_calls.append((Body, Bucket, Key))
+from tests.utils import DummyResponse
+from tests.utils import DummyS3Client
+from tests.utils import DummyTqdm
 
 
 def test_data_persistence_and_calculate_information(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
@@ -187,7 +69,7 @@ def test_data_load_cached_and_missing_dataset(tmp_path: Path, monkeypatch: pytes
     assert cached["metadata_type"] == "CSV_FILE"
     assert cached["metadata_path"].endswith("metadata/metadata_plankton_csv.csv")
 
-    monkeypatch.setattr(helper, "load_persistent_paths", lambda: {})
+    monkeypatch.setattr(helper, "load_persistent_paths", dict)
     with pytest.raises(ValueError, match="Dataset 'missing_dataset' not found"):
         helper.load("missing_dataset")
 
@@ -201,18 +83,17 @@ def test_data_download_file_and_unzip_file(tmp_path: Path, monkeypatch: pytest.M
     """
     helper = data_utils.PaidiverpyData()
 
-    monkeypatch.setattr(data_utils, "tqdm", _DummyTqdm)
+    monkeypatch.setattr(data_utils, "tqdm", DummyTqdm)
     monkeypatch.setattr(
         data_utils.requests,
         "get",
-        lambda *args, **kwargs: _DummyResponse([b"abc", b"def"]),
+        lambda *args, **kwargs: DummyResponse([b"abc", b"def"]),  # noqa: ARG005
     )
 
     zip_path = helper.download_file("https://example.test/dataset.zip", "demo", cache_dir=tmp_path)
     assert zip_path.exists()
     assert zip_path.read_bytes() == b"abcdef"
 
-    # success path: extraction happens and zip is removed
     extract_dir = tmp_path / "extract_ok"
     archive_ok = tmp_path / "ok.zip"
     with zipfile.ZipFile(archive_ok, "w") as archive:
@@ -221,13 +102,11 @@ def test_data_download_file_and_unzip_file(tmp_path: Path, monkeypatch: pytest.M
     assert (extract_dir / "images" / "sample.bin").exists()
     assert not archive_ok.exists()
 
-    # failure path: bad zip also unlinks file
     archive_bad = tmp_path / "bad.zip"
     archive_bad.write_bytes(b"not-a-zip")
     helper.unzip_file(archive_bad, "demo", extract_dir=tmp_path / "extract_bad")
     assert not archive_bad.exists()
 
-    # cached extraction branch
     helper.unzip_file(zip_path, "demo", extract_dir=extract_dir)
 
 
@@ -246,13 +125,13 @@ def test_data_copy_files_docker(tmp_path: Path, monkeypatch: pytest.MonkeyPatch)
     (extract_dir / "images" / "i.txt").write_text("i", encoding="utf-8")
 
     class _FakePathObj:
-        def __init__(self, path):
+        def __init__(self, path: Path):
             self.path = Path(path)
 
-        def __truediv__(self, other):
+        def __truediv__(self, other: str) -> _FakePathObj:
             return _FakePathObj(self.path / other)
 
-        def exists(self):
+        def exists(self) -> bool:
             return True
 
         def __str__(self):
@@ -292,7 +171,7 @@ def test_object_store_paths_and_storage_options(monkeypatch: pytest.MonkeyPatch)
     monkeypatch.setenv("OS_ENDPOINT", "https://s3.example")
     options = object_store.define_storage_options("s3://bucket/file.csv")
     assert options["aws_access_key_id"] == "token"
-    assert options["aws_secret_access_key"] == "secret"
+    assert options["aws_secret_access_key"] == "secret"  # noqa: S105
     assert options["endpoint_url"] == "https://s3.example"
 
     assert object_store.path_is_remote("https://x")
@@ -306,13 +185,13 @@ def test_object_store_get_and_upload(monkeypatch: pytest.MonkeyPatch):
     Args:
         monkeypatch (pytest.MonkeyPatch): A pytest fixture for monkeypatching functions and attributes during tests.
     """
-    s3_client = _DummyS3Client()
-    monkeypatch.setattr(object_store.boto3, "client", lambda **kwargs: s3_client)
+    s3_client = DummyS3Client()
+    monkeypatch.setattr(object_store.boto3, "client", lambda **kwargs: s3_client)  # noqa: ARG005
 
     content = object_store.get_file_from_bucket("s3://bucket/path/to/file.bin", {"service_name": "s3"})
     assert content == b"s3-bytes"
 
-    monkeypatch.setattr(object_store.requests, "get", lambda *args, **kwargs: _DummyResponse([], content=b"http-bytes"))
+    monkeypatch.setattr(object_store.requests, "get", lambda *args, **kwargs: DummyResponse([], content=b"http-bytes"))  # noqa: ARG005
     content_http = object_store.get_file_from_bucket("https://example.test/file.bin")
     assert content_http == b"http-bytes"
 
@@ -327,9 +206,9 @@ def test_object_store_create_client_and_bucket_create(monkeypatch: pytest.Monkey
     Args:
         monkeypatch (pytest.MonkeyPatch): A pytest fixture for monkeypatching functions and attributes during tests.
     """
-    s3_client = _DummyS3Client()
+    s3_client = DummyS3Client()
     monkeypatch.setattr(object_store, "define_storage_options", lambda _path: {"service_name": "s3"})
-    monkeypatch.setattr(object_store.boto3, "client", lambda **kwargs: s3_client)
+    monkeypatch.setattr(object_store.boto3, "client", lambda **kwargs: s3_client)  # noqa: ARG005
 
     client = object_store.create_client()
     assert client is s3_client
@@ -375,7 +254,7 @@ def test_install_packages_is_package_installed(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(install_utils, "version", lambda _name: "1.2.3")
     assert install_utils.is_package_installed("anything")
 
-    def _raise_not_found(_name):
+    def _raise_not_found(_name: str) -> NoReturn:
         """Simulate a package not being found by raising a PackageNotFoundError."""
         raise install_utils.PackageNotFoundError
 
@@ -394,17 +273,18 @@ def test_locals_versions_helpers(monkeypatch: pytest.MonkeyPatch):
     assert local_utils.pip_version("other-pkg") == "3.1.4"
     assert local_utils.pip_version("missing") == "-"
 
-    monkeypatch.setattr(local_utils.subprocess, "run", lambda *a, **k: SimpleNamespace(stdout=b"tool 1.0\n"))
+    monkeypatch.setattr(local_utils.subprocess, "run", lambda *a, **k: SimpleNamespace(stdout=b"tool 1.0\n"))  # noqa: ARG005
     assert local_utils.cli_version("tool") == "1.0"
 
-    def _raise_run(*args, **kwargs):
+    def _raise_run(*args: object, **kwargs: object) -> NoReturn:  # noqa: ARG001
         """Simulate a failure in subprocess.run by raising an exception."""
-        raise RuntimeError("boom")
+        msg = "boom"
+        raise RuntimeError(msg)
 
     monkeypatch.setattr(local_utils.subprocess, "run", _raise_run)
-    monkeypatch.setattr(local_utils.shutil, "which", lambda name: "/usr/bin/tool")
+    monkeypatch.setattr(local_utils.shutil, "which", lambda name: "/usr/bin/tool")  # noqa: ARG005
     assert local_utils.cli_version("tool") == "- # installed"
-    monkeypatch.setattr(local_utils.shutil, "which", lambda name: None)
+    monkeypatch.setattr(local_utils.shutil, "which", lambda name: None)  # noqa: ARG005
     assert local_utils.cli_version("tool") == "-"
 
 
@@ -417,7 +297,7 @@ def test_locals_get_version_and_show_versions(monkeypatch: pytest.MonkeyPatch):
     module_obj = SimpleNamespace(__version__="9.9.9")
     assert local_utils.get_version(module_obj) == "9.9.9"
 
-    def _version_not_found(_name):
+    def _version_not_found(_name: str) -> NoReturn:
         """Simulate a package not being found by raising a PackageNotFoundError."""
         raise local_utils.importlib.metadata.PackageNotFoundError
 
@@ -476,7 +356,7 @@ def test_locals_get_sys_info_with_popen(monkeypatch: pytest.MonkeyPatch):
             return (b"deadbeef\n", b"")
 
     monkeypatch.setattr(local_utils, "Path", _FakePath)
-    monkeypatch.setattr(local_utils.subprocess, "Popen", lambda *a, **k: _FakePipe())
+    monkeypatch.setattr(local_utils.subprocess, "Popen", lambda *a, **k: _FakePipe())  # noqa: ARG005
     monkeypatch.setattr(local_utils.platform, "uname", lambda: ("Linux", "n", "6", "v", "x86_64", "proc"))
 
     info = dict(local_utils.get_sys_info())
@@ -498,7 +378,7 @@ def test_data_load_docker_branch(tmp_path: pytest.TempPathFactory, monkeypatch: 
     extracted = tmp_path / "extract"
     extracted.mkdir()
 
-    monkeypatch.setattr(helper, "load_persistent_paths", lambda: {})
+    monkeypatch.setattr(helper, "load_persistent_paths", dict)
     monkeypatch.setattr(helper, "download_file", lambda _url, _name: tmp_path / "file.zip")
     monkeypatch.setattr(helper, "unzip_file", lambda _zip, _name, _extract: None)
     monkeypatch.setattr(data_utils, "is_running_in_docker", lambda: True)
@@ -513,7 +393,6 @@ def test_data_load_docker_branch(tmp_path: pytest.TempPathFactory, monkeypatch: 
     assert result["input_path"].startswith("/app/sample_data/")
     assert saved[dataset_name].startswith("/app/sample_data/")
 
-    # Ensure local calculation still uses provided metadata information
     local_info = helper.calculate_information(dataset_name, extracted, dataset_info)
     assert "metadata_path" in local_info
 
@@ -529,6 +408,86 @@ def test_data_json_roundtrip_content(tmp_path: pytest.TempPathFactory, monkeypat
     monkeypatch.setattr(data_utils, "PERSISTENCE_FILE", persistence_file)
     helper = data_utils.PaidiverpyData()
 
-    payload = {"a": "/tmp/a", "b": "/tmp/b"}
+    payload = {"a": str(tmp_path / "a"), "b": str(tmp_path / "b")}
     helper.save_persistent_paths(payload)
     assert json.loads(persistence_file.read_text(encoding="utf-8")) == payload
+
+
+def test_locals_pip_version_missing_package(monkeypatch: pytest.MonkeyPatch):
+    """Test pip_version when package not installed."""
+    monkeypatch.setattr(local_utils, "PIP_INSTALLED", {})
+    result = local_utils.pip_version("nonexistent-package")
+    assert result == "-"
+
+
+def test_locals_cli_version_success(monkeypatch: pytest.MonkeyPatch):
+    """Test cli_version successful execution."""
+    monkeypatch.setattr(
+        local_utils.subprocess,
+        "run",
+        lambda *a, **k: SimpleNamespace(stdout=b"version 1.2.3\n"),  # noqa: ARG005
+    )
+    result = local_utils.cli_version("test-tool")
+    assert "1.2.3" in result
+
+
+def test_locals_cli_version_not_in_path(monkeypatch: pytest.MonkeyPatch):
+    """Test cli_version when tool not in PATH."""
+    monkeypatch.setattr(local_utils.shutil, "which", lambda name: None)  # noqa: ARG005
+    result = local_utils.cli_version("missing-tool")
+    assert result == "-"
+
+
+def test_locals_cli_version_execution_failure(monkeypatch: pytest.MonkeyPatch):
+    """Test cli_version when execution fails."""
+    monkeypatch.setattr(local_utils.shutil, "which", lambda name: "/usr/bin/tool")  # noqa: ARG005
+
+    def _raise(*args: object, **kwargs: object) -> None:  # noqa: ARG001
+        msg = "execution failed"
+        raise RuntimeError(msg)
+
+    monkeypatch.setattr(local_utils.subprocess, "run", _raise)
+    result = local_utils.cli_version("failing-tool")
+    assert "- #" in result or result == "-"
+
+
+def test_locals_get_version_from_module():
+    """Test get_version from module __version__."""
+    module = SimpleNamespace(__version__="2.0.0")
+    result = local_utils.get_version(module)
+    assert result == "2.0.0"
+
+
+def test_locals_show_versions_conda_format(monkeypatch: pytest.MonkeyPatch):
+    """Test show_versions with conda=True."""
+    monkeypatch.setattr(local_utils, "get_sys_info", lambda: [("system", "test")])
+    monkeypatch.setattr(local_utils, "get_version", lambda _name: "1.0.0")
+
+    output = io.StringIO()
+    local_utils.show_versions(file=output, conda=True)
+    result = output.getvalue()
+    assert "#" in result
+
+def test_locals_show_versions_standard_format(monkeypatch: pytest.MonkeyPatch):
+    """Test show_versions with conda=False."""
+    monkeypatch.setattr(local_utils, "get_sys_info", lambda: [("python", "3.10")])
+    monkeypatch.setattr(local_utils, "get_version", lambda _name: "1.0.0")
+
+    output = io.StringIO()
+    local_utils.show_versions(file=output, conda=False)
+    result = output.getvalue()
+    assert "SYSTEM" in result
+
+
+def test_locals_get_sys_info_git_missing(monkeypatch: pytest.MonkeyPatch):
+    """Test get_sys_info when .git directory missing."""
+    class _FakePath:
+        def __init__(self, *_args: object, **_kwargs: object):
+            pass
+
+        def is_dir(self) -> bool:
+            return False
+
+    monkeypatch.setattr(local_utils, "Path", _FakePath)
+    result = dict(local_utils.get_sys_info())
+    assert result.get("commit") is None
