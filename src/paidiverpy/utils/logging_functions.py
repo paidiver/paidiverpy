@@ -64,7 +64,7 @@ def initialise_logging(verbose: int = 2, logger_name: str = "paidiverpy") -> log
         msg = f"Invalid verbose level: {verbose}. Choose from {list(VerboseLevel)}."
         raise ValueError(msg) from err
 
-    logger = logging.getLogger(logger_name)  # ✅ always the same instance
+    logger = logging.getLogger(logger_name)
     logger.setLevel(log_level)
 
     if not any(isinstance(h, logging.StreamHandler) for h in logger.handlers):
