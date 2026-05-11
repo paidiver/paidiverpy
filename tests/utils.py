@@ -186,3 +186,7 @@ class DummyS3Client:
             Key (str): The key of the object.
         """
         self.put_calls.append((Body, Bucket, Key))
+
+def normalise_path(value: object) -> str:
+    """Return a path string with POSIX separators for cross-platform assertions."""
+    return str(value).replace("\\", "/")
