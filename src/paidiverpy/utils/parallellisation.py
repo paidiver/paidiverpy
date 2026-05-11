@@ -64,21 +64,21 @@ def parse_dask_job(job: dict, n_jobs: int) -> tuple[Client, list[str]] | Client:
     logger.info("Created %s with Client: %s", cluster_type, client.dashboard_link)
 
     if cluster_type == "SLURMCluster":
-        # Give Slurm a moment to submit jobs
-        time.sleep(1)
+        # Wait for workers to start connecting (gives Slurm time to queue jobs)
+        logger.info("Waiting for Slurm workers to connect...")
+        try:
+            client.wait_for_workers(n_workers=max(1, n_jobs - 1), timeout=30)
+            logger.info("Workers connected successfully")
+        except TimeoutError:
+            logger.warning("Timeout waiting for all workers, but continuing anyway")
+
         # Try to capture Slurm job IDs for tracking
         job_ids = []
-        # First try: check _job_ids attribute
         if hasattr(cluster, "_job_ids"):
             job_ids = list(cluster._job_ids)
-        # Second try: check worker_spec for job info
-        if not job_ids and hasattr(cluster, "worker_spec"):
-            for worker_id, spec in cluster.worker_spec.items():
-                if hasattr(spec, "options") and "job_name" in spec.options:
-                    job_ids.append(spec.options.get("job_name", worker_id))
 
         if job_ids:
-            logger.info("Submitted Slurm jobs with IDs: %s", ", ".join(str(jid) for jid in job_ids))
+            logger.info("Slurm jobs running with IDs: %s", ", ".join(str(jid) for jid in job_ids))
         else:
             logger.info("Slurm jobs submitted. Check status with: squeue -u $USER")
         return (client, job_ids)

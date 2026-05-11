@@ -5,6 +5,7 @@ import json
 import shutil
 import subprocess
 import sys
+import time
 from importlib.resources import files
 from paidiverpy.config.configuration import Configuration
 from paidiverpy.pipeline import Pipeline
@@ -67,6 +68,15 @@ def process_action(parser: argparse.ArgumentParser) -> None:
     pipeline.run(close_client=False, save_images=True, submit_only=args.submit_only)
     if not args.submit_only and pipeline.client:
         pipeline.client.close()
+
+    # In submit_only mode, keep the process alive so Dask cluster stays alive and jobs run
+    if args.submit_only and pipeline.client is not None:
+        logger.info("Keeping process alive for Slurm job execution. Press Ctrl+C to exit.")
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            logger.info("User interrupt detected. Exiting.")
 
 def add_arguments(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     """Add arguments to the parser.
