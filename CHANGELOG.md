@@ -2,11 +2,16 @@
 
 ## [Unreleased](https://github.com/paidiver/paidiverpy/tree/HEAD)
 
-[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v.0.2.0...HEAD)
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v.0.2.1...HEAD)
 
 **Merged pull requests:**
 
+- Increase test coverage [\#239](https://github.com/paidiver/paidiverpy/pull/239) ([soutobias](https://github.com/soutobias))
 - Releasev0.2.1 [\#237](https://github.com/paidiver/paidiverpy/pull/237) ([soutobias](https://github.com/soutobias))
+
+## [v.0.2.1](https://github.com/paidiver/paidiverpy/tree/v.0.2.1) (2025-09-23)
+
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v.0.2.0...v.0.2.1)
 
 ## [v.0.2.0](https://github.com/paidiver/paidiverpy/tree/v.0.2.0) (2025-09-18)
 
