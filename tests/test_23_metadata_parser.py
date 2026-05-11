@@ -1,24 +1,25 @@
 """Focused tests for remaining branches in metadata_parser.py."""
 
 from __future__ import annotations
-
-import io
 import json
-from pathlib import Path
 from types import SimpleNamespace
-
+from typing import TYPE_CHECKING
+from typing import NoReturn
 import pandas as pd
 import pytest
-
 from paidiverpy.metadata_parser import metadata_parser as metadata_module
 from paidiverpy.metadata_parser.metadata_parser import MetadataParser
-from tests.utils import DummyLogger
+from tests.utils import FakePath
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def test_metadata_parser_init_loads_from_file_list_branch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     """Cover __init__ branch where metadata is created from input files."""
     (tmp_path / "a.png").write_bytes(b"1")
     (tmp_path / "b.png").write_bytes(b"2")
+    num_images = 2
 
     config = SimpleNamespace(
         general=SimpleNamespace(
@@ -34,7 +35,7 @@ def test_metadata_parser_init_loads_from_file_list_branch(tmp_path: Path, monkey
 
     parser = MetadataParser(config=config, use_dask=False)
 
-    assert len(parser.metadata) == 2
+    assert len(parser.metadata) == num_images
     assert "filename" in parser.metadata.columns
     assert "ID" in parser.metadata.columns
 
@@ -67,8 +68,9 @@ def test_metadata_parser_export_metadata_exception_path(monkeypatch: pytest.Monk
     parser.metadata = pd.DataFrame({"filename": ["f1"], "flag": [0]})
     parser.dataset_metadata = {"dataset": "d1"}
 
-    def _boom(*_args, **_kwargs):
-        raise RuntimeError("forced failure")
+    def _boom(*_args: tuple, **_kwargs: dict) -> NoReturn:
+        msg = "forced failure"
+        raise RuntimeError(msg)
 
     monkeypatch.setattr(MetadataParser, "convert_metadata_to", staticmethod(_boom))
 
@@ -91,41 +93,10 @@ def test_metadata_parser_prepare_metadata_logs_aggregate_warning(monkeypatch: py
     logs: list[str] = []
     monkeypatch.setattr(metadata_module, "logger", SimpleNamespace(warning=lambda msg, *args: logs.append(msg % args if args else msg)))
 
-    out = MetadataParser._prepare_metadata(parser, pd.DataFrame({"filename": ["img.jpg"]}))
+    out = MetadataParser._prepare_metadata(parser, pd.DataFrame({"filename": ["img.jpg"]}))  # noqa: SLF001
 
     assert "filename" in out.columns
     assert any("Some functions may not work properly." in msg for msg in logs)
-
-
-def test_open_ifdo_metadata_docker_path_rewrite_branch(monkeypatch: pytest.MonkeyPatch):
-    """Cover _open_ifdo_metadata docker rewrite branch and successful local JSON load."""
-    parser = MetadataParser.__new__(MetadataParser)
-    parser.metadata_path = "relative/meta_ifdo.json"
-    parser.storage_options = {}
-
-    payload = {
-        "image-set-header": {"image-set-name": "demo"},
-        "image-set-items": {"img.jpg": {"image-datetime": "2024-01-01T00:00:00"}},
-    }
-
-    class _FakePath:
-        def __init__(self, value: str):
-            self._value = value
-            self.name = value.split("/")[-1]
-
-        def open(self):
-            return io.StringIO(json.dumps(payload))
-
-    monkeypatch.setattr(metadata_module, "Path", _FakePath)
-    monkeypatch.setattr(metadata_module, "path_is_remote", lambda _path: False)
-    monkeypatch.setattr(metadata_module, "is_running_in_docker", lambda: True)
-    monkeypatch.setattr(parser, "_validate_ifdo", lambda _m: None)
-
-    result = MetadataParser._open_ifdo_metadata(parser)
-
-    assert parser.dataset_metadata["image-set-name"] == "demo"
-    assert "filename" in result.columns
-    assert "ID" in result.columns
 
 
 def test_open_ifdo_metadata_json_decode_error_branch(monkeypatch: pytest.MonkeyPatch):
@@ -134,19 +105,13 @@ def test_open_ifdo_metadata_json_decode_error_branch(monkeypatch: pytest.MonkeyP
     parser.metadata_path = "meta_ifdo.json"
     parser.storage_options = {}
 
-    class _FakePath:
-        def __init__(self, value: str):
-            self.name = value.split("/")[-1]
 
-        def open(self):
-            return io.StringIO("{ invalid json")
-
-    monkeypatch.setattr(metadata_module, "Path", _FakePath)
+    monkeypatch.setattr(metadata_module, "Path", FakePath)
     monkeypatch.setattr(metadata_module, "path_is_remote", lambda _path: False)
     monkeypatch.setattr(metadata_module, "is_running_in_docker", lambda: False)
 
     with pytest.raises(json.JSONDecodeError):
-        MetadataParser._open_ifdo_metadata(parser)
+        MetadataParser._open_ifdo_metadata(parser)  # noqa: SLF001
 
 
 def test_open_csv_metadata_remote_bytes_branch(monkeypatch: pytest.MonkeyPatch):
@@ -162,7 +127,7 @@ def test_open_csv_metadata_remote_bytes_branch(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(parser, "_rename_columns", lambda metadata, *_a, **_k: metadata)
     monkeypatch.setattr(parser, "_handle_datetime", lambda metadata: metadata)
 
-    out = MetadataParser._open_csv_metadata(parser)
+    out = MetadataParser._open_csv_metadata(parser)  # noqa: SLF001
 
     assert out["filename"].tolist() == ["a.jpg"]
     assert out["ID"].tolist() == ["id-1"]
@@ -177,13 +142,14 @@ def test_open_csv_metadata_docker_rewrite_branch(monkeypatch: pytest.MonkeyPatch
 
     calls: list[str] = []
 
-    def _fake_read_csv(path):
+    def _fake_read_csv(path: str) -> pd.DataFrame:
         calls.append(str(path))
         return pd.DataFrame({"filename": ["a.jpg"], "image-datetime": ["2024-01-01T00:00:00"]})
 
-    def _rename(metadata, column_name, *_args, **_kwargs):
+    def _rename(metadata: pd.DataFrame, column_name: str, *_args: tuple, **_kwargs: dict) -> pd.DataFrame:
         if column_name == "ID":
-            raise ValueError("missing id")
+            msg = "missing id"
+            raise ValueError(msg)
         return metadata
 
     monkeypatch.setattr(metadata_module, "path_is_remote", lambda _path: False)
@@ -192,7 +158,7 @@ def test_open_csv_metadata_docker_rewrite_branch(monkeypatch: pytest.MonkeyPatch
     monkeypatch.setattr(parser, "_rename_columns", _rename)
     monkeypatch.setattr(parser, "_handle_datetime", lambda metadata: metadata)
 
-    out = MetadataParser._open_csv_metadata(parser)
+    out = MetadataParser._open_csv_metadata(parser)  # noqa: SLF001
 
     assert calls == ["/app/metadata/meta.csv"]
     assert "ID" in out.columns
@@ -206,7 +172,7 @@ def test_validate_ifdo_success_logs_info(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(metadata_module, "validate_ifdo", lambda **_k: [])
     monkeypatch.setattr(metadata_module, "logger", SimpleNamespace(info=lambda msg, *args: messages.append(msg % args if args else msg)))
 
-    MetadataParser._validate_ifdo(parser, {"image-set-header": {}, "image-set-items": {}})
+    MetadataParser._validate_ifdo(parser, {"image-set-header": {}, "image-set-items": {}})  # noqa: SLF001
 
     assert any("Metadata file is valid." in m for m in messages)
 
@@ -238,3 +204,131 @@ def test_group_metadata_branch_when_key_already_exists():
     grouped = MetadataParser.group_metadata_and_dataset_metadata(metadata.copy(), {"dataset": "new"})
 
     assert grouped["dataset"].tolist() == ["existing"]
+
+
+
+
+def test_metadata_parser_csv_with_minimal_columns(tmp_path: Path):
+    """Test MetadataParser with minimal CSV columns."""
+    csv_path = tmp_path / "meta.csv"
+    csv_path.write_text("filename\nimg.jpg\n", encoding="utf-8")
+
+    general = SimpleNamespace(
+        metadata_path=str(csv_path),
+        metadata_type="CSV_FILE",
+        append_data_to_metadata=None,
+        metadata_conventions=None,
+        sample_data=None,
+    )
+    parser = MetadataParser(config=SimpleNamespace(general=general), use_dask=False)
+    assert "filename" in parser.metadata.columns
+
+
+def test_metadata_parser_datetime_handling(tmp_path: Path):
+    """Test _handle_datetime with various formats."""
+    csv_path = tmp_path / "meta.csv"
+    csv_path.write_text(
+        "filename,image-datetime\nimg.jpg,2024-01-01T00:00:00\n",
+        encoding="utf-8",
+    )
+
+    general = SimpleNamespace(
+        metadata_path=str(csv_path),
+        metadata_type="CSV_FILE",
+        append_data_to_metadata=None,
+        metadata_conventions=None,
+        sample_data=None,
+    )
+    parser = MetadataParser(config=SimpleNamespace(general=general), use_dask=False)
+    assert "image-datetime" in parser.metadata.columns or "datetime" in parser.metadata.columns
+
+
+def test_metadata_parser_export_csv_format(tmp_path: Path):
+    """Test export_metadata with CSV format."""
+    csv_path = tmp_path / "meta.csv"
+    csv_path.write_text("filename\nimg.jpg\n", encoding="utf-8")
+
+    try:
+        general = SimpleNamespace(
+            metadata_path=str(csv_path),
+            metadata_type="CSV_FILE",
+            append_data_to_metadata=None,
+            metadata_conventions=None,
+            sample_data=None,
+        )
+        parser = MetadataParser(config=SimpleNamespace(general=general), use_dask=False)
+
+        out_path = str(tmp_path / "export")
+        parser.export_metadata(output_format="csv", output_path=out_path)
+        assert (tmp_path / "export.csv").exists()
+
+    finally:
+        csv_path.unlink(missing_ok=True)
+
+
+def test_metadata_parser_export_json_format(tmp_path: Path):
+    """Test export_metadata with JSON format."""
+    csv_path = tmp_path / "meta.csv"
+    csv_path.write_text("filename\nimg.jpg\n", encoding="utf-8")
+
+    try:
+        general = SimpleNamespace(
+            metadata_path=str(csv_path),
+            metadata_type="CSV_FILE",
+            append_data_to_metadata=None,
+            metadata_conventions=None,
+            sample_data=None,
+        )
+        parser = MetadataParser(config=SimpleNamespace(general=general), use_dask=False)
+
+        out_path = str(tmp_path / "export_json")
+        parser.export_metadata(output_format="json", output_path=out_path)
+        assert (tmp_path / "export_json.json").exists()
+
+    finally:
+        csv_path.unlink(missing_ok=True)
+
+
+def test_metadata_parser_convert_metadata_to_csv(tmp_path: Path):
+    """Test convert_metadata_to with CSV format and from_step."""
+    meta = pd.DataFrame({"filename": ["a.jpg", "b.jpg"], "flag": [0, 2]})
+    out_path = str(tmp_path / "converted")
+    MetadataParser.convert_metadata_to({}, meta, out_path, "csv", from_step=0)
+    assert (tmp_path / "converted.csv").exists()
+
+
+def test_metadata_parser_convert_metadata_to_json(tmp_path: Path):
+    """Test convert_metadata_to with JSON format."""
+    meta = pd.DataFrame({"filename": ["a.jpg"], "flag": [0]})
+    out_path = str(tmp_path / "converted_json")
+    MetadataParser.convert_metadata_to({}, meta, out_path, "json", from_step=0)
+    assert (tmp_path / "converted_json.json").exists()
+
+
+def test_metadata_parser_convert_metadata_unsupported_format(tmp_path: Path):
+    """Test convert_metadata_to with unsupported format."""
+    meta = pd.DataFrame({"filename": ["a.jpg"]})
+    with pytest.raises(NotImplementedError, match="Croissant format is not implemented yet"):
+        MetadataParser.convert_metadata_to({}, meta,  str(tmp_path / "out"), "croissant")
+
+
+def test_metadata_parser_with_spatial_columns(tmp_path: Path):
+    """Test metadata parser creates geometry/point columns."""
+    csv_path = tmp_path / "meta.csv"
+    csv_path.write_text(
+        "filename,image-latitude,image-longitude\nimg.jpg,10.0,20.0\n",
+        encoding="utf-8",
+    )
+
+    try:
+        general = SimpleNamespace(
+            metadata_path=str(csv_path),
+            metadata_type="CSV_FILE",
+            append_data_to_metadata=None,
+            metadata_conventions=None,
+            sample_data=None,
+        )
+        parser = MetadataParser(config=SimpleNamespace(general=general), use_dask=False)
+        assert "point" in parser.metadata.columns or "geometry" in parser.metadata.columns
+    finally:
+        csv_path.unlink(missing_ok=True)

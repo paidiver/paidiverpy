@@ -60,8 +60,6 @@ jobs:
             echo "Running $notebook..."
             notebook_name=$(basename "$notebook")
             executed_notebook="executed_$notebook_name"
-            # Execute the notebook and save it as executed_<name>
             (cd examples/example_notebooks && conda run -n Paidiverpy jupyter nbconvert --to notebook --execute "$notebook_name" --output "$executed_notebook") || exit 1
-            # Rename the executed notebook to the original notebook name, overwriting it if necessary
             mv -f examples/example_notebooks/"$executed_notebook" examples/example_notebooks/"$notebook_name"
           done

@@ -102,7 +102,7 @@ def correct_image_dims_and_format(img: np.ndarray[Any, Any] | da.core.Array, ima
     if img is None:
         return img
     if image_type == "png":
-        # this section was necessary because cv2.imread was not reading alpha channel for some png images in Windows
+        # this section is necessary because cv2.imread was not reading alpha channel for some png images in Windows
         if img.ndim == NUM_DIMENSIONS_GREY:  # grayscale
             img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGRA)
         elif img.shape[2] == NUM_CHANNELS_RGB:  # RGB
@@ -138,12 +138,6 @@ def pad_image(img: np.ndarray[Any, Any] | da.core.Array, target_height: int, tar
         pad_cfg.append((0, 0))  # don't pad channels
 
     return np.pad(img, pad_cfg, mode="constant", constant_values=0)
-
-    # mask = np.zeros((target_height, target_width), dtype=bool)
-    # mask[:h, :w] = True
-
-    # return padded, mask
-
 
 def load_raw_image(
     img_path: str | BytesIO, image_type: str, image_open_args: dict[str, Any], remote: bool = False
