@@ -40,7 +40,7 @@ def update_dask_config(dask_config_kwargs: dict) -> None:
         logger.info("Updated dask configuration settings")
 
 
-def parse_dask_job(job: dict, n_jobs: int) -> Client:
+def parse_dask_job(job: dict, n_jobs: int) -> tuple[Client, list[str]] | Client:
     """Parse the Dask job configuration.
 
     Args:
@@ -48,22 +48,26 @@ def parse_dask_job(job: dict, n_jobs: int) -> Client:
         n_jobs (int): Number of jobs.
 
     Returns:
-        dask.distributed.Client: Dask client.
+        tuple[Client, list[str]] | Client: Dask client and job IDs for Slurm, or just client for local.
     """
     update_dask_config(job.get("dask_config_kwargs"))
     if job.get("cluster_type") == "slurm":
         cluster = SLURMCluster(**job.get("params"))
         cluster_type = "SLURMCluster"
-        job_id = None
     elif job.get("cluster_type") == "local":
         cluster = LocalCluster(**job.get("params"))
         cluster_type = "LocalCluster"
-        job_id = None
+
     cluster.scale(n_jobs)
     client = Client(cluster)
     logger.info("Created %s with Client: %s", cluster_type, client.dashboard_link)
+
     if cluster_type == "SLURMCluster":
-        return (client, job_id)
+        # Capture Slurm job IDs for tracking
+        job_ids = list(getattr(cluster, "_job_ids", []))
+        if job_ids:
+            logger.info("Submitted Slurm jobs: %s", ", ".join(job_ids))
+        return (client, job_ids)
     return client
 
 
@@ -80,12 +84,13 @@ def parse_client(config_client: dict[str, Any] | ClientParams | None, n_jobs: in
     if config_client is None:
         return None
     config_client = config_client.to_dict() if isinstance(config_client, ClientParams) else config_client
-    # job_id = None
     cluster_type = config_client.get("cluster_type")
     if cluster_type == "slurm":
-        client, _ = parse_dask_job(config_client, n_jobs)
+        result = parse_dask_job(config_client, n_jobs)
+        # result is a tuple (client, job_ids) for slurm
+        client = result[0] if isinstance(result, tuple) else result
     elif cluster_type == "local":
         client = parse_dask_job(config_client, n_jobs)
-    if cluster_type == "slurm":
-        return client
+    else:
+        client = None
     return client

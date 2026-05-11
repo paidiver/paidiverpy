@@ -85,13 +85,16 @@ class Pipeline(Paidiverpy):
         self.steps = steps
         self.runned_steps = -1
 
-    def run(self, from_step: int | None = None, close_client: bool = True) -> None:
+    def run(self, from_step: int | None = None, close_client: bool = True, save_images: bool = False, submit_only: bool = False) -> None:
         """Run the pipeline.
 
         Args:
             from_step (int, optional): The step to start from. Defaults to None,
                 which means the pipeline will start from the last runned step.
             close_client (bool, optional): Whether to close the client. Defaults to True.
+            save_images (bool, optional): Whether to save the images after running the pipeline. Defaults to False.
+            submit_only (bool, optional): If True and using Slurm, submit jobs and exit
+                without waiting for completion. Defaults to False.
 
         Raises:
             ValueError: No steps defined for the pipeline
@@ -100,6 +103,13 @@ class Pipeline(Paidiverpy):
         self._validate_pipeline()
         self._validate_from_step(from_step)
         self._log_client_info()
+
+        if submit_only and self.client is not None:
+            self.logger.info("Submit-only mode: Jobs submitted to Slurm. Pipeline driver exiting.")
+            self.logger.info("Monitor job progress using: squeue -u $USER")
+            if close_client:
+                self.client.close()
+            return
 
         for index, step in enumerate(self.steps):
             if index > self.runned_steps:
@@ -149,6 +159,8 @@ class Pipeline(Paidiverpy):
                     self.images.set_images(dask.compute(self.images.images))
         if isinstance(self.images.images, tuple):
             self.images.set_images(self.images.images[0])
+        if save_images:
+            self.save_images()
 
         # if self.use_dask:
         #     self.images.images.compute()

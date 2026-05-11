@@ -46,9 +46,9 @@ def test_step_config_and_parallelisation(monkeypatch: pytest.MonkeyPatch):
     client_local = parallellisation.parse_dask_job({"cluster_type": "local", "params": {}, "dask_config_kwargs": None}, 2)
     assert isinstance(client_local, FakeClient)
 
-    client_slurm, job_id = parallellisation.parse_dask_job({"cluster_type": "slurm", "params": {}, "dask_config_kwargs": None}, 3)
+    client_slurm, job_ids = parallellisation.parse_dask_job({"cluster_type": "slurm", "params": {}, "dask_config_kwargs": None}, 3)
     assert isinstance(client_slurm, FakeClient)
-    assert job_id is None
+    assert isinstance(job_ids, list)
 
     assert parallellisation.parse_client(None, 1) is None
     assert isinstance(parallellisation.parse_client({"cluster_type": "local", "params": {}, "dask_config_kwargs": None}, 2), FakeClient)

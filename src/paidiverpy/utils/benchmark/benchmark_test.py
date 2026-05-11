@@ -208,7 +208,7 @@ def benchmark_local(benchmark_params: dict[str, Any], configuration_file: str | 
     memory_limit = benchmark_params.get("memory_limit", [1])
     n_jobs = benchmark_params.get("n_jobs", [2])
     for workers, threads, memory, n_job in itertools.product(n_workers, threads_per_worker, memory_limit, n_jobs):
-        output_file = f"config_{cluster_type}_{workers}_{threads}_{memory}_{n_jobs}.yml"
+        output_file = f"config_{cluster_type}_{workers}_{threads}_{memory}_{n_job}.yml"
 
         updated_config_file = update_yaml(
             file_path=configuration_file,

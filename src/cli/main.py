@@ -64,11 +64,9 @@ def process_action(parser: argparse.ArgumentParser) -> None:
         logger=logger,
         track_changes=False,
     )
-    pipeline.run(close_client=False)
-    pipeline.save_images()
-    if pipeline.client:
+    pipeline.run(close_client=False, save_images=True, submit_only=args.submit_only)
+    if not args.submit_only and pipeline.client:
         pipeline.client.close()
-
 
 def add_arguments(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     """Add arguments to the parser.
@@ -116,6 +114,15 @@ def add_arguments(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         dest="gui",
         nargs="*",
         help=("OPTIONAL: ONLY FOR RUNNING THE GRAPHICAL USER INTERFACE (GUI) OF PAIDIVERPY."),
+    )
+
+    parser.add_argument(
+        "-so",
+        "--submit-only",
+        dest="submit_only",
+        action="store_true",
+        default=False,
+        help=("OPTIONAL: SUBMIT JOBS TO SLURM AND EXIT WITHOUT WAITING. Use with Slurm cluster_type only. Monitor with: squeue -u $USER"),
     )
 
     return parser
