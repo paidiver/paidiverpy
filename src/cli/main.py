@@ -66,6 +66,15 @@ def submit_slurm_driver(configuration_file: str) -> None:
             capture_output=True,
             text=True,
         )
+    except subprocess.CalledProcessError as exc:
+        stderr = (exc.stderr or "").strip()
+        stdout = (exc.stdout or "").strip()
+        if stdout:
+            logger.error("sbatch stdout: %s", stdout)
+        if stderr:
+            logger.error("sbatch stderr: %s", stderr)
+        logger.error("Failed to submit paidiverpy driver to Slurm.")
+        sys.exit(exc.returncode)
     finally:
         temp_script_path.unlink(missing_ok=True)
 
