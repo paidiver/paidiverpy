@@ -37,18 +37,56 @@ def submit_slurm_driver(configuration_file: str) -> None:
         logger.error("The 'sbatch' executable was not found in PATH.")
         sys.exit(1)
 
+    with Path(configuration_file).open() as config_stream:
+        config = yaml.safe_load(config_stream) or {}
+
     submit_dir = Path.cwd().resolve()
     config_path = Path(configuration_file).resolve()
     python_executable = sys.executable
+    client_params = (((config.get("general") or {}).get("client") or {}).get("params") or {})
+
+    sbatch_directives = [
+        "#SBATCH --job-name=paidiverpy-driver",
+        f"#SBATCH --chdir={submit_dir}",
+        "#SBATCH --export=ALL",
+    ]
+
+    queue = client_params.get("queue") or client_params.get("partition")
+    if queue:
+        sbatch_directives.append(f"#SBATCH --partition={queue}")
+
+    account = client_params.get("account")
+    if account:
+        sbatch_directives.append(f"#SBATCH --account={account}")
+
+    walltime = client_params.get("walltime")
+    if walltime:
+        sbatch_directives.append(f"#SBATCH --time={walltime}")
+
+    job_extra_directives = client_params.get("job_extra_directives") or []
+    for directive in job_extra_directives:
+        directive_strip = str(directive).strip()
+        if not directive_strip:
+            continue
+        if directive_strip.startswith("#SBATCH"):
+            sbatch_directives.append(directive_strip)
+        elif directive_strip.startswith("--"):
+            sbatch_directives.append(f"#SBATCH {directive_strip}")
+        else:
+            sbatch_directives.append(f"#SBATCH --{directive_strip}")
+
+    has_output_directive = any("--output" in directive for directive in sbatch_directives)
+    has_error_directive = any("--error" in directive for directive in sbatch_directives)
+    if not has_output_directive:
+        sbatch_directives.append("#SBATCH --output=paidiverpy-driver-%j.out")
+    if not has_error_directive:
+        sbatch_directives.append("#SBATCH --error=paidiverpy-driver-%j.err")
 
     script_content = "\n".join(
         [
             "#!/bin/bash",
-            "#SBATCH --job-name=paidiverpy-driver",
-            "#SBATCH --output=paidiverpy-driver-%j.out",
-            "#SBATCH --error=paidiverpy-driver-%j.err",
+            *sbatch_directives,
             "set -euo pipefail",
-            f"cd {shlex.quote(str(submit_dir))}",
             f"{shlex.quote(python_executable)} -m cli.main -c {shlex.quote(str(config_path))}",
             "",
         ],
