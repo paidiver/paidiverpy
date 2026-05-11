@@ -9,6 +9,7 @@ from paidiverpy.config import configuration as configuration_module
 from paidiverpy.config.configuration import Configuration
 from paidiverpy.models.general_config import GeneralConfig
 from paidiverpy.utils import formating_html
+from tests.utils import normalise_path
 
 
 def test_configuration_validation_add_remove_export_and_repr(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
@@ -100,7 +101,7 @@ def test_configuration_load_steps_invalid_name_and_output_path_docker(monkeypatc
     monkeypatch.setattr(configuration_module, "is_running_in_docker", lambda: True)
     monkeypatch.setattr(Path, "mkdir", lambda self, parents=False, exist_ok=False: None)  # noqa: ARG005
     out, is_remote = config.get_output_path(output_path="local-output")
-    assert str(out) == "/app/output"
+    assert normalise_path(out) == "/app/output"
     assert is_remote is False
 
 
@@ -141,7 +142,7 @@ def test_configuration_output_path_docker_branch(monkeypatch: pytest.MonkeyPatch
     monkeypatch.setattr(Path, "mkdir", lambda *args, **kwargs: None)  # noqa: ARG005
 
     out_path, is_remote = config.get_output_path("local-output")
-    assert str(out_path) == "/app/output"
+    assert normalise_path(out_path) == "/app/output"
     assert is_remote is False
 
 

@@ -15,6 +15,7 @@ from paidiverpy.utils import object_store
 from tests.utils import DummyResponse
 from tests.utils import DummyS3Client
 from tests.utils import DummyTqdm
+from tests.utils import normalise_path
 
 
 def test_data_persistence_and_calculate_information(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
@@ -67,7 +68,10 @@ def test_data_load_cached_and_missing_dataset(tmp_path: Path, monkeypatch: pytes
 
     cached = helper.load("plankton_csv")
     assert cached["metadata_type"] == "CSV_FILE"
-    assert cached["metadata_path"].endswith("metadata/metadata_plankton_csv.csv")
+
+    assert normalise_path(cached["metadata_path"]).endswith(
+        "metadata/metadata_plankton_csv.csv",
+    )
 
     monkeypatch.setattr(helper, "load_persistent_paths", dict)
     with pytest.raises(ValueError, match="Dataset 'missing_dataset' not found"):
@@ -145,10 +149,16 @@ def test_data_copy_files_docker(tmp_path: Path, monkeypatch: pytest.MonkeyPatch)
 
     helper.copy_files_docker(extract_dir, "demo")
 
-    assert any("/app/sample_data/demo/metadata" in p for p in calls["rmtree"])
-    assert any("/app/sample_data/demo/input" in p for p in calls["rmtree"])
-    assert any(dst.endswith("/app/sample_data/demo/metadata") for _, dst in calls["copytree"])
-    assert any(dst.endswith("/app/sample_data/demo/input") for _, dst in calls["copytree"])
+    rmtree_calls = [normalise_path(path) for path in calls["rmtree"]]
+    copytree_calls = [
+        (normalise_path(src), normalise_path(dst))
+        for src, dst in calls["copytree"]
+    ]
+
+    assert any("/app/sample_data/demo/metadata" in path for path in rmtree_calls)
+    assert any("/app/sample_data/demo/input" in path for path in rmtree_calls)
+    assert any(dst.endswith("/app/sample_data/demo/metadata") for _, dst in copytree_calls)
+    assert any(dst.endswith("/app/sample_data/demo/input") for _, dst in copytree_calls)
 
 
 def test_object_store_paths_and_storage_options(monkeypatch: pytest.MonkeyPatch):
@@ -390,8 +400,9 @@ def test_data_load_docker_branch(tmp_path: pytest.TempPathFactory, monkeypatch: 
     monkeypatch.setattr(data_utils, "CACHE_DIR", tmp_path)
 
     result = helper.load(dataset_name)
-    assert result["input_path"].startswith("/app/sample_data/")
-    assert saved[dataset_name].startswith("/app/sample_data/")
+
+    assert normalise_path(result["input_path"]).startswith("/app/sample_data/")
+    assert normalise_path(saved[dataset_name]).startswith("/app/sample_data/")
 
     local_info = helper.calculate_information(dataset_name, extracted, dataset_info)
     assert "metadata_path" in local_info

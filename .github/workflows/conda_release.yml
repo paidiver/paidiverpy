@@ -8,63 +8,57 @@ on:
     branches:
       - dev
 
+permissions:
+  contents: write
+
 jobs:
   build:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+          fetch-depth: 0
 
-    - name: Set up Miniconda
-      uses: conda-incubator/setup-miniconda@v3
-      with:
-        python-version: 3.9
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: 3.9
+          auto-activate-base: true
 
-    - name: Initialize Conda
-      run: |
-        conda init bash
+      - name: Install Conda dependencies
+        shell: bash -el {0}
+        run: |
+          conda install -y -c conda-forge conda-smithy conda-build toml jinja2
 
-    - name: Install Conda and dependencies
-      run: |
-        source ~/.bashrc
-        conda install -c conda-forge conda-smithy conda-build
-        conda install -c conda-forge toml jinja2
+      - name: Run Python script to generate meta.yml
+        shell: bash -el {0}
+        run: |
+          python conda_recipes/generate_conda_meta.py
+          python conda_recipes/generate_conda_meta.py --bioconda
 
-    - name: Run Python script to generate meta.yml
-      run: |
-        source ~/.bashrc
-        python conda_recipes/generate_conda_meta.py
-        python conda_recipes/generate_conda_meta.py --bioconda
+      - name: Validate Conda recipe
+        shell: bash -el {0}
+        run: |
+          conda-smithy recipe-lint conda_recipes/
 
-    - name: Validate Conda recipe
-      run: |
-        source ~/.bashrc
-        conda-smithy recipe-lint --conda-forge conda_recipes/
-        if [ $? -ne 0 ]; then
-          echo "Linting failed due to validation problems."
-          exit 1
-        fi
+      - name: Commit and Push Changes
+        if: github.event_name == 'push'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-    - name: Checkout repository
-      uses: actions/checkout@v3
-      with:
-        ref: ${{ github.head_ref || github.ref_name }}
-        fetch-depth: 0
+          BRANCH_NAME="${{ github.head_ref || github.ref_name }}"
+          echo "Working on branch: $BRANCH_NAME"
 
-    - name: Commit and Push Changes
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git config pull.rebase false
-
-        BRANCH_NAME="${{ github.head_ref || github.ref_name }}"
-        echo "Working on branch: $BRANCH_NAME"
-
-        git diff --quiet -- conda_recipes/meta_bioconda.yaml conda_recipes/meta.yaml || (
-          git add conda_recipes/meta_bioconda.yaml conda_recipes/meta.yaml
-          git commit -m "chore: update conda recipe"
-          git pull --rebase origin "$BRANCH_NAME"
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:"$BRANCH_NAME"
-        )
+          if ! git diff --quiet -- conda_recipes/meta_bioconda.yaml conda_recipes/meta.yaml; then
+            git add conda_recipes/meta_bioconda.yaml conda_recipes/meta.yaml
+            git commit -m "chore: update conda recipe"
+            git pull --rebase origin "$BRANCH_NAME"
+            git push origin HEAD:"$BRANCH_NAME"
+          else
+            echo "No changes to commit."
+          fi
