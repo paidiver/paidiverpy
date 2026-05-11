@@ -107,8 +107,7 @@ class Pipeline(Paidiverpy):
         if submit_only and self.client is not None:
             self.logger.info("Submit-only mode: Jobs submitted to Slurm. Pipeline driver exiting.")
             self.logger.info("Monitor job progress using: squeue -u $USER")
-            if close_client:
-                self.client.close()
+            # DO NOT close client/cluster - leave them running in background for job execution
             return
 
         for index, step in enumerate(self.steps):
