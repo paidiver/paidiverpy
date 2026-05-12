@@ -5,6 +5,7 @@ general:
   client:
      cluster_type: "slurm"
      params:
+       conda_env: "PaidiverpyNew"
        queue: "standard"
        account: "paidiver"
        cores: 16
