@@ -83,7 +83,7 @@ def build_sbatch_directives(client_params: dict[str, object], submit_dir: Path) 
     return sbatch_directives
 
 
-def build_activation_lines(conda_environment: str) -> list[str]:
+def build_activation_lines(conda_environment: str, configuration_file: str) -> list[str]:
     """Build the shell lines that activate the requested conda environment."""
     return [
         "if command -v micromamba >/dev/null 2>&1; then",
@@ -96,6 +96,7 @@ def build_activation_lines(conda_environment: str) -> list[str]:
         "    echo 'Neither micromamba nor conda is available in the Slurm job environment.' >&2",
         "    exit 1",
         "fi",
+        f"exec paidiverpy -c {configuration_file}",
     ]
 
 
@@ -110,10 +111,11 @@ def build_sbatch_script(configuration_file: str, configuration: dict[str, object
         logger.error("The 'paidiverpy' executable was not found in PATH and no conda environment was configured.")
         sys.exit(1)
 
+    configuration_file = shlex.quote(str(config_path))
     body_lines = (
-        build_activation_lines(conda_environment)
+        build_activation_lines(conda_environment, configuration_file)
         if conda_environment
-        else [f"exec {shlex.quote(paidiverpy_executable)} -c {shlex.quote(str(config_path))}"]
+        else [f"exec {shlex.quote(paidiverpy_executable)} -c {configuration_file}"]
     )
 
     return "\n".join(
