@@ -81,12 +81,4 @@ def parse_client(config_client: dict[str, Any] | ClientParams | None, n_jobs: in
         return None
     config_client = config_client.to_dict() if isinstance(config_client, ClientParams) else config_client
     cluster_type = config_client.get("cluster_type")
-    if cluster_type == "slurm":
-        result = parse_dask_job(config_client, n_jobs)
-        # result is a tuple (client, job_ids) for slurm
-        client = result[0] if isinstance(result, tuple) else result
-    elif cluster_type == "local":
-        client = parse_dask_job(config_client, n_jobs)
-    else:
-        client = None
-    return client
+    return parse_dask_job(config_client, n_jobs) if cluster_type == "local" else None
