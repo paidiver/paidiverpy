@@ -8,7 +8,6 @@ general:
     - mode: "fixed"
       params:
         value: 20
-
 steps:
   - colour:
       name: "colour_alteration"

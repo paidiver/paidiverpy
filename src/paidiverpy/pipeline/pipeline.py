@@ -18,7 +18,7 @@ from paidiverpy.utils import formating_html
 from paidiverpy.utils.docker import is_running_in_docker
 from paidiverpy.utils.exceptions import raise_value_error
 from paidiverpy.utils.install_packages import check_and_install_dependencies
-from paidiverpy.utils.parallellisation import parse_client
+from paidiverpy.utils.parallellisation import parse_parallellisation_params
 
 STEP_WITHOUT_PARAMS = 2
 STEP_WITH_PARAMS = 3
@@ -69,7 +69,7 @@ class Pipeline(Paidiverpy):
             raise_error=raise_error,
             verbose=verbose,
         )
-        self.client = parse_client(self.config.general.client, self.config.general.n_jobs)
+        self.client = parse_parallellisation_params(self.config.general)
         if steps is None:
             steps = self._convert_config_to_steps()
         else:
@@ -245,14 +245,6 @@ class Pipeline(Paidiverpy):
 
     def _log_client_info(self) -> None:
         """Log information about the Dask client or number of jobs."""
-        configured_client_mode = "none"
-        if self.config.general.client is not None:
-            if hasattr(self.config.general.client, "cluster_type"):
-                configured_client_mode = str(self.config.general.client.cluster_type)
-            elif isinstance(self.config.general.client, dict):
-                configured_client_mode = str(self.config.general.client.get("cluster_type", "none"))
-        self.logger.info("Client mode (configured): %s", configured_client_mode)
-
         if not self.client:
             self.logger.info("Processing images using %s cores", self.n_jobs)
         else:

@@ -3,12 +3,11 @@
 import logging
 import multiprocessing
 import os
-from typing import Any
 import dask
 import dask.config
 from dask.distributed import Client
 from dask.distributed import LocalCluster
-from paidiverpy.models.client_params import ClientParams
+from paidiverpy.models.general_config import GeneralConfig
 
 logger = logging.getLogger("paidiverpy")
 
@@ -44,41 +43,24 @@ def update_dask_config(dask_config_kwargs: dict) -> None:
         logger.info("Updated dask configuration settings")
 
 
-def parse_dask_job(job: dict, n_jobs: int) -> tuple[Client, list[str]] | Client:
-    """Parse the Dask job configuration.
-
-    Args:
-        job (dict): Job configuration.
-        n_jobs (int): Number of jobs.
-
-    Returns:
-        tuple[Client, list[str]] | Client: Dask client and job IDs for Slurm, or just client for local.
-    """
-    update_dask_config(job.get("dask_config_kwargs"))
-    params = dict(job.get("params") or {})
-    # requested_cluster_type = job.get("cluster_type")
-
-    cluster = LocalCluster(**params)
-    cluster_type = "LocalCluster"
-
-    cluster.scale(n_jobs)
-    client = Client(cluster)
-    logger.info("Created %s with Client: %s", cluster_type, client.dashboard_link)
-    return client
-
-
-def parse_client(config_client: dict[str, Any] | ClientParams | None, n_jobs: int) -> Client | None:
+def parse_parallellisation_params(config: GeneralConfig | None) -> Client | None:
     """Parse the client configuration.
 
     Args:
-        config_client (dict | ClientParams | None): Client configuration.
-        n_jobs (int): Number of jobs.
+        config (GeneralConfig | None): Client configuration.
 
     Returns:
         dask.distributed.Client | None: Dask client or None if no client is configured.
     """
+    config_client = config.local_cluster if config else None
+    dask_config_kwargs = config.dask_config_kwargs if config else None
+    update_dask_config(dask_config_kwargs)
     if config_client is None:
         return None
-    config_client = config_client.to_dict() if isinstance(config_client, ClientParams) else config_client
-    cluster_type = config_client.get("cluster_type")
-    return parse_dask_job(config_client, n_jobs) if cluster_type == "local" else None
+    cluster = LocalCluster(**config_client)
+    n_jobs = config.n_jobs if config else 1
+
+    cluster.scale(n_jobs)
+    client = Client(cluster)
+    logger.info("Created LocalCluster with Client: %s", client.dashboard_link)
+    return client

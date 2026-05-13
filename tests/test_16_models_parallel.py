@@ -5,8 +5,6 @@ import pytest
 from paidiverpy.models.step_config import SamplingConfig
 from paidiverpy.models.step_config import StepConfig
 from paidiverpy.utils import parallellisation
-from tests.utils import FakeClient
-from tests.utils import FakeCluster
 
 
 def test_step_config_and_parallelisation(monkeypatch: pytest.MonkeyPatch):
@@ -33,23 +31,15 @@ def test_step_config_and_parallelisation(monkeypatch: pytest.MonkeyPatch):
     assert parallellisation.get_n_jobs(16) == cpu_count
     assert parallellisation.get_n_jobs(1) == 1
 
+    slurm_cpus = 4
+    monkeypatch.setenv("SLURM_CPUS_ON_NODE", f"{slurm_cpus}")
+    monkeypatch.setattr(parallellisation.multiprocessing, "cpu_count", lambda: cpu_count)
+    assert parallellisation.get_n_jobs(-1) == slurm_cpus
+    assert parallellisation.get_n_jobs(16) == slurm_cpus
+    assert parallellisation.get_n_jobs(1) == 1
+
     seen = {}
     monkeypatch.setattr(parallellisation.dask.config, "set", lambda cfg: seen.update(cfg))
     parallellisation.update_dask_config({"scheduler": "threads"})
     assert seen["scheduler"] == "threads"
     parallellisation.update_dask_config(None)
-
-    monkeypatch.setattr(parallellisation, "LocalCluster", FakeCluster)
-    monkeypatch.setattr(parallellisation, "SLURMCluster", FakeCluster)
-    monkeypatch.setattr(parallellisation, "Client", FakeClient)
-
-    client_local = parallellisation.parse_dask_job({"cluster_type": "local", "params": {}, "dask_config_kwargs": None}, 2)
-    assert isinstance(client_local, FakeClient)
-
-    client_slurm, job_ids = parallellisation.parse_dask_job({"cluster_type": "slurm", "params": {}, "dask_config_kwargs": None}, 3)
-    assert isinstance(client_slurm, FakeClient)
-    assert isinstance(job_ids, list)
-
-    assert parallellisation.parse_client(None, 1) is None
-    assert isinstance(parallellisation.parse_client({"cluster_type": "local", "params": {}, "dask_config_kwargs": None}, 2), FakeClient)
-    assert isinstance(parallellisation.parse_client({"cluster_type": "slurm", "params": {}, "dask_config_kwargs": None}, 2), FakeClient)

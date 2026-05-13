@@ -50,32 +50,6 @@
             "title": "CalculateCornersParams",
             "type": "object"
         },
-        "ClientParams": {
-            "description": "Client parameters class.\n\nThis class is used to define the client parameters for Dask parallel processing.",
-            "properties": {
-                "cluster_type": {
-                    "default": "local",
-                    "description": "Type of cluster",
-                    "enum": [
-                        "local",
-                        "slurm"
-                    ],
-                    "title": "Cluster Type",
-                    "type": "string"
-                },
-                "params": {
-                    "additionalProperties": true,
-                    "default": {
-                        "n_workers": 0
-                    },
-                    "description": "Parameters for the cluster",
-                    "title": "Params",
-                    "type": "object"
-                }
-            },
-            "title": "ClientParams",
-            "type": "object"
-        },
         "ColourAlterationParams": {
             "description": "Parameters for colour alteration.",
             "properties": {
@@ -157,7 +131,6 @@
                             "$ref": "#/$defs/ColourAlterationParams"
                         },
                         {
-                            "additionalProperties": true,
                             "type": "object"
                         },
                         {
@@ -293,7 +266,6 @@
                             "$ref": "#/$defs/CropParams"
                         },
                         {
-                            "additionalProperties": true,
                             "type": "object"
                         },
                         {
@@ -806,17 +778,31 @@
                     "title": "N Jobs",
                     "type": "integer"
                 },
-                "client": {
+                "local_cluster": {
                     "anyOf": [
                         {
-                            "$ref": "#/$defs/ClientParams"
+                            "type": "object"
                         },
                         {
                             "type": "null"
                         }
                     ],
                     "default": null,
-                    "description": "Dask Client configuration. If None, it will not use Dask Client."
+                    "description": "Parameters for the local cluster",
+                    "title": "Local Cluster"
+                },
+                "dask_config_kwargs": {
+                    "anyOf": [
+                        {
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Dask configuration keyword arguments. If provided, it will be used to update the Dask configuration settings.",
+                    "title": "Dask Config Kwargs"
                 },
                 "track_changes": {
                     "default": true,
@@ -1176,7 +1162,6 @@
                             "$ref": "#/$defs/CalculateCornersParams"
                         },
                         {
-                            "additionalProperties": true,
                             "type": "object"
                         },
                         {
@@ -1190,6 +1175,9 @@
                 "mode": {
                     "const": "calculate_corners",
                     "description": "Mode for the position step",
+                    "enum": [
+                        "calculate_corners"
+                    ],
                     "title": "Mode",
                     "type": "string"
                 }
@@ -1358,7 +1346,6 @@
                             "$ref": "#/$defs/SamplingObscureParams"
                         },
                         {
-                            "additionalProperties": true,
                             "type": "object"
                         },
                         {
