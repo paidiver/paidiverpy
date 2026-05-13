@@ -2,7 +2,7 @@
 
 import logging
 import multiprocessing
-import time
+import os
 from typing import Any
 import dask
 import dask.config
@@ -14,8 +14,16 @@ from paidiverpy.models.client_params import ClientParams
 logger = logging.getLogger("paidiverpy")
 
 
+def _is_inside_slurm_job() -> bool:
+    """Return True if the current process is running inside a Slurm allocation."""
+    return bool(os.environ.get("SLURM_JOB_ID"))
+
+
 def get_n_jobs(n_jobs: int) -> int:
     """Determine the number of jobs based on n_jobs parameter.
+
+    Uses SLURM_CPUS_ON_NODE when inside a Slurm allocation so that only the
+    CPUs actually allocated to the job are used, not all CPUs visible on the node.
 
     Args:
         n_jobs (int): The number of n_jobs.
@@ -23,10 +31,11 @@ def get_n_jobs(n_jobs: int) -> int:
     Returns:
         int: The number of jobs to use.
     """
+    available = int(os.environ.get("SLURM_CPUS_ON_NODE") or multiprocessing.cpu_count())
     if n_jobs == -1:
-        return multiprocessing.cpu_count()
+        return available
     if n_jobs > 1:
-        return min(n_jobs, multiprocessing.cpu_count())
+        return min(n_jobs, available)
     return 1
 
 
@@ -52,39 +61,15 @@ def parse_dask_job(job: dict, n_jobs: int) -> tuple[Client, list[str]] | Client:
         tuple[Client, list[str]] | Client: Dask client and job IDs for Slurm, or just client for local.
     """
     update_dask_config(job.get("dask_config_kwargs"))
-    params = job.get("params", {})
-    if "conda_env" in params:
-        del params["conda_env"]
-    if job.get("cluster_type") == "slurm":
-        cluster = SLURMCluster(**params)
-        cluster_type = "SLURMCluster"
-    elif job.get("cluster_type") == "local":
-        cluster = LocalCluster(**params)
-        cluster_type = "LocalCluster"
+    params = dict(job.get("params") or {})
+    # requested_cluster_type = job.get("cluster_type")
+
+    cluster = LocalCluster(**params)
+    cluster_type = "LocalCluster"
 
     cluster.scale(n_jobs)
     client = Client(cluster)
     logger.info("Created %s with Client: %s", cluster_type, client.dashboard_link)
-
-    if cluster_type == "SLURMCluster":
-        # Wait for workers to start connecting (gives Slurm time to queue jobs)
-        logger.info("Waiting for Slurm workers to connect...")
-        try:
-            client.wait_for_workers(n_workers=max(1, n_jobs - 1), timeout=30)
-            logger.info("Workers connected successfully")
-        except TimeoutError:
-            logger.warning("Timeout waiting for all workers, but continuing anyway")
-
-        # Try to capture Slurm job IDs for tracking
-        job_ids = []
-        if hasattr(cluster, "_job_ids"):
-            job_ids = list(cluster._job_ids)
-
-        if job_ids:
-            logger.info("Slurm jobs running with IDs: %s", ", ".join(str(jid) for jid in job_ids))
-        else:
-            logger.info("Slurm jobs submitted. Check status with: squeue -u $USER")
-        return (client, job_ids)
     return client
 
 

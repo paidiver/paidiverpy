@@ -33,9 +33,7 @@ def get_client_settings(configuration: dict[str, object]) -> tuple[str | None, d
     if not isinstance(client, dict):
         return None, {}
     cluster_type = client.get("cluster_type")
-    params = client.get("params") or {}
-    if "conda_env" in params:
-        del params["conda_env"]
+    params = dict(client.get("params")) or {}
     return cluster_type, params
 
 
@@ -110,6 +108,8 @@ def build_sbatch_script(configuration_file: str, configuration: dict[str, object
     config_path = Path(configuration_file).resolve()
     _, client_params = get_client_settings(configuration)
     conda_environment = get_conda_environment(client_params)
+    if "conda_env" in client_params:
+        del client_params["conda_env"]
     paidiverpy_executable = shutil.which("paidiverpy")
     if not paidiverpy_executable and not conda_environment:
         logger.error("The 'paidiverpy' executable was not found in PATH and no conda environment was configured.")
