@@ -135,47 +135,6 @@ def build_sbatch_script(configuration_file: str, configuration: dict[str, object
     )
 
 
-def submit_sbatch(configuration_file: str) -> None:
-    """Generate a Slurm batch file and submit it to the queue."""
-    sbatch_executable = shutil.which("sbatch")
-    if not sbatch_executable:
-        logger.error("The 'sbatch' executable was not found in PATH.")
-        sys.exit(1)
-
-    configuration = load_configuration(configuration_file)
-    script_content = build_sbatch_script(configuration_file, configuration)
-
-    with tempfile.NamedTemporaryFile("w", suffix=".sbatch", delete=False) as temp_script:
-        temp_script.write(script_content)
-        temp_script_path = Path(temp_script.name)
-
-    temp_script_path.chmod(0o700)
-    try:
-        result = subprocess.run(  # noqa: S603
-            [sbatch_executable, "--parsable", str(temp_script_path)],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-    except subprocess.CalledProcessError as exc:
-        stdout = (exc.stdout or "").strip()
-        stderr = (exc.stderr or "").strip()
-        if stdout:
-            logger.error("sbatch stdout: %s", stdout)
-        if stderr:
-            logger.error("sbatch stderr: %s", stderr)
-        logger.error("Failed to submit paidiverpy batch job to Slurm.")
-        sys.exit(exc.returncode)
-    finally:
-        temp_script_path.unlink(missing_ok=True)
-
-    job_id = result.stdout.strip()
-    if job_id:
-        logger.info("Submitted paidiverpy batch job to Slurm with job id: %s", job_id)
-    else:
-        logger.info("Submitted paidiverpy batch job to Slurm.")
-
-
 def run_gui(gui_args: list[str] | None) -> None:
     """Run the GUI server."""
     logger.info("Running the GUI for paidiverpy...")

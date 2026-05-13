@@ -8,15 +8,9 @@ import dask
 import dask.config
 from dask.distributed import Client
 from dask.distributed import LocalCluster
-from dask_jobqueue import SLURMCluster
 from paidiverpy.models.client_params import ClientParams
 
 logger = logging.getLogger("paidiverpy")
-
-
-def _is_inside_slurm_job() -> bool:
-    """Return True if the current process is running inside a Slurm allocation."""
-    return bool(os.environ.get("SLURM_JOB_ID"))
 
 
 def get_n_jobs(n_jobs: int) -> int:
