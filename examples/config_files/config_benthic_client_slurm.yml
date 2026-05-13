@@ -1,5 +1,5 @@
 general:
-  sample_data: "benthic_csv"
+  sample_data: "benthic_ifdo"
   output_path: "./output"
   n_jobs: 2
   client:
