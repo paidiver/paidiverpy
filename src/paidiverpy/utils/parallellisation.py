@@ -52,11 +52,14 @@ def parse_dask_job(job: dict, n_jobs: int) -> tuple[Client, list[str]] | Client:
         tuple[Client, list[str]] | Client: Dask client and job IDs for Slurm, or just client for local.
     """
     update_dask_config(job.get("dask_config_kwargs"))
+    params = job.get("params", {})
+    if "conda_env" in params:
+        del params["conda_env"]
     if job.get("cluster_type") == "slurm":
-        cluster = SLURMCluster(**job.get("params"))
+        cluster = SLURMCluster(**params)
         cluster_type = "SLURMCluster"
     elif job.get("cluster_type") == "local":
-        cluster = LocalCluster(**job.get("params"))
+        cluster = LocalCluster(**params)
         cluster_type = "LocalCluster"
 
     cluster.scale(n_jobs)
