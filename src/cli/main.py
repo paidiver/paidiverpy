@@ -32,7 +32,11 @@ def get_client_settings(configuration: dict[str, object]) -> tuple[str | None, d
     client = general.get("client") if isinstance(general, dict) else {}
     if not isinstance(client, dict):
         return None, {}
-    return client.get("cluster_type"), client.get("params") or {}
+    cluster_type = client.get("cluster_type")
+    params = client.get("params") or {}
+    if "conda_env" in params:
+        del params["conda_env"]
+    return cluster_type, params
 
 
 def get_conda_environment(client_params: dict[str, object]) -> str | None:
