@@ -4,178 +4,13 @@ import gc
 import itertools
 import json
 import logging
-import os
-import shlex
-import shutil
-import subprocess
-import sys
-import tempfile
 import time
 from pathlib import Path
 from typing import Any
-
 import matplotlib.pyplot as plt
 import numpy as np
 import yaml
 from paidiverpy.pipeline.pipeline import Pipeline
-
-
-def _normalize_sequence(value: Any) -> list[Any]:
-    """Return a list representation for scalar or sequence benchmark values."""
-    if value is None:
-        return []
-    if isinstance(value, list | tuple | set):
-        return list(value)
-    return [value]
-
-
-def _first_value(value: Any, default: Any) -> Any:
-    """Return the first value from a sequence or a default scalar."""
-    values = _normalize_sequence(value)
-    if values:
-        return values[0]
-    return default
-
-
-def _max_numeric_value(value: Any, default: int) -> int:
-    """Return the maximum numeric value from a benchmark parameter."""
-    values = _normalize_sequence(value)
-    if not values:
-        return default
-    return max(int(item) for item in values)
-
-
-def _find_benchmark_template_path() -> Path:
-    """Find the example Slurm benchmark template in the repository tree."""
-    current_path = Path(__file__).resolve()
-    for parent in current_path.parents:
-        candidate = parent / "examples" / "slurm" / "benchmark.sbatch"
-        if candidate.exists():
-            return candidate
-    raise FileNotFoundError("Could not find examples/slurm/benchmark.sbatch")
-
-
-def _build_slurm_activation_lines(configuration_file: str, benchmark_params: dict[str, Any], logger: logging.Logger) -> list[str]:
-    """Build the shell lines needed to launch a benchmark run from Slurm."""
-    benchmark_params_json = json.dumps(
-        {
-            **benchmark_params,
-            "cluster_type": "threads",
-            "results_cluster_type": "slurm",
-        },
-    )
-    quoted_configuration_file = shlex.quote(str(Path(configuration_file).resolve()))
-    quoted_params = shlex.quote(benchmark_params_json)
-
-    paidiverpy_executable = shutil.which("paidiverpy")
-    conda_environment = os.environ.get("PAYDIVERPY_ENV") or benchmark_params.get("conda_env") or benchmark_params.get("environment")
-
-    if conda_environment:
-        return [
-            "if command -v micromamba >/dev/null 2>&1; then",
-            '    eval "$(micromamba shell hook --shell bash)"',
-            f"    micromamba activate {shlex.quote(str(conda_environment))}",
-            "elif command -v conda >/dev/null 2>&1; then",
-            '    source "$(conda info --base)/etc/profile.d/conda.sh"',
-            f"    conda activate {shlex.quote(str(conda_environment))}",
-            "else",
-            "    echo 'Neither micromamba nor conda is available in the Slurm job environment.' >&2",
-            "    exit 1",
-            "fi",
-            f"exec paidiverpy -bt {quoted_params} -c {quoted_configuration_file}",
-        ]
-
-    if not paidiverpy_executable:
-        message = "The 'paidiverpy' executable was not found in PATH and no conda environment was configured."
-        logger.error(message)
-        raise FileNotFoundError(message)
-
-    return [f"exec {shlex.quote(paidiverpy_executable)} -bt {quoted_params} -c {quoted_configuration_file}"]
-
-
-def build_benchmark_sbatch_script(
-    configuration_file: str | Path,
-    benchmark_params: dict[str, Any],
-    logger: logging.Logger | None = None,
-) -> str:
-    """Build the Slurm wrapper used to launch a benchmark run."""
-    template_path = _find_benchmark_template_path()
-    template = template_path.read_text()
-    submit_dir = str(Path.cwd().resolve())
-    cores = _max_numeric_value(benchmark_params.get("cores"), 1)
-    memory = _max_numeric_value(benchmark_params.get("memory"), 1)
-    walltime = str(_first_value(benchmark_params.get("walltime"), "00:30:00"))
-    queue = str(_first_value(benchmark_params.get("queue"), "standard"))
-    account = benchmark_params.get("account")
-    job_name = str(benchmark_params.get("job_name") or "paidiverpy-benchmark")
-    account_directive = f"#SBATCH --account={account}" if account else ""
-    activation_lines = _build_slurm_activation_lines(str(configuration_file), benchmark_params, logger or logging.getLogger("paidiverpy"))
-
-    replacements = {
-        "__WORKDIR__": submit_dir,
-        "__QUEUE__": queue,
-        "__ACCOUNT_DIRECTIVE__": account_directive,
-        "__WALLTIME__": walltime,
-        "__CPUS__": str(cores),
-        "__MEMORY__": str(memory),
-        "__JOB_NAME__": job_name,
-        "__BENCHMARK_PARAMS__": shlex.quote(
-            json.dumps(
-                {
-                    **benchmark_params,
-                    "cluster_type": "threads",
-                    "results_cluster_type": "slurm",
-                },
-            ),
-        ),
-        "__CONFIG_FILE__": shlex.quote(str(Path(configuration_file).resolve())),
-        "__ACTIVATION__": "\n".join(activation_lines),
-    }
-
-    for placeholder, replacement in replacements.items():
-        template = template.replace(placeholder, replacement)
-
-    return template
-
-
-def submit_benchmark_sbatch(configuration_file: str | Path, benchmark_params: dict[str, Any], logger: logging.Logger) -> None:
-    """Generate a Slurm batch file and submit it to the queue."""
-    sbatch_executable = shutil.which("sbatch")
-    if not sbatch_executable:
-        logger.error("The 'sbatch' executable was not found in PATH.")
-        sys.exit(1)
-
-    script_content = build_benchmark_sbatch_script(configuration_file, benchmark_params, logger)
-
-    with tempfile.NamedTemporaryFile("w", suffix=".sbatch", delete=False) as temp_script:
-        temp_script.write(script_content)
-        temp_script_path = Path(temp_script.name)
-
-    temp_script_path.chmod(0o700)
-    try:
-        result = subprocess.run(  # noqa: S603
-            [sbatch_executable, "--parsable", str(temp_script_path)],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-    except subprocess.CalledProcessError as exc:
-        stdout = (exc.stdout or "").strip()
-        stderr = (exc.stderr or "").strip()
-        if stdout:
-            logger.error("sbatch stdout: %s", stdout)
-        if stderr:
-            logger.error("sbatch stderr: %s", stderr)
-        logger.error("Failed to submit benchmark job to Slurm.")
-        sys.exit(exc.returncode)
-    finally:
-        temp_script_path.unlink(missing_ok=True)
-
-    job_id = result.stdout.strip()
-    if job_id:
-        logger.info("Submitted benchmark job to Slurm with job id: %s", job_id)
-    else:
-        logger.info("Submitted benchmark job to Slurm.")
 
 
 def benchmark_task(configuration_file: str | Path, logger: logging.Logger) -> tuple[float, float]:
@@ -292,24 +127,11 @@ def update_yaml(file_path: str | Path, cluster_type: str | None, output_file: st
     with Path(file_path).open() as f:
         config = yaml.safe_load(f)
 
-    if cluster_type == "slurm":
-        cores = kwargs.get("cores", 1)
-        processes = kwargs.get("processes", 1)
-        memory = kwargs.get("memory", 1)
-        walltime = kwargs.get("walltime", "00:15:00")
-        queue = kwargs.get("queue", "par-single")
-        config["general"]["client"] = {
-            "cluster_type": cluster_type,
-            "params": {"cores": cores, "processes": processes, "memory": f"{memory}GB", "walltime": walltime, "queue": queue},
-        }
-    elif cluster_type == "local":
+    if cluster_type == "local":
         workers = kwargs.get("workers", 1)
         threads = kwargs.get("threads", 1)
         memory = kwargs.get("memory", 1)
-        config["general"]["client"] = {
-            "cluster_type": cluster_type,
-            "params": {"n_workers": workers, "threads_per_worker": threads, "memory_limit": f"{memory}GB"},
-        }
+        config["general"]["local_cluster"] = {"n_workers": workers, "threads_per_worker": threads, "memory_limit": f"{memory}GB"}
     config["general"]["n_jobs"] = n_jobs
 
     with Path(output_file).open("w") as f:
@@ -353,7 +175,6 @@ def benchmark_threads(benchmark_params: dict[str, Any], configuration_file: str 
         Path(output_file).unlink()
         gc.collect()
     return benchmark_results
-
 
 def benchmark_local(benchmark_params: dict[str, Any], configuration_file: str | Path, logger: logging.Logger) -> list[dict[str, Any]]:
     """Handle the benchmark test for LocalCluster.
@@ -402,23 +223,6 @@ def benchmark_local(benchmark_params: dict[str, Any], configuration_file: str | 
     return benchmark_results
 
 
-def benchmark_slurm(benchmark_params: dict[str, Any], configuration_file: str | Path, logger: logging.Logger) -> list[dict[str, Any]]:
-    """Handle the benchmark test for Slurm submission.
-
-    Args:
-        benchmark_params (dict): The benchmark parameters.
-        configuration_file (str | Path): The path to the configuration files.
-        logger (logging.Logger): The logger to log messages.
-
-    The outer process only submits the batch job. The submitted job reruns the
-    benchmark in thread mode and writes the JSON and plots.
-    """
-    logger.info("Submitting benchmark run to Slurm using sbatch.")
-    submit_benchmark_sbatch(configuration_file, benchmark_params, logger)
-    logger.info("Benchmark submission completed. Results will be written by the Slurm job.")
-    return []
-
-
 def benchmark_handler(benchmark_params: dict[str, Any], configuration_file: str | Path, logger: logging.Logger) -> None:
     """Handle the benchmark test.
 
@@ -430,11 +234,7 @@ def benchmark_handler(benchmark_params: dict[str, Any], configuration_file: str 
     logger.info("Starting benchmark test")
     configuration_file = Path(configuration_file)
     cluster_type = benchmark_params.get("cluster_type", "threads")
-    results_cluster_type = benchmark_params.get("results_cluster_type", cluster_type)
-    if cluster_type == "slurm":
-        logger.info("Submitting benchmark test to Slurm")
-        benchmark_results = benchmark_slurm(benchmark_params, configuration_file, logger)
-    elif cluster_type == "local":
+    if cluster_type == "local":
         logger.info("Running benchmark test on LocalCluster")
         benchmark_results = benchmark_local(benchmark_params, configuration_file, logger)
     else:
@@ -449,10 +249,10 @@ def benchmark_handler(benchmark_params: dict[str, Any], configuration_file: str 
     for result in benchmark_results:
         logger.info(result)
 
-    filename = f"benchmark_results_{results_cluster_type}_{time.strftime('%Y%m%d_%H%M%S')}"
+    filename = f"benchmark_results_{cluster_type}_{time.strftime('%Y%m%d_%H%M%S')}"
     with Path(f"{filename}.json").open("w") as f:
         json.dump(benchmark_results, f, indent=4)
-    logger.info("Test results saved to benchmark_results_%s.json", results_cluster_type)
+    logger.info("Test results saved to benchmark_results_%s.json", cluster_type)
 
-    plot_results(benchmark_results, results_cluster_type, filename)
+    plot_results(benchmark_results, cluster_type, filename)
     logger.info("Plotting benchmark results")

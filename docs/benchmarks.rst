@@ -24,17 +24,6 @@ The pipeline configuration for preprocessing is defined in the following YAML fi
 
 This configuration applies several preprocessing steps, mainly from the **ColourLayer** and **ConvertLayer** components. The ``benchmark_test.py`` script executes this pipeline, measuring performance across multiple configurations by varying the number of threads, workers, and memory resources depending on the cluster type.
 
-Cluster workflow
-----------------
-
-Paidiverpy now uses a simple two-level model for clusters:
-
-- For **interactive or local runs**, configure ``general.local_cluster`` and let the pipeline create a local Dask cluster when needed.
-- For **Slurm benchmarking**, submit one outer batch job and let that job run the benchmark internally. The batch job uses the CPUs requested in the sbatch file and executes the benchmark with the thread scheduler, which avoids creating extra nested Slurm jobs.
-
-The Slurm batch wrapper used by the benchmark workflow is shown in ``examples/slurm/benchmark.sbatch``.
-
-
 Test configurations
 -------------------
 
@@ -57,21 +46,10 @@ The benchmarks were run under different execution modes:
   .. code-block:: yaml
 
      n_jobs: [1, 2, 4, 8, 16]
-       local_cluster:
+     local_cluster:
        n_workers: [1, 8, 16]
        threads_per_worker: [1, 8, 16]
        memory_limit: [32]
-
-- **Slurm batch submission**: varying the sbatch resources and benchmark scale while the inner benchmark run uses the thread scheduler:
-
-   .. code-block:: yaml
-
-       cluster_type: slurm
-       cores: [16]
-       memory: [64]
-       walltime: "12:00:00"
-       queue: "standard"
-       n_jobs: [1, 2, 4, 8, 16]
 
 Results
 -------
@@ -111,14 +89,14 @@ You can run benchmarks tailored to your dataset and pipeline configuration by fo
       paidiverpy -bt '{"cluster_type":"local","n_workers":[1,8,16],"threads_per_worker":[1,8,16],"memory_limit":[32],"n_jobs":[2]}' \
       -c <path_to_your_config_file>
 
-   For Slurm submission, use the same CLI with ``cluster_type`` set to ``slurm`` and resource values such as ``cores``, ``memory``, ``queue``, and ``walltime``. The CLI will generate the batch script from the example template and submit the job for you:
+    This command runs the benchmark with a local Dask cluster, varying the number of workers, threads per worker, and memory limit while keeping ``n_jobs`` fixed at 2.
 
-   .. code-block:: bash
+    If you want to run the benchmark just with threads, you can use:
 
-      paidiverpy -bt '{"cluster_type":"slurm","cores":[16],"memory":[64],"walltime":"12:00:00","queue":"standard","n_jobs":[1,2,4,8,16]}' \
-      -c <path_to_your_config_file>
+    .. code-block:: bash
 
-   The batch job will execute the pipeline multiple times, varying the parameters, and record performance results.
+      paidiverpy -bt '{"n_jobs":[1,2,4,8,16]}' -c <path_to_your_config_file>
+
 
 4. **Analyze results**
    Results are stored in a JSON file named according to the cluster type and timestamp, e.g.:
