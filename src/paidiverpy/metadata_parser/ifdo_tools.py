@@ -1,11 +1,11 @@
 """Utility functions for metadata parsing."""
 
 import ast
-from importlib.resources import files
 import json
 import logging
 import re
 import uuid
+from importlib.resources import files
 from pathlib import Path
 from typing import Any
 import pandas as pd

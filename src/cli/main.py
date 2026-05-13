@@ -2,15 +2,10 @@
 
 import argparse
 import json
-import os
-import shlex
 import shutil
 import subprocess
 import sys
-import tempfile
 from importlib.resources import files
-from pathlib import Path
-import yaml
 from paidiverpy.config.configuration import Configuration
 from paidiverpy.pipeline import Pipeline
 from paidiverpy.utils.benchmark.benchmark_test import benchmark_handler
@@ -82,20 +77,6 @@ def process_action(parser: argparse.ArgumentParser) -> None:
     if args.validate:
         Configuration.validate_config(args.configuration_file, local=False)
         return
-
-    configuration = load_configuration(args.configuration_file)
-    cluster_type, _ = get_client_settings(configuration)
-    batch_mode = os.environ.get("PAYDIVERPY_BATCH_MODE") == "1"
-    driver_mode = "batch" if batch_mode else "interactive"
-    logger.info("Driver mode: %s", driver_mode)
-    logger.info("Configured client cluster_type: %s", cluster_type or "none")
-
-    if cluster_type == "slurm" and not batch_mode:
-        logger.info("Submitting driver job to Slurm queue.")
-        submit_sbatch(args.configuration_file)
-        return
-    if cluster_type == "slurm" and batch_mode:
-        logger.info("Running inside Slurm batch job; Dask SLURM client will be created from config.")
 
     run_pipeline(args.configuration_file)
 
