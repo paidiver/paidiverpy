@@ -1,17 +1,28 @@
 # Changelog
 
-## [v.0.2.1](https://github.com/paidiver/paidiverpy/tree/v.0.2.1) (2025-09-23)
+## [Unreleased](https://github.com/paidiver/paidiverpy/tree/HEAD)
 
 [Full Changelog](https://github.com/paidiver/paidiverpy/compare/v.0.2.1...HEAD)
 
-## [v0.2.2](https://github.com/paidiver/paidiverpy/tree/v0.2.2) (2025-09-23)
+**Implemented enhancements:**
 
-- Increase test coverage [\#239](https://github.com/paidiver/paidiverpy/pull/239) ([soutobias](https://github.com/soutobias))
-- Releasev0.2.1 [\#237](https://github.com/paidiver/paidiverpy/pull/237) ([soutobias](https://github.com/soutobias))
+- Apply benchmark test with several image dataset sizes [\#165](https://github.com/paidiver/paidiverpy/issues/165)
+
+**Merged pull requests:**
+
+- 165 apply benchmark test with several image dataset sizes [\#240](https://github.com/paidiver/paidiverpy/pull/240) ([soutobias](https://github.com/soutobias))
 
 ## [v.0.2.1](https://github.com/paidiver/paidiverpy/tree/v.0.2.1) (2025-09-23)
 
-[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v.0.2.0...v.0.2.1)
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.2.2...v.0.2.1)
+
+## [v0.2.2](https://github.com/paidiver/paidiverpy/tree/v0.2.2) (2025-09-23)
+
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.2.1...v0.2.2)
+
+## [v0.2.1](https://github.com/paidiver/paidiverpy/tree/v0.2.1) (2025-09-23)
+
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v.0.2.0...v0.2.1)
 
 ## [v.0.2.0](https://github.com/paidiver/paidiverpy/tree/v.0.2.0) (2025-09-18)
 
