@@ -3,109 +3,173 @@
 Benchmarks
 ==========
 
-This section provides an overview of the benchmarks conducted to evaluate the performance of the **Paidiverpy** library.
+This section summarises the benchmark tests used to evaluate the performance of
+**Paidiverpy**.
 
-The benchmarks focus on execution speed, memory usage, and scalability across different configurations. By publishing these results, our goal is to give users insights into the performance characteristics of Paidiverpy and to provide guidance on how to tune resources for their own use cases.
-Paidiverpy also makes it easy to run **custom benchmark tests** using the
-`benchmark_test.py <https://github.com/paidiver/paidiverpy/blob/dev/src/paidiverpy/utils/benchmark/benchmark_test.py>`_
-script. Instructions for running your own benchmarks are provided at the end of this section.
+The benchmarks measure execution time, memory usage, and scalability across
+different execution configurations. The aim is to help users understand how
+Paidiverpy performs under different resource settings and to provide practical
+guidance for tuning pipelines on local machines and HPC systems.
+
+Paidiverpy also provides a benchmark utility that users can run with their own
+datasets and pipeline configurations. The examples at the end of this section
+show how to launch custom benchmark tests from the command line.
 
 
 About the tests
 ---------------
 
-For our benchmark experiments, we used the **benthic_ifdo** dataset, described in the :ref:`example data <example_data>` section. This dataset contains images and metadata from the Haig Fras area in the UK, collected in 2012.
-It is publicly available through the British Oceanographic Data Centre (BODC) and can be accessed `here <https://www.bodc.ac.uk/data/published_data_library/catalogue/10.5285/093edbc7-3552-3d35-e063-6c86abc099d5/>`_.
-For benchmarking, we used a **subset** of this dataset (≈290 MB), which contains 100 images with varying resolutions.
+The benchmark experiments use the **benthic_ifdo** dataset, described in the
+:ref:`example data <example_data>` section. This dataset contains benthic images
+and metadata from the Haig Fras area in the UK, collected in 2012.
 
-The pipeline configuration for preprocessing is defined in the following YAML file:
+The full dataset is publicly available through the British Oceanographic Data
+Centre (BODC): `BODC published dataset <https://www.bodc.ac.uk/data/published_data_library/catalogue/10.5285/093edbc7-3552-3d35-e063-6c86abc099d5/>`_
+
+For the benchmark tests, we use a subset of approximately 290 MB containing 100
+images with varying resolutions.
+
+The preprocessing pipeline used for the benchmark is defined in the following
+YAML configuration file:
 
 .. literalinclude:: ../src/paidiverpy/utils/benchmark/config_benchmark.yml
+   :language: yaml
 
-This configuration applies several preprocessing steps, mainly from the **ColourLayer** and **ConvertLayer** components. The ``benchmark_test.py`` script executes this pipeline, measuring performance across multiple configurations by varying the number of threads, workers, and memory resources depending on the cluster type.
+This configuration applies several preprocessing operations, mainly from the
+**ColourLayer** components. The benchmark utility runs this
+pipeline multiple times while varying the execution settings, such as the number
+of jobs, workers, threads, and available memory, depending on the selected
+execution mode.
+
 
 Test configurations
 -------------------
 
-The benchmarks were run under different execution modes:
+The benchmarks were run using the following execution modes.
 
-- **Serial execution**: with ``n_jobs`` set to 1.
+**Serial execution**
 
-  .. code-block:: yaml
+Serial execution runs the pipeline with a single job. This provides a baseline
+for comparing parallel configurations.
 
-     n_jobs: [1]
+.. code-block:: yaml
 
-- **Thread-based execution**: varying only the ``n_jobs`` parameter:
+   n_jobs: [1]
 
-  .. code-block:: yaml
+**Thread-based execution**
 
-     n_jobs: [2, 4, 8, 16]
+Thread-based execution varies only the ``n_jobs`` parameter. This mode is useful
+for testing parallel execution on a single machine without creating a Dask
+cluster.
 
-- **Local Dask cluster**: varying the number of workers, threads per worker, and memory limit:
+.. code-block:: yaml
 
-  .. code-block:: yaml
+   n_jobs: [4, 8, 16]
 
-     n_jobs: [1, 2, 4, 8, 16]
-     local_cluster:
-       n_workers: [1, 8, 16]
-       threads_per_worker: [1, 8, 16]
-       memory_limit: [32]
+**Slurm execution**
+
+The Slurm benchmark was run on an HPC system using a batch allocation with
+64 GB of memory and 32 CPU cores. The benchmark varied ``n_jobs`` to measure how
+the pipeline scales within the allocated resources.
+
+.. code-block:: yaml
+
+   n_jobs: [1, 2, 4, 8, 16, 32]
+
 
 Results
 -------
 
-This section is still under development. Preliminary results indicate that Paidiverpy scales well with increased resources, particularly in multi-threaded and distributed configurations.
+The detailed benchmark results are stored in JSON format and are available here:
 
-We are planning to include more detailed analyses and visualisations in future updates.
+`benchmark.json </_static/benchmark.json>`_
 
-.. The detailed benchmark results are stored in a JSON file, available here:
-.. `benchmark.json <https://github.com/paidiver/paidiverpy/blob/dev/src/paidiverpy/utils/benchmark/benchmark.json>`_
+This file contains the execution time and memory usage recorded for each tested
+configuration.
 
-.. This file includes execution time and memory usage for each preprocessing run.
+A graphical summary of the benchmark results is shown below:
 
-.. A graphical representation of the results is shown below:
+.. raw:: html
 
-.. .. image:: _static/benchmark_plot.png
-..    :width: 600px
-..    :alt: Benchmark Plot
+   <iframe src="_static/benchmark.html"
+           width="100%"
+           height="650px"
+           style="border:none;">
+   </iframe>
+
+The results show that execution time decreases as the number of parallel jobs
+increases, demonstrating that Paidiverpy can benefit from parallel execution.
+
+The Slurm configuration provides the strongest performance improvements in this
+benchmark, particularly at higher values of ``n_jobs``. This indicates that
+Paidiverpy can make effective use of larger HPC allocations for image
+preprocessing workloads.
+
+.. admonition:: Note
+
+   Serial execution took more than 2 hours to complete. It is therefore not
+   included in the plot, so that the differences between the parallel
+   configurations are easier to compare.
 
 
 How to run your own benchmarks
 ------------------------------
 
-You can run benchmarks tailored to your dataset and pipeline configuration by following these steps:
+You can run benchmark tests with your own datasets and pipeline configurations
+using the Paidiverpy CLI.
 
 1. **Prepare a dataset**
-   Ensure your dataset is supported by Paidiverpy and ready for preprocessing.
+
+   Ensure that your dataset is supported by Paidiverpy and that the input data
+   and metadata are accessible from the machine or cluster where the benchmark
+   will run.
 
 2. **Create a configuration file**
-   Define your preprocessing steps and parameters in a YAML configuration file. You may use the provided benchmark configuration files as a starting point.
 
-3. **Run the benchmark script**
-   Launch the benchmark with the CLI, specifying the cluster configuration. For example:
+   Define the preprocessing steps and parameters in a YAML configuration file.
+   You can use the benchmark configuration file shown above as a starting point.
+
+3. **Run the benchmark**
+
+   Use the ``-bt`` option to provide the benchmark configuration as a JSON
+   string, and use ``-c`` to provide the Paidiverpy pipeline configuration.
+
+   For example, to benchmark a local Dask cluster:
 
    .. code-block:: bash
 
       paidiverpy -bt '{"cluster_type":"local","n_workers":[1,8,16],"threads_per_worker":[1,8,16],"memory_limit":[32],"n_jobs":[2]}' \
-      -c <path_to_your_config_file>
+        -c <path_to_your_config_file>
 
-    This command runs the benchmark with a local Dask cluster, varying the number of workers, threads per worker, and memory limit while keeping ``n_jobs`` fixed at 2.
+   This command runs the benchmark using a local Dask cluster. It varies the
+   number of workers, threads per worker, and memory limit while keeping
+   ``n_jobs`` fixed at ``2``.
 
-    If you want to run the benchmark just with threads, you can use:
+   To benchmark thread-based execution without creating a Dask cluster, vary only
+   ``n_jobs``:
 
-    .. code-block:: bash
+   .. code-block:: bash
 
-      paidiverpy -bt '{"n_jobs":[1,2,4,8,16]}' -c <path_to_your_config_file>
+      paidiverpy -bt '{"n_jobs":[1,2,4,8,16]}' \
+        -c <path_to_your_config_file>
 
+4. **Review the outputs**
 
-4. **Analyze results**
-   Results are stored in a JSON file named according to the cluster type and timestamp, e.g.:
+   The benchmark writes the results to a JSON file named according to the cluster
+   type and timestamp, for example:
 
    .. code-block:: text
 
       benchmark_results_local_20250916_103045.json
 
-   Additionally, the script generates a PNG plot and an HTML output for visual inspection. If you submit the benchmark through Slurm, the batch job writes those files after the run finishes in the directory where you launched the CLI. You may need to install plotly to generate the HTML output:
+   The benchmark utility also generates a PNG plot and an HTML report for visual
+   inspection.
+
+   When running through Slurm, these output files are written after the batch job
+   finishes, in the directory from which the CLI was launched.
+
+   The HTML report requires Plotly. If Plotly is not already installed in your
+   environment, install it with:
 
    .. code-block:: bash
 

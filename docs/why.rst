@@ -18,9 +18,11 @@ Less manual effort, more insightful analysis
 **Paidiverpy** aims to simplify the preprocessing of biodiversity image data, enabling researchers to focus on their scientific questions rather than the intricacies of data management. With **Paidiverpy**, users can:
 
 * Easily configure and manage their image processing pipelines through a straightforward interface.
-* Visualize every step of their preprocessing pipeline to ensure efficacy 
+* Integrate a wide range of preprocessing steps, from basic image manipulation to advanced techniques, all within a single framework.
+* Visualize every step of their preprocessing pipeline to ensure efficacy
 * Utilize built-in support for several standard metadata formats, ensuring seamless integration with existing datasets.
 * Leverage advanced processing features, including parallelization with Dask, to handle large datasets efficiently.
-* Enhance reproducability by automatically outputting documentation of their procedure. 
+* Enhance reproducability by automatically outputting documentation of their procedure.
+
 
 **Paidiverpy** abstracts the complexities of image data preprocessing, allowing you to concentrate on your analysis and research goals.

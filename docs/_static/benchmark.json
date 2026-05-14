@@ -1,0 +1,59 @@
+[
+  {
+    "cluster_type": "threads",
+    "threads": 4,
+    "time_taken": 3634.03
+  },
+  {
+    "cluster_type": "threads",
+    "threads": 8,
+    "time_taken": 2430.85
+  },
+  {
+    "cluster_type": "threads",
+    "threads": 16,
+    "time_taken": 2103.05
+  },
+  {
+    "cluster_type": "slurm",
+    "threads": 1,
+    "memory": 64,
+    "cpu_cores": 32,
+    "time_taken": 770.94
+  },
+  {
+    "cluster_type": "slurm",
+    "threads": 2,
+    "memory": 64,
+    "cpu_cores": 32,
+    "time_taken": 605.22
+  },
+  {
+    "cluster_type": "slurm",
+    "threads": 4,
+    "memory": 64,
+    "cpu_cores": 32,
+    "time_taken": 375.99
+  },
+  {
+    "cluster_type": "slurm",
+    "threads": 8,
+    "memory": 64,
+    "cpu_cores": 32,
+    "time_taken": 293.47
+  },
+  {
+    "cluster_type": "slurm",
+    "threads": 16,
+    "memory": 64,
+    "cpu_cores": 32,
+    "time_taken": 254.53
+  },
+  {
+    "cluster_type": "slurm",
+    "threads": 32,
+    "memory": 64,
+    "cpu_cores": 32,
+    "time_taken": 241.18
+  }
+]

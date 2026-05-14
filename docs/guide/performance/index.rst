@@ -74,11 +74,23 @@ The ``n_jobs`` parameter still controls how much work the pipeline tries to perf
 Slurm Batch Submission
 ----------------------
 
-For Slurm execution, you submit a batch job that runs Paidiverpy inside the allocated resources. The batch job should activate the environment and execute the pipeline with the thread scheduler, which avoids creating nested Slurm jobs.
+For Slurm execution, Paidiverpy should be launched from within a Slurm batch
+allocation. In this mode, Slurm is responsible for reserving the compute
+resources, and Paidiverpy uses those resources internally through threads or a
+local Dask scheduler.
 
-Use the template available at `examples/slurm/paidiverpy.sbatch <https://github.com/paidiver/paidiverpy/tree/main/examples/slurm/paidiverpy.sbatch>`_ as a reference for the job wrapper. The important part is that the batch job activates the environment, runs ``paidiverpy`` inside the allocation, and leaves the inner pipeline to use threads or a local Dask scheduler.
+Paidiverpy does not submit nested Slurm jobs from inside the pipeline. Instead,
+you submit an ``sbatch`` wrapper script that:
 
-Example batch configuration:
+- requests the required CPUs, memory, walltime, partition, and account;
+- activates the Python environment containing Paidiverpy;
+- runs the ``paidiverpy`` command using the chosen configuration file.
+
+Use the template available at
+`examples/slurm/paidiverpy.sbatch <https://github.com/paidiver/paidiverpy/tree/main/examples/slurm/paidiverpy.sbatch>`_
+as a reference for the job wrapper.
+
+A typical Slurm-oriented configuration looks like this:
 
 .. code-block:: yaml
 
@@ -94,10 +106,56 @@ Example batch configuration:
     steps:
       # Define pipeline steps
 
-In the Slurm batch file, set the requested CPUs, memory, walltime, queue, and account to match the workload you want to benchmark. The benchmark helper then writes the JSON and plot files once the batch job finishes.
+The ``n_jobs`` value should be consistent with the CPUs requested in the Slurm
+batch file. The Slurm allocation is treated as the source of truth for available
+resources.
 
-If you allocate CPUs through Slurm, keep ``n_jobs`` consistent with the CPUs you requested. The pipeline now treats the batch allocation as the source of truth.
-For example, if you request 16 CPUs in the batch job, set ``n_jobs: 16`` or ``n_jobs: -1`` in the configuration file to fully utilize the allocated resources.
+For example, if the batch script requests 16 CPUs, you can either set:
+
+.. code-block:: yaml
+
+    n_jobs: 16
+
+or use:
+
+.. code-block:: yaml
+
+    n_jobs: -1
+
+to allow Paidiverpy to use all CPUs made available inside the allocation.
+
+Avoid requesting more workers in the Paidiverpy configuration than the number of
+CPUs allocated by Slurm. Doing so can oversubscribe the node, increase memory
+pressure, and reduce overall performance.
+
+For batch or HPC runs, it is also recommended to set:
+
+.. code-block:: yaml
+
+    track_changes: False
+
+This disables tracking of intermediate pipeline changes, which can reduce I/O
+overhead and avoid unnecessary file transfers on shared filesystems.
+
+A minimal Slurm wrapper typically follows this pattern:
+
+.. code-block:: bash
+
+    #!/bin/bash
+    #SBATCH --job-name=paidiverpy
+    #SBATCH --cpus-per-task=16
+    #SBATCH --mem=64G
+    #SBATCH --time=04:00:00
+    #SBATCH --partition=<partition>
+    #SBATCH --account=<account>
+
+    source /path/to/venv/bin/activate
+
+    paidiverpy -c /path/to/config.yaml
+
+In summary, the Slurm batch script controls the resources, while ``n_jobs``
+controls how much parallel work Paidiverpy attempts to perform within those
+resources.
 
 Key Considerations
 ------------------

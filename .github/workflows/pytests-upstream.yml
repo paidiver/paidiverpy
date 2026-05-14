@@ -3,12 +3,9 @@ name: CI tests Upstream
 # Runs daily and can also be triggered manually
 # Tests Paidiverpy with unpinned/latest dependencies
 on:
-  # schedule:
-  #   - cron: "0 0 * * *" # Daily at 00:00 UTC
-  # workflow_dispatch:
-  pull_request:
-    branches:
-    - dev
+  schedule:
+    - cron: "0 0 * * *" # Daily at 00:00 UTC
+  workflow_dispatch:
 
 jobs:
   upstream-latest:
@@ -24,15 +21,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # branch: ["main", "dev"]
+        branch: ["main", "dev"]
         python-version: ["3.10", "3.11", "3.12"]
         os: ["ubuntu-latest", "macos-latest", "windows-latest"]
 
     steps:
       - name: Checkout ${{ matrix.branch }}
         uses: actions/checkout@v4
-        # with:
-        #   ref: ${{ matrix.branch }}
+        with:
+          ref: ${{ matrix.branch }}
 
       - name: Set up Miniconda
         uses: conda-incubator/setup-miniconda@v3
