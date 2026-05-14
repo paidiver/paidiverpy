@@ -9,17 +9,21 @@ on:
 
 jobs:
   release:
+    env:
+      PYTHONIOENCODING: utf-8
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash -l {0}
 
     permissions:
       contents: write
       packages: write
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
-
+    - uses: actions/checkout@v4
 
     - name: Set up Miniconda
       uses: conda-incubator/setup-miniconda@v3
