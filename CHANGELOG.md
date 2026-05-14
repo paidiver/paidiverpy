@@ -1,12 +1,21 @@
 # Changelog
 
-## [Unreleased](https://github.com/paidiver/paidiverpy/tree/HEAD)
+## [v0.3.0](https://github.com/paidiver/paidiverpy/tree/v0.3.0) (2026-05-14)
 
-[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v.0.2.1...HEAD)
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v.0.2.1...v0.3.0)
 
 **Implemented enhancements:**
 
+- Parallel processing: Avoid computer and gather the results after each step [\#166](https://github.com/paidiver/paidiverpy/issues/166)
 - Apply benchmark test with several image dataset sizes [\#165](https://github.com/paidiver/paidiverpy/issues/165)
+
+**Fixed bugs:**
+
+- Add SLURM Job Submission for Pipeline Runs on HPC Systems [\#64](https://github.com/paidiver/paidiverpy/issues/64)
+
+**Closed issues:**
+
+- Add tests for handle remote data [\#205](https://github.com/paidiver/paidiverpy/issues/205)
 
 **Merged pull requests:**
 
