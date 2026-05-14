@@ -13,6 +13,11 @@ jobs:
       PYTHONIOENCODING: utf-8
     name: Test with latest dependencies - Py${{ matrix.python-version }} - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+
+    defaults:
+      run:
+        shell: bash -l {0}
+
     strategy:
       fail-fast: false
       matrix:
@@ -29,29 +34,37 @@ jobs:
       - name: Set up Miniconda
         uses: conda-incubator/setup-miniconda@v3
         with:
+          environment-file: environment.yml
+          activate-environment: Paidiverpy
           python-version: ${{ matrix.python-version }}
+          auto-activate-base: false
+          conda-solver: libmamba
+
+      - name: Configure Conda retries
+        run: |
+          conda config --set remote_read_timeout_secs 60
+          conda config --set remote_connect_timeout_secs 60
+          conda config --set remote_max_retries 3
 
       - name: Initialize Conda
         run: conda init bash
 
-      - name: Create conda environment with latest deps
-        shell: bash -l {0}
+      - name: Install package
         run: |
-          conda env create -f environment.yml python=${{ matrix.python-version }} -y
           conda activate Paidiverpy
-          conda run -n Paidiverpy pip install --upgrade pip
-          conda run -n Paidiverpy pip install -e .
-          conda run -n Paidiverpy pip install .[test]
-          conda run -n Paidiverpy pip install .[dev,publishing]
-          conda run -n Paidiverpy pip install nbconvert nbclient
+          python -m pip install -e .
+          python -m pip install -e ".[test]"
+          python -m pip install -e ".[dev,publishing]"
+          python -m pip install nbconvert nbclient
 
-      - name: Run tests
-        shell: bash -l {0}
+      - name: Test with pytest
         run: |
-          conda run -n Paidiverpy pytest -ra -v -s \
-            --cov=src/paidiverpy \
-            --cov-config=.coveragerc \
-            --cov-report term-missing
+          conda activate Paidiverpy
+          pytest -ra -v -s \
+            --cov \
+            --cov-report xml:cov.xml \
+            --cov-report term-missing \
+            --junitxml=junit.xml -o junit_family=legacy
 
       - name: Run Notebooks in "examples/example_notebooks"
         shell: bash -l {0}

@@ -6,7 +6,6 @@ from typing import get_args
 import panel as pn
 from paidiverpy.frontend.parse import define_default_value
 from paidiverpy.frontend.parse import parse_default_params
-from paidiverpy.models.client_params import ClientParams  # noqa: F401
 from paidiverpy.models.colour_params import *  # noqa: F403
 from paidiverpy.models.colour_params import COLOUR_LAYER_METHODS
 from paidiverpy.models.convert_params import *  # noqa: F403

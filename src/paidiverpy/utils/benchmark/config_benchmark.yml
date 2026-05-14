@@ -2,10 +2,6 @@ general:
   sample_data: "benthic_ifdo"
   output_path: "./output"
   track_changes: False
-  sampling:
-    - mode: "fixed"
-      params:
-        value: 20
 
 steps:
   - colour:

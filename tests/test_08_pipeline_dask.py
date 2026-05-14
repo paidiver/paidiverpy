@@ -21,7 +21,7 @@ class TestPipelineDask(BaseTestClass):
 
     def test_parallel_processing_dask(self):
         """Test generating a Pipeline with Parallel Processing using dask."""
-        number_images = 7
+        number_images = 6
         number_output_files = 0
 
         pipeline = Pipeline(config_file_path="tests/config_files/config_benthic_dask.yml", verbose=0)

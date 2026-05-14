@@ -5,6 +5,7 @@ import json
 import logging
 import re
 import uuid
+from importlib.resources import files
 from pathlib import Path
 from typing import Any
 import pandas as pd
@@ -38,8 +39,7 @@ def validate_ifdo(file_path: str | None = None, ifdo_data: dict[str, Any] | None
     if not ifdo_version:
         msg = "No iFDO version found in metadata."
         raise ValidationError(msg)
-    schema_file_path = f"https://www.ifdo-schema.org/schemas/{ifdo_version}/ifdo.json"
-    schema = json.loads(get_file_from_bucket(schema_file_path))
+    schema = load_json_schema(ifdo_version)
     validator = Draft202012Validator(schema)
     errors = sorted(validator.iter_errors(ifdo_data), key=lambda e: e.path)
     errors = [
@@ -52,6 +52,22 @@ def validate_ifdo(file_path: str | None = None, ifdo_data: dict[str, Any] | None
 
     return parse_validation_errors(errors, schema)
 
+def load_json_schema(ifdo_version: str) -> dict[str, Any]:
+    """Load iFDO JSON schema.
+
+    Args:
+        ifdo_version (str): iFDO version to load.
+
+    Returns:
+        dict: Loaded JSON schema.
+    """
+    schema_local = files("paidiverpy").joinpath(f"metadata_parser/ifdo-schemas/ifdo-{ifdo_version}.json")
+    schema_file_path = f"https://www.ifdo-schema.org/schemas/{ifdo_version}/ifdo.json"
+    if schema_local.is_file():
+        with schema_local.open() as file:
+            return json.load(file)
+    schema_content = get_file_from_bucket(schema_file_path)
+    return json.loads(schema_content)
 
 def convert_to_ifdo(dataset_metadata: dict[str, Any], metadata: pd.DataFrame, output_path: str) -> None:
     """Convert metadata to iFDO format.
@@ -62,8 +78,7 @@ def convert_to_ifdo(dataset_metadata: dict[str, Any], metadata: pd.DataFrame, ou
         output_path (str): Path to save the converted metadata.
     """
     ifdo_version = dataset_metadata.get("image-set-ifdo-version", "v2.1.0")
-    schema_file_path = f"https://www.ifdo-schema.org/schemas/{ifdo_version}/ifdo.json"
-    ifdo_schema = json.loads(get_file_from_bucket(schema_file_path))
+    ifdo_schema = load_json_schema(ifdo_version)
     image_set_header, missing_fields_header = parse_ifdo_header(dataset_metadata, ifdo_schema, metadata)
     for col in metadata.select_dtypes(include=["datetime64[ns]"]).columns:
         metadata[col] = metadata[col].astype(str)
