@@ -14,6 +14,38 @@ from paidiverpy.utils.logging_functions import initialise_logging
 
 logger = initialise_logging()
 
+def run_gui(gui_args: list[str] | None) -> None:
+    """Run the GUI server."""
+    logger.info("Running the GUI for paidiverpy...")
+    panel_executable = shutil.which("panel")
+    if not panel_executable:
+        logger.error("The 'panel' executable was not found in the system PATH. Please install Panel using 'pip install panel'.")
+        sys.exit(1)
+
+    app_path = files("paidiverpy.frontend").joinpath("app.py")
+
+    # Default params
+    panel_args = ["--port", "5006", "--address", "0.0.0.0", "--autoreload"]  # noqa: S104
+    if gui_args:
+        panel_args = gui_args[0].split()
+
+    subprocess.run(  # noqa: S603
+        [panel_executable, "serve", str(app_path), *panel_args],
+        check=True,
+    )
+
+
+def run_pipeline(configuration_file: str) -> None:
+    """Run the main paidiverpy pipeline."""
+    pipeline = Pipeline(
+        config_file_path=configuration_file,
+        logger=logger,
+        track_changes=False,
+    )
+    pipeline.run(close_client=False, save_images=True)
+    if pipeline.client:
+        pipeline.client.close()
+
 
 def process_action(parser: argparse.ArgumentParser) -> None:
     """Process the action based on the arguments provided.
@@ -24,23 +56,8 @@ def process_action(parser: argparse.ArgumentParser) -> None:
     args = parser.parse_args()
 
     if args.gui is not None:
-        logger.info("Running the GUI for paidiverpy...")
-        panel_executable = shutil.which("panel")
-        if not panel_executable:
-            logger.error("The 'panel' executable was not found in the system PATH. Please install Panel using 'pip install panel'.")
-            sys.exit(1)
-        app_path = files("paidiverpy.frontend").joinpath("app.py")
-
-        # Default params
-        gui_args = ["--port", "5006", "--address", "0.0.0.0", "--autoreload"]  # noqa: S104
-
-        if args.gui:
-            gui_args = args.gui[0].split()
-
-        subprocess.run(  # noqa: S603
-            [panel_executable, "serve", str(app_path), *gui_args],
-            check=True,
-        )
+        run_gui(args.gui)
+        return
 
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
@@ -56,18 +73,12 @@ def process_action(parser: argparse.ArgumentParser) -> None:
     if is_docker:
         config_filename = args.configuration_file.split("/")[-1]
         args.configuration_file = f"/app/config_files/{config_filename}"
+
     if args.validate:
         Configuration.validate_config(args.configuration_file, local=False)
         return
-    pipeline = Pipeline(
-        config_file_path=args.configuration_file,
-        logger=logger,
-        track_changes=False,
-    )
-    pipeline.run(close_client=False)
-    pipeline.save_images()
-    if pipeline.client:
-        pipeline.client.close()
+
+    run_pipeline(args.configuration_file)
 
 
 def add_arguments(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:

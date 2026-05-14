@@ -48,7 +48,3 @@ steps:
       params:
         alpha: 1.5
         beta: -0.5
-
-  - colour:
-      name: "contrast"
-      mode: "contrast"

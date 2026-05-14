@@ -25,7 +25,6 @@ SIXTEEN_BITS_SIZE = 2
 THIRTY_TWO_BITS_SIZE = 4
 EIGHT_BITS_MAX = 255
 
-# Define a base directory for caching
 CACHE_DIR = Path.home() / ".paidiverpy_cache"
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
 PERSISTENCE_FILE = CACHE_DIR / "datasets.json"

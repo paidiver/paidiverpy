@@ -17,7 +17,7 @@
 # -- Project information -----------------------------------------------------
 
 project = "Paidiverpy"
-copyright = "2024-2025, Paidiver"
+copyright = "2024-2026, Paidiver"
 author = "Paidiver Developers"
 
 # The version info for the project you're documenting, acts as replacement for
@@ -25,7 +25,7 @@ author = "Paidiver Developers"
 # built documents.
 #
 # The short X.Y version.
-version = "0.2.1"
+version = "0.3.1"
 # The full version, including alpha/beta/rc tags.
 release = version
 

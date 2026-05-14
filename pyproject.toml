@@ -49,7 +49,7 @@ dependencies = [
   "xarray>=2024.12.0",
   ]
 license = {file = "LICENSE"}
-version = "0.2.1"
+version = "0.3.1"
 readme = {file = "README.rst", content-type = "text/x-rst"}
 
 [project.optional-dependencies]
@@ -187,7 +187,7 @@ no-lines-before = ["future","standard-library","third-party","first-party","loca
 
 
 [tool.bumpversion]
-current_version = "0.2.1"  # Current version
+current_version = "0.3.1"  # Current version
 parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
 serialize = ["{major}.{minor}.{patch}"]
 search = "{current_version}"

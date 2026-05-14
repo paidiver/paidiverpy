@@ -32,7 +32,6 @@ def get_sys_info() -> list[tuple[str, str]]:
     """
     blob = []
 
-    # get full commit hash
     commit = None
     if Path(".git").is_dir() and Path("paidiverpy").is_dir():
         try:

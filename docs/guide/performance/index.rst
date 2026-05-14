@@ -14,7 +14,9 @@ Configuring Pipeline Execution
 Pipeline execution mode (sequential or parallel) is controlled via the configuration file. Two parameters determine the execution method:
 
 - ``n_jobs``: Controls the number of jobs for local execution.
-- ``client``: Configures execution in a High-Performance Computing (HPC) environment.
+- ``local_cluster``: Configures a local Dask cluster when you want Dask-backed parallel execution.
+
+Slurm batch execution is handled outside the pipeline config by submitting an ``sbatch`` wrapper. The batch job then launches Paidiverpy inside the Slurm allocation and the pipeline runs without creating nested Slurm jobs.
 
 Local Execution
 ---------------
@@ -42,17 +44,10 @@ Example Configuration File for Local Execution
 
 In the example above, the pipeline runs in parallel using all available CPU cores. To disable parallel execution, set ``n_jobs`` to ``1`` or omit it.
 
-HPC Execution
--------------
+Local Dask Cluster
+------------------
 
-To run the pipeline on an HPC cluster, use the ``client`` parameter. By default, ``client`` is ``None``, which means sequential execution.
-
-You can configure ``client`` for two common use cases:
-
-1. LocalCluster (Dask)
-^^^^^^^^^^^^^^^^^^^^^^
-
-To create a **LocalCluster**, configure the ``client`` parameter as follows:
+To create a **LocalCluster**, configure the ``local_cluster`` section as follows:
 
 .. code-block:: yaml
 
@@ -63,29 +58,39 @@ To create a **LocalCluster**, configure the ``client`` parameter as follows:
       metadata_type: 'IFDO'
       image_open_args: 'JPG'
       n_jobs: 2
-      client:
-        cluster_type: "local"
-        params:
-          n_workers: 1
-          threads_per_worker: 4
-          memory_limit: "4GB"
+      local_cluster:
+        n_workers: 1
+        threads_per_worker: 4
+        memory_limit: "4GB"
       track_changes: False
 
     steps:
       # Define pipeline steps
 
-The ``params`` block corresponds to parameters for the Dask **LocalCluster** class, where you can specify the number of workers, threads per worker, and memory limits.
+The ``local_cluster`` section corresponds to the Dask **LocalCluster** class. You can specify the number of workers, threads per worker, and memory limits.
 
-You also need to specify the number of jobs in the ``general`` section. In this example, ``n_jobs: 2`` means that the Client will be scaled to 2 workers.
+The ``n_jobs`` parameter still controls how much work the pipeline tries to perform in parallel. In local runs, set ``n_jobs`` to ``-1`` if you want to use all available CPUs.
 
-2. SLURMCluster (Dask-Jobqueue)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Slurm Batch Submission
+----------------------
 
-.. admonition:: Note
+For Slurm execution, Paidiverpy should be launched from within a Slurm batch
+allocation. In this mode, Slurm is responsible for reserving the compute
+resources, and Paidiverpy uses those resources internally through threads or a
+local Dask scheduler.
 
-  IMPORTANT: This feature will be available in the upcoming release.
+Paidiverpy does not submit nested Slurm jobs from inside the pipeline. Instead,
+you submit an ``sbatch`` wrapper script that:
 
-To create a **SLURMCluster**, configure the ``client`` parameter as follows:
+- requests the required CPUs, memory, walltime, partition, and account;
+- activates the Python environment containing Paidiverpy;
+- runs the ``paidiverpy`` command using the chosen configuration file.
+
+Use the template available at
+`examples/slurm/paidiverpy.sbatch <https://github.com/paidiver/paidiverpy/tree/main/examples/slurm/paidiverpy.sbatch>`_
+as a reference for the job wrapper.
+
+A typical Slurm-oriented configuration looks like this:
 
 .. code-block:: yaml
 
@@ -95,28 +100,69 @@ To create a **SLURMCluster**, configure the ``client`` parameter as follows:
       metadata_path: '/metadata/path/metadata.json'
       metadata_type: 'IFDO'
       image_open_args: 'JPG'
-      client:
-        cluster_type: "slurm"
-        params:
-          n_workers: 1
-          threads_per_worker: 4
-          memory_limit: "4GB"
-          job_extra: ["--partition=standard", "--time=00:30:00"]
+      n_jobs: -1
       track_changes: False
 
     steps:
       # Define pipeline steps
 
-Here, the ``params`` block maps to parameters for the Dask **SLURMCluster** class. You can specify workers, threads, memory limits, and additional job options.
+The ``n_jobs`` value should be consistent with the CPUs requested in the Slurm
+batch file. The Slurm allocation is treated as the source of truth for available
+resources.
 
-You also need to specify the number of jobs in the ``general`` section. In this example, ``n_jobs: 2`` means that the Client will be scaled to 2 workers.
+For example, if the batch script requests 16 CPUs, you can either set:
+
+.. code-block:: yaml
+
+    n_jobs: 16
+
+or use:
+
+.. code-block:: yaml
+
+    n_jobs: -1
+
+to allow Paidiverpy to use all CPUs made available inside the allocation.
+
+Avoid requesting more workers in the Paidiverpy configuration than the number of
+CPUs allocated by Slurm. Doing so can oversubscribe the node, increase memory
+pressure, and reduce overall performance.
+
+For batch or HPC runs, it is also recommended to set:
+
+.. code-block:: yaml
+
+    track_changes: False
+
+This disables tracking of intermediate pipeline changes, which can reduce I/O
+overhead and avoid unnecessary file transfers on shared filesystems.
+
+A minimal Slurm wrapper typically follows this pattern:
+
+.. code-block:: bash
+
+    #!/bin/bash
+    #SBATCH --job-name=paidiverpy
+    #SBATCH --cpus-per-task=16
+    #SBATCH --mem=64G
+    #SBATCH --time=04:00:00
+    #SBATCH --partition=<partition>
+    #SBATCH --account=<account>
+
+    source /path/to/venv/bin/activate
+
+    paidiverpy -c /path/to/config.yaml
+
+In summary, the Slurm batch script controls the resources, while ``n_jobs``
+controls how much parallel work Paidiverpy attempts to perform within those
+resources.
 
 Key Considerations
 ------------------
 
 1. **Sequential Dependency**: Pipeline parallelism operates within individual steps, not across steps. Each step must complete before the next begins, as the output of one step serves as the input for the next.
 
-2. **Temporary Directories**: For HPC execution, it is important to set ``track_changes: False``, which means the pipeline does not track intermediate changes. This setting is essential for HPC environments in order to speed up execution and avoid unnecessary file transfers.
+2. **Temporary Directories**: For batch or HPC execution, it is important to set ``track_changes: False``, which means the pipeline does not track intermediate changes. This setting is essential in order to speed up execution and avoid unnecessary file transfers.
 
 Examples and Resources
 ----------------------

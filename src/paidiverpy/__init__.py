@@ -1,6 +1,6 @@
 """Paidiverpy base package."""
 
-__version__ = "0.2.1"
+__version__ = "0.3.1"
 __author__ = "Tobias Ferreira"
 __credits__ = "National Oceanography Centre"
 from .paidiverpy import Paidiverpy

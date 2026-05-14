@@ -1,16 +1,49 @@
 # Changelog
 
-## [Unreleased](https://github.com/paidiver/paidiverpy/tree/HEAD)
+## [v0.3.0](https://github.com/paidiver/paidiverpy/tree/v0.3.0) (2026-05-14)
 
-[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v.0.2.0...HEAD)
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v.0.2.1...v0.3.0)
+
+**Implemented enhancements:**
+
+- Parallel processing: Avoid computer and gather the results after each step [\#166](https://github.com/paidiver/paidiverpy/issues/166)
+- Apply benchmark test with several image dataset sizes [\#165](https://github.com/paidiver/paidiverpy/issues/165)
+
+**Fixed bugs:**
+
+- Add SLURM Job Submission for Pipeline Runs on HPC Systems [\#64](https://github.com/paidiver/paidiverpy/issues/64)
+
+**Closed issues:**
+
+- Add tests for handle remote data [\#205](https://github.com/paidiver/paidiverpy/issues/205)
 
 **Merged pull requests:**
 
-- Releasev0.2.1 [\#237](https://github.com/paidiver/paidiverpy/pull/237) ([soutobias](https://github.com/soutobias))
+- 165 apply benchmark test with several image dataset sizes [\#240](https://github.com/paidiver/paidiverpy/pull/240) ([soutobias](https://github.com/soutobias))
+
+## [v.0.2.1](https://github.com/paidiver/paidiverpy/tree/v.0.2.1) (2025-09-23)
+
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.2.2...v.0.2.1)
+
+## [v0.2.2](https://github.com/paidiver/paidiverpy/tree/v0.2.2) (2025-09-23)
+
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.2.1...v0.2.2)
+
+## [v0.2.1](https://github.com/paidiver/paidiverpy/tree/v0.2.1) (2025-09-23)
+
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v.0.2.0...v0.2.1)
 
 ## [v.0.2.0](https://github.com/paidiver/paidiverpy/tree/v.0.2.0) (2025-09-18)
 
-[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.1.4...v.0.2.0)
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.2.0...v.0.2.0)
+
+**Closed issues:**
+
+- Correct coverage calculation [\#234](https://github.com/paidiver/paidiverpy/issues/234)
+
+## [v0.2.0](https://github.com/paidiver/paidiverpy/tree/v0.2.0) (2025-09-17)
+
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.1.4...v0.2.0)
 
 **Implemented enhancements:**
 
@@ -28,7 +61,6 @@
 
 **Closed issues:**
 
-- Correct coverage calculation [\#234](https://github.com/paidiver/paidiverpy/issues/234)
 - Link Checker Report - 2025-09-16 [\#231](https://github.com/paidiver/paidiverpy/issues/231)
 - Link Checker Report [\#230](https://github.com/paidiver/paidiverpy/issues/230)
 - Link Checker Report [\#229](https://github.com/paidiver/paidiverpy/issues/229)
@@ -47,24 +79,6 @@
 - Fix and Re-enable SonarCloud Workflow in CI [\#162](https://github.com/paidiver/paidiverpy/issues/162)
 - Include metadata in each image preprocessing step [\#156](https://github.com/paidiver/paidiverpy/issues/156)
 - Add support to load different types of images [\#2](https://github.com/paidiver/paidiverpy/issues/2)
-
-**Merged pull requests:**
-
-- Correct errors on release [\#236](https://github.com/paidiver/paidiverpy/pull/236) ([soutobias](https://github.com/soutobias))
-- Update workflow [\#235](https://github.com/paidiver/paidiverpy/pull/235) ([soutobias](https://github.com/soutobias))
-- Release 0.2.0 [\#233](https://github.com/paidiver/paidiverpy/pull/233) ([soutobias](https://github.com/soutobias))
--  Version0.2.0 [\#232](https://github.com/paidiver/paidiverpy/pull/232) ([soutobias](https://github.com/soutobias))
-- Update code, but change strategy [\#220](https://github.com/paidiver/paidiverpy/pull/220) ([soutobias](https://github.com/soutobias))
-- Correct frontend rendering [\#218](https://github.com/paidiver/paidiverpy/pull/218) ([soutobias](https://github.com/soutobias))
-- Update custom algorithm and add GUI [\#211](https://github.com/paidiver/paidiverpy/pull/211) ([soutobias](https://github.com/soutobias))
-- 186 enhance exif handling in processed images [\#210](https://github.com/paidiver/paidiverpy/pull/210) ([soutobias](https://github.com/soutobias))
-- 187 function to open and export metadata to different formats [\#208](https://github.com/paidiver/paidiverpy/pull/208) ([soutobias](https://github.com/soutobias))
-- 2 add support to load different types of images [\#206](https://github.com/paidiver/paidiverpy/pull/206) ([soutobias](https://github.com/soutobias))
-- New realease with conda forge [\#193](https://github.com/paidiver/paidiverpy/pull/193) ([soutobias](https://github.com/soutobias))
-- Release 0.1.2 [\#181](https://github.com/paidiver/paidiverpy/pull/181) ([soutobias](https://github.com/soutobias))
-- Create new release 0.1.1 [\#153](https://github.com/paidiver/paidiverpy/pull/153) ([soutobias](https://github.com/soutobias))
-- Create a new package release [\#142](https://github.com/paidiver/paidiverpy/pull/142) ([soutobias](https://github.com/soutobias))
-- First package release [\#102](https://github.com/paidiver/paidiverpy/pull/102) ([soutobias](https://github.com/soutobias))
 
 ## [v0.1.4](https://github.com/paidiver/paidiverpy/tree/v0.1.4) (2025-05-13)
 
@@ -95,21 +109,17 @@
 - Create a simple frontend using streamlit for pipeline management [\#25](https://github.com/paidiver/paidiverpy/issues/25)
 - Colour alteration  [\#13](https://github.com/paidiver/paidiverpy/issues/13)
 
-**Merged pull requests:**
-
-- update config validation [\#203](https://github.com/paidiver/paidiverpy/pull/203) ([soutobias](https://github.com/soutobias))
-- 84 increase test coverage [\#202](https://github.com/paidiver/paidiverpy/pull/202) ([soutobias](https://github.com/soutobias))
-- update tests [\#197](https://github.com/paidiver/paidiverpy/pull/197) ([soutobias](https://github.com/soutobias))
-- 194 deploy code on bioconda [\#195](https://github.com/paidiver/paidiverpy/pull/195) ([soutobias](https://github.com/soutobias))
-- 174 create a conda distribution [\#192](https://github.com/paidiver/paidiverpy/pull/192) ([soutobias](https://github.com/soutobias))
-
 ## [v0.1.3](https://github.com/paidiver/paidiverpy/tree/v0.1.3) (2025-03-06)
 
 [Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.1.2...v0.1.3)
 
 ## [v0.1.2](https://github.com/paidiver/paidiverpy/tree/v0.1.2) (2025-03-06)
 
-[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.1.1...v0.1.2)
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/0.1.2...v0.1.2)
+
+## [0.1.2](https://github.com/paidiver/paidiverpy/tree/0.1.2) (2025-03-06)
+
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.1.1...0.1.2)
 
 **Closed issues:**
 
@@ -140,13 +150,6 @@
 - Link Checker Report - 2025-02-12 [\#141](https://github.com/paidiver/paidiverpy/issues/141)
 - Image converting issue [\#137](https://github.com/paidiver/paidiverpy/issues/137)
 - Glossary documentation  [\#22](https://github.com/paidiver/paidiverpy/issues/22)
-
-**Merged pull requests:**
-
-- 163 run sequential and parallel in custom layer is not standardised with the code [\#180](https://github.com/paidiver/paidiverpy/pull/180) ([soutobias](https://github.com/soutobias))
-- 158 update documentation gallery symbols and zenodo link to lastest version [\#175](https://github.com/paidiver/paidiverpy/pull/175) ([soutobias](https://github.com/soutobias))
-- 157 remove double image extension when exporting images [\#171](https://github.com/paidiver/paidiverpy/pull/171) ([soutobias](https://github.com/soutobias))
-- 137 image converting issue [\#159](https://github.com/paidiver/paidiverpy/pull/159) ([Mojtabamsd](https://github.com/Mojtabamsd))
 
 ## [v0.1.1](https://github.com/paidiver/paidiverpy/tree/v0.1.1) (2025-02-12)
 
@@ -193,13 +196,6 @@
 - Lazy load catalog [\#24](https://github.com/paidiver/paidiverpy/issues/24)
 - Add feature to work with images in the cloud/lazy load [\#23](https://github.com/paidiver/paidiverpy/issues/23)
 
-**Merged pull requests:**
-
-- 32 create GitHub actions and add runner [\#133](https://github.com/paidiver/paidiverpy/pull/133) ([soutobias](https://github.com/soutobias))
-- 32 create GitHub actions and add runner [\#127](https://github.com/paidiver/paidiverpy/pull/127) ([soutobias](https://github.com/soutobias))
-- 87 code review [\#110](https://github.com/paidiver/paidiverpy/pull/110) ([soutobias](https://github.com/soutobias))
-- 24 lazy load catalog [\#107](https://github.com/paidiver/paidiverpy/pull/107) ([soutobias](https://github.com/soutobias))
-
 ## [v0.0.2](https://github.com/paidiver/paidiverpy/tree/v0.0.2) (2025-01-14)
 
 [Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.0.1...v0.0.2)
@@ -211,11 +207,6 @@
 - Link Checker Report - 2025-01-01 [\#88](https://github.com/paidiver/paidiverpy/issues/88)
 - Release the first version of the package on pypi [\#65](https://github.com/paidiver/paidiverpy/issues/65)
 - Next step: Citation data [\#42](https://github.com/paidiver/paidiverpy/issues/42)
-
-**Merged pull requests:**
-
-- docs : prepare for the first release [\#103](https://github.com/paidiver/paidiverpy/pull/103) ([soutobias](https://github.com/soutobias))
-- feat : correct citation [\#90](https://github.com/paidiver/paidiverpy/pull/90) ([soutobias](https://github.com/soutobias))
 
 ## [v0.0.1](https://github.com/paidiver/paidiverpy/tree/v0.0.1) (2025-01-13)
 
@@ -261,15 +252,6 @@
 - British or USA english? [\#20](https://github.com/paidiver/paidiverpy/issues/20)
 - Vignette removal  [\#16](https://github.com/paidiver/paidiverpy/issues/16)
 - Create a rename step [\#3](https://github.com/paidiver/paidiverpy/issues/3)
-
-**Merged pull requests:**
-
-- style: correct styling" [\#86](https://github.com/paidiver/paidiverpy/pull/86) ([soutobias](https://github.com/soutobias))
-- style: correct names [\#85](https://github.com/paidiver/paidiverpy/pull/85) ([soutobias](https://github.com/soutobias))
-- 31 create first tests [\#83](https://github.com/paidiver/paidiverpy/pull/83) ([soutobias](https://github.com/soutobias))
-- 64 add slurm job submission for pipeline runs on hpc systems [\#82](https://github.com/paidiver/paidiverpy/pull/82) ([soutobias](https://github.com/soutobias))
-- 77 correct documentation autoapi [\#80](https://github.com/paidiver/paidiverpy/pull/80) ([soutobias](https://github.com/soutobias))
-- feat: add environment.yml fiile and update docs [\#1](https://github.com/paidiver/paidiverpy/pull/1) ([soutobias](https://github.com/soutobias))
 
 
 
