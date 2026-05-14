@@ -20,35 +20,50 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.12'
 
-    - name: Create conda environment
+    - name: Set up Miniconda
+      uses: conda-incubator/setup-miniconda@v3
+      with:
+        environment-file: environment.yml
+        activate-environment: Paidiverpy
+        python-version: '3.12'
+        auto-activate-base: false
+        conda-solver: libmamba
+
+    - name: Configure Conda retries
       run: |
-        conda env create -f environment.yml python=3.12 -y
-        echo "conda activate Paidiverpy" >> ~/.bashrc
-        source ~/.bashrc
-        pip install --upgrade pip
-        pip install .
-        pip install build twine wheel
+        conda config --set remote_read_timeout_secs 60
+        conda config --set remote_connect_timeout_secs 60
+        conda config --set remote_max_retries 3
+
+    - name: Install package
+      run: |
+        conda activate Paidiverpy
+        python -m pip install --upgrade pip
+        python -m pip install -e .
+        python -m pip install build twine wheel
 
     - name: Build Package
-      run: python -m build
+      run: |
+        conda activate Paidiverpy
+        python -m build
 
     - name: Publish to Test PyPI
       env:
         TWINE_USERNAME: "__token__"
         TWINE_PASSWORD: ${{ secrets.TEST_PYPI_PASSWORD }}
-      run: python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+      run: |
+        conda activate Paidiverpy
+        python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
 
     - name: Publish to PyPI
       env:
         TWINE_USERNAME: "__token__"
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-      run: python -m twine upload dist/* --verbose
+      run: |
+        conda activate Paidiverpy
+        python -m twine upload dist/* --verbose
 
   zenodo:
     needs: release
