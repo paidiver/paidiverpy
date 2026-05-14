@@ -131,6 +131,7 @@
                             "$ref": "#/$defs/ColourAlterationParams"
                         },
                         {
+                            "additionalProperties": true,
                             "type": "object"
                         },
                         {
@@ -266,6 +267,7 @@
                             "$ref": "#/$defs/CropParams"
                         },
                         {
+                            "additionalProperties": true,
                             "type": "object"
                         },
                         {
@@ -781,6 +783,7 @@
                 "local_cluster": {
                     "anyOf": [
                         {
+                            "additionalProperties": true,
                             "type": "object"
                         },
                         {
@@ -794,6 +797,7 @@
                 "dask_config_kwargs": {
                     "anyOf": [
                         {
+                            "additionalProperties": true,
                             "type": "object"
                         },
                         {
@@ -1162,6 +1166,7 @@
                             "$ref": "#/$defs/CalculateCornersParams"
                         },
                         {
+                            "additionalProperties": true,
                             "type": "object"
                         },
                         {
@@ -1175,9 +1180,6 @@
                 "mode": {
                     "const": "calculate_corners",
                     "description": "Mode for the position step",
-                    "enum": [
-                        "calculate_corners"
-                    ],
                     "title": "Mode",
                     "type": "string"
                 }
@@ -1346,6 +1348,7 @@
                             "$ref": "#/$defs/SamplingObscureParams"
                         },
                         {
+                            "additionalProperties": true,
                             "type": "object"
                         },
                         {
