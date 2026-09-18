@@ -1,0 +1,13 @@
+name: Refresh brokerage documentation
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  refresh:
+    permissions:
+      contents: read
+    uses: paidiver/brokerage-service/.github/workflows/reusable-trigger-docs.yml@main
+    secrets:
+      docs_dispatch_token: ${{ secrets.BROKERAGE_DOCS_TOKEN }}
