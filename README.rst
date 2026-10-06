@@ -3,7 +3,6 @@
 
 |lifecycle| |License| |Documentation| |DOIlink| |Pypi| |covlink|
 
-
 **Paidiverpy** is a Python package designed to create pipelines for preprocessing image data for biodiversity analysis.
 
 **IMPORTANT: This package is still in active development, and frequent updates and changes are expected. The API and features may evolve as we continue improving it.**

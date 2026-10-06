@@ -49,6 +49,8 @@ You can run your preprocessing pipeline using **Paidiverpy** in several ways, ty
 
        In [7]: pipeline.save_images(image_format="png")
 
+   Please refer to our :doc:`API reference <api/index>` section for more details on the available methods and their usage.
+
 2. **Command Line Interface (CLI)**: Execute the package via the command line.
 
    You can run the package using the CLI with the following command:
@@ -56,6 +58,9 @@ You can run your preprocessing pipeline using **Paidiverpy** in several ways, ty
    .. code-block:: bash
 
        paidiverpy -c "../examples/config_files/config_simple2.yml"
+
+   This command runs the pipeline according to the configuration file, saving output images to the directory defined in the *output_path*.
+   Please refer to our :doc:`CLI and Docker reference <cli_docker>` section for more details on the available methods and their usage.
 
 3. **Docker**: Use the Docker image to run the package.
 
@@ -78,22 +83,7 @@ You can run your preprocessing pipeline using **Paidiverpy** in several ways, ty
    - `<CONFIG_DIR>`: Local directory containing the configuration file.
    - `<CONFIG_FILE>`: Name of the configuration file.
 
-   If you are using remote data from an object store, it is not necessary to create volumes for the remote data. However, if you want to upload images to an object store, you need to pass an environment file in the `docker run` command, as shown below:
-
-   .. code-block:: bash
-
-        docker run --rm \
-          -v <CONFIG_DIR>:/app/config_files/ \
-          --env-file .env \
-          paidiverpy -c /app/examples/config_files/<CONFIG_FILE>
-
-   In this case, you have to create a `.env` file with your object store credentials:
-
-   .. code-block:: text
-
-        OS_SECRET=your_secret
-        OS_TOKEN=your_token
-        OS_ENDPOINT=your_endpoint
+   Please refer to our :doc:`CLI and Docker reference <cli_docker>` section for more details on the available methods and their usage.
 
 4. **GUI**: Use the graphical user interface to run the package.
 

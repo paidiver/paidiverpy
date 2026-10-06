@@ -81,7 +81,8 @@ Contains the general information about the pipeline, such as the input and outpu
 You can also pass the following parameters to the `general` section:
 
 - `n_jobs`: The number of parallel jobs to run. By default, it is set to 1. If you have a multi-core machine, you can increase this number to speed up the processing. If set to -1, it will use all available cores. More information on parallel processing, please refer to the :ref:`guide_performance`.
-- `client`: The Dask client to use for parallel processing. If not provided, it will use the default client. More information on parallel processing, please refer to the :ref:`guide_performance`.
+- `local_cluster`: Parameters for the local Dask cluster used in interactive or local runs. More information on parallel processing, please refer to the :ref:`guide_performance`.
+- `dask_config_kwargs`: Optional Dask configuration overrides applied before the pipeline creates its client. More information on parallel processing, please refer to the :ref:`guide_performance`.
 - `track_changes`: If set to `True`, the pipeline will track the changes made to the images at each step. This can be useful for debugging or understanding the processing steps. By default, it is set to `True`.
 - `rename`: If set to a value, the output images will be renamed using the specified type. This can be useful for organizing the output images. By default, it is set to `None`. More information on renaming images, please refer to the :ref:`guide_rename_images`.
 - `append_data_to_metadata`: It is related to a path of a file with additional metadata to be appended to the metadata file. More information on appending metadata, please refer to the :ref:`images_metadata`.

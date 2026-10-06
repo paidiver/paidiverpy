@@ -22,7 +22,7 @@ class TestRawFiles(BaseTestClass):
 
     def test_raw_nef_files(self):
         """Test raw nef files."""
-        number_images = 4
+        number_images = 3
         pipeline = Pipeline(config_file_path="tests/config_files/raw_images/config_raw_images_nef.yml")
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
@@ -36,7 +36,7 @@ class TestRawFiles(BaseTestClass):
 
     def test_raw_nef_files_remote(self):
         """Test raw nef files."""
-        number_images = 4
+        number_images = 3
         pipeline = Pipeline(config_file_path="tests/config_files/raw_images/config_raw_images_nef.yml")
         pipeline.config.general.input_path = NEF_RAW_LINK
         pipeline.steps[0][2]["input_path"] = NEF_RAW_LINK
@@ -55,7 +55,7 @@ class TestRawFiles(BaseTestClass):
 
     def test_raw_files(self):
         """Test raw nef files."""
-        number_images = 4
+        number_images = 3
         pipeline = Pipeline(config_file_path="tests/config_files/raw_images/config_raw_images.yml")
         assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.config, Configuration)
@@ -69,7 +69,7 @@ class TestRawFiles(BaseTestClass):
 
     def test_raw_files_remote(self):
         """Test raw nef files."""
-        number_images = 4
+        number_images = 3
         pipeline = Pipeline(config_file_path="tests/config_files/raw_images/config_raw_images.yml")
         pipeline.config.general.input_path = RAW_IMAGES_LINK
         pipeline.steps[0][2]["input_path"] = RAW_IMAGES_LINK

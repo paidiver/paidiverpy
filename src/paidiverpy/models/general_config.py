@@ -6,7 +6,6 @@ from typing import ClassVar
 from typing import Literal
 from pydantic import Field
 from pydantic import model_validator
-from paidiverpy.models.client_params import ClientParams
 from paidiverpy.models.open_params import ImageOpenArgs
 from paidiverpy.models.step_config import ConvertConfig
 from paidiverpy.models.step_config import SamplingConfig
@@ -57,8 +56,13 @@ class GeneralConfig(BaseModel):
         description=("Metadata conventions to apply. If not provided, it will use the default conventions name described in the documentation."),
     )
     n_jobs: int = Field(1, description="Number of jobs for parallel processing")
-    client: None | ClientParams = Field(default=None, description=("Dask Client configuration. If None, it will not use Dask Client."))
-
+    local_cluster: dict[str, Any] | None = Field(None, description="Parameters for the local cluster")
+    dask_config_kwargs: dict[str, Any] | None = Field(
+        None,
+        description=(
+            "Dask configuration keyword arguments. If provided, it will be used to update the Dask configuration settings."
+        ),
+    )
     track_changes: bool = Field(True, description="Whether to track config changes. If True, it will store in memory the output images on each step")
     rename: Literal["UUID", "datetime"] | None = Field(
         None, description="Field name to use for renaming. If not provided, the name will be the same as the input file name."

@@ -50,6 +50,5 @@ jobs:
 
           git commit -m "chore: update json schema"
 
-          # Make sure we are up to date
           git pull --rebase origin dev
           git push origin dev

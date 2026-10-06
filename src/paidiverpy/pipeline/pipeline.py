@@ -18,7 +18,7 @@ from paidiverpy.utils import formating_html
 from paidiverpy.utils.docker import is_running_in_docker
 from paidiverpy.utils.exceptions import raise_value_error
 from paidiverpy.utils.install_packages import check_and_install_dependencies
-from paidiverpy.utils.parallellisation import parse_client
+from paidiverpy.utils.parallellisation import parse_parallellisation_params
 
 STEP_WITHOUT_PARAMS = 2
 STEP_WITH_PARAMS = 3
@@ -69,7 +69,7 @@ class Pipeline(Paidiverpy):
             raise_error=raise_error,
             verbose=verbose,
         )
-        self.client = parse_client(self.config.general.client, self.config.general.n_jobs)
+        self.client = parse_parallellisation_params(self.config.general)
         if steps is None:
             steps = self._convert_config_to_steps()
         else:
@@ -85,13 +85,14 @@ class Pipeline(Paidiverpy):
         self.steps = steps
         self.runned_steps = -1
 
-    def run(self, from_step: int | None = None, close_client: bool = True) -> None:
+    def run(self, from_step: int | None = None, close_client: bool = True, save_images: bool = False) -> None:
         """Run the pipeline.
 
         Args:
             from_step (int, optional): The step to start from. Defaults to None,
                 which means the pipeline will start from the last runned step.
             close_client (bool, optional): Whether to close the client. Defaults to True.
+            save_images (bool, optional): Whether to save the images after running the pipeline. Defaults to False.
 
         Raises:
             ValueError: No steps defined for the pipeline
@@ -101,44 +102,60 @@ class Pipeline(Paidiverpy):
         self._validate_from_step(from_step)
         self._log_client_info()
 
+        self._run_steps()
+        self._compute_images()
+        if save_images:
+            self.save_images()
+
+        # if self.use_dask:
+        #     self.images.images.compute()
+        if self.client is not None and close_client:
+            self.client.close()
+
+    def _run_steps(self) -> None:
+        """Run the configured processing steps."""
         for index, step in enumerate(self.steps):
-            if index > self.runned_steps:
-                step_name, step_class, step_params = self._get_steps_params(step)
-                self.logger.info(
-                    "Running step %s: %s - %s",
-                    index,
-                    step_name,
-                    step_class.__name__,
+            if index <= self.runned_steps:
+                continue
+
+            step_name, step_class, step_params = self._get_steps_params(step)
+            self.logger.info(
+                "Running step %s: %s - %s",
+                index,
+                step_name,
+                step_class.__name__,
+            )
+            step_params["step_name"] = self._get_step_name(step_class)
+            step_params["name"] = step_name
+            if step_name == "raw":
+                step_instance = step_class(
+                    paidiverpy=self,
+                    step_name=step_name,
+                    parameters=step_params,
                 )
-                step_params["step_name"] = self._get_step_name(step_class)
-                step_params["name"] = step_name
-                if step_name == "raw":
-                    step_instance = step_class(
-                        paidiverpy=self,
-                        step_name=step_name,
-                        parameters=step_params,
-                    )
-                    self.set_metadata(dataset_metadata={"input_path": str(self.config.general.input_path)})
-                elif step_class.__name__ == "CustomLayer":
-                    step_instance = self.process_custom_algorithm(step_params, index - 1)
-                else:
-                    step_instance = step_class(
-                        paidiverpy=self,
-                        step_name=step_name,
-                        parameters=step_params,
-                        config_index=index - 1,
-                    )
-                step_instance.run()
-                test = getattr(step_instance, "test", False)
-                if not test:
-                    self.images = step_instance.images
-                    self.metadata = step_instance.metadata
-                    self.runned_steps = index
-                self.logger.info("Step %s completed", index)
+                self.set_metadata(dataset_metadata={"input_path": str(self.config.general.input_path)})
+            elif step_class.__name__ == "CustomLayer":
+                step_instance = self.process_custom_algorithm(step_params, index - 1)
+            else:
+                step_instance = step_class(
+                    paidiverpy=self,
+                    step_name=step_name,
+                    parameters=step_params,
+                    config_index=index - 1,
+                )
+            step_instance.run()
+            test = getattr(step_instance, "test", False)
+            if not test:
+                self.images = step_instance.images
+                self.metadata = step_instance.metadata
+                self.runned_steps = index
+            self.logger.info("Step %s completed", index)
 
-                del step_instance
-                gc.collect()
+            del step_instance
+            gc.collect()
 
+    def _compute_images(self) -> None:
+        """Materialize any dask-backed images after the step pipeline finishes."""
         if self.use_dask:
             if self.client is not None:
                 future = self.client.compute(self.images.images)
@@ -149,11 +166,6 @@ class Pipeline(Paidiverpy):
                     self.images.set_images(dask.compute(self.images.images))
         if isinstance(self.images.images, tuple):
             self.images.set_images(self.images.images[0])
-
-        # if self.use_dask:
-        #     self.images.images.compute()
-        if self.client is not None and close_client:
-            self.client.close()
 
     def process_custom_algorithm(self, step_params: dict[str, Any], config_index: int) -> CustomLayer:
         """Process a custom algorithm.

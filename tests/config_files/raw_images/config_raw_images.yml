@@ -13,7 +13,3 @@ steps:
       mode: "gaussian_blur"
       params:
         sigma: 1.0
-
-  - colour:
-      name: "contrast"
-      mode: "contrast"

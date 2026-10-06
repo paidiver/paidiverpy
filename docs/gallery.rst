@@ -39,7 +39,7 @@ Notebook Examples
                     :fas:`file-arrow-down` Download notebook
 
     .. grid-item-card:: Processing images without a pipeline
-        :img-top: _static/nb_examples_2.png
+        :img-top: _static/nb_examples_2.jpg
 
         |mode_standard|
         ^^^
@@ -114,7 +114,7 @@ Notebook Examples
                     :fas:`file-arrow-down` Download notebook
 
     .. grid-item-card:: Generate the pipeline without a configuration file
-        :img-top: _static/nb_examples_5.png
+        :img-top: _static/nb_examples_5.jpg
 
         |mode_expert|
         ^^^
@@ -189,7 +189,7 @@ Notebook Examples
                     :fas:`file-arrow-down` Download notebook
 
     .. grid-item-card:: Example with real data and IFDO metadata
-        :img-top: _static/nb_examples_8.png
+        :img-top: _static/nb_examples_8.jpg
 
         |mode_standard|
         ^^^
@@ -265,7 +265,7 @@ Notebook Examples
 
 
     .. grid-item-card:: Create a LocalCluster with Dask
-        :img-top: _static/nb_examples_11.png
+        :img-top: _static/nb_examples_11.jpg
 
         |mode_expert|
         ^^^
@@ -290,7 +290,7 @@ Notebook Examples
                     :fas:`file-arrow-down` Download notebook
 
     .. grid-item-card:: Working With Raw Images
-        :img-top: _static/nb_examples_12.png
+        :img-top: _static/nb_examples_12.jpg
 
         |mode_expert|
         ^^^
@@ -315,7 +315,7 @@ Notebook Examples
                     :fas:`file-arrow-down` Download notebook
 
     .. grid-item-card:: Exporting and Validating Metadata
-        :img-top: _static/nb_examples_13.png
+        :img-top: _static/nb_examples_13.jpg
 
         |mode_standard|
         ^^^

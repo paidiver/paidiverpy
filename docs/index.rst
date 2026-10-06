@@ -60,6 +60,7 @@ Documentation
     :caption: Help & Reference
 
     contributing
+    cli_docker
     api
 
 

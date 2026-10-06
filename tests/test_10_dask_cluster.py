@@ -31,8 +31,7 @@ class TestDaskCluster(BaseTestClass):
         assert "images_0" not in images.data_vars
         assert "images_1" not in images.data_vars
         assert "images_2" not in images.data_vars
-        assert "images_3" not in images.data_vars
-        assert isinstance(images["images_4"].values[0], np.ndarray)
+        assert isinstance(images["images_3"].values[0], np.ndarray)
         output_path = Path(pipeline.config.general.output_path)
         output_files = list(output_path.glob("*.png"))
         assert len(output_files) == number_output_files

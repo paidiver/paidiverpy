@@ -127,24 +127,11 @@ def update_yaml(file_path: str | Path, cluster_type: str | None, output_file: st
     with Path(file_path).open() as f:
         config = yaml.safe_load(f)
 
-    if cluster_type == "slurm":
-        cores = kwargs.get("cores", 1)
-        processes = kwargs.get("processes", 1)
-        memory = kwargs.get("memory", 1)
-        walltime = kwargs.get("walltime", "00:15:00")
-        queue = kwargs.get("queue", "par-single")
-        config["general"]["client"] = {
-            "cluster_type": cluster_type,
-            "params": {"cores": cores, "processes": processes, "memory": f"{memory}GB", "walltime": walltime, "queue": queue},
-        }
-    elif cluster_type == "local":
+    if cluster_type == "local":
         workers = kwargs.get("workers", 1)
         threads = kwargs.get("threads", 1)
         memory = kwargs.get("memory", 1)
-        config["general"]["client"] = {
-            "cluster_type": cluster_type,
-            "params": {"n_workers": workers, "threads_per_worker": threads, "memory_limit": f"{memory}GB"},
-        }
+        config["general"]["local_cluster"] = {"n_workers": workers, "threads_per_worker": threads, "memory_limit": f"{memory}GB"}
     config["general"]["n_jobs"] = n_jobs
 
     with Path(output_file).open("w") as f:
@@ -189,7 +176,6 @@ def benchmark_threads(benchmark_params: dict[str, Any], configuration_file: str 
         gc.collect()
     return benchmark_results
 
-
 def benchmark_local(benchmark_params: dict[str, Any], configuration_file: str | Path, logger: logging.Logger) -> list[dict[str, Any]]:
     """Handle the benchmark test for LocalCluster.
 
@@ -208,7 +194,7 @@ def benchmark_local(benchmark_params: dict[str, Any], configuration_file: str | 
     memory_limit = benchmark_params.get("memory_limit", [1])
     n_jobs = benchmark_params.get("n_jobs", [2])
     for workers, threads, memory, n_job in itertools.product(n_workers, threads_per_worker, memory_limit, n_jobs):
-        output_file = f"config_{cluster_type}_{workers}_{threads}_{memory}_{n_jobs}.yml"
+        output_file = f"config_{cluster_type}_{workers}_{threads}_{memory}_{n_job}.yml"
 
         updated_config_file = update_yaml(
             file_path=configuration_file,
@@ -237,58 +223,6 @@ def benchmark_local(benchmark_params: dict[str, Any], configuration_file: str | 
     return benchmark_results
 
 
-def benchmark_slurm(benchmark_params: dict[str, Any], configuration_file: str | Path, logger: logging.Logger) -> list[dict[str, Any]]:
-    """Handle the benchmark test for SLURM.
-
-    Args:
-        benchmark_params (dict): The benchmark parameters.
-        configuration_file (str | Path): The path to the configuration files.
-        logger (logging.Logger): The logger to log messages.
-
-    Returns:
-        list: The benchmark results.
-    """
-    benchmark_results: list[dict[str, Any]] = []
-    cluster_type = "slurm"
-    cores = benchmark_params.get("cores", [1])
-    processes = benchmark_params.get("processes", [1])
-    memory = benchmark_params.get("memory", [1])
-    walltime = benchmark_params.get("walltime", "00:30:00")
-    queue = benchmark_params.get("queue", "par-single")
-    n_jobs = benchmark_params.get("n_jobs", [2])
-    for core, proc, mem, n_job in itertools.product(cores, processes, memory, n_jobs):
-        output_file = f"config_{cluster_type}_{core}_{proc}_{mem}_{n_job}.yml"
-
-        updated_config_file = update_yaml(
-            file_path=configuration_file,
-            cluster_type=cluster_type,
-            output_file=output_file,
-            n_jobs=n_job,
-            cores=core,
-            processes=proc,
-            memory=mem,
-            walltime=walltime,
-            queue=queue,
-        )
-
-        logger.info("Running benchmark test with %s cores, %s processes, %sGB memory, %s scale", core, proc, mem, n_job)
-        start_time, end_time = benchmark_task(updated_config_file, logger)
-        logger.info("Benchmark test completed")
-        time_taken = round(end_time - start_time, 2)
-        logger.info("Time taken: %s seconds", time_taken)
-        results = {
-            "cpus": core,
-            "processes": proc,
-            "memory": mem,
-            "scale": n_job,
-            "time_taken": time_taken,
-        }
-
-        benchmark_results.append(results)
-
-    return benchmark_results
-
-
 def benchmark_handler(benchmark_params: dict[str, Any], configuration_file: str | Path, logger: logging.Logger) -> None:
     """Handle the benchmark test.
 
@@ -300,15 +234,16 @@ def benchmark_handler(benchmark_params: dict[str, Any], configuration_file: str 
     logger.info("Starting benchmark test")
     configuration_file = Path(configuration_file)
     cluster_type = benchmark_params.get("cluster_type", "threads")
-    if cluster_type == "slurm":
-        logger.info("Running benchmark test on SLURM cluster")
-        benchmark_results = benchmark_slurm(benchmark_params, configuration_file, logger)
-    elif cluster_type == "local":
+    if cluster_type == "local":
         logger.info("Running benchmark test on LocalCluster")
         benchmark_results = benchmark_local(benchmark_params, configuration_file, logger)
     else:
         logger.info("Running benchmark test using threads")
         benchmark_results = benchmark_threads(benchmark_params, configuration_file, logger)
+
+    if not benchmark_results:
+        logger.info("Benchmark job was submitted to Slurm. Results will be written by the batch job.")
+        return
 
     logger.info("Benchmark test completed. Test results:")
     for result in benchmark_results:
