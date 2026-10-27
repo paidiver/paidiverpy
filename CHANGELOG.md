@@ -1,6 +1,6 @@
 # Changelog
 
-## [v0.4.0](https://github.com/paidiver/paidiverpy/tree/HEAD)
+## [Unreleased](https://github.com/paidiver/paidiverpy/tree/HEAD)
 
 [Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.3.1...HEAD)
 
