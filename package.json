@@ -1,0 +1,11 @@
+{
+  "name": "paidiverpy-frontend-quality",
+  "private": true,
+  "scripts": {
+    "format:frontend": "prettier --write \"src/paidiverpy/dashboard/static/**/*.{html,js}\" \"src/paidiverpy/utils/static/**/*.{html,js}\"",
+    "check:frontend": "prettier --check \"src/paidiverpy/dashboard/static/**/*.{html,js}\" \"src/paidiverpy/utils/static/**/*.{html,js}\""
+  },
+  "devDependencies": {
+    "prettier": "3.6.2"
+  }
+}

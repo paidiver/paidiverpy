@@ -51,6 +51,12 @@ jobs:
           python -m pip install -e .
           python -m pip install -e ".[test]"
           python -m pip install -e ".[dev,publishing]"
+          python -m pip install -e ".[gui]"
+
+      - name: Verify dashboard CLI
+        run: |
+          conda activate Paidiverpy
+          paidiverpy --gui --help
 
       - name: Test with pytest
         run: |

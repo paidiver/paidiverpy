@@ -87,18 +87,18 @@ You can run your preprocessing pipeline using **Paidiverpy** in several ways, ty
 
 4. **GUI**: Use the graphical user interface to run the package.
 
-   You need to have the `panel` package installed to use the GUI. If you don't have it installed, you can do so with the following command:
+   Install the optional GUI dependencies with:
 
    .. code-block:: text
 
-        pip install panel
+        pip install "paidiverpy[gui]"
 
    With the package installed, you can run the package using the GUI by executing the following command:
 
    .. code-block:: bash
 
-        paidiverpy -gui
+        paidiverpy --gui
 
 
-   The GUI will open in your default web browser, where you can select your configuration file and run the pipeline interactively.
+   Open ``http://127.0.0.1:8792`` in your browser to configure and run the pipeline interactively.
    More details on the GUI can be found in the :ref:`gui` section.

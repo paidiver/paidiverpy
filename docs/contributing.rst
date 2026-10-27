@@ -185,14 +185,14 @@ Then set your fork to track the upstream paidiverpy repo.
     $ cd paidiverpy
     $ git remote add upstream git://github.com/paidiver/paidiverpy.git
 
-You will want to periodically sync your master branch with the upstream master.
+You will want to periodically sync your main branch with the upstream main branch.
 
 .. code-block:: bash
 
     $ git fetch upstream
-    $ git rebase upstream/master
+    $ git rebase upstream/main
 
-**Never make any commits on your local master branch**. Instead open a feature
+**Never make any commits on your local main branch**. Instead open a feature
 branch for every new development task.
 
 .. code-block:: bash
@@ -220,16 +220,53 @@ gladly merge it.
 
 .. _pull request: https://help.github.com/articles/using-pull-requests/
 
-After your pull request is merged, you can switch back to the master branch,
+After your pull request is merged, you can switch back to the main branch,
 rebase, and delete your feature branch. You will find your new feature
 incorporated into paidiverpy.
 
 .. code-block:: bash
 
-    $ git checkout master
+    $ git checkout main
     $ git fetch upstream
-    $ git rebase upstream/master
+    $ git rebase upstream/main
     $ git branch -d cool_new_feature
+
+Creating a release
+------------------
+
+Releases are automated by ``.github/workflows/release.yml``. The workflow runs
+when a tag beginning with ``v`` is pushed, verifies that the tag matches the
+version in ``pyproject.toml``, builds and checks the source and wheel
+distributions, publishes them to PyPI, and creates a GitHub Release with
+generated release notes and the distributions attached.
+
+Before using the workflow for the first time, configure a PyPI Trusted
+Publisher with these values:
+
+- **Owner:** ``paidiver``
+- **Repository:** ``paidiverpy``
+- **Workflow:** ``release.yml``
+- **Environment:** ``pypi``
+
+Create an environment named ``pypi`` in the GitHub repository as well. Optional
+deployment protection rules can require a maintainer to approve the PyPI job.
+The workflow uses short-lived OpenID Connect credentials, so ``PYPI_PASSWORD``
+and ``TEST_PYPI_PASSWORD`` repository secrets are not required.
+
+To prepare and publish a patch release, for example:
+
+.. code-block:: bash
+
+    git switch main
+    git pull --ff-only
+    bump-my-version bump patch
+    git push origin main
+    git push origin vX.Y.Z
+
+Replace ``vX.Y.Z`` with the tag created by ``bump-my-version``. Use ``minor`` or
+``major`` instead of ``patch`` when appropriate. Pushing the tag is the release
+operation; do not create the GitHub Release manually. If the tag does not match
+the package version exactly, the workflow stops before publishing.
 
 .. _contributing.dev_env:
 

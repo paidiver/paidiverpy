@@ -322,28 +322,51 @@ def numpy_array_to_base64(
     Returns:
         str: The base64 image
     """
+    image_bytes, img_format = numpy_array_to_image_bytes(image_array, size)
+    img_str = base64.b64encode(image_bytes).decode("utf-8")
+    return f"data:image/{img_format.lower()};base64,{img_str}"
+
+
+def numpy_array_to_image_bytes(
+    image_array: np.ndarray[Any, Any] | da.core.Array,
+    size: tuple[int, int] | None = None,
+) -> tuple[bytes, str]:
+    """Convert an image array into encoded preview bytes.
+
+    This is the renderer shared by notebook/Panel HTML and the web dashboard.
+    It computes Dask arrays lazily and supports grayscale, RGB and RGBA data.
+
+    Args:
+        image_array: Image values with a final channel dimension.
+        size: Optional maximum thumbnail dimensions.
+
+    Returns:
+        Encoded image bytes and the Pillow format name.
+    """
     if isinstance(image_array, da.core.Array):
         image_array = image_array.compute()
     if image_array.dtype != np.uint8:
         image_array = image_array.astype(np.uint8)
-    if image_array.shape[-1] == NUM_CHANNELS_GREY:
+    channels = image_array.shape[-1] if image_array.ndim == NUM_DIMENSIONS else NUM_CHANNELS_GREY
+    if channels == NUM_CHANNELS_GREY and image_array.ndim == NUM_DIMENSIONS:
         image_array = np.squeeze(image_array, axis=-1)
     if image_array.ndim == NUM_DIMENSIONS_GREY:
         pil_img = Image.fromarray(image_array, mode="L")
-    elif image_array.shape[-1] == NUM_CHANNELS_RGBA:
+        img_format = "JPEG"
+    elif channels == NUM_CHANNELS_RGBA:
+        image_array = image_array.copy()
         if image_array[:, :, 3].max() <= 1:
             image_array[:, :, 3] = (image_array[:, :, 3] * 255).astype(np.uint8)
-        # image_array = cv2.cvtColor(image_array, cv2.COLOR_BGRA2RGBA)
         pil_img = Image.fromarray(image_array, mode="RGBA")
+        img_format = "PNG"
     else:
         pil_img = Image.fromarray(image_array, mode="RGB")
+        img_format = "JPEG"
     if size:
         pil_img.thumbnail(size)
     buffer = BytesIO()
-    img_format = "PNG" if image_array.ndim == NUM_DIMENSIONS and image_array.shape[-1] == NUM_CHANNELS_RGBA else "JPEG"
     pil_img.save(buffer, format=img_format)
-    img_str = base64.b64encode(buffer.getvalue()).decode("utf-8")
-    return f"data:image/{img_format.lower()};base64,{img_str}"
+    return buffer.getvalue(), img_format
 
 
 def _json_to_html(data: dict[str, Any] | list[Any]) -> str:
@@ -432,7 +455,7 @@ def style_json_yaml(value: Any) -> str:  # noqa: ANN401
     Returns:
         str: The styled value.
     """
-    import pandas as pd
+    import pandas as pd  # noqa: PLC0415 - keep pandas lazy for lightweight HTML rendering
 
     if isinstance(value, str):
         output = f'<span class="ppy-json-string">"{escape(value)}"</span>'
