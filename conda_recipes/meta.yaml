@@ -1,6 +1,5 @@
-{% set sha256 = "5496fb8a4b208654e9275eeeed0ef9a0b2c4e5e830f996c3e2d6556ef52a3ee3" %}
 {% set python_min = "3.10" %}
-{% set version = "0.3.1" %}
+{% set version = "0.4.0" %}
 {% set name = "paidiverpy" %}
 package:
   name: {{ name|lower }}
