@@ -1,8 +1,8 @@
 # Changelog
 
-## [Unreleased](https://github.com/paidiver/paidiverpy/tree/HEAD)
+## [v0.4.0](https://github.com/paidiver/paidiverpy/tree/v0.4.0) (2026-10-27)
 
-[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.3.1...HEAD)
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.3.1...v0.4.0)
 
 **Merged pull requests:**
 
