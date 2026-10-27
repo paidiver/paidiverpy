@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased](https://github.com/paidiver/paidiverpy/tree/HEAD)
+
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.3.1...HEAD)
+
+**Merged pull requests:**
+
+- Dashboard update [\#245](https://github.com/paidiver/paidiverpy/pull/245) ([soutobias](https://github.com/soutobias))
+
 ## [v0.3.1](https://github.com/paidiver/paidiverpy/tree/v0.3.1) (2026-05-14)
 
 [Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.3.0...v0.3.1)
