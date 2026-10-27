@@ -154,6 +154,15 @@ If you want to do a full clean build, do:
     make clean
     make html
 
+Sphinx normally downloads and caches external intersphinx inventories so that
+API names can link to the Python, NumPy, Pandas, Matplotlib and IPython
+documentation. Each request has a short timeout. If internet access is
+unavailable or restricted, skip those downloads with:
+
+.. code-block:: bash
+
+    make html-offline
+
 
 .. _working.code:
 

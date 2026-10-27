@@ -10,7 +10,7 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
+import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
@@ -142,13 +142,19 @@ nbsphinx_thumbnails = {
 
 # -- Options for Intersphinx
 
-intersphinx_mapping = {
+intersphinx_mapping = {} if os.environ.get("PAIDIVERPY_DOCS_OFFLINE") else {
     'IPython': ('https://ipython.readthedocs.io/en/stable/', None),
-    'matplotlib': ('https://matplotlib.org/', None),
-    'numpy': ('https://docs.scipy.org/doc/numpy/', None),
+    'matplotlib': ('https://matplotlib.org/stable/', None),
+    'numpy': ('https://numpy.org/doc/stable/', None),
     'pandas': ('https://pandas.pydata.org/docs/', None),
     'python': ('https://docs.python.org/3/', None),
 }
+
+# Never allow an unavailable external documentation server to block a build
+# indefinitely. Successfully downloaded inventories remain in Sphinx's cached
+# build environment and are refreshed at most once every 30 days.
+intersphinx_timeout = 5
+intersphinx_cache_limit = 30
 
 autodoc_default_options = {
     "member-order": "bysource",
