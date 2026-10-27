@@ -27,11 +27,10 @@ assignees: ''
 
 # Publish the release
 
-- [ ] ["Draft a new release"](https://github.com/paidiver/paidiverpy/releases/new) on GitHub.
-Choose a release tag vX.Y.Z, fill in the release title and click on the `Auto-generate release notes` button.
-This will trigger the [publish Github action](https://github.com/paidiver/paidiverpy/blob/main/.github/workflows/release.yml) that will push the release on [Pypi](https://pypi.org/project/paidiverpy/#history).
+- [ ] Push the version tag created by ``bump-my-version``: ``git push origin vX.Y.Z``.
+This triggers the [release workflow](https://github.com/paidiver/paidiverpy/actions/workflows/release.yml), which validates and builds the package, publishes it to [PyPI](https://pypi.org/project/paidiverpy/#history), and creates the GitHub Release with generated notes and distribution files.
 - [ ] Last check if the release version on the files is correct and that the [documentation is ready](https://readthedocs.org/projects/paidiverpy/builds/)
-- [ ] Publish !
+- [ ] Confirm that the release workflow completed successfully.
 - [ ] Checkout on [Pypi](https://pypi.org/project/paidiverpy/#history) and [Conda](https://github.com/conda-forge/paidiverpy-feedstock/pulls) that the new release is distributed (Conda is not implemented yet)
 
 [![Publish on pypi](https://github.com/paidiver/paidiverpy/actions/workflows/release.yml/badge.svg)](https://github.com/paidiver/paidiverpy/actions/workflows/release.yml)
