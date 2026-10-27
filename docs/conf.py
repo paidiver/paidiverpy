@@ -61,7 +61,13 @@ templates_path = ["_templates"]
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = [
+    "_build",
+    "**/.ipynb_checkpoints/**",
+    "**/*-checkpoint*",
+    "Thumbs.db",
+    ".DS_Store",
+]
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
@@ -72,6 +78,10 @@ autoapi_dirs = ["../src/paidiverpy"]
 autoapi_root = 'api'
 
 autoapi_keep_files = True
+autoapi_ignore = [
+    "*/.ipynb_checkpoints/*",
+    "*/*-checkpoint.py",
+]
 autoapi_options = [
     # "members",
     # "undoc-members",
@@ -83,10 +93,6 @@ autoapi_options = [
     "no-inherited-members",
     "no-class-attributes",
 ]
-
-# autoapi_ignore = [
-#     "paidiverpy.metadata_parser.metadata_parser",  # Exclude it as a submodule
-# ]
 
 # -- Options for HTML output ----------------------------------------------
 
