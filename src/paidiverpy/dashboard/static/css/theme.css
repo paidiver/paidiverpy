@@ -1,0 +1,21 @@
+/* Change these tokens to retheme the entire dashboard. */
+:root {
+  --navy: #092f49;
+  --navy-2: #123f5c;
+  --ocean: #007f95;
+  --aqua: #11a9b7;
+  --aqua-soft: #e1f5f6;
+  --coral: #ef7657;
+  --sand: #f5f2ea;
+  --ink: #14232e;
+  --muted: #62727e;
+  --line: #dce4e7;
+  --paper: #ffffff;
+  --success: #25805b;
+  --danger: #bd493b;
+  --warning: #805b18;
+  --radius-control: 9px;
+  --radius: 14px;
+  --shadow: 0 10px 30px rgba(9, 47, 73, 0.08);
+  --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}

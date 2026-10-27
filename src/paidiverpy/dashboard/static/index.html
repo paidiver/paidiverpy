@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Paidiverpy Dashboard</title>
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/general-steps.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Paidiverpy dashboard home">
+        <img
+          src="https://paidiverpy.readthedocs.io/en/latest/_static/logo_paidiver_docs.png"
+          alt="Paidiverpy logo"
+        />
+      </a>
+      <nav class="tabs" aria-label="Workspace views">
+        <button data-tab="yaml">YAML</button>
+        <button class="active" data-tab="log">Log</button>
+        <button data-tab="images">Images</button>
+        <button data-tab="metadata">Metadata</button>
+        <button data-tab="summary">Summary</button>
+        <button data-tab="files">Demos</button>
+      </nav>
+      <div class="run-actions">
+        <button id="clear" class="quiet">Clear</button>
+        <button id="stop" class="danger" disabled>Stop</button>
+        <button id="run" class="primary">▶ Run pipeline</button>
+      </div>
+    </header>
+    <main class="workspace">
+      <section class="builder" aria-label="Pipeline builder">
+        <div class="builder-head">
+          <div>
+            <h1>Pipeline builder</h1>
+          </div>
+          <span id="validation" class="status">Loading…</span>
+        </div>
+        <details class="settings" open>
+          <summary>
+            <span>General settings</span>
+            <span id="general-run-status" class="step-run-status"></span>
+          </summary>
+          <div id="general-fields" class="form-grid"></div>
+          <div class="initial-processors">
+            <div class="initial-section">
+              <div class="initial-head">
+                <div>
+                  <b>Initial sampling</b>
+                  <small>Sample images while loading the dataset.</small>
+                </div>
+                <div class="initial-add">
+                  <select id="general-sampling-mode"></select>
+                  <button id="add-general-sampling">＋ Add</button>
+                </div>
+              </div>
+              <div id="general-sampling" class="initial-list"></div>
+            </div>
+            <div class="initial-section">
+              <div class="initial-head">
+                <div>
+                  <b>Initial conversion</b>
+                  <small>Convert images while loading the dataset.</small>
+                </div>
+                <div class="initial-add">
+                  <select id="general-convert-mode"></select>
+                  <button id="add-general-convert">＋ Add</button>
+                </div>
+              </div>
+              <div id="general-convert" class="initial-list"></div>
+            </div>
+          </div>
+        </details>
+        <div id="steps" class="steps"></div>
+        <div class="add-row">
+          <select id="step-category"></select>
+          <select id="step-mode"></select>
+          <button id="add-step">＋ Add step</button>
+        </div>
+      </section>
+      <section class="content">
+        <section class="panel" data-panel="yaml" hidden>
+          <div class="panel-head">
+            <div>
+              <h2>Pipeline YAML</h2>
+            </div>
+            <div class="inline">
+              <input id="config-name" placeholder="pipeline-name" />
+              <button id="save">Save</button>
+              <select id="saved-configs">
+                <option value="">Open saved…</option>
+              </select>
+            </div>
+          </div>
+          <textarea id="yaml" spellcheck="false" aria-label="Editable pipeline YAML"></textarea>
+        </section>
+        <section class="panel log-panel" data-panel="log">
+          <div class="panel-head">
+            <div>
+              <h2>Run log</h2>
+            </div>
+            <span id="run-state" class="run-state">Ready</span>
+          </div>
+          <div id="memory-meter" class="memory-meter" hidden>
+            <div class="memory-stats">
+              <span>
+                RAM
+                <b id="memory-current">–</b>
+              </span>
+              <span>
+                peak
+                <b id="memory-peak">–</b>
+              </span>
+              <span>
+                data
+                <b id="memory-data">–</b>
+              </span>
+              <span>
+                time
+                <b id="memory-time">–</b>
+              </span>
+            </div>
+            <svg
+              id="memory-chart"
+              preserveAspectRatio="none"
+              aria-label="Memory use during this run"
+            ></svg>
+            <div id="memory-tooltip" hidden></div>
+          </div>
+          <pre
+            id="console"
+          ><span class="muted">Choose a demo or create a pipeline, then press Run pipeline.</span></pre>
+        </section>
+        <section class="panel" data-panel="images" hidden>
+          <div class="panel-head">
+            <div>
+              <h2>Processed images</h2>
+            </div>
+            <div class="image-actions">
+              <select id="image-file" disabled>
+                <option value="">All images</option>
+              </select>
+              <select id="image-step" disabled>
+                <option>No run yet</option>
+              </select>
+              <button id="save-images" disabled>Save images</button>
+              <span id="image-count" class="run-state">No run yet</span>
+            </div>
+          </div>
+          <p id="history-note" class="history-note" hidden></p>
+          <div id="images" class="image-grid">
+            <p class="empty">Processed previews will appear here after a successful run.</p>
+          </div>
+        </section>
+        <section class="panel" data-panel="metadata" hidden>
+          <div class="panel-head">
+            <div>
+              <h2>Image metadata</h2>
+              <p class="panel-description">The first 100 rows from the processed dataset.</p>
+            </div>
+            <span id="metadata-count" class="run-state">No run yet</span>
+          </div>
+          <div id="metadata-table" class="metadata-table-wrap">
+            <p class="empty">Image metadata will appear here after a successful run.</p>
+          </div>
+        </section>
+        <section class="panel" data-panel="summary" hidden>
+          <div class="panel-head">
+            <div>
+              <h2>Pipeline summary</h2>
+            </div>
+          </div>
+          <div id="summary" class="summary-grid"></div>
+          <details class="settings investigation-summary">
+            <summary>
+              <span>
+                Investigation plots
+                <small>Diagnostic outputs from steps running in test mode.</small>
+              </span>
+              <span id="investigation-count" class="run-state">No run yet</span>
+            </summary>
+            <div id="investigation-plots" class="investigation-grid">
+              <p class="empty">
+                Investigation plots will appear here after a successful test-mode run.
+              </p>
+            </div>
+          </details>
+        </section>
+        <section class="panel" data-panel="files" hidden>
+          <div class="panel-head">
+            <div>
+              <h2>Demo pipelines</h2>
+            </div>
+          </div>
+          <p class="lead">
+            Load a ready-made workflow using Paidiverpy's sample data. You can inspect and edit
+            every setting before running it. Sample datasets download automatically and are cached
+            locally. Read more in the
+            <a
+              href="https://paidiverpy.readthedocs.io/en/latest/example_data.html"
+              target="_blank"
+              rel="noreferrer"
+            >
+              example data documentation
+            </a>
+            .
+          </p>
+          <div id="demos" class="demo-grid"></div>
+        </section>
+      </section>
+    </main>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="/js/app.js"></script>
+  </body>
+</html>

@@ -88,6 +88,11 @@ publishing = [
     "wheel",
 ]
 test = ["pytest >= 7.2.0", "pytest-cov"]
+gui = [
+    "fastapi>=0.115",
+    "psutil>=6",
+    "uvicorn>=0.30",
+]
 
 [project.urls]
 Repository = "https://github.com/paidiver/paidiverpy"
@@ -109,6 +114,9 @@ namespaces = true
 
 [tool.setuptools.package-data]
 paidiverpy = ["*"]
+"paidiverpy.dashboard.static" = ["*.html"]
+"paidiverpy.dashboard.static.css" = ["*.css"]
+"paidiverpy.dashboard.static.js" = ["*.js"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

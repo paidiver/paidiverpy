@@ -2,7 +2,9 @@
 
 import gc
 import logging
+from collections.abc import Callable
 from importlib.resources import files
+from time import perf_counter
 from typing import Any
 import dask
 from dask.diagnostics import ProgressBar
@@ -13,6 +15,7 @@ from paidiverpy.config.configuration import Configuration
 from paidiverpy.custom_layer.custom_layer import CustomLayer
 from paidiverpy.metadata_parser import MetadataParser
 from paidiverpy.open_layer import OpenLayer
+from paidiverpy.pipeline.events import RunEvent
 from paidiverpy.pipeline.pipeline_params import STEPS_CLASS_TYPES
 from paidiverpy.utils import formating_html
 from paidiverpy.utils.docker import is_running_in_docker
@@ -55,6 +58,7 @@ class Pipeline(Paidiverpy):
         metadata: MetadataParser | None = None,
         steps: list[tuple[str, type, dict[str, Any]]] | None = None,
         track_changes: bool | None = None,
+        event_callback: Callable[[RunEvent], None] | None = None,
         logger: logging.Logger | None = None,
         raise_error: bool = False,
         verbose: int = 2,
@@ -69,6 +73,7 @@ class Pipeline(Paidiverpy):
             raise_error=raise_error,
             verbose=verbose,
         )
+        self.event_callback = event_callback
         self.client = parse_parallellisation_params(self.config.general)
         if steps is None:
             steps = self._convert_config_to_steps()
@@ -98,19 +103,28 @@ class Pipeline(Paidiverpy):
             ValueError: No steps defined for the pipeline
             ValueError: Invalid step format
         """
-        self._validate_pipeline()
-        self._validate_from_step(from_step)
-        self._log_client_info()
+        started = perf_counter()
+        self._emit_event(RunEvent(type="pipeline_started"))
+        try:
+            self._validate_pipeline()
+            self._validate_from_step(from_step)
+            self._log_client_info()
 
-        self._run_steps()
-        self._compute_images()
-        if save_images:
-            self.save_images()
-
-        # if self.use_dask:
-        #     self.images.images.compute()
-        if self.client is not None and close_client:
-            self.client.close()
+            self._run_steps()
+            self._emit_event(RunEvent(type="compute_started"))
+            self._compute_images()
+            self._emit_event(RunEvent(type="compute_completed"))
+            if save_images:
+                self._emit_event(RunEvent(type="save_started"))
+                self.save_images()
+                self._emit_event(RunEvent(type="save_completed"))
+        except Exception as exc:
+            self._emit_event(RunEvent(type="pipeline_failed", duration_seconds=perf_counter() - started, message=str(exc)))
+            raise
+        finally:
+            if self.client is not None and close_client:
+                self.client.close()
+        self._emit_event(RunEvent(type="pipeline_completed", duration_seconds=perf_counter() - started))
 
     def _run_steps(self) -> None:
         """Run the configured processing steps."""
@@ -119,6 +133,9 @@ class Pipeline(Paidiverpy):
                 continue
 
             step_name, step_class, step_params = self._get_steps_params(step)
+            step_started = perf_counter()
+            step_type = self._get_step_name(step_class)
+            self._emit_event(RunEvent(type="step_started", step_index=index, step_name=step_name, step_type=step_type))
             self.logger.info(
                 "Running step %s: %s - %s",
                 index,
@@ -127,32 +144,62 @@ class Pipeline(Paidiverpy):
             )
             step_params["step_name"] = self._get_step_name(step_class)
             step_params["name"] = step_name
-            if step_name == "raw":
-                step_instance = step_class(
-                    paidiverpy=self,
-                    step_name=step_name,
-                    parameters=step_params,
+            try:
+                if step_name == "raw":
+                    step_instance = step_class(
+                        paidiverpy=self,
+                        step_name=step_name,
+                        parameters=step_params,
+                    )
+                    self.set_metadata(dataset_metadata={"input_path": str(self.config.general.input_path)})
+                elif step_class.__name__ == "CustomLayer":
+                    step_instance = self.process_custom_algorithm(step_params, index - 1)
+                else:
+                    step_instance = step_class(
+                        paidiverpy=self,
+                        step_name=step_name,
+                        parameters=step_params,
+                        config_index=index - 1,
+                    )
+                step_instance.run()
+            except Exception as exc:
+                self._emit_event(
+                    RunEvent(
+                        type="step_failed",
+                        step_index=index,
+                        step_name=step_name,
+                        step_type=step_type,
+                        duration_seconds=perf_counter() - step_started,
+                        message=str(exc),
+                    )
                 )
-                self.set_metadata(dataset_metadata={"input_path": str(self.config.general.input_path)})
-            elif step_class.__name__ == "CustomLayer":
-                step_instance = self.process_custom_algorithm(step_params, index - 1)
-            else:
-                step_instance = step_class(
-                    paidiverpy=self,
-                    step_name=step_name,
-                    parameters=step_params,
-                    config_index=index - 1,
-                )
-            step_instance.run()
+                raise
             test = getattr(step_instance, "test", False)
             if not test:
                 self.images = step_instance.images
                 self.metadata = step_instance.metadata
                 self.runned_steps = index
             self.logger.info("Step %s completed", index)
+            self._emit_event(
+                RunEvent(
+                    type="step_completed",
+                    step_index=index,
+                    step_name=step_name,
+                    step_type=step_type,
+                    duration_seconds=perf_counter() - step_started,
+                )
+            )
 
             del step_instance
             gc.collect()
+
+    def _emit_event(self, event: RunEvent) -> None:
+        """Notify an optional observer without coupling core execution to a UI."""
+        if self.event_callback is not None:
+            try:
+                self.event_callback(event)
+            except Exception:
+                self.logger.exception("Pipeline event callback failed for event '%s'", event.type)
 
     def _compute_images(self) -> None:
         """Materialize any dask-backed images after the step pipeline finishes."""

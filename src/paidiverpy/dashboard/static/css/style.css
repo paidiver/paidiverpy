@@ -1,0 +1,1053 @@
+/* ==========================================================
+   1. Global Styles
+   ========================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    sans-serif;
+  color: var(--ink);
+  background: var(--sand);
+  font-size: 14px;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--aqua-soft);
+  outline-offset: 2px;
+}
+
+/* ==========================================================
+   3. Buttons
+   ========================================================== */
+
+button {
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  padding: 9px 13px;
+  background: #e8eef0;
+  color: var(--ink);
+  font-weight: 650;
+  cursor: pointer;
+}
+
+button:hover {
+  filter: brightness(0.97);
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.primary {
+  background: var(--coral);
+  color: #fff;
+}
+
+.danger {
+  background: #5a3440;
+  color: #ffe3df;
+}
+
+.quiet {
+  background: #5a3440;
+  color: #ffe3df;
+}
+
+.icon-button {
+  padding: 5px 8px;
+  background: transparent;
+  color: var(--muted);
+}
+
+/* ==========================================================
+   4. Top Navigation Bar
+   ========================================================== */
+
+.topbar {
+  height: 68px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 0 24px;
+  color: white;
+  box-shadow: 0 2px 12px #092f4933;
+}
+
+/* Brand */
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 230px;
+  color: white;
+  text-decoration: none;
+}
+
+.brand img {
+  display: block;
+  width: auto;
+  max-width: 210px;
+  height: 46px;
+  object-fit: contain;
+}
+
+.brand b,
+.brand small {
+  display: block;
+}
+
+.brand b {
+  letter-spacing: 0.08em;
+}
+
+.brand small {
+  margin-top: 2px;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: #a7d9df;
+}
+
+/* Navigation Tabs */
+
+.tabs {
+  display: flex;
+  align-self: stretch;
+  flex: 1;
+  gap: 4px;
+}
+
+.tabs button {
+  border: 0;
+  border-bottom: 3px solid transparent;
+  padding: 0 14px;
+  background: transparent;
+  color: var(--navy);
+  opacity: 0.5;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.tabs button:hover,
+.tabs button.active {
+  opacity: 1;
+}
+
+/* Run Controls */
+
+.run-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ==========================================================
+   5. Main Workspace Layout
+   ========================================================== */
+
+.workspace {
+  height: calc(100% - 68px);
+  display: grid;
+  grid-template-columns: minmax(390px, 46%) 1fr;
+}
+
+.builder,
+.content {
+  min-height: 0;
+  overflow: auto;
+}
+
+.builder {
+  padding: 24px;
+  border-right: 1px solid var(--line);
+  background: #f7f8f5;
+}
+
+.content {
+  background: var(--paper);
+}
+
+.panel {
+  height: 100%;
+  padding: 25px;
+  overflow: auto;
+}
+
+/* ==========================================================
+   6. Headings and Status Indicators
+   ========================================================== */
+
+.builder-head,
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+h1,
+h2 {
+  margin: 3px 0 0;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+
+.status,
+.run-state {
+  border-radius: 999px;
+  padding: 5px 10px;
+  background: #edf1f2;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status.ok {
+  background: #e1f3e9;
+  color: var(--success);
+}
+
+.status.bad {
+  background: #fae6e2;
+  color: var(--danger);
+}
+
+.lead {
+  max-width: 680px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.panel-description {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.muted {
+  color: #78909c;
+}
+
+/* ==========================================================
+   7. Settings Panel
+   ========================================================== */
+
+details.settings {
+  margin-bottom: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: white;
+  box-shadow: var(--shadow);
+}
+
+details summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 15px 16px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+details[open] summary {
+  border-bottom: 1px solid var(--line);
+}
+
+/* ==========================================================
+   8. Forms and Input Fields
+   ========================================================== */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.field.wide {
+  grid-column: 1 / -1;
+}
+
+.field label {
+  font-size: 11px;
+  font-weight: 750;
+  color: var(--muted);
+}
+
+.field small {
+  font-size: 10px;
+  color: #82919a;
+  line-height: 1.35;
+}
+
+/* Shared Input Styles */
+
+.field input,
+.field select,
+.inline input,
+.inline select,
+.add-row select {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #cbd7dc;
+  border-radius: 8px;
+  padding: 9px 10px;
+  background: white;
+  color: var(--ink);
+}
+
+/* Focus States */
+
+.field input:focus,
+.field select:focus,
+.inline input:focus,
+.inline select:focus,
+.add-row select:focus,
+.image-actions select:focus {
+  outline: 3px solid var(--aqua-soft);
+  border-color: var(--aqua);
+}
+
+.field input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--ocean);
+}
+
+/* Inline Fields */
+
+.inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inline input {
+  width: 180px;
+}
+
+/* YAML Target Highlight */
+
+.field.yaml-target {
+  animation: yaml-target 1.4s ease;
+}
+
+/* ==========================================================
+   9. Pipeline Steps
+   ========================================================== */
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.step-card {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  box-shadow: var(--shadow);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+/* Connector Between Steps */
+
+.step-card::after {
+  content: "";
+  position: absolute;
+  left: 28px;
+  bottom: -23px;
+  width: 2px;
+  height: 23px;
+  background: #9fc1c9;
+}
+
+.step-card:last-child::after {
+  display: none;
+}
+
+/* Step Header */
+
+.step-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 14px;
+  border-radius: 13px;
+}
+
+.step-number {
+  display: grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--step-color) 14%, white);
+  color: var(--step-color);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.step-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.step-title b,
+.step-title small {
+  display: block;
+}
+
+.step-title small {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.step-run-status {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* Running Step */
+
+.step-card.run-running {
+  border-color: var(--aqua);
+  box-shadow:
+    0 0 0 3px var(--aqua-soft),
+    var(--shadow);
+}
+
+.step-card.run-running .step-run-status {
+  color: var(--ocean);
+}
+
+/* Completed Step */
+
+.step-card.run-completed {
+  border-color: #8bc9a9;
+}
+
+.step-card.run-completed .step-run-status {
+  color: var(--success);
+}
+
+/* Failed Step */
+
+.step-card.run-failed {
+  border-color: var(--danger);
+  box-shadow:
+    0 0 0 3px #fae6e2,
+    var(--shadow);
+}
+
+.step-card.run-failed .step-run-status {
+  color: var(--danger);
+}
+
+/* Step Fields */
+
+.step-fields {
+  border-top: 1px solid var(--line);
+  background: #fbfcfc;
+}
+
+.step-fields .form-grid {
+  padding: 14px;
+}
+
+/* Add New Step */
+
+.add-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+  margin-top: 22px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #e6eef0;
+}
+
+/* ==========================================================
+   10. YAML Editor
+   ========================================================== */
+
+#yaml {
+  width: 100%;
+  height: calc(100% - 72px);
+  resize: none;
+  border: 0;
+  border-radius: 12px;
+  padding: 20px;
+  background: #172a36;
+  color: #d8eef0;
+  font: 13px / 1.65 var(--mono);
+  outline: 0;
+}
+
+/* ==========================================================
+   11. Logs and Console
+   ========================================================== */
+
+.log-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+#console {
+  flex: 1;
+  margin: 0;
+  padding: 20px;
+  border-radius: 12px;
+  background: #142b38;
+  color: #d9eaee;
+  font: 12px / 1.65 var(--mono);
+  white-space: pre-wrap;
+  overflow: auto;
+}
+
+/* Log Message Colours */
+
+.log-error {
+  color: #ff9c8c;
+}
+
+.log-success {
+  color: #78dab0;
+}
+
+/* ==========================================================
+   12. Memory Monitoring
+   ========================================================== */
+
+.memory-meter {
+  position: relative;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #f7fafb;
+}
+
+.memory-stats {
+  display: flex;
+  gap: 18px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.memory-stats b {
+  color: var(--navy);
+}
+
+/* Memory Chart */
+
+#memory-chart {
+  display: block;
+  width: 100%;
+  height: 42px;
+  margin-top: 5px;
+  overflow: visible;
+}
+
+.mem-area {
+  fill: #11a9b722;
+}
+
+.mem-line {
+  fill: none;
+  stroke: var(--aqua);
+  stroke-width: 2;
+}
+
+.mem-dot {
+  fill: var(--coral);
+}
+
+/* Chart Tooltip */
+
+#memory-tooltip {
+  position: fixed;
+  z-index: 30;
+  padding: 7px 9px;
+  border-radius: 7px;
+  background: var(--navy);
+  color: #fff;
+  font-size: 11px;
+  pointer-events: none;
+}
+
+/* ==========================================================
+   13. Image Gallery
+   ========================================================== */
+
+.image-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.image-actions select {
+  max-width: 230px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #fff;
+}
+
+.image-actions button {
+  background: var(--aqua-soft);
+  color: var(--ocean);
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.image-card {
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f4f6f7;
+}
+
+.image-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  background: #172a36;
+}
+
+.image-card figcaption {
+  padding: 9px;
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ==========================================================
+   14. Demo and Summary Cards
+   ========================================================== */
+
+.demo-grid,
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.demo-card,
+.summary-card {
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+/* Demo Cards */
+
+.demo-card h3 {
+  margin: 0 0 7px;
+}
+
+.demo-card p {
+  min-height: 58px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.demo-group {
+  grid-column: 1 / -1;
+}
+
+.demo-group-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.demo-group-title {
+  margin: 14px 0 0;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+  color: var(--navy);
+  font-size: 15px;
+}
+
+.dataset-badge {
+  display: inline-flex;
+  margin-bottom: 10px;
+  border-radius: 999px;
+  padding: 4px 8px;
+  background: var(--aqua-soft);
+  color: var(--ocean);
+  font: 700 10px var(--mono);
+}
+
+.dataset-info,
+.demo-note {
+  display: grid;
+  gap: 3px;
+  margin: 12px 0;
+  border-radius: 9px;
+  padding: 10px;
+  background: #f3f7f8;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.dataset-info b,
+.demo-note b {
+  color: var(--navy);
+}
+
+.demo-note {
+  background: #fff4dd;
+  color: var(--warning);
+}
+
+.demo-card button {
+  width: 100%;
+  background: var(--aqua-soft);
+  color: var(--ocean);
+}
+
+/* Summary Cards */
+
+.summary-card b {
+  display: block;
+  font-size: 26px;
+  color: var(--navy);
+}
+
+.summary-card span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* Investigation plots inside the summary panel */
+
+.investigation-summary {
+  margin-top: 22px;
+}
+
+.investigation-summary summary > span:first-child small {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.investigation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+  padding: 16px;
+}
+
+.investigation-card {
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #f7fafb;
+}
+
+.investigation-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: contain;
+  background: white;
+}
+
+.investigation-card figcaption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--line);
+}
+
+.investigation-card figcaption span,
+.investigation-card figcaption b,
+.investigation-card figcaption small {
+  display: block;
+}
+
+.investigation-card figcaption small {
+  margin-top: 2px;
+  color: var(--muted);
+}
+
+.investigation-card figcaption a {
+  color: var(--ocean);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Pandas metadata preview */
+
+.metadata-table-wrap {
+  max-width: 100%;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  box-shadow: var(--shadow);
+}
+
+.metadata-dataframe {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.metadata-dataframe th,
+.metadata-dataframe td {
+  padding: 9px 12px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+
+.metadata-dataframe th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--navy);
+  color: white;
+  font-weight: 700;
+}
+
+.metadata-dataframe tbody tr:nth-child(even) {
+  background: #f7fafb;
+}
+
+.metadata-dataframe tbody tr:hover {
+  background: var(--aqua-soft);
+}
+
+.metadata-dataframe th:last-child,
+.metadata-dataframe td:last-child {
+  border-right: 0;
+}
+
+.metadata-dataframe tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* ==========================================================
+   15. Messages and Notifications
+   ========================================================== */
+
+/* History Notice */
+
+.history-note {
+  padding: 10px 13px;
+  border-radius: 9px;
+  background: #fff4dd;
+  color: #805b18;
+  font-size: 12px;
+}
+
+/* Empty State */
+
+.empty {
+  grid-column: 1 / -1;
+  padding: 50px;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* Toast Notification */
+
+#toast {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  max-width: 420px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: var(--navy);
+  color: #fff;
+  box-shadow: var(--shadow);
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: 0.2s;
+}
+
+#toast.show {
+  opacity: 1;
+  transform: none;
+}
+
+/* ==========================================================
+   16. Animations
+   ========================================================== */
+
+@keyframes yaml-target {
+  0%,
+  100% {
+    background: transparent;
+  }
+
+  20%,
+  75% {
+    background: #fff0b9;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ==========================================================
+   17. Responsive Design — Tablet
+   Breakpoint: 1050px
+   ========================================================== */
+
+@media (max-width: 1050px) {
+  .brand {
+    min-width: auto;
+  }
+
+  .brand span:last-child {
+    display: none;
+  }
+
+  .topbar {
+    gap: 8px;
+    padding: 0 10px;
+  }
+
+  .tabs {
+    overflow: auto;
+  }
+
+  .tabs button {
+    padding: 0 8px;
+  }
+
+  .run-actions .quiet {
+    display: none;
+  }
+
+  .workspace {
+    height: auto;
+    grid-template-columns: 1fr;
+  }
+
+  .builder {
+    border-right: 0;
+  }
+
+  .content {
+    min-height: 620px;
+  }
+}
+
+/* ==========================================================
+   18. Responsive Design — Mobile
+   Breakpoint: 650px
+   ========================================================== */
+
+@media (max-width: 650px) {
+  .topbar {
+    height: auto;
+    min-height: 68px;
+    flex-wrap: wrap;
+    padding: 10px;
+  }
+
+  .tabs {
+    order: 3;
+    width: 100%;
+    height: 44px;
+  }
+
+  .run-actions {
+    margin-left: auto;
+  }
+
+  .workspace {
+    display: block;
+  }
+
+  .builder,
+  .panel {
+    padding: 16px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .add-row {
+    grid-template-columns: 1fr;
+  }
+
+  .inline {
+    flex-wrap: wrap;
+  }
+}

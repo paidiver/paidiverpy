@@ -20,7 +20,7 @@ The CLI supports four main workflows:
 1. Run an image-processing pipeline from a YAML configuration file.
 2. Validate a configuration file.
 3. Run benchmark tests.
-4. Launch the GUI (Panel app).
+4. Launch the browser-based dashboard.
 
 
 CLI Arguments
@@ -43,8 +43,17 @@ Supported arguments:
 - ``-bt``, ``--benchmark_test`` (JSON string)
      Run benchmark tests using a JSON payload.
 
-- ``-gui``, ``--gui`` (optional arguments)
+- ``--gui`` (flag)
      Launch the Paidiverpy GUI.
+
+- ``--host`` (string)
+     Dashboard bind address. Default: ``127.0.0.1``.
+
+- ``--port`` (integer)
+     Dashboard port. Default: ``8792``.
+
+- ``--reload`` (flag)
+     Reload the dashboard when source files change.
 
 
 Run a Pipeline
@@ -100,28 +109,27 @@ Tip: quote the full JSON string to avoid shell parsing issues.
 Launch the GUI
 --------------
 
-GUI mode starts a Panel server for interactive execution.
+GUI mode starts the Paidiverpy web dashboard for interactive execution.
 
 Basic usage:
 
 .. code-block:: bash
 
-      paidiverpy -gui
+      paidiverpy --gui
 
-Custom Panel arguments can also be passed, for example:
+The bind address and port can be changed, for example:
 
 .. code-block:: bash
 
-      paidiverpy -gui "--port 5007 --address 127.0.0.1"
+      paidiverpy --gui --port 5007 --host 127.0.0.1
 
 Notes:
 
-- The ``panel`` executable must be available in your environment.
-- Default GUI server parameters are:
+- Install the optional GUI dependencies with ``pip install "paidiverpy[gui]"``.
+- Default dashboard server parameters are:
 
-     - ``--port 5006``
-     - ``--address 0.0.0.0``
-     - ``--autoreload``
+     - ``--port 8792``
+     - ``--host 127.0.0.1``
 
 
 Docker Reference
@@ -209,10 +217,10 @@ To run the GUI in a container and access it from your browser:
 
 .. code-block:: bash
 
-      docker run --rm -p 5006:5006 paidiverpy -gui
+      docker run --rm -p 8792:8792 paidiverpy --gui --host 0.0.0.0 --port 8792
 
-If you use custom GUI options, map the same port in ``-p`` and in the ``-gui``
-arguments.
+If you use a custom GUI port, map the same port with Docker's ``-p`` option and
+``paidiverpy --port``.
 
 
 Troubleshooting
@@ -221,8 +229,8 @@ Troubleshooting
 - If ``paidiverpy`` is not found:
      ensure the package is installed and your environment is activated.
 
-- If GUI fails with a message about ``panel``:
-     install Panel in the active environment (``pip install panel``).
+- If the GUI reports missing optional dependencies:
+     install the GUI extra in the active environment (``pip install "paidiverpy[gui]"``).
 
 - If Docker cannot find your configuration:
      verify the config directory is mounted to ``/app/config_files`` and that the

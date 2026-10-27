@@ -2,10 +2,7 @@
 
 import argparse
 import json
-import shutil
-import subprocess
 import sys
-from importlib.resources import files
 from paidiverpy.config.configuration import Configuration
 from paidiverpy.pipeline import Pipeline
 from paidiverpy.utils.benchmark.benchmark_test import benchmark_handler
@@ -14,25 +11,16 @@ from paidiverpy.utils.logging_functions import initialise_logging
 
 logger = initialise_logging()
 
-def run_gui(gui_args: list[str] | None) -> None:
-    """Run the GUI server."""
-    logger.info("Running the GUI for paidiverpy...")
-    panel_executable = shutil.which("panel")
-    if not panel_executable:
-        logger.error("The 'panel' executable was not found in the system PATH. Please install Panel using 'pip install panel'.")
+
+def run_gui(host: str, port: int, reload: bool) -> None:
+    """Run the Paidiverpy web dashboard."""
+    try:
+        from paidiverpy.dashboard import run  # noqa: PLC0415 - optional feature
+
+        run(host=host, port=port, reload=reload)
+    except RuntimeError as exc:
+        logger.error(str(exc))
         sys.exit(1)
-
-    app_path = files("paidiverpy.frontend").joinpath("app.py")
-
-    # Default params
-    panel_args = ["--port", "5006", "--address", "0.0.0.0", "--autoreload"]  # noqa: S104
-    if gui_args:
-        panel_args = gui_args[0].split()
-
-    subprocess.run(  # noqa: S603
-        [panel_executable, "serve", str(app_path), *panel_args],
-        check=True,
-    )
 
 
 def run_pipeline(configuration_file: str) -> None:
@@ -55,8 +43,8 @@ def process_action(parser: argparse.ArgumentParser) -> None:
     """
     args = parser.parse_args()
 
-    if args.gui is not None:
-        run_gui(args.gui)
+    if args.gui:
+        run_gui(args.host, args.port, args.reload)
         return
 
     if len(sys.argv) == 1:
@@ -122,12 +110,14 @@ def add_arguments(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
-        "-gui",
         "--gui",
         dest="gui",
-        nargs="*",
-        help=("OPTIONAL: ONLY FOR RUNNING THE GRAPHICAL USER INTERFACE (GUI) OF PAIDIVERPY."),
+        action="store_true",
+        help="Launch the Paidiverpy web dashboard.",
     )
+    parser.add_argument("--host", default="127.0.0.1", help="Dashboard bind address (used with --gui).")
+    parser.add_argument("--port", default=8792, type=int, help="Dashboard port (used with --gui).")
+    parser.add_argument("--reload", action="store_true", help="Reload the dashboard when source files change.")
 
     return parser
 

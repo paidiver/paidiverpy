@@ -96,6 +96,7 @@ env.bak/
 venv.bak/
 __pypackages__/
 .python-version
+node_modules/
 
 
 # ---------------------------------------------------------------------
