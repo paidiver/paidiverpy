@@ -27,15 +27,6 @@ paidiverpy.investigation_layer
        !! processed by numpydoc !!
 
 
-Submodules
-----------
-
-.. toctree::
-   :maxdepth: 1
-
-   /api/paidiverpy/investigation_layer/investigation_layer/index
-
-
 Classes
 -------
 

@@ -55,6 +55,8 @@ SUPPORTED_EXIF_IMAGE_TYPES = SUPPORTED_PIL_IMAGE_TYPES | {
 
 
 SUPPORTED_RAWPY_IMAGE_TYPES = {
+    "arw",  # Sony RAW
+    "camera-raw",  # Explicit decoder selection for ambiguous .raw extensions
     "crw",  # Canon RAW
     "cr2",  # Canon RAW
     "cr3",  # Canon RAW
@@ -62,6 +64,7 @@ SUPPORTED_RAWPY_IMAGE_TYPES = {
     "nef",  # Nikon RAW
     "nrw",  # Nikon RAW
     "orf",  # Olympus RAW
+    "pef",  # Pentax RAW
     "rw2",  # Panasonic RAW
     "raf",  # Fuji RAW
 }

@@ -38,6 +38,7 @@ Submodules
    /api/paidiverpy/models/convert_params/index
    /api/paidiverpy/models/custom_params/index
    /api/paidiverpy/models/general_config/index
+   /api/paidiverpy/models/library_params/index
    /api/paidiverpy/models/open_params/index
    /api/paidiverpy/models/position_params/index
    /api/paidiverpy/models/sampling_params/index

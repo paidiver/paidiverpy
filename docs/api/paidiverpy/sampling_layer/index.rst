@@ -27,15 +27,6 @@ paidiverpy.sampling_layer
        !! processed by numpydoc !!
 
 
-Submodules
-----------
-
-.. toctree::
-   :maxdepth: 1
-
-   /api/paidiverpy/sampling_layer/sampling_layer/index
-
-
 Classes
 -------
 

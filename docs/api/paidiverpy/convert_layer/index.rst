@@ -27,15 +27,6 @@ paidiverpy.convert_layer
        !! processed by numpydoc !!
 
 
-Submodules
-----------
-
-.. toctree::
-   :maxdepth: 1
-
-   /api/paidiverpy/convert_layer/convert_layer/index
-
-
 Classes
 -------
 

@@ -27,15 +27,6 @@ paidiverpy.position_layer
        !! processed by numpydoc !!
 
 
-Submodules
-----------
-
-.. toctree::
-   :maxdepth: 1
-
-   /api/paidiverpy/position_layer/position_layer/index
-
-
 Classes
 -------
 

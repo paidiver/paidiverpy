@@ -34,7 +34,6 @@ Submodules
    :maxdepth: 1
 
    /api/paidiverpy/config/config_params/index
-   /api/paidiverpy/config/configuration/index
 
 
 Classes
@@ -137,7 +136,7 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: add_step(config_index: int | None = None, parameters: dict[str, Any] | None = None, insert: bool = False, validate: bool = False, step_class: type[paidiverpy.colour_layer.ColourLayer] | type[paidiverpy.convert_layer.ConvertLayer] | type[paidiverpy.position_layer.PositionLayer] | type[paidiverpy.sampling_layer.SamplingLayer] | type[paidiverpy.custom_layer.CustomLayer] | type[paidiverpy.investigation_layer.InvestigationLayer] | None = None) -> int
+   .. py:method:: add_step(config_index: int | None = None, parameters: dict[str, Any] | None = None, insert: bool = False, validate: bool = False, step_class: type[paidiverpy.colour_layer.ColourLayer] | type[paidiverpy.convert_layer.ConvertLayer] | type[paidiverpy.position_layer.PositionLayer] | type[paidiverpy.sampling_layer.SamplingLayer] | type[paidiverpy.custom_layer.CustomLayer] | type[paidiverpy.investigation_layer.InvestigationLayer] | type[paidiverpy.library_layer.LibraryLayer] | None = None) -> int
 
       
       Add a step to the configuration.
