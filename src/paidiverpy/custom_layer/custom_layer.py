@@ -90,7 +90,6 @@ class CustomLayer(Paidiverpy):
         Defaults to True.
         """
         check_and_install_dependencies(self.step_metadata.get("dependencies"), self.step_metadata.get("dependencies_path"))
-        test = self.step_metadata.get("test", False)
         algorithm_name = self.step_metadata.get("name", "")
         try:
             method = getattr(self, algorithm_name)
@@ -108,11 +107,4 @@ class CustomLayer(Paidiverpy):
             images = self.process_dataset(images, method, params)
         else:
             images = self.process_images(method, params)
-        if not test:
-            self.step_name = f"step_{self.config_index}" if not self.step_name else self.step_name
-            self.images.add_step(
-                step=self.step_name,
-                images=images,
-                step_metadata=self.step_metadata,
-                track_changes=self.track_changes,
-            )
+        self.update_image_step(images)

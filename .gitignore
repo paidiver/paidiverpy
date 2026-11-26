@@ -121,6 +121,9 @@ and earlier your repo paths showed:
 
 ```text
 examples/example_notebooks/
+!examples/example_notebooks/
+examples/example_notebooks/*
+!examples/example_notebooks/library_layer_tutorial.ipynb
 ```
 
 So I included both, but if the correct folder is only `example_notebooks`, you can remove the duplicated `examples/examples_notebooks/...` block.

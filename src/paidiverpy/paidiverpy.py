@@ -98,11 +98,23 @@ class Paidiverpy:
             ImagesLayer | None: The images object.
         """
         mode = self.step_metadata.get("mode", "")
-        test = self.step_metadata.get("test", False)
         params: dict[str, Any] | BaseModel = self.step_metadata.get("params") or {}
         method, params = self._get_method_by_mode(params, self.layer_methods, mode)
-        # method, params = self._get_method_by_mode(params, self.layer_methods, mode, False)
         images = self.process_images(method, params)
+        self.update_image_step(images, add_new_step)
+        if add_new_step:
+            return self.images
+        return None
+
+    def update_image_step(self, images: xr.Dataset, add_new_step: bool = True, metatada: pd.DataFrame | None = None) -> None:
+        """Update the images object with the new step.
+
+        Args:
+            images (xr.Dataset): The processed images.
+            add_new_step (bool, optional): Whether to add a new step. Defaults to True.
+            metatada (pd.DataFrame | None, optional): The metadata to set. Defaults to None.
+        """
+        test = self.step_metadata.get("test", False)
         if not test:
             self.step_name = f"step_{self.config_index}" if not self.step_name else self.step_name
             if add_new_step:
@@ -110,12 +122,13 @@ class Paidiverpy:
                     step=self.step_name,
                     images=images,
                     step_metadata=self.step_metadata,
+                    metadata=metatada,
                     track_changes=self.track_changes,
                 )
-                return None
+            if metatada is not None:
+                self.set_metadata(metatada)
             self.images.replace_step(images=images)
-            return self.images
-        return None
+
 
     def process_images(self, method: Callable, params: dict[str, Any] | BaseModel) -> xr.Dataset:
         """Process the images sequentially.

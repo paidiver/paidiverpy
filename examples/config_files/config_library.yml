@@ -1,0 +1,22 @@
+general:
+  sample_data: "plankton_csv"
+  output_path: "./output"
+  n_jobs: 1
+
+steps:
+  - library:
+      name: "opencv_blur"
+      library: "opencv"
+      function: "GaussianBlur"
+      params:
+        ksize:
+          $tuple: [5, 5]
+        sigmaX: 1.0
+  - library:
+      name: "skimage_blur"
+      library: "skimage"
+      function: "filters.gaussian"
+      params:
+        sigma: 1.0
+        channel_axis: -1
+        preserve_range: true

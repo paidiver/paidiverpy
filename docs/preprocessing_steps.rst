@@ -36,6 +36,7 @@ Each step is a dictionary with the following:
   - `convert`. Please refer to the :ref:`step_convert` documentation for more details.
   - `position`. Please refer to the :ref:`step_position` documentation for more details.
   - `custom`. Please refer to the :ref:`step_custom` documentation for more details.
+  - `library`. Please refer to the :ref:`step_library` documentation for more details.
 
 
 - **name**: A custom name for the step. If not provided, the name will be generated automatically.
@@ -85,3 +86,4 @@ For more information, see the :ref:`guide_test_mode` documentation.
     steps/convert.rst
     steps/position.rst
     steps/custom.rst
+    steps/library.rst
