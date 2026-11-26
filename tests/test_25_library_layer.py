@@ -37,9 +37,7 @@ class TestLibraryLayer(BaseTestClass):
 
     def test_special_values_and_callable_resolution(self):
         """Decode tuples and references recursively."""
-        params = LibraryLayer.decode_value(
-            {"ksize": {"$tuple": [3, 3]}, "borderType": {"$ref": "cv2.BORDER_REFLECT"}}
-        )
+        params = LibraryLayer.decode_value({"ksize": {"$tuple": [3, 3]}, "borderType": {"$ref": "cv2.BORDER_REFLECT"}})
 
         assert params == {"ksize": (3, 3), "borderType": cv2.BORDER_REFLECT}
         assert LibraryLayer.resolve_function("skimage", "filters.gaussian").__name__ == "gaussian"

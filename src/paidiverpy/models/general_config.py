@@ -59,9 +59,7 @@ class GeneralConfig(BaseModel):
     local_cluster: dict[str, Any] | None = Field(None, description="Parameters for the local cluster")
     dask_config_kwargs: dict[str, Any] | None = Field(
         None,
-        description=(
-            "Dask configuration keyword arguments. If provided, it will be used to update the Dask configuration settings."
-        ),
+        description=("Dask configuration keyword arguments. If provided, it will be used to update the Dask configuration settings."),
     )
     track_changes: bool = Field(True, description="Whether to track config changes. If True, it will store in memory the output images on each step")
     rename: Literal["UUID", "datetime"] | None = Field(

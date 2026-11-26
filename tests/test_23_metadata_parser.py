@@ -105,7 +105,6 @@ def test_open_ifdo_metadata_json_decode_error_branch(monkeypatch: pytest.MonkeyP
     parser.metadata_path = "meta_ifdo.json"
     parser.storage_options = {}
 
-
     monkeypatch.setattr(metadata_module, "Path", FakePath)
     monkeypatch.setattr(metadata_module, "path_is_remote", lambda _path: False)
     monkeypatch.setattr(metadata_module, "is_running_in_docker", lambda: False)
@@ -204,8 +203,6 @@ def test_group_metadata_branch_when_key_already_exists():
     grouped = MetadataParser.group_metadata_and_dataset_metadata(metadata.copy(), {"dataset": "new"})
 
     assert grouped["dataset"].tolist() == ["existing"]
-
-
 
 
 def test_metadata_parser_csv_with_minimal_columns(tmp_path: Path):
@@ -309,7 +306,7 @@ def test_metadata_parser_convert_metadata_unsupported_format(tmp_path: Path):
     """Test convert_metadata_to with unsupported format."""
     meta = pd.DataFrame({"filename": ["a.jpg"]})
     with pytest.raises(NotImplementedError, match="Croissant format is not implemented yet"):
-        MetadataParser.convert_metadata_to({}, meta,  str(tmp_path / "out"), "croissant")
+        MetadataParser.convert_metadata_to({}, meta, str(tmp_path / "out"), "croissant")
 
 
 def test_metadata_parser_with_spatial_columns(tmp_path: Path):

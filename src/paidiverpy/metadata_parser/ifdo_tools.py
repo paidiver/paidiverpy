@@ -16,7 +16,8 @@ from paidiverpy.utils.object_store import get_file_from_bucket
 
 logger = logging.getLogger("paidiverpy")
 
-LAST_IFDO_VERSION="v2.2.1"  # The last iFDO version supported by the library
+LAST_IFDO_VERSION = "v2.2.1"  # The last iFDO version supported by the library
+
 
 def validate_ifdo(file_path: str | None = None, ifdo_data: dict[str, Any] | None = None) -> list[dict[str, Any]]:
     """validate_ifdo method.
@@ -54,6 +55,7 @@ def validate_ifdo(file_path: str | None = None, ifdo_data: dict[str, Any] | None
 
     return parse_validation_errors(errors, schema)
 
+
 def load_json_schema(ifdo_version: str) -> dict[str, Any]:
     """Load iFDO JSON schema.
 
@@ -70,6 +72,7 @@ def load_json_schema(ifdo_version: str) -> dict[str, Any]:
             return json.load(file)
     schema_content = get_file_from_bucket(schema_file_path)
     return json.loads(schema_content)
+
 
 def convert_to_ifdo(dataset_metadata: dict[str, Any], metadata: pd.DataFrame, output_path: str) -> None:
     """Convert metadata to iFDO format.
