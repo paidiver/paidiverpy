@@ -259,7 +259,8 @@ function renderSteps() {
   state.config.steps.forEach((item, index) => {
     const [category, data] = Object.entries(item)[0];
     const base = `steps[${index}].${category}`;
-    const mode = category === "custom" ? "custom" : data.mode;
+    const stepFieldsAtTopLevel = category === "custom" || category === "library";
+    const mode = stepFieldsAtTopLevel ? category : data.mode;
     const def = modeDef(category, mode);
     const card = document.createElement("article");
     card.className = "step-card";
@@ -301,15 +302,14 @@ function renderSteps() {
       ),
     );
     for (const f of def?.fields || []) {
-      const customField = category === "custom";
-      const currentValue = customField ? data[f.name] : data.params?.[f.name];
-      const fieldPath = customField ? `${base}.${f.name}` : `${base}.params.${f.name}`;
+      const currentValue = stepFieldsAtTopLevel ? data[f.name] : data.params?.[f.name];
+      const fieldPath = stepFieldsAtTopLevel ? `${base}.${f.name}` : `${base}.params.${f.name}`;
       grid.append(
         field(
           f,
           currentValue ?? f.default,
           (v) => {
-            if (customField) {
+            if (stepFieldsAtTopLevel) {
               if (v == null || v === "") delete data[f.name];
               else data[f.name] = v;
             } else {
@@ -375,10 +375,10 @@ function setupAdd() {
   modes();
   $("#add-step").onclick = () => {
     const def = modeDef(category.value, mode.value);
-    if (category.value === "custom") {
-      const custom = { name: def.label, test: false };
-      for (const f of def.fields) if (f.default != null) custom[f.name] = f.default;
-      state.config.steps.push({ custom });
+    if (category.value === "custom" || category.value === "library") {
+      const step = { name: def.label, test: false };
+      for (const f of def.fields) if (f.default != null) step[f.name] = f.default;
+      state.config.steps.push({ [category.value]: step });
       changed();
       return;
     }

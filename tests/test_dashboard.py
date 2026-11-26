@@ -7,7 +7,7 @@ def test_registry_exposes_all_core_step_categories():
     """The visual step picker follows all built-in processing registries."""
     registry = dashboard_registry()
     categories = {item["name"] for item in registry["categories"]}
-    assert categories == {"position", "sampling", "convert", "colour", "custom"}
+    assert categories == {"position", "sampling", "convert", "colour", "custom", "library"}
     assert any(field["name"] == "sample_data" for field in registry["general"])
 
 

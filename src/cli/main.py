@@ -15,7 +15,7 @@ logger = initialise_logging()
 def run_gui(host: str, port: int, reload: bool) -> None:
     """Run the Paidiverpy web dashboard."""
     try:
-        from paidiverpy.dashboard import run  # noqa: PLC0415 - optional feature
+        from paidiverpy.dashboard import run
 
         run(host=host, port=port, reload=reload)
     except RuntimeError as exc:

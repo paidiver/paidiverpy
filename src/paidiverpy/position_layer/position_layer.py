@@ -14,7 +14,6 @@ from shapely.geometry import Polygon
 from paidiverpy import Paidiverpy
 from paidiverpy.config.config_params import ConfigParams
 from paidiverpy.config.configuration import Configuration
-from paidiverpy.utils.base_model import BaseModel
 from paidiverpy.images_layer import ImagesLayer
 from paidiverpy.investigation_layer.investigation_layer import InvestigationLayer
 from paidiverpy.metadata_parser import MetadataParser
@@ -102,7 +101,8 @@ class PositionLayer(Paidiverpy):
             pd.DataFrame | None: The metadata with the corners if not adding a new step, else None.
         """
         mode = self.step_metadata.get("mode")
-        params: dict[str, Any] | BaseModel = self.step_metadata.get("params") or {}
+        test = self.step_metadata.get("test", False)
+        params = self.step_metadata.get("params") or {}
         method, params = self._get_method_by_mode(params, self.layer_methods, mode, False)
         try:
             metadata = method(self.step_order, test=test, params=params)
@@ -116,7 +116,9 @@ class PositionLayer(Paidiverpy):
         if not self.add_new_step:
             self.config.remove_step(self.config_index)
             return metadata
-        self.update_image_step(self.images.get_step(last=True), self.add_new_step, new_metadata)
+        if not test:
+            self.step_name = self.step_name or f"position_{mode}"
+            self.update_image_step(self.images.get_step(last=True), metadata=new_metadata)
         return None
 
     def calculate_corners(self, step_order: int | None = None, params: CalculateCornersParams = None, test: bool = False) -> pd.DataFrame | None:

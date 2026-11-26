@@ -2,7 +2,9 @@
 
 import cv2
 import numpy as np
+import pandas as pd
 import pytest
+from paidiverpy import Paidiverpy
 from paidiverpy.library_layer import LibraryLayer
 from paidiverpy.pipeline import Pipeline
 from tests.base_test_class import BaseTestClass
@@ -12,6 +14,16 @@ EXPECTED_PIPELINE_STEPS = 3
 
 class TestLibraryLayer(BaseTestClass):
     """Test library callable resolution and pipeline processing."""
+
+    def test_strict_band_mismatch_reports_image(self):
+        """Reject an incompatible result instead of inserting a blank image."""
+        image = np.zeros((4, 4, 3), dtype=np.uint8)
+
+        def grayscale(image_data: np.ndarray, **_kwargs: object) -> np.ndarray:
+            return image_data[..., 0]
+
+        with pytest.raises(RuntimeError, match=r"opencv.example.*later.png.*expected 3 bands, got 1"):
+            Paidiverpy.process_single(image, 0, 4, 4, "later.png", 3, grayscale, pd.DataFrame(), strict_target="opencv.example")
 
     def test_opencv_and_skimage_pipeline(self):
         """Apply functions from both supported libraries to every image."""

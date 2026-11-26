@@ -111,5 +111,8 @@ an explicit colour conversion when the selected algorithm depends on channel
 order. scikit-image may return floating-point arrays, and the returned dtype
 and value range are preserved.
 
-The runnable notebook is available at
-``examples/example_notebooks/library_layer_tutorial.ipynb``.
+The notebook tutorial compares the original image and both blur results
+side by side. It also plots where pixel values changed and prints the mean
+absolute difference after each step. Open it in the
+`online viewer <https://nbviewer.org/github/paidiver/paidiverpy/blob/main/examples/example_notebooks/library_layer_tutorial.ipynb>`_
+or find it in the :doc:`gallery <../../gallery>`.

@@ -455,7 +455,7 @@ def style_json_yaml(value: Any) -> str:  # noqa: ANN401
     Returns:
         str: The styled value.
     """
-    import pandas as pd  # noqa: PLC0415 - keep pandas lazy for lightweight HTML rendering
+    import pandas as pd
 
     if isinstance(value, str):
         output = f'<span class="ppy-json-string">"{escape(value)}"</span>'

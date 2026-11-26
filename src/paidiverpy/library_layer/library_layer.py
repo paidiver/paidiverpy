@@ -62,6 +62,8 @@ class LibraryLayer(Paidiverpy):
         params = self.decode_value(self.step_metadata.get("params") or {})
         image_param = self.step_metadata.get("image_param")
         result_index = self.step_metadata.get("result_index")
+        target = f"{self.step_metadata['library']}.{self.step_metadata['function']}"
+
         def apply_function(image_data: np.ndarray[Any, Any], filename: str = "", **_kwargs: Any) -> np.ndarray[Any, Any]:
             try:
                 if image_param:
@@ -78,12 +80,15 @@ class LibraryLayer(Paidiverpy):
                     result = result[result_index]
                 return self.validate_result(result)
             except Exception as exc:
-                target = f"{self.step_metadata['library']}.{self.step_metadata['function']}"
                 msg = f"Function '{target}' failed for image '{filename}': {exc}"
                 raise RuntimeError(msg) from exc
 
-        images = self.process_images(apply_function, {})
-        self.update_image_step(images)
+        images = self.process_images(apply_function, {}, strict_target=target)
+        self.test = self.step_metadata.get("test", False)
+        if self.test:
+            images.compute()
+        else:
+            self.update_image_step(images)
 
     @staticmethod
     def resolve_function(library: str, path: str) -> Callable[..., Any]:

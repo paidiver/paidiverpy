@@ -22,6 +22,8 @@ Core Classes
 
 - **ColourLayer**: This layer applies colour manipulation techniques to images, such as colour correction, filtering, and enhancement. It offers a range of methods to adjust the visual properties of images, allowing users to improve their quality for better analysis. For more information, see the :ref:`step_colour` section.
 
+- **LibraryLayer** applies a public OpenCV or scikit-image function to each image. Select the function and supply its arguments in YAML. See :ref:`step_library` for supported settings and :ref:`guide_library_functions` for a worked example.
+
 - **CustomLayer**: A versatile layer that enables users to define custom processing functions. This layer provides a high degree of flexibility, allowing users to implement specific algorithms or processing steps tailored to their needs. For more information, see the :ref:`step_custom` section.
 
 Supporting Classes

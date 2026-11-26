@@ -5,6 +5,7 @@ import json
 import logging
 import re
 import uuid
+from datetime import datetime
 from importlib.resources import files
 from pathlib import Path
 from typing import Any
@@ -15,6 +16,7 @@ from paidiverpy.utils.object_store import get_file_from_bucket
 
 logger = logging.getLogger("paidiverpy")
 
+LAST_IFDO_VERSION="v2.2.1"  # The last iFDO version supported by the library
 
 def validate_ifdo(file_path: str | None = None, ifdo_data: dict[str, Any] | None = None) -> list[dict[str, Any]]:
     """validate_ifdo method.
@@ -77,11 +79,9 @@ def convert_to_ifdo(dataset_metadata: dict[str, Any], metadata: pd.DataFrame, ou
         metadata (pd.DataFrame): Metadata to convert.
         output_path (str): Path to save the converted metadata.
     """
-    ifdo_version = dataset_metadata.get("image-set-ifdo-version", "v2.1.0")
+    ifdo_version = dataset_metadata.get("image-set-ifdo-version", LAST_IFDO_VERSION)
     ifdo_schema = load_json_schema(ifdo_version)
     image_set_header, missing_fields_header = parse_ifdo_header(dataset_metadata, ifdo_schema, metadata)
-    for col in metadata.select_dtypes(include=["datetime64[ns]"]).columns:
-        metadata[col] = metadata[col].astype(str)
     image_set_header["image-set-ifdo-version"] = ifdo_version
     image_set_items, missing_fields_items = parse_ifdo_items(metadata, ifdo_schema)
     if missing_fields_header or missing_fields_items:
@@ -93,8 +93,8 @@ def convert_to_ifdo(dataset_metadata: dict[str, Any], metadata: pd.DataFrame, ou
     if missing_fields_items:
         logger.warning("Missing fields in iFDO items: %s", missing_fields_items)
     ifdo_data = {
-        "image-set-header": image_set_header,
-        "image-set-items": image_set_items,
+        "image-set-header": _serialize_timestamps(image_set_header),
+        "image-set-items": _serialize_timestamps(image_set_items),
     }
     errors = validate_ifdo(ifdo_data=ifdo_data)
     if errors:
@@ -105,6 +105,19 @@ def convert_to_ifdo(dataset_metadata: dict[str, Any], metadata: pd.DataFrame, ou
         # raise_value_error(f"Validation errors: {error_messages}")
     with Path(output_path).open("w") as file:
         json.dump(ifdo_data, file, indent=4)
+
+
+def _serialize_timestamps(value: object) -> object:
+    """Convert timestamps in the assembled iFDO payload to JSON values."""
+    if value is pd.NaT:
+        return None
+    if isinstance(value, datetime):
+        return value.isoformat()
+    if isinstance(value, dict):
+        return {key: _serialize_timestamps(item) for key, item in value.items()}
+    if isinstance(value, list | tuple):
+        return [_serialize_timestamps(item) for item in value]
+    return value
 
 
 def parse_ifdo_items(metadata: pd.DataFrame, ifdo_schema: dict[str, Any]) -> tuple[dict[str, Any], list[str]]:
