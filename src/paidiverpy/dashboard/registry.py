@@ -13,6 +13,7 @@ from pydantic_core import PydanticUndefined
 from paidiverpy.models.colour_params import COLOUR_LAYER_METHODS
 from paidiverpy.models.convert_params import CONVERT_LAYER_METHODS
 from paidiverpy.models.general_config import GeneralConfig
+from paidiverpy.models.library_params import LibraryConfig
 from paidiverpy.models.position_params import POSITION_LAYER_METHODS
 from paidiverpy.models.sampling_params import SAMPLING_LAYER_METHODS
 from paidiverpy.models.step_config import CustomConfig
@@ -84,6 +85,20 @@ def dashboard_registry() -> dict[str, Any]:
                 }
             )
         categories.append({"name": category, "label": category.title(), "modes": modes})
+    categories.append(
+        {
+            "name": "library",
+            "label": "Library",
+            "modes": [
+                {
+                    "name": "library",
+                    "label": "OpenCV / scikit-image",
+                    "description": "Apply a public OpenCV or scikit-image function to every image.",
+                    "fields": _model_fields(LibraryConfig, {"name", "step_name", "test"}),
+                }
+            ],
+        }
+    )
     categories.append(
         {
             "name": "custom",

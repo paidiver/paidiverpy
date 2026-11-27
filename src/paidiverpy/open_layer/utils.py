@@ -139,6 +139,7 @@ def pad_image(img: np.ndarray[Any, Any] | da.core.Array, target_height: int, tar
 
     return np.pad(img, pad_cfg, mode="constant", constant_values=0)
 
+
 def load_raw_image(
     img_path: str | BytesIO, image_type: str, image_open_args: dict[str, Any], remote: bool = False
 ) -> np.ndarray[Any, Any] | da.core.Array:

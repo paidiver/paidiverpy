@@ -11,6 +11,7 @@ import yaml
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
 from paidiverpy.models.general_config import GeneralConfig
+from paidiverpy.models.library_params import LibraryConfig
 from paidiverpy.models.step_config import ColourConfig
 from paidiverpy.models.step_config import ConvertConfig
 from paidiverpy.models.step_config import CustomConfig
@@ -30,6 +31,7 @@ if TYPE_CHECKING:
     from paidiverpy.convert_layer import ConvertLayer
     from paidiverpy.custom_layer import CustomLayer
     from paidiverpy.investigation_layer import InvestigationLayer
+    from paidiverpy.library_layer import LibraryLayer
     from paidiverpy.position_layer import PositionLayer
     from paidiverpy.sampling_layer import SamplingLayer
 
@@ -42,6 +44,7 @@ config_name_mapping = {
     "position": PositionConfig,
     "sampling": SamplingConfig,
     "custom": CustomConfig,
+    "library": LibraryConfig,
 }
 
 
@@ -210,6 +213,7 @@ class Configuration:
         | type["SamplingLayer"]
         | type["CustomLayer"]
         | type["InvestigationLayer"]
+        | type["LibraryLayer"]
         | None = None,
     ) -> int:
         """Add a step to the configuration.

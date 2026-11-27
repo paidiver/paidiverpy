@@ -98,26 +98,39 @@ class Paidiverpy:
             ImagesLayer | None: The images object.
         """
         mode = self.step_metadata.get("mode", "")
-        test = self.step_metadata.get("test", False)
         params: dict[str, Any] | BaseModel = self.step_metadata.get("params") or {}
         method, params = self._get_method_by_mode(params, self.layer_methods, mode)
-        # method, params = self._get_method_by_mode(params, self.layer_methods, mode, False)
         images = self.process_images(method, params)
+        self.update_image_step(images, add_new_step)
+        if not add_new_step and not self.step_metadata.get("test", False):
+            return self.images
+        return None
+
+    def update_image_step(self, images: xr.Dataset, add_new_step: bool = True, metadata: pd.DataFrame | None = None) -> None:
+        """Update the images object with the new step.
+
+        Args:
+            images (xr.Dataset): The processed images.
+            add_new_step (bool, optional): Whether to add a new step. Defaults to True.
+            metadata (pd.DataFrame | None, optional): The metadata to set. Defaults to None.
+        """
+        test = self.step_metadata.get("test", False)
         if not test:
             self.step_name = f"step_{self.config_index}" if not self.step_name else self.step_name
+            if metadata is not None:
+                self.set_metadata(metadata)
             if add_new_step:
                 self.images.add_step(
                     step=self.step_name,
                     images=images,
                     step_metadata=self.step_metadata,
+                    metadata=metadata,
                     track_changes=self.track_changes,
                 )
-                return None
-            self.images.replace_step(images=images)
-            return self.images
-        return None
+            else:
+                self.images.replace_step(images=images)
 
-    def process_images(self, method: Callable, params: dict[str, Any] | BaseModel) -> xr.Dataset:
+    def process_images(self, method: Callable, params: dict[str, Any] | BaseModel, *, strict_target: str | None = None) -> xr.Dataset:
         """Process the images sequentially.
 
         Method to process the images sequentially.
@@ -125,6 +138,7 @@ class Paidiverpy:
         Args:
             method (Callable): The method to apply to the images.
             params (dict | BaseModel): The parameters for the method.
+            strict_target (str | None): Function name for strict output validation.
 
         Returns:
             xr.Dataset: A dataset containing the processed images and the metadata.
@@ -144,6 +158,9 @@ class Paidiverpy:
         # meta_img = np.empty((0, 0, 0), dtype=images["images"].dtype)
         # meta_metadata = np.empty((), dtype=object)
         metadata = self.get_metadata().set_index("filename")
+        output_bands = dask_gufunc_kwargs.get("output_sizes", {}).get("new_band")
+        if strict_target is not None and output_bands is None:
+            output_bands = images.sizes["band"]
         processed_images, original_height, original_width = xr.apply_ufunc(
             Paidiverpy.process_single,
             images["images"],
@@ -157,7 +174,7 @@ class Paidiverpy:
             dask="parallelized",
             output_dtypes=[output_dtype, int, int],
             dask_gufunc_kwargs=dask_gufunc_kwargs,
-            kwargs={"output_bands": dask_gufunc_kwargs.get("output_sizes", {}).get("new_band"), "func": func, "metadata": metadata},
+            kwargs={"output_bands": output_bands, "func": func, "metadata": metadata, "strict_target": strict_target},
         )
         processed_images["original_height"].data = original_height.to_numpy()
         processed_images["original_width"].data = original_width.to_numpy()
@@ -456,6 +473,7 @@ class Paidiverpy:
         output_bands: int | None,
         func: Callable,
         metadata: pd.DataFrame,
+        strict_target: str | None = None,
     ) -> tuple[np.ndarray[Any, Any], int, int]:
         """Wrapper to process a single image with its metadata.
 
@@ -468,6 +486,7 @@ class Paidiverpy:
             output_bands (int): The number of output bands.
             func (Callable): The processing function.
             metadata (pd.DataFrame): The metadata DataFrame.
+            strict_target (str | None): Function name for strict output validation.
 
         Returns:
             tuple: A tuple containing the processed image, height, and width.
@@ -482,6 +501,9 @@ class Paidiverpy:
         if processed_crop.ndim == NUM_DIMENSIONS_GREY:
             processed_crop = np.expand_dims(processed_crop, axis=-1)
         if output_bands is not None and output_bands != processed_crop.shape[-1]:
+            if strict_target is not None:
+                msg = f"Function '{strict_target}' failed for image '{filename}': expected {output_bands} bands, got {processed_crop.shape[-1]}"
+                raise RuntimeError(msg)
             return np.zeros((img.shape[0], img.shape[1], output_bands), dtype=img.dtype), height, width
         if processed_crop.shape[0] != height:
             height = processed_crop.shape[0]

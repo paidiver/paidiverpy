@@ -88,11 +88,45 @@ autoapi_options = [
     "show-inheritance",
     "show-module-summary",
     "special-members",
-    "imported-members",
     "no-private-members",
     "no-inherited-members",
     "no-class-attributes",
 ]
+
+# Keep implementation modules available to AutoAPI's import resolver, but
+# publish these classes only at their supported, shorter import paths.
+PUBLIC_API_CLASSES = {
+    "paidiverpy.Paidiverpy": "paidiverpy.paidiverpy",
+    "paidiverpy.colour_layer.ColourLayer": "paidiverpy.colour_layer.colour_layer",
+    "paidiverpy.config.Configuration": "paidiverpy.config.configuration",
+    "paidiverpy.convert_layer.ConvertLayer": "paidiverpy.convert_layer.convert_layer",
+    "paidiverpy.custom_layer.CustomLayer": "paidiverpy.custom_layer.custom_layer",
+    "paidiverpy.investigation_layer.InvestigationLayer": "paidiverpy.investigation_layer.investigation_layer",
+    "paidiverpy.library_layer.LibraryLayer": "paidiverpy.library_layer.library_layer",
+    "paidiverpy.metadata_parser.MetadataParser": "paidiverpy.metadata_parser.metadata_parser",
+    "paidiverpy.open_layer.OpenLayer": "paidiverpy.open_layer.open_layer",
+    "paidiverpy.pipeline.Pipeline": "paidiverpy.pipeline.pipeline",
+    "paidiverpy.position_layer.PositionLayer": "paidiverpy.position_layer.position_layer",
+    "paidiverpy.sampling_layer.SamplingLayer": "paidiverpy.sampling_layer.sampling_layer",
+}
+
+exclude_patterns.extend(
+    f"{autoapi_root}/{module.replace('.', '/')}/index.rst" for module in PUBLIC_API_CLASSES.values()
+)
+
+
+def skip_implementation_members(_app, what, name, _obj, _skip, _options):
+    """Show public aliases and hide their implementation module pages."""
+    if what == "module" and name in PUBLIC_API_CLASSES.values():
+        return True
+    if what == "class" and name in PUBLIC_API_CLASSES:
+        return False
+    return None
+
+
+def setup(app):
+    """Register the AutoAPI member selection hook."""
+    app.connect("autoapi-skip-member", skip_implementation_members)
 
 # -- Options for HTML output ----------------------------------------------
 

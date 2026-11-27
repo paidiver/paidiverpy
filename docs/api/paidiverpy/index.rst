@@ -40,10 +40,10 @@ Submodules
    /api/paidiverpy/dashboard/index
    /api/paidiverpy/images_layer/index
    /api/paidiverpy/investigation_layer/index
+   /api/paidiverpy/library_layer/index
    /api/paidiverpy/metadata_parser/index
    /api/paidiverpy/models/index
    /api/paidiverpy/open_layer/index
-   /api/paidiverpy/paidiverpy/index
    /api/paidiverpy/pipeline/index
    /api/paidiverpy/position_layer/index
    /api/paidiverpy/sampling_layer/index
@@ -56,14 +56,6 @@ Classes
 .. autoapisummary::
 
    paidiverpy.Paidiverpy
-
-
-Functions
----------
-
-.. autoapisummary::
-
-   paidiverpy.show_versions
 
 
 Package Contents
@@ -152,7 +144,37 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: process_images(method: collections.abc.Callable, params: dict[str, Any] | paidiverpy.utils.base_model.BaseModel) -> xarray.Dataset
+   .. py:method:: update_image_step(images: xarray.Dataset, add_new_step: bool = True, metadata: pandas.DataFrame | None = None) -> None
+
+      
+      Update the images object with the new step.
+
+      :param images: The processed images.
+      :type images: xr.Dataset
+      :param add_new_step: Whether to add a new step. Defaults to True.
+      :type add_new_step: bool, optional
+      :param metadata: The metadata to set. Defaults to None.
+      :type metadata: pd.DataFrame | None, optional
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: process_images(method: collections.abc.Callable, params: dict[str, Any] | paidiverpy.utils.base_model.BaseModel, *, strict_target: str | None = None) -> xarray.Dataset
 
       
       Process the images sequentially.
@@ -163,6 +185,8 @@ Package Contents
       :type method: Callable
       :param params: The parameters for the method.
       :type params: dict | BaseModel
+      :param strict_target: Function name for strict output validation.
+      :type strict_target: str | None
 
       :returns: A dataset containing the processed images and the metadata.
       :rtype: xr.Dataset
@@ -395,7 +419,7 @@ Package Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: process_single(img: numpy.ndarray[Any, Any], flag: int, height: int, width: int, filename: str, output_bands: int | None, func: collections.abc.Callable, metadata: pandas.DataFrame) -> tuple[numpy.ndarray[Any, Any], int, int]
+   .. py:method:: process_single(img: numpy.ndarray[Any, Any], flag: int, height: int, width: int, filename: str, output_bands: int | None, func: collections.abc.Callable, metadata: pandas.DataFrame, strict_target: str | None = None) -> tuple[numpy.ndarray[Any, Any], int, int]
       :staticmethod:
 
 
@@ -418,6 +442,8 @@ Package Contents
       :type func: Callable
       :param metadata: The metadata DataFrame.
       :type metadata: pd.DataFrame
+      :param strict_target: Function name for strict output validation.
+      :type strict_target: str | None
 
       :returns: A tuple containing the processed image, height, and width.
       :rtype: tuple
@@ -439,31 +465,4 @@ Package Contents
       ..
           !! processed by numpydoc !!
 
-
-.. py:function:: show_versions(file: TextIO = sys.stdout, conda: bool = False) -> None
-
-   
-   Print the versions of paidiverpy and its dependencies.
-
-   :param file: The file to write the versions to. Defaults to sys.stdout.
-   :type file: TextIO, optional
-   :param conda: Whether to format the output for conda. Defaults to False.
-   :type conda: bool, optional
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   ..
-       !! processed by numpydoc !!
 

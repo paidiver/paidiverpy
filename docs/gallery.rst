@@ -238,6 +238,36 @@ Notebook Examples
 
                     :fas:`file-arrow-down` Download notebook
 
+    .. grid-item-card:: Apply OpenCV and scikit-image filters
+        :img-top: _static/library_layer_logos.png
+        :img-alt: OpenCV and scikit-image logos
+
+        |mode_standard|
+        ^^^
+        Configure filters from `OpenCV <https://opencv.org/>`_ and
+        `scikit-image <https://scikit-image.org/>`_ in YAML, then compare the same
+        image at each step using previews and a pixel difference heatmap.
+
+        :ref:`Read the step-by-step guide <guide_library_functions>`.
+        +++
+        .. grid:: 2 2 2 2
+
+            .. grid-item::
+
+                .. button-link:: https://nbviewer.org/github/paidiver/paidiverpy/blob/main/examples/example_notebooks/library_layer_tutorial.ipynb
+                    :color: primary
+                    :outline:
+
+                    :fas:`eye` Online viewer
+
+            .. grid-item::
+
+                .. button-link:: https://github.com/paidiver/paidiverpy/blob/main/examples/example_notebooks/library_layer_tutorial.ipynb
+                    :color: primary
+                    :outline:
+
+                    :fas:`file-arrow-down` Download notebook
+
     .. grid-item-card:: Use remote data
         :img-top: _static/nb_examples_10.png
 

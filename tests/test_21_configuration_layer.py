@@ -57,6 +57,7 @@ def test_configuration_add_general_validate_rolls_back(monkeypatch: pytest.Monke
 
 def test_configuration_validate_config_remote_schema_and_error(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
     """Test the validation of the configuration with a remote schema and error handling."""
+
     class _FakeValidatorOk:
         def __init__(self, _schema: object):
             pass
@@ -237,6 +238,7 @@ def test_configuration_load_steps_invalid_name():
     with pytest.raises(ValueError, match="Invalid step name"):
         config._load_steps({"steps": [{"unknown": {"name": "bad"}}]})  # noqa: SLF001
 
+
 def test_general_config_required_fields_validation():
     """Test GeneralConfig required field validation branches."""
     with pytest.raises(ValueError, match="Either 'sample_data' or 'input_path' must be provided"):
@@ -248,6 +250,7 @@ def test_general_config_update_revalidates_values(tmp_path: Path):
     cfg = GeneralConfig(input_path=str(tmp_path), output_path="output")
     updated = cfg.update(output_path=str(tmp_path / "new-output"))
     assert updated.output_path == Path(tmp_path / "new-output")
+
 
 def test_configuration_init_with_add_steps_uses_add_step_path():
     """Cover __init__ branch that iterates add_steps when general exists."""

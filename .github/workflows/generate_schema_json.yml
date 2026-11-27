@@ -13,28 +13,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Miniconda
-        uses: conda-incubator/setup-miniconda@v3
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
 
-      - name: Initialize Conda
-        run: |
-          conda init bash
-
-      - name: Create conda environment
-        run: |
-          conda env create -f environment.yml
-          source ~/.bashrc
-          conda activate Paidiverpy
-          pip install -e .
-
+      - name: Install package
+        run: python -m pip install -e .
 
       - name: Generate Json Schema
-        run: |
-          source ~/.bashrc
-          conda activate Paidiverpy
-          python src/paidiverpy/utils/schema_json_handler.py src/paidiverpy/configuration-schema.json
+        run: python -m paidiverpy.utils.schema_json_handler src/paidiverpy/configuration-schema.json
 
       - name: Commit and push changes (if any)
         run: |

@@ -34,7 +34,6 @@ Submodules
    :maxdepth: 1
 
    /api/paidiverpy/metadata_parser/ifdo_tools/index
-   /api/paidiverpy/metadata_parser/metadata_parser/index
 
 
 Classes

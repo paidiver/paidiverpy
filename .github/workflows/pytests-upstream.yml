@@ -16,7 +16,7 @@ jobs:
 
     defaults:
       run:
-        shell: bash -l {0}
+        shell: bash
 
     strategy:
       fail-fast: false
@@ -31,35 +31,18 @@ jobs:
         with:
           ref: ${{ matrix.branch }}
 
-      - name: Set up Miniconda
-        uses: conda-incubator/setup-miniconda@v3
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          environment-file: environment.yml
-          activate-environment: Paidiverpy
           python-version: ${{ matrix.python-version }}
-          auto-activate-base: false
-          conda-solver: libmamba
+          cache: pip
+          cache-dependency-path: pyproject.toml
 
-      - name: Configure Conda retries
-        run: |
-          conda config --set remote_read_timeout_secs 60
-          conda config --set remote_connect_timeout_secs 60
-          conda config --set remote_max_retries 3
-
-      - name: Initialize Conda
-        run: conda init bash
-
-      - name: Install package
-        run: |
-          conda activate Paidiverpy
-          python -m pip install -e .
-          python -m pip install -e ".[test]"
-          python -m pip install -e ".[dev,publishing]"
-          python -m pip install nbconvert nbclient
+      - name: Install package and notebook tools
+        run: python -m pip install -e ".[test,gui,notebooks]"
 
       - name: Test with pytest
         run: |
-          conda activate Paidiverpy
           pytest -ra -v -s \
             --cov \
             --cov-report xml:cov.xml \
@@ -67,12 +50,11 @@ jobs:
             --junitxml=junit.xml -o junit_family=legacy
 
       - name: Run Notebooks in "examples/example_notebooks"
-        shell: bash -l {0}
         run: |
           for notebook in examples/example_notebooks/*.ipynb; do
             echo "Running $notebook..."
             notebook_name=$(basename "$notebook")
             executed_notebook="executed_$notebook_name"
-            (cd examples/example_notebooks && conda run -n Paidiverpy jupyter nbconvert --to notebook --execute "$notebook_name" --output "$executed_notebook") || exit 1
+            (cd examples/example_notebooks && jupyter nbconvert --to notebook --execute "$notebook_name" --output "$executed_notebook") || exit 1
             mv -f examples/example_notebooks/"$executed_notebook" examples/example_notebooks/"$notebook_name"
           done

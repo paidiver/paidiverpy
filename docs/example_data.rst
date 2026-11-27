@@ -49,11 +49,11 @@ Benthic 1: Dataset name **"benthic_csv"**
 - Equipment: Camera mounted on the front of an ROV
 - Metadata: CSV File
 
-.. image:: _static/benthic_cc2.png
+.. image:: _static/benthic_hf2.png
    :width: 100px
    :alt: Clarion Clipperton Image 1
 
-.. image:: _static/benthic_cc1.png
+.. image:: _static/benthic_hf1.png
     :width: 500px
     :alt: Clarion Clipperton Image 2
 
@@ -62,18 +62,25 @@ Benthic 2: Dataset name **"benthic_ifdo"**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Benthic Images (2012) – Haig Fras, UK.
-- Equipment: Camera mounted on the front of an ROV
+- Equipment: Camera mounted on the Autosub6000 autonomous underwater vehicle
 - Metadata: IFDO File
 - Citation: Benoist, N.; Bett, B.J.; Morris, K.; Ruhl, H. (2023): Greater Haig Fras autonomous underwater vehicle seafloor survey - mosaicked image tiles used to assess benthic assemblages and seabed types (2012).. NERC EDS British Oceanographic Data Centre NOC, 27 November 2023. doi:10.5285/093edbc7-3552-3d35-e063-6c86abc099d5. https://dx.doi.org/10.5285/093edbc7-3552-3d35-e063-6c86abc099d5
 
-.. image:: _static/benthic_hf2.png
+.. image:: _static/benthic_cc2.png
     :width: 100px
-    :alt: Haig Fras Image 1
+    :alt: Greater Haig Fras seafloor imagery
 
-.. image:: _static/benthic_hf1.png
+.. image:: _static/benthic_cc1.png
     :width: 500px
-    :alt: Haig Fras Image 2
+    :alt: Map of Greater Haig Fras in the Celtic Sea
 
+Benthic 3: Dataset name **"benthic_ifdo2"**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Benthic Images (2013) – East of Haig Fras Marine Conservation Zone, UK.
+- Survey: CEND0513 aboard the RV Cefas Endeavour.
+- Metadata: IFDO File
+- Citation: Joint Nature Conservation Committee (JNCC) and Cefas (2013). East of Haig Fras Marine Conservation Zone survey. RV Cefas Endeavour.
 
 Nikon Raw Sample images: Dataset name **"nef_raw"**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -81,8 +88,7 @@ Nikon Raw Sample images: Dataset name **"nef_raw"**
 - Sample `.NEF` images available in this link: `MannyPhoto's Nikon samples <https://www.mannyphoto.com/D700D3/>`_.
 - Metadata: CSV File
 
-
-Benthic 3: Dataset name **"benthic_raw"**
+Benthic 4: Dataset name **"benthic_raw"**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Benthic Images (2014) – Clarion Clipperton Zone (~4000m depth), `JS257 RSS James Cook Cruise <https://catalogue.ceda.ac.uk/uuid/446b1380fbd54a5ab9eb5244b3d5c2ac/?q=&sort_by=title_asc&results_per_page=20&objects_related_to_uuid=446b1380fbd54a5ab9eb5244b3d5c2ac&jump=related-anchor>`_.

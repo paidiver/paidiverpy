@@ -11,6 +11,7 @@ from paidiverpy.models.colour_params import ColourParamsUnion
 from paidiverpy.models.convert_params import CONVERT_LAYER_METHODS
 from paidiverpy.models.convert_params import ConvertParamsUnion
 from paidiverpy.models.custom_params import CustomParams
+from paidiverpy.models.library_params import LibraryConfig
 from paidiverpy.models.position_params import POSITION_LAYER_METHODS
 from paidiverpy.models.position_params import PositionParamsUnion
 from paidiverpy.models.sampling_params import SAMPLING_LAYER_METHODS
@@ -164,4 +165,4 @@ class CustomConfig(BaseModel):
     params: CustomParams | None = Field(default=None, description="Custom parameters")
 
 
-StepConfigUnion = ColourConfig | ConvertConfig | CustomConfig | PositionConfig | SamplingConfig
+StepConfigUnion = ColourConfig | ConvertConfig | CustomConfig | LibraryConfig | PositionConfig | SamplingConfig

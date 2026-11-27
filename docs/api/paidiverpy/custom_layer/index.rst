@@ -27,15 +27,6 @@ paidiverpy.custom_layer
        !! processed by numpydoc !!
 
 
-Submodules
-----------
-
-.. toctree::
-   :maxdepth: 1
-
-   /api/paidiverpy/custom_layer/custom_layer/index
-
-
 Classes
 -------
 

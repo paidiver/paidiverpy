@@ -27,15 +27,6 @@ paidiverpy.colour_layer
        !! processed by numpydoc !!
 
 
-Submodules
-----------
-
-.. toctree::
-   :maxdepth: 1
-
-   /api/paidiverpy/colour_layer/colour_layer/index
-
-
 Classes
 -------
 

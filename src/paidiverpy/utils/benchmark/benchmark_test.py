@@ -176,6 +176,7 @@ def benchmark_threads(benchmark_params: dict[str, Any], configuration_file: str 
         gc.collect()
     return benchmark_results
 
+
 def benchmark_local(benchmark_params: dict[str, Any], configuration_file: str | Path, logger: logging.Logger) -> list[dict[str, Any]]:
     """Handle the benchmark test for LocalCluster.
 

@@ -105,7 +105,37 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: process_images(method: collections.abc.Callable, params: dict[str, Any] | paidiverpy.utils.base_model.BaseModel) -> xarray.Dataset
+   .. py:method:: update_image_step(images: xarray.Dataset, add_new_step: bool = True, metadata: pandas.DataFrame | None = None) -> None
+
+      
+      Update the images object with the new step.
+
+      :param images: The processed images.
+      :type images: xr.Dataset
+      :param add_new_step: Whether to add a new step. Defaults to True.
+      :type add_new_step: bool, optional
+      :param metadata: The metadata to set. Defaults to None.
+      :type metadata: pd.DataFrame | None, optional
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: process_images(method: collections.abc.Callable, params: dict[str, Any] | paidiverpy.utils.base_model.BaseModel, *, strict_target: str | None = None) -> xarray.Dataset
 
       
       Process the images sequentially.
@@ -116,6 +146,8 @@ Module Contents
       :type method: Callable
       :param params: The parameters for the method.
       :type params: dict | BaseModel
+      :param strict_target: Function name for strict output validation.
+      :type strict_target: str | None
 
       :returns: A dataset containing the processed images and the metadata.
       :rtype: xr.Dataset
@@ -348,7 +380,7 @@ Module Contents
           !! processed by numpydoc !!
 
 
-   .. py:method:: process_single(img: numpy.ndarray[Any, Any], flag: int, height: int, width: int, filename: str, output_bands: int | None, func: collections.abc.Callable, metadata: pandas.DataFrame) -> tuple[numpy.ndarray[Any, Any], int, int]
+   .. py:method:: process_single(img: numpy.ndarray[Any, Any], flag: int, height: int, width: int, filename: str, output_bands: int | None, func: collections.abc.Callable, metadata: pandas.DataFrame, strict_target: str | None = None) -> tuple[numpy.ndarray[Any, Any], int, int]
       :staticmethod:
 
 
@@ -371,6 +403,8 @@ Module Contents
       :type func: Callable
       :param metadata: The metadata DataFrame.
       :type metadata: pd.DataFrame
+      :param strict_target: Function name for strict output validation.
+      :type strict_target: str | None
 
       :returns: A tuple containing the processed image, height, and width.
       :rtype: tuple

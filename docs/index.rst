@@ -41,6 +41,7 @@ Documentation
 
     guide/performance/index
     guide/custom_algorithms/index
+    guide/library_functions/index
     guide/remote_data
     guide/image_formats/index
     guide/rename_images/index
@@ -53,7 +54,7 @@ Documentation
 
     contributing
     cli_docker
-    api
+    api/index
 
 
 .. Indices and tables

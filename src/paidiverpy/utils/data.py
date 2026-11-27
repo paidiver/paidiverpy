@@ -49,6 +49,12 @@ DATASET_URLS = {
         "metadata_path": "metadata_benthic_ifdo.json",
         "image_open_args": "JPG",
     },
+    "benthic_ifdo2": {
+        "url": "https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/benthic_ifdo2.zip",
+        "metadata_type": "IFDO",
+        "metadata_path": "metadata_benthic_ifdo2.json",
+        "image_open_args": "JPG",
+    },
     "nef_raw": {
         "url": "https://paidiver-o.s3-ext.jc.rl.ac.uk/paidiverpy/data/nef_raw.zip",
         "metadata_type": "CSV_FILE",

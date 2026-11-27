@@ -185,6 +185,7 @@ class TestIFDOUtilsClass(BaseTestClass):
             "image-set-header": {"image-set-ifdo-version": "v2.1.0"},
             "image-set-items": {},
         }
+
         class _FakeValidator:
             def __init__(self, _schema: dict):
                 pass
@@ -211,13 +212,10 @@ class TestIFDOUtilsClass(BaseTestClass):
                 errors = ifdo_tools.validate_ifdo(file_path=str(ifdo_file))
                 assert errors == []
 
-
-
     def test_ifdo_validate_missing_both_params(self):
         """Test validate_ifdo when both file_path and ifdo_data are missing."""
         with pytest.raises(ValueError, match="Either file_path or ifdo_data"):
             ifdo_tools.validate_ifdo()
-
 
     def test_ifdo_format_error_message(self):
         """Test format_ifdo_validation_error for short and long paths."""

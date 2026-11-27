@@ -117,15 +117,8 @@ class PositionLayer(Paidiverpy):
             self.config.remove_step(self.config_index)
             return metadata
         if not test:
-            self.step_name = f"position_{mode}" if not self.step_name else self.step_name
-            self.set_metadata(new_metadata)
-            self.images.add_step(
-                step=self.step_name,
-                images=self.images.get_step(last=True),
-                step_metadata=self.step_metadata,
-                metadata=new_metadata,
-                track_changes=self.track_changes,
-            )
+            self.step_name = self.step_name or f"position_{mode}"
+            self.update_image_step(self.images.get_step(last=True), metadata=new_metadata)
         return None
 
     def calculate_corners(self, step_order: int | None = None, params: CalculateCornersParams = None, test: bool = False) -> pd.DataFrame | None:

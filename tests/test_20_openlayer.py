@@ -223,8 +223,10 @@ def test_image_open_args_raw_format():
     args = ImageOpenArgs(image_type="raw", params={"width": 1, "height": 1, "bit_depth": 8})
     assert args.image_type == "raw"
 
+
 def test_open_utils_extract_exif_without_name(monkeypatch: pytest.MonkeyPatch):
     """Test extract_exif_single without image_name (returns empty dict)."""
+
     class _FakeImage:
         def getexif(self) -> dict:
             return {1: "value"}
@@ -249,11 +251,7 @@ def test_open_utils_pad_image_basic():
 def test_open_utils_load_raw_unsupported_format(monkeypatch: pytest.MonkeyPatch):
     """Test load_raw_image with unsupported format (UnsupportedError)."""
     monkeypatch.setattr(open_utils.rawpy, "LibRawFileUnsupportedError", RuntimeError)
-    monkeypatch.setattr(
-        open_utils.rawpy,
-        "imread",
-        lambda *_a, **_k: (_ for _ in ()).throw(RuntimeError("unsupported"))
-    )
+    monkeypatch.setattr(open_utils.rawpy, "imread", lambda *_a, **_k: (_ for _ in ()).throw(RuntimeError("unsupported")))
 
     result = open_utils.load_raw_image("fake.nef", "nef", {"use_camera_wb": True}, remote=False)
     assert result is None

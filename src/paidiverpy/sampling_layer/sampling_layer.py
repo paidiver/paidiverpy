@@ -138,16 +138,9 @@ class SamplingLayer(Paidiverpy):
             self.logger.error("Sampling layer step will be skipped.")
         if not add_new_step:
             return new_metadata.loc[new_metadata["flag"] == 0]
-        if not test and add_new_step:
-            self.step_name = f"trim_{mode}" if not self.step_name else self.step_name
-            self.set_metadata(new_metadata)
-            self.images.add_step(
-                step=self.step_name,
-                images=self.images.get_step(last=True),
-                step_metadata=self.step_metadata,
-                metadata=new_metadata,
-                track_changes=self.track_changes,
-            )
+        if not test:
+            self.step_name = self.step_name or f"trim_{mode}"
+            self.update_image_step(self.images.get_step(last=True), metadata=new_metadata)
         return None
 
     def _by_percent(

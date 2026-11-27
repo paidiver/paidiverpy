@@ -150,10 +150,7 @@ def test_data_copy_files_docker(tmp_path: Path, monkeypatch: pytest.MonkeyPatch)
     helper.copy_files_docker(extract_dir, "demo")
 
     rmtree_calls = [normalise_path(path) for path in calls["rmtree"]]
-    copytree_calls = [
-        (normalise_path(src), normalise_path(dst))
-        for src, dst in calls["copytree"]
-    ]
+    copytree_calls = [(normalise_path(src), normalise_path(dst)) for src, dst in calls["copytree"]]
 
     assert any("/app/sample_data/demo/metadata" in path for path in rmtree_calls)
     assert any("/app/sample_data/demo/input" in path for path in rmtree_calls)
@@ -340,12 +337,14 @@ def test_locals_get_sys_info_with_popen(monkeypatch: pytest.MonkeyPatch):
     Args:
         monkeypatch (pytest.MonkeyPatch): A pytest fixture for monkeypatching functions and attributes during tests.
     """
+
     class _FakePath:
         """A fake Path class to simulate directory checks in get_sys_info.
 
         Args:
             name (str): The name of the path to simulate.
         """
+
         def __init__(self, name: str):
             self.name = name
 
@@ -355,6 +354,7 @@ def test_locals_get_sys_info_with_popen(monkeypatch: pytest.MonkeyPatch):
 
     class _FakePipe:
         """A fake pipe object to simulate subprocess.Popen behavior for get_sys_info."""
+
         returncode = 0
 
         def communicate(self) -> tuple[bytes, bytes]:
@@ -479,6 +479,7 @@ def test_locals_show_versions_conda_format(monkeypatch: pytest.MonkeyPatch):
     result = output.getvalue()
     assert "#" in result
 
+
 def test_locals_show_versions_standard_format(monkeypatch: pytest.MonkeyPatch):
     """Test show_versions with conda=False."""
     monkeypatch.setattr(local_utils, "get_sys_info", lambda: [("python", "3.10")])
@@ -492,6 +493,7 @@ def test_locals_show_versions_standard_format(monkeypatch: pytest.MonkeyPatch):
 
 def test_locals_get_sys_info_git_missing(monkeypatch: pytest.MonkeyPatch):
     """Test get_sys_info when .git directory missing."""
+
     class _FakePath:
         def __init__(self, *_args: object, **_kwargs: object):
             pass

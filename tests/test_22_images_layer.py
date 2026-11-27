@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     import io
     from pathlib import Path
 
+
 def test_images_layer_save_remote_creates_client_and_bucket(monkeypatch: pytest.MonkeyPatch):
     """Cover remote-save branch that creates client and ensures bucket exists."""
     images_layer = ImagesLayer(output_path="unused")

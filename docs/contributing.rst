@@ -283,24 +283,17 @@ Virtual environment
 -------------------
 
 
-To set up a development environment, you can use either `conda` (recommended) or `venv`.
+Use either `conda` or `venv` to isolate Python. Pip installs the package
+dependencies and the selected development tools from ``pyproject.toml``.
 
 - Option A: conda
 
   .. code-block:: bash
 
-   conda init
-   exec bash  # restart terminal if needed
-
    conda env create -f environment.yml
    conda activate Paidiverpy
 
-   # install paidiverpy as editable package
-   pip install --no-cache-dir --editable .
-   # install dev dependencies
-   pip install --no-cache-dir --editable .[dev]
-   # install docs dependencies only
-   pip install --no-cache-dir --editable .[docs]
+   python -m pip install -e ".[dev,test,gui]"
 
 - Option B: venv
 
@@ -310,14 +303,10 @@ To set up a development environment, you can use either `conda` (recommended) or
    python -m venv env
    source env/bin/activate
 
-   python -m pip install --upgrade pip setuptools
+   python -m pip install -e ".[dev,test,gui]"
 
-   # install paidiverpy as editable package
-   python -m pip install --no-cache-dir --editable .
-   # install dev dependencies
-   python -m pip install --no-cache-dir --editable .[dev]
-   # install docs dependencies only
-   python -m pip install --no-cache-dir --editable .[docs]
+Include ``docs`` or ``notebooks`` among the extras if you need to build the
+documentation or run the example notebooks.
 
 ---
 

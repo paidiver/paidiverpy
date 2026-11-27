@@ -34,7 +34,6 @@ Submodules
    :maxdepth: 1
 
    /api/paidiverpy/pipeline/events/index
-   /api/paidiverpy/pipeline/pipeline/index
    /api/paidiverpy/pipeline/pipeline_params/index
 
 
@@ -43,59 +42,11 @@ Classes
 
 .. autoapisummary::
 
-   paidiverpy.pipeline.RunEvent
    paidiverpy.pipeline.Pipeline
 
 
 Package Contents
 ----------------
-
-.. py:class:: RunEvent
-
-   
-   A lifecycle event produced while a pipeline executes.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   ..
-       !! processed by numpydoc !!
-
-   .. py:method:: to_dict() -> dict[str, Any]
-
-      
-      Return a JSON-serializable representation without empty fields.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      ..
-          !! processed by numpydoc !!
-
 
 .. py:class:: Pipeline(config_params: dict[str, Any] | paidiverpy.config.config_params.ConfigParams | None = None, config_file_path: str | None = None, config: paidiverpy.config.configuration.Configuration | None = None, metadata: paidiverpy.metadata_parser.MetadataParser | None = None, steps: list[tuple[str, type, dict[str, Any]]] | None = None, track_changes: bool | None = None, event_callback: collections.abc.Callable[[paidiverpy.pipeline.events.RunEvent], None] | None = None, logger: logging.Logger | None = None, raise_error: bool = False, verbose: int = 2)
 

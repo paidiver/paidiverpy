@@ -26,7 +26,7 @@ class GeneralConfig(BaseModel):
     step_name: str = Field(
         "open", description="Step name. This is a placeholder for the first step name and should not be used in the configuration file."
     )
-    sample_data: Literal["plankton_csv", "benthic_csv", "benthic_ifdo", "nef_raw", "benthic_raw_images"] | None = Field(
+    sample_data: Literal["plankton_csv", "benthic_csv", "benthic_ifdo", "benthic_ifdo2", "nef_raw", "benthic_raw_images"] | None = Field(
         None,
         description="Sample data to use for testing. If provided, it will override input_path, metadata_path, and metadata_type.",
     )
@@ -59,9 +59,7 @@ class GeneralConfig(BaseModel):
     local_cluster: dict[str, Any] | None = Field(None, description="Parameters for the local cluster")
     dask_config_kwargs: dict[str, Any] | None = Field(
         None,
-        description=(
-            "Dask configuration keyword arguments. If provided, it will be used to update the Dask configuration settings."
-        ),
+        description=("Dask configuration keyword arguments. If provided, it will be used to update the Dask configuration settings."),
     )
     track_changes: bool = Field(True, description="Whether to track config changes. If True, it will store in memory the output images on each step")
     rename: Literal["UUID", "datetime"] | None = Field(

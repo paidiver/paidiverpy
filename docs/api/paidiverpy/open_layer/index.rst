@@ -33,7 +33,6 @@ Submodules
 .. toctree::
    :maxdepth: 1
 
-   /api/paidiverpy/open_layer/open_layer/index
    /api/paidiverpy/open_layer/utils/index
 
 
