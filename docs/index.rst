@@ -54,7 +54,7 @@ Documentation
 
     contributing
     cli_docker
-    api
+    api/index
 
 
 .. Indices and tables

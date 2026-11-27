@@ -26,7 +26,7 @@ class GeneralConfig(BaseModel):
     step_name: str = Field(
         "open", description="Step name. This is a placeholder for the first step name and should not be used in the configuration file."
     )
-    sample_data: Literal["plankton_csv", "benthic_csv", "benthic_ifdo", "nef_raw", "benthic_raw_images"] | None = Field(
+    sample_data: Literal["plankton_csv", "benthic_csv", "benthic_ifdo", "benthic_ifdo2", "nef_raw", "benthic_raw_images"] | None = Field(
         None,
         description="Sample data to use for testing. If provided, it will override input_path, metadata_path, and metadata_type.",
     )

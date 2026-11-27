@@ -67,6 +67,7 @@ In the example above, the configuration file outlines a pipeline with the follow
 
 Contains the general information about the pipeline, such as the input and output paths, metadata path, metadata type, image type, and sampling parameters.
 
+- `sample_data`: Select a bundled dataset by name. Paidiverpy fills in the input path, metadata path, and image format. For example, `benthic_ifdo2` selects the :ref:`JNCC East of Haig Fras sample <example_data_jncc>`.
 - `input_path`: The path to the input images. It can be a local or remote path (e.g., S3 bucket). If it is a private path, you may need to provide object storage credentials. More information on working with remote data, please refer to the :ref:`guide_remote_data`.
 - `output_path`: The path to save the output images. Default to **"./output"** It can be a local or remote path (e.g., S3 bucket). You need to have write permissions to this path. More information on working with remote data, please refer to the :ref:`guide_remote_data`.
 - `metadata_path`: The path to the metadata file. It needs to be in IFDO standard file (JSON) or CSV file with collumns similar to the IFDO standard. More information on working with metadata, please refer to the :ref:`images_metadata`. It can be a local or remote path (e.g., S3 bucket). More information on working with remote data, please refer to the :ref:`guide_remote_data`.
