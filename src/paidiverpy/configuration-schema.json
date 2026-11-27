@@ -1095,6 +1095,95 @@
             "title": "ImageOpenArgsRawPyParams",
             "type": "object"
         },
+        "LibraryConfig": {
+            "description": "Configuration for applying an OpenCV or scikit-image function.",
+            "properties": {
+                "name": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": "library",
+                    "description": "Name of the step",
+                    "title": "Name"
+                },
+                "step_name": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Step name",
+                    "title": "Step Name"
+                },
+                "test": {
+                    "default": false,
+                    "description": "Test mode",
+                    "title": "Test",
+                    "type": "boolean"
+                },
+                "library": {
+                    "description": "Library containing the function",
+                    "enum": [
+                        "opencv",
+                        "skimage"
+                    ],
+                    "title": "Library",
+                    "type": "string"
+                },
+                "function": {
+                    "description": "Public dotted path to the function within the selected library",
+                    "title": "Function",
+                    "type": "string"
+                },
+                "image_param": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Keyword parameter that receives the image; by default the image is the first positional argument",
+                    "title": "Image Param"
+                },
+                "result_index": {
+                    "anyOf": [
+                        {
+                            "type": "integer"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Index of the image in a tuple or list returned by the function",
+                    "title": "Result Index"
+                },
+                "params": {
+                    "additionalProperties": true,
+                    "description": "Keyword parameters passed to the function",
+                    "title": "Params",
+                    "type": "object"
+                }
+            },
+            "required": [
+                "library",
+                "function"
+            ],
+            "title": "LibraryConfig",
+            "type": "object"
+        },
         "NormalizeParams": {
             "description": "This class contains the parameters for the image normalization.",
             "properties": {
@@ -1684,95 +1773,6 @@
             },
             "title": "ToParams",
             "type": "object"
-        },
-        "LibraryConfig": {
-            "description": "Configuration for applying an OpenCV or scikit-image function.",
-            "properties": {
-                "name": {
-                    "anyOf": [
-                        {
-                            "type": "string"
-                        },
-                        {
-                            "type": "null"
-                        }
-                    ],
-                    "default": "library",
-                    "description": "Name of the step",
-                    "title": "Name"
-                },
-                "step_name": {
-                    "anyOf": [
-                        {
-                            "type": "string"
-                        },
-                        {
-                            "type": "null"
-                        }
-                    ],
-                    "default": null,
-                    "description": "Step name",
-                    "title": "Step Name"
-                },
-                "test": {
-                    "default": false,
-                    "description": "Test mode",
-                    "title": "Test",
-                    "type": "boolean"
-                },
-                "library": {
-                    "description": "Library containing the function",
-                    "enum": [
-                        "opencv",
-                        "skimage"
-                    ],
-                    "title": "Library",
-                    "type": "string"
-                },
-                "function": {
-                    "description": "Public dotted path to the function within the selected library",
-                    "title": "Function",
-                    "type": "string"
-                },
-                "image_param": {
-                    "anyOf": [
-                        {
-                            "type": "string"
-                        },
-                        {
-                            "type": "null"
-                        }
-                    ],
-                    "default": null,
-                    "description": "Keyword parameter that receives the image; by default the image is the first positional argument",
-                    "title": "Image Param"
-                },
-                "result_index": {
-                    "anyOf": [
-                        {
-                            "type": "integer"
-                        },
-                        {
-                            "type": "null"
-                        }
-                    ],
-                    "default": null,
-                    "description": "Index of the image in a tuple or list returned by the function",
-                    "title": "Result Index"
-                },
-                "params": {
-                    "additionalProperties": true,
-                    "description": "Keyword parameters passed to the function",
-                    "title": "Params",
-                    "type": "object"
-                }
-            },
-            "required": [
-                "library",
-                "function"
-            ],
-            "title": "LibraryConfig",
-            "type": "object"
         }
     },
     "description": "Step configuration model.",
@@ -1825,6 +1825,18 @@
                             {
                                 "type": "object",
                                 "properties": {
+                                    "library": {
+                                        "$ref": "#/$defs/LibraryConfig"
+                                    }
+                                },
+                                "required": [
+                                    "library"
+                                ],
+                                "additionalProperties": false
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
                                     "position": {
                                         "$ref": "#/$defs/PositionConfig"
                                     }
@@ -1843,18 +1855,6 @@
                                 },
                                 "required": [
                                     "sampling"
-                                ],
-                                "additionalProperties": false
-                            },
-                            {
-                                "type": "object",
-                                "properties": {
-                                    "library": {
-                                        "$ref": "#/$defs/LibraryConfig"
-                                    }
-                                },
-                                "required": [
-                                    "library"
                                 ],
                                 "additionalProperties": false
                             }
