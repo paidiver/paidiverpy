@@ -23,7 +23,7 @@ classifiers = [
 
 dependencies = [
   "pandas>=2.2.2",
-  "pillow>=10.4.0",
+  "pillow>=10.4.1",
   "scikit-image>=0.24.0",
   "scipy>=1.14",
   "tqdm>=4.66.4",
@@ -49,7 +49,7 @@ dependencies = [
   "xarray>=2024.12.0",
   ]
 license = {file = "LICENSE"}
-version = "0.4.0"
+version = "0.4.1"
 readme = {file = "README.rst", content-type = "text/x-rst"}
 
 [project.optional-dependencies]
@@ -196,7 +196,7 @@ no-lines-before = ["future","standard-library","third-party","first-party","loca
 
 
 [tool.bumpversion]
-current_version = "0.4.0"  # Current version
+current_version = "0.4.1"  # Current version
 parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
 serialize = ["{major}.{minor}.{patch}"]
 search = "{current_version}"
