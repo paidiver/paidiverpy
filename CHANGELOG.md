@@ -1,5 +1,17 @@
 # Changelog
 
+## [v0.4.2](https://github.com/paidiver/paidiverpy/tree/v0.4.2) (2026-11-27)
+
+[Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.4.0...v0.4.2)
+
+**Closed issues:**
+
+- Test locally to open several different raw images [\#207](https://github.com/paidiver/paidiverpy/issues/207)
+
+**Merged pull requests:**
+
+- Add library layer [\#246](https://github.com/paidiver/paidiverpy/pull/246) ([soutobias](https://github.com/soutobias))
+
 ## [v0.4.0](https://github.com/paidiver/paidiverpy/tree/v0.4.0) (2026-10-27)
 
 [Full Changelog](https://github.com/paidiver/paidiverpy/compare/v0.3.1...v0.4.0)
