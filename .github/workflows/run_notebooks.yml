@@ -16,29 +16,18 @@ jobs:
         uses: actions/checkout@v4
 
 
-      - name: Set up Miniconda
-        uses: conda-incubator/setup-miniconda@v3
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
 
-      - name: Initialize Conda
-        run: |
-          conda init bash
-
-      - name: Create conda environment
-        run: |
-          conda env create -f environment.yml
-          source ~/.bashrc
-          conda activate Paidiverpy
-          pip install --upgrade pip
-          pip install nbconvert nbclient
-          pip install .
+      - name: Install package and notebook tools
+        run: python -m pip install ".[notebooks]"
 
       - name: Run Notebooks in "examples/example_notebooks"
         run: |
-          source ~/.bashrc
-          conda activate Paidiverpy
-
           for notebook in examples/example_notebooks/*.ipynb; do
             echo "Running $notebook..."
             notebook_name=$(basename "$notebook")

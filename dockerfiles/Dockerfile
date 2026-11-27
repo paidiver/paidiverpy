@@ -1,31 +1,23 @@
-FROM python:3.10-slim
+# syntax=docker/dockerfile:1
+FROM python:3.10-slim-bookworm
 
 ENV PYTHONUNBUFFERED=1 \
-  PYTHONDONTWRITEBYTECODE=1 \
-  POETRY_VIRTUALENVS_CREATE=false
+  PYTHONDONTWRITEBYTECODE=1
 
 WORKDIR /app
 
-RUN apt-get update
-RUN apt-get install -y apt-utils build-essential
-RUN apt-get install -y libexempi-dev libxslt1-dev
-RUN apt-get install -y libgraphviz-dev
-RUN apt-get install -y libopencv-dev libgdal-dev
-RUN apt-get install -y curl unzip
-RUN rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 libgomp1 \
+  && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --upgrade pip setuptools wheel
-
-RUN mkdir /app/config_files
-RUN mkdir /app/output
-RUN mkdir /app/input
-RUN mkdir /app/metadata
-RUN mkdir /app/custom_algorithms
+RUN mkdir -p /app/config_files /app/output /app/input /app/metadata /app/custom_algorithms
 COPY pyproject.toml .
 COPY LICENSE README.rst ./
 COPY src/ src/
 
-RUN pip install .
+RUN --mount=type=cache,target=/root/.cache/pip \
+  python -m pip install . \
+  && python -c "import cv2, geopandas, rawpy"
 
 ENV IS_DOCKER=true
 

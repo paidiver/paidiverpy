@@ -37,11 +37,11 @@ Build from Source
       conda env create -f environment.yml
       conda activate Paidiverpy
 
-3. Install the paidiverpy package:
+3. Install Paidiverpy and its runtime dependencies:
 
    .. code-block:: bash
 
-      pip install -e .
+      python -m pip install -e .
 
 Usage
 =====

@@ -39,11 +39,15 @@ You can also build the package from source. To do so, you need to clone the repo
 
 3. Install the paidiverpy package:
 
-Finally, you can install the paidiverpy package:
+The Conda environment supplies Python and pip. Installing Paidiverpy also
+installs its runtime dependencies from the package metadata.
 
 .. code-block:: text
 
-  pip install -e .
+  python -m pip install -e .
+
+To include a Jupyter kernel and notebook execution tools, use
+``python -m pip install -e ".[notebooks]"`` instead.
 
 - **Use the Docker image**:
 

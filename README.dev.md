@@ -29,22 +29,19 @@ cd paidiverpy
 
 ### 2. Create environment and install package
 
-#### Option A: Conda (recommended)
+#### Option A: Conda
 
 ```bash
-conda init
-exec bash  # restart terminal if needed
-
 conda env create -f environment.yml
 conda activate Paidiverpy
 
-# install paidiverpy as editable package
-pip install --no-cache-dir --editable .
-# install dev dependencies
-pip install --no-cache-dir --editable .[dev]
-# install docs dependencies only
-pip install --no-cache-dir --editable .[docs]
+# Install the package and the tools needed for development and tests.
+python -m pip install -e ".[dev,test,gui]"
 ```
+
+Conda provides Python and pip. Pip installs Paidiverpy and its dependencies
+from `pyproject.toml`. Include `docs` or `notebooks` in the same install
+command when you need Sphinx or a Jupyter kernel.
 
 #### Option B: venv
 
@@ -52,14 +49,7 @@ pip install --no-cache-dir --editable .[docs]
 python -m venv env
 source env/bin/activate
 
-python -m pip install --upgrade pip setuptools
-
-# install paidiverpy as editable package
-python -m pip install --no-cache-dir --editable .
-# install dev dependencies
-python -m pip install --no-cache-dir --editable .[dev]
-# install docs dependencies only
-python -m pip install --no-cache-dir --editable .[docs]
+python -m pip install -e ".[dev,test,gui]"
 ```
 ---
 

@@ -88,6 +88,7 @@ publishing = [
     "wheel",
 ]
 test = ["pytest >= 7.2.0", "pytest-cov"]
+notebooks = ["ipykernel", "nbconvert"]
 gui = [
     "fastapi>=0.115",
     "psutil>=6",
